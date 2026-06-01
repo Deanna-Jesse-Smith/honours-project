@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testrun/utils/text_sizing.dart';
 
 class SetupUser extends StatefulWidget {
   const SetupUser({super.key});
@@ -44,8 +45,11 @@ class _SetupUserState extends State<SetupUser> {
     padding: EdgeInsets.all(10),
     child: Card(
       child: ExpansionTile(
-        title: Text(title, textAlign: TextAlign.left,),
-        children: [Text(text)],
+        title: Text(title, 
+        textAlign: TextAlign.left,
+        style: TextStyle(fontSize: TextSizing.medium),),
+        children: [Text(text,
+        style: TextStyle(fontSize: TextSizing.medium),)],
       )
       )
   );

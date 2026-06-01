@@ -43,6 +43,7 @@ class CustomWidgets {
       progressColor: progress,
       backgroundColor: backgroundColor,
       circularStrokeCap: CircularStrokeCap.round,
+      animationDuration: 500,
     );
   }
 

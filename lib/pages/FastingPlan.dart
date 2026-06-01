@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/widgets/custom_checkbox.dart';
 
 class FastingPlan extends StatefulWidget {
   const FastingPlan({super.key});
@@ -12,6 +13,7 @@ class FastingPlan extends StatefulWidget {
 }
 
 const List<String> list = <String>['ADF', 'TRE', '5:2'];
+List<bool> daysSelected = List.filled(7, false);
 
 class FastingPlanState extends State<FastingPlan> {
   static final List<DropdownMenuEntry<String>> entries =
@@ -21,8 +23,6 @@ class FastingPlanState extends State<FastingPlan> {
         ),
       );
   String dropDownValue = list.first;
-
-  bool isSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +42,7 @@ class FastingPlanState extends State<FastingPlan> {
                   const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
                   DropdownMenu<String>(
                     initialSelection: list.first,
+                    // side
                     // menuStyle: MenuStyle(),
                     onSelected: (String? value) {
                       setState(() {
@@ -56,27 +57,7 @@ class FastingPlanState extends State<FastingPlan> {
             ),
             Padding(
               padding: EdgeInsets.all(15),
-              child: GestureDetector(
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? Colors.amber
-                        : const Color.fromARGB(255, 203, 184, 255),
-                    borderRadius: BorderRadius.circular(40),
-                  ),
-                  child: const Text(
-                    'M',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: TextSizing.large),
-                  ),
-                ),
-                onTap: () {
-                  isSelected = !isSelected;
-                },
-              ),
+              child: CustomCheckbox(isSelected: daysSelected[0], dayOfWeek: 'M', onTap: () => daysSelected[0] = !daysSelected[0],)
             ),
           ],
         ),
