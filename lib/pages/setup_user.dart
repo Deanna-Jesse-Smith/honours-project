@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/widgets/custom_checkbox.dart';
 
 class SetupUser extends StatefulWidget {
   const SetupUser({super.key});
@@ -8,51 +9,154 @@ class SetupUser extends StatefulWidget {
   State<SetupUser> createState() => _SetupUserState();
 }
 
-enum Measurement {metric, imperial}
+enum Measurement { metric, imperial }
+
+List<bool> daysSelected = List.filled(7, false);
 
 class _SetupUserState extends State<SetupUser> {
   Measurement? measurement = Measurement.metric;
+  DateTime selectedDate = DateTime(2008);
   // bool? measurement = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Beginner'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text('Beginner'), centerTitle: true),
       body: ListView(
         children: [
-          Text('Forms of Intermittent Fasting',
-          style: TextStyle(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.left,
+          Text(
+            'Forms of Intermittent Fasting',
+            style: TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.left,
           ),
-          buildTextCard('Time Restricted Eating', 'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.'),
-          Text('Questions',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          buildTextCard(
+            'Time Restricted Eating',
+            'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
           ),
+          Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
           buildQuestion('Do you prefer metric or imperial?'),
-          buildCheckBoxes()
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[0],
+                dayOfWeek: 'M',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[0] = val;
+                    });
+                  },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[1],
+                dayOfWeek: 'Tu',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[1] = val;
+                    });
+                  },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[2],
+                dayOfWeek: 'W',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[2] = val;
+                    });
+                  },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[3],
+                dayOfWeek: 'Th',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[3] = val;
+                    });
+                  },
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[4],
+                dayOfWeek: 'F',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[4] = val;
+                    });
+                  },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[5],
+                dayOfWeek: 'Sat',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[5] = val;
+                    });
+                  },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[6],
+                dayOfWeek: 'Sun',
+                onTap: (bool val) {
+                    setState(() {
+                      daysSelected[6] = val;
+                    });
+                  },
+              ),
+            ],
+          ),
+          ElevatedButton(onPressed: () async {
+            final DateTime? dateTime = await showDatePicker(
+              context: context, 
+              initialDate: selectedDate,
+              firstDate: DateTime(2000), 
+              lastDate: DateTime(3000)
+              );
+              if (dateTime != null) {
+                setState(() {
+                  selectedDate = dateTime;
+                });
+              }
+          }, child: Text('Select Birthday')),
         ],
-      )
+      ),
     );
   }
+
+  // selectBirthday(BuildContext context) async {
+  //   final DateTime? selected = await showDatePicker(
+  //     context: context,
+  //     initialDate: selectedDate,
+  //     firstDate: DateTime(2000),
+  //     lastDate: DateTime(2008),
+  //   );
+
+  //   if (selected != selectedDate) {
+  //     setState(() {
+  //       selectedDate = selected;
+  //     });
+  //   }
+  // }
 
   Widget buildTextCard(String title, text) {
     //  bool isExpanded = false;
 
-     return    Padding(
-    padding: EdgeInsets.all(10),
-    child: Card(
-      child: ExpansionTile(
-        title: Text(title, 
-        textAlign: TextAlign.left,
-        style: TextStyle(fontSize: TextSizing.medium),),
-        children: [Text(text,
-        style: TextStyle(fontSize: TextSizing.medium),)],
-      )
-      )
-  );
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Card(
+        child: ExpansionTile(
+          title: Text(
+            title,
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+          children: [Text(text, style: TextStyle(fontSize: TextSizing.medium))],
+        ),
+      ),
+    );
   }
 
   Widget buildQuestion(String title) {
@@ -75,41 +179,16 @@ class _SetupUserState extends State<SetupUser> {
                 Radio<Measurement>(value: Measurement.metric),
                 const SizedBox(width: 12),
                 Text('Imperial'),
-                Radio<Measurement>(value: Measurement.imperial,)
+                Radio<Measurement>(value: Measurement.imperial),
                 // ListTile(
                 //   title: Text("Imperial"),
                 //   leading: Radio<Measurement>(value: Measurement.imperial),
                 // )
               ],
-              )
-          )
+            ),
+          ),
         ],
-      )
-    );
-  }
-
-  bool? isMonday = false, isTuesday = false;
-  Widget buildCheckBoxes() {
-
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          CheckboxListTile(title: Text('M'),
-          checkboxShape: CircleBorder(),
-          value: isMonday, 
-          onChanged: (bool? newValue) {
-            setState(() {
-              isMonday = newValue;
-            });
-          }),
-          Checkbox(
-            value: isTuesday, 
-          onChanged: (value) {
-            isTuesday = value;
-          })
-        ],
-        )
+      ),
     );
   }
 }
