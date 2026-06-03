@@ -1,8 +1,10 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:testrun/custom_widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+
+import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 
@@ -29,126 +31,296 @@ class FastingPlanState extends State<FastingPlan> {
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: customWidgets.appBar('Fasting Plan'),
-      body: createADF(),
+      body: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(20),
+        child: getCorrectLayout(),
+      ),
+      persistentFooterButtons: [Container(
+        padding: EdgeInsets.only(left: 20, top: 15, bottom: 20),
+        alignment: Alignment.bottomLeft,
+        child: ElevatedButton(onPressed: () => {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const FastingHistory())
+          )
+        }, child: Text('View Fasting History', style: Theme.of(context).textTheme.displayMedium,),),
+      )],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(1),
+      floatingActionButton: customWidgets.getFAB(1, posi: ExpandableFabPos.right),
     );
   }
 
-  Container createTRE() {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
+  Column getCorrectLayout() {
+    if (dropDownValue == 'ADF') {
+      return createADF();
+    } else if (dropDownValue == 'TRE') {
+      return createTRE();
+    } else {
+      return create52();
+    }
+  }
+
+  Column create52() {
+    return Column(
+      children: [
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[0],
+                dayOfWeek: 'M',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[0] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[1],
+                dayOfWeek: 'Tu',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[1] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[2],
+                dayOfWeek: 'W',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[2] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[3],
+                dayOfWeek: 'Th',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[3] = val;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[4],
+                dayOfWeek: 'F',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[4] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[5],
+                dayOfWeek: 'Sat',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[5] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[6],
+                dayOfWeek: 'Sun',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[6] = val;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Encouragement Text',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Streak progress text',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: CustomWidgets().streakIndicator(
+            'Streak underway',
+            0.6,
+            Colors.orange,
+            Colors.amberAccent,
+            context,
+          ),
+        ),
       ],
-      )
     );
   }
 
-  Container createADF() {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CustomCheckbox(
-                  isSelected: daysSelected[0],
-                  dayOfWeek: 'M',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[0] = val;
-                    });
-                  },
-                ),
-                CustomCheckbox(
-                  isSelected: daysSelected[1],
-                  dayOfWeek: 'Tu',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[1] = val;
-                    });
-                  },
-                ),
-                CustomCheckbox(
-                  isSelected: daysSelected[2],
-                  dayOfWeek: 'W',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[2] = val;
-                    });
-                  },
-                ),
-                CustomCheckbox(
-                  isSelected: daysSelected[3],
-                  dayOfWeek: 'Th',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[3] = val;
-                    });
-                  },
-                ),
-              ],
-            ),
+  Column createTRE() {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Encouragement Text',
+            style: TextStyle(fontSize: TextSizing.large),
           ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CustomCheckbox(
-                  isSelected: daysSelected[4],
-                  dayOfWeek: 'F',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[4] = val;
-                    });
-                  },
-                ),
-                CustomCheckbox(
-                  isSelected: daysSelected[5],
-                  dayOfWeek: 'Sat',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[5] = val;
-                    });
-                  },
-                ),
-                CustomCheckbox(
-                  isSelected: daysSelected[6],
-                  dayOfWeek: 'Sun',
-                  onTap: (bool val) {
-                    setState(() {
-                      daysSelected[6] = val;
-                    });
-                  },
-                ),
-              ],
-            ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: Text(
+            'Streak progress text',
+            style: theme.textTheme.displayMedium,
           ),
-          Padding(
-              padding: EdgeInsets.all(15),
-              child: const Text('Encouragement Text', 
-              style: TextStyle(fontSize: TextSizing.large),)
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: const Text('Streak progress text', 
-              style: TextStyle(fontSize: TextSizing.medium),)
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: CustomWidgets().streakIndicator('Streak underway', 0.6, Colors.orange, Colors.amberAccent, context)
-            )
-        ],
-      ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: CustomWidgets().streakIndicator(
+            'Streak underway',
+            0.6,
+            Colors.orange,
+            Colors.amberAccent,
+            context,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column createADF() {
+    return Column(
+      children: [
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: Text(
+            'Select Fasting Days',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[0],
+                dayOfWeek: 'M',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[0] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[1],
+                dayOfWeek: 'Tu',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[1] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[2],
+                dayOfWeek: 'W',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[2] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[3],
+                dayOfWeek: 'Th',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[3] = val;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CustomCheckbox(
+                isSelected: daysSelected[4],
+                dayOfWeek: 'F',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[4] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[5],
+                dayOfWeek: 'Sat',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[5] = val;
+                  });
+                },
+              ),
+              CustomCheckbox(
+                isSelected: daysSelected[6],
+                dayOfWeek: 'Sun',
+                onTap: (bool val) {
+                  setState(() {
+                    daysSelected[6] = val;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Encouragement Text',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Streak progress text',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: CustomWidgets().streakIndicator(
+            'Streak underway',
+            0.6,
+            Colors.orange,
+            Colors.amberAccent,
+            context,
+          ),
+        ),
+      ],
     );
   }
 

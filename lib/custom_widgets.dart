@@ -146,12 +146,12 @@ class CustomWidgets {
     );
   }
 
-  ExpandableFab getFAB(int index) {
+  ExpandableFab getFAB(int index, {ExpandableFabPos posi = ExpandableFabPos.center}) {
     CategoryModel model = CategoryModel(index: index);
     List<CategoryModel> configs = model.getFABList();
     return ExpandableFab(
       type: ExpandableFabType.up,
-      pos: ExpandableFabPos.center,
+      pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
       margin: EdgeInsets.all(10),
       children: [

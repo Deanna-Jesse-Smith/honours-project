@@ -24,7 +24,30 @@ class MyApp extends StatelessWidget {
         '/MealTracking' : (context) => MealTracking(),
         '/StepCount' : (context) => StepCounts(),
         '/SetupUser' : (context) => SetupUser()
-      }
+      },
+      theme:ThemeData(
+        // colorScheme: ColorScheme(brightness: Brightness.light, 
+        // primary: primary, 
+        // onPrimary: onPrimary, 
+        // secondary: secondary, 
+        // onSecondary: onSecondary, 
+        // error: error, 
+        // onError: onError, 
+        // surface: surface, 
+        // onSurface: onSurface),
+        textTheme: TextTheme(
+          displayLarge: const TextStyle(
+            fontSize: 24
+          ),
+          titleLarge: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold
+          ),
+          displayMedium: const TextStyle(
+            fontSize: 16
+          )
+        )
+      )
     );
   }
 }
