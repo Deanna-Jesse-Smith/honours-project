@@ -1,5 +1,42 @@
 import 'package:flutter/material.dart';
 
+class FabButton {
+  final String title;
+  final Color colour;
+  final bool isFasting;
+
+  const FabButton ({
+    required this.title,
+    required this.colour,
+    this.isFasting = false
+  });
+}
+
+class BuildFAB {
+  static const buttonOrder = [
+    FabButton(title: 'Start my fast', colour: Colors.deepPurpleAccent, isFasting: true),
+    FabButton(title: 'Log Weight', colour: Colors.green),
+    FabButton(title: 'Log Meal', colour: Colors.amber),
+    FabButton(title: 'Log Hydration', colour: Colors.blue)
+  ];
+
+  static List<FabButton> buildFab({required int index}) {
+    final actions = List<FabButton>.from(buttonOrder);
+    
+    final rotation = [
+      ...actions.sublist(index - 1),
+      ...actions.sublist(0, index - 1),
+    ];
+
+    return rotation.map((action) {
+      if (action.isFasting) {
+        return FabButton(title: action.isFasting ? 'Break my fast' : 'Start my fast', colour: action.colour);
+      }
+      return action;
+    }).toList();
+  }
+}
+
 class CategoryModel {
   late String text;
   late Color primaryColour;

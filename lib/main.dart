@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/home.dart';
+import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/meal_tracking.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
         '/FastingPlan' : (context) => FastingPlan(),
         '/MealTracking' : (context) => MealTracking(),
         '/StepCount' : (context) => StepCounts(),
-        '/SetupUser' : (context) => SetupUser()
+        '/SetupUser' : (context) => SetupUser(),
+        '/HydrationTracking' : (context) => HydrationTracking()
       },
       theme:ThemeData(
         // colorScheme: ColorScheme(brightness: Brightness.light, 
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
           displayMedium: const TextStyle(
             fontSize: 16
           )
-        )
+        ),
       )
     );
   }

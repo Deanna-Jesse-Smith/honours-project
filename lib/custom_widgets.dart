@@ -1,12 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_logs/flutter_logs.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:testrun/database/converters.dart';
+import 'package:testrun/database/daos/user_dao.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/models/category_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
 class CustomWidgets {
+  final db = AppDatabase();
+
+  late String userName;
+
+  Future<String> insertRow() async {
+    final allUsers = await db.select(db.users).get();
+
+
+  //  FlutterLogs.logInfo("Value", "Name", oneUser.name);
+   
+   UserDao uDao = UserDao(db);
+  //  uDao.addUser('Deedee', true, FastingForm.tre, 'Intermediate');
+
+      User oneUser = allUsers.last;
+  //  print(oneUser);
+  //  uDao.changeIsFasting(oneUser.userID, false);
+  // //  await uDao.updateTREtimes(oneUser.userID, test1(), test2());
+
+   final updatedUser = await (db.select(db.users)..where((u) => u.userID.equals(oneUser.userID))).getSingle();
+  //      bool testing = updatedUser.typicalEatingStart == null;
+  //   print('This is printing: $testing');
+
+  //   print(updatedUser.typicalEatingEnd?.hour);
+
+    // return name;
+
+   return updatedUser.name;
+
+
+  }
+
+  Future<void> testTimes() async {
+    final allUsers = await db.select(db.users).get();
+
+    User oneUser = allUsers.last;
+    print(oneUser);
+
+    bool testing = oneUser.typicalEatingStart == null;
+    print('This is printing: $testing');
+
+    print(oneUser.typicalEatingEnd?.hour);
+  }
+
+  DateTime test1() {
+    return DateTime(2026, 1, 1, 12, 30);
+  }
+
+   DateTime test2() {
+    return DateTime(2026, 0, 0, 18);
+  }
+
+  
   PercentCircleIndicator circleIndicator(
     double percent,
     progress,
@@ -65,15 +121,31 @@ class CustomWidgets {
   }
 
   AppBar appBar(String title) {
+    testTimes();
+
     return AppBar(
-      title: Text(
-        title,
-        style: TextStyle(
+      title: FutureBuilder<String>(future: insertRow(), builder:(context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text('Welcome back', style: TextStyle(
           color: Colors.black,
           fontSize: TextSizing.large,
           fontWeight: FontWeight.bold,
-        ),
-      ),
+        ));
+          }
+          if (snapshot.hasError) {
+            print(snapshot.error.toString());
+            return Text('Error', style: TextStyle(
+          color: Colors.black,
+          fontSize: TextSizing.large,
+          fontWeight: FontWeight.bold,
+        ));
+          }
+          return Text('Welcome back, ${snapshot.data}', style: TextStyle(
+          color: Colors.black,
+          fontSize: TextSizing.large,
+          fontWeight: FontWeight.bold,
+        ));
+        },),
       backgroundColor: Colors.white,
       elevation: 0.0,
       centerTitle: true,
@@ -136,6 +208,12 @@ class CustomWidgets {
             },
           ),
           ListTile(
+            title: const Text('Hydration Tracking'),
+            onTap: () {
+              Navigator.pushNamed(context, '/HydrationTracking');
+            },
+          ),
+          ListTile(
             title: const Text('Setup'),
             onTap: () {
               Navigator.pushNamed(context, '/SetupUser');
@@ -146,52 +224,76 @@ class CustomWidgets {
     );
   }
 
-  ExpandableFab getFAB(int index, {ExpandableFabPos posi = ExpandableFabPos.center}) {
-    CategoryModel model = CategoryModel(index: index);
-    List<CategoryModel> configs = model.getFABList();
+  ExpandableFab getFAB(
+    int index, {
+    ExpandableFabPos posi = ExpandableFabPos.center,
+  }) {
+    // CategoryModel model = CategoryModel(index: index);
+
+    final actions = BuildFAB.buildFab(index: index);
+
     return ExpandableFab(
       type: ExpandableFabType.up,
       pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
-      margin: EdgeInsets.all(10),
-      children: [
-        ElevatedButton(
+      margin: const EdgeInsets.all(10),
+      children: actions.reversed.map((buttons) {
+        return ElevatedButton(
           onPressed: () {},
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.black,
-            backgroundColor: configs[3].primaryColour,
-            textStyle: TextStyle(fontSize: TextSizing.small),
+            backgroundColor: buttons.colour,
+            textStyle: const TextStyle(fontSize: TextSizing.small),
           ),
-          child: Text(configs[3].text),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: configs[2].primaryColour,
-            textStyle: TextStyle(fontSize: TextSizing.small),
-          ),
-          child: Text(configs[2].text),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: configs[1].primaryColour,
-            textStyle: TextStyle(fontSize: TextSizing.small),
-          ),
-          child: Text(configs[1].text),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: configs[0].primaryColour,
-            textStyle: TextStyle(fontSize: TextSizing.small),
-          ),
-          child: Text(configs[0].text),
-        ),
-      ],
+          child: Text(buttons.title),
+        );
+      }).toList(),
     );
+
+    // List<CategoryModel> configs = model.getFABList();
+    // return ExpandableFab(
+    //   type: ExpandableFabType.up,
+    //   pos: posi,
+    //   overlayStyle: ExpandableFabOverlayStyle(blur: 20),
+    //   margin: EdgeInsets.all(10),
+    //   children: [
+    //     ElevatedButton(
+    //       onPressed: () {},
+    //       style: ElevatedButton.styleFrom(
+    //         foregroundColor: Colors.black,
+    //         backgroundColor: configs[3].primaryColour,
+    //         textStyle: TextStyle(fontSize: TextSizing.small),
+    //       ),
+    //       child: Text(configs[3].text),
+    //     ),
+    //     ElevatedButton(
+    //       onPressed: () {},
+    //       style: ElevatedButton.styleFrom(
+    //         foregroundColor: Colors.black,
+    //         backgroundColor: configs[2].primaryColour,
+    //         textStyle: TextStyle(fontSize: TextSizing.small),
+    //       ),
+    //       child: Text(configs[2].text),
+    //     ),
+    //     ElevatedButton(
+    //       onPressed: () {},
+    //       style: ElevatedButton.styleFrom(
+    //         foregroundColor: Colors.black,
+    //         backgroundColor: configs[1].primaryColour,
+    //         textStyle: TextStyle(fontSize: TextSizing.small),
+    //       ),
+    //       child: Text(configs[1].text),
+    //     ),
+    //     ElevatedButton(
+    //       onPressed: () {},
+    //       style: ElevatedButton.styleFrom(
+    //         foregroundColor: Colors.black,
+    //         backgroundColor: configs[0].primaryColour,
+    //         textStyle: TextStyle(fontSize: TextSizing.small),
+    //       ),
+    //       child: Text(configs[0].text),
+    //     ),
+    //   ],
+    // );
   }
 }

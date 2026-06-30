@@ -12,6 +12,7 @@ class HomePage extends StatelessWidget {
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: customWidgets.appBar('Welcome back'),
+      // appBar: customWidgets.appBar(customWidgets.insertRow().then((value) => ,),
       // body: circleIndicator(0.4, Colors.blueAccent, Colors.lightBlueAccent),
       body: Container(
         padding: EdgeInsets.all(20),
@@ -59,6 +60,8 @@ class HomePage extends StatelessWidget {
     return PercentCircleIndicator(
       percent: percent,
       strokeWidth: 20,
+      // animated: true,
+      // duration: Duration(seconds: 1),
       progress: progress,
       backgroundColor: backgroundColor,
       textStyle: TextStyle(fontSize: 24, color: Colors.white),

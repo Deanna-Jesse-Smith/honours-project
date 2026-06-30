@@ -36,18 +36,29 @@ class FastingPlanState extends State<FastingPlan> {
         padding: EdgeInsets.all(20),
         child: getCorrectLayout(),
       ),
-      persistentFooterButtons: [Container(
-        padding: EdgeInsets.only(left: 20, top: 15, bottom: 20),
-        alignment: Alignment.bottomLeft,
-        child: ElevatedButton(onPressed: () => {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const FastingHistory())
-          )
-        }, child: Text('View Fasting History', style: Theme.of(context).textTheme.displayMedium,),),
-      )],
+      persistentFooterButtons: [
+        Container(
+          padding: EdgeInsets.only(left: 20, top: 15, bottom: 20),
+          alignment: Alignment.bottomLeft,
+          child: ElevatedButton(
+            onPressed: () => {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const FastingHistory()),
+              ),
+            },
+            child: Text(
+              'View Fasting History',
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+          ),
+        ),
+      ],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(1, posi: ExpandableFabPos.right),
+      floatingActionButton: customWidgets.getFAB(
+        1,
+        posi: ExpandableFabPos.right,
+      ),
     );
   }
 
@@ -174,7 +185,6 @@ class FastingPlanState extends State<FastingPlan> {
 
   Column createTRE() {
     final theme = Theme.of(context);
-
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
@@ -321,6 +331,30 @@ class FastingPlanState extends State<FastingPlan> {
           ),
         ),
       ],
+    );
+  }
+
+  Padding selectFastingPlan() {
+    return .new(
+      padding: EdgeInsets.all(15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
+          DropdownMenu<String>(
+            initialSelection: list.first,
+            // side
+            // menuStyle: MenuStyle(),
+            onSelected: (String? value) {
+              setState(() {
+                dropDownValue = value!;
+              });
+            },
+            dropdownMenuEntries: entries,
+            textStyle: TextStyle(fontSize: TextSizing.large),
+          ),
+        ],
+      ),
     );
   }
 
