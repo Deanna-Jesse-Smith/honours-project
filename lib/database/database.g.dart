@@ -54,21 +54,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _isFastingMeta = const VerificationMeta(
-    'isFasting',
-  );
-  @override
-  late final GeneratedColumn<bool> isFasting = GeneratedColumn<bool>(
-    'is_fasting',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_fasting" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
   static const VerificationMeta _experienceMeta = const VerificationMeta(
     'experience',
   );
@@ -121,7 +106,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     name,
     isMetric,
     formIF,
-    isFasting,
     experience,
     typicalEatingStart,
     typicalEatingEnd,
@@ -166,12 +150,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       );
     } else if (isInserting) {
       context.missing(_formIFMeta);
-    }
-    if (data.containsKey('is_fasting')) {
-      context.handle(
-        _isFastingMeta,
-        isFasting.isAcceptableOrUnknown(data['is_fasting']!, _isFastingMeta),
-      );
     }
     if (data.containsKey('experience')) {
       context.handle(
@@ -233,10 +211,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.string,
         data['${effectivePrefix}form_i_f'],
       )!,
-      isFasting: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_fasting'],
-      )!,
       experience: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}experience'],
@@ -267,7 +241,6 @@ class User extends DataClass implements Insertable<User> {
   final String name;
   final bool isMetric;
   final String formIF;
-  final bool isFasting;
   final String experience;
   final DateTime? typicalEatingStart;
   final DateTime? typicalEatingEnd;
@@ -277,7 +250,6 @@ class User extends DataClass implements Insertable<User> {
     required this.name,
     required this.isMetric,
     required this.formIF,
-    required this.isFasting,
     required this.experience,
     this.typicalEatingStart,
     this.typicalEatingEnd,
@@ -290,7 +262,6 @@ class User extends DataClass implements Insertable<User> {
     map['name'] = Variable<String>(name);
     map['is_metric'] = Variable<bool>(isMetric);
     map['form_i_f'] = Variable<String>(formIF);
-    map['is_fasting'] = Variable<bool>(isFasting);
     map['experience'] = Variable<String>(experience);
     if (!nullToAbsent || typicalEatingStart != null) {
       map['typical_eating_start'] = Variable<DateTime>(typicalEatingStart);
@@ -308,7 +279,6 @@ class User extends DataClass implements Insertable<User> {
       name: Value(name),
       isMetric: Value(isMetric),
       formIF: Value(formIF),
-      isFasting: Value(isFasting),
       experience: Value(experience),
       typicalEatingStart: typicalEatingStart == null && nullToAbsent
           ? const Value.absent()
@@ -330,7 +300,6 @@ class User extends DataClass implements Insertable<User> {
       name: serializer.fromJson<String>(json['name']),
       isMetric: serializer.fromJson<bool>(json['isMetric']),
       formIF: serializer.fromJson<String>(json['formIF']),
-      isFasting: serializer.fromJson<bool>(json['isFasting']),
       experience: serializer.fromJson<String>(json['experience']),
       typicalEatingStart: serializer.fromJson<DateTime?>(
         json['typicalEatingStart'],
@@ -349,7 +318,6 @@ class User extends DataClass implements Insertable<User> {
       'name': serializer.toJson<String>(name),
       'isMetric': serializer.toJson<bool>(isMetric),
       'formIF': serializer.toJson<String>(formIF),
-      'isFasting': serializer.toJson<bool>(isFasting),
       'experience': serializer.toJson<String>(experience),
       'typicalEatingStart': serializer.toJson<DateTime?>(typicalEatingStart),
       'typicalEatingEnd': serializer.toJson<DateTime?>(typicalEatingEnd),
@@ -362,7 +330,6 @@ class User extends DataClass implements Insertable<User> {
     String? name,
     bool? isMetric,
     String? formIF,
-    bool? isFasting,
     String? experience,
     Value<DateTime?> typicalEatingStart = const Value.absent(),
     Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -372,7 +339,6 @@ class User extends DataClass implements Insertable<User> {
     name: name ?? this.name,
     isMetric: isMetric ?? this.isMetric,
     formIF: formIF ?? this.formIF,
-    isFasting: isFasting ?? this.isFasting,
     experience: experience ?? this.experience,
     typicalEatingStart: typicalEatingStart.present
         ? typicalEatingStart.value
@@ -388,7 +354,6 @@ class User extends DataClass implements Insertable<User> {
       name: data.name.present ? data.name.value : this.name,
       isMetric: data.isMetric.present ? data.isMetric.value : this.isMetric,
       formIF: data.formIF.present ? data.formIF.value : this.formIF,
-      isFasting: data.isFasting.present ? data.isFasting.value : this.isFasting,
       experience: data.experience.present
           ? data.experience.value
           : this.experience,
@@ -411,7 +376,6 @@ class User extends DataClass implements Insertable<User> {
           ..write('name: $name, ')
           ..write('isMetric: $isMetric, ')
           ..write('formIF: $formIF, ')
-          ..write('isFasting: $isFasting, ')
           ..write('experience: $experience, ')
           ..write('typicalEatingStart: $typicalEatingStart, ')
           ..write('typicalEatingEnd: $typicalEatingEnd, ')
@@ -426,7 +390,6 @@ class User extends DataClass implements Insertable<User> {
     name,
     isMetric,
     formIF,
-    isFasting,
     experience,
     typicalEatingStart,
     typicalEatingEnd,
@@ -440,7 +403,6 @@ class User extends DataClass implements Insertable<User> {
           other.name == this.name &&
           other.isMetric == this.isMetric &&
           other.formIF == this.formIF &&
-          other.isFasting == this.isFasting &&
           other.experience == this.experience &&
           other.typicalEatingStart == this.typicalEatingStart &&
           other.typicalEatingEnd == this.typicalEatingEnd &&
@@ -452,7 +414,6 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> name;
   final Value<bool> isMetric;
   final Value<String> formIF;
-  final Value<bool> isFasting;
   final Value<String> experience;
   final Value<DateTime?> typicalEatingStart;
   final Value<DateTime?> typicalEatingEnd;
@@ -462,7 +423,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.name = const Value.absent(),
     this.isMetric = const Value.absent(),
     this.formIF = const Value.absent(),
-    this.isFasting = const Value.absent(),
     this.experience = const Value.absent(),
     this.typicalEatingStart = const Value.absent(),
     this.typicalEatingEnd = const Value.absent(),
@@ -473,7 +433,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String name,
     this.isMetric = const Value.absent(),
     required String formIF,
-    this.isFasting = const Value.absent(),
     required String experience,
     this.typicalEatingStart = const Value.absent(),
     this.typicalEatingEnd = const Value.absent(),
@@ -486,7 +445,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? name,
     Expression<bool>? isMetric,
     Expression<String>? formIF,
-    Expression<bool>? isFasting,
     Expression<String>? experience,
     Expression<DateTime>? typicalEatingStart,
     Expression<DateTime>? typicalEatingEnd,
@@ -497,7 +455,6 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (name != null) 'name': name,
       if (isMetric != null) 'is_metric': isMetric,
       if (formIF != null) 'form_i_f': formIF,
-      if (isFasting != null) 'is_fasting': isFasting,
       if (experience != null) 'experience': experience,
       if (typicalEatingStart != null)
         'typical_eating_start': typicalEatingStart,
@@ -511,7 +468,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? name,
     Value<bool>? isMetric,
     Value<String>? formIF,
-    Value<bool>? isFasting,
     Value<String>? experience,
     Value<DateTime?>? typicalEatingStart,
     Value<DateTime?>? typicalEatingEnd,
@@ -522,7 +478,6 @@ class UsersCompanion extends UpdateCompanion<User> {
       name: name ?? this.name,
       isMetric: isMetric ?? this.isMetric,
       formIF: formIF ?? this.formIF,
-      isFasting: isFasting ?? this.isFasting,
       experience: experience ?? this.experience,
       typicalEatingStart: typicalEatingStart ?? this.typicalEatingStart,
       typicalEatingEnd: typicalEatingEnd ?? this.typicalEatingEnd,
@@ -544,9 +499,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     }
     if (formIF.present) {
       map['form_i_f'] = Variable<String>(formIF.value);
-    }
-    if (isFasting.present) {
-      map['is_fasting'] = Variable<bool>(isFasting.value);
     }
     if (experience.present) {
       map['experience'] = Variable<String>(experience.value);
@@ -572,7 +524,6 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('name: $name, ')
           ..write('isMetric: $isMetric, ')
           ..write('formIF: $formIF, ')
-          ..write('isFasting: $isFasting, ')
           ..write('experience: $experience, ')
           ..write('typicalEatingStart: $typicalEatingStart, ')
           ..write('typicalEatingEnd: $typicalEatingEnd, ')
@@ -951,6 +902,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UsersTable users = $UsersTable(this);
   late final $FastLogTable fastLog = $FastLogTable(this);
   late final UserDao userDao = UserDao(this as AppDatabase);
+  late final FastingDao fastingDao = FastingDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -964,7 +916,6 @@ typedef $$UsersTableCreateCompanionBuilder =
       required String name,
       Value<bool> isMetric,
       required String formIF,
-      Value<bool> isFasting,
       required String experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
@@ -976,7 +927,6 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> name,
       Value<bool> isMetric,
       Value<String> formIF,
-      Value<bool> isFasting,
       Value<String> experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
@@ -1031,11 +981,6 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get formIF => $composableBuilder(
     column: $table.formIF,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isFasting => $composableBuilder(
-    column: $table.isFasting,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1114,11 +1059,6 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get isFasting => $composableBuilder(
-    column: $table.isFasting,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get experience => $composableBuilder(
     column: $table.experience,
     builder: (column) => ColumnOrderings(column),
@@ -1160,9 +1100,6 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
-
-  GeneratedColumn<bool> get isFasting =>
-      $composableBuilder(column: $table.isFasting, builder: (column) => column);
 
   GeneratedColumn<String> get experience => $composableBuilder(
     column: $table.experience,
@@ -1242,7 +1179,6 @@ class $$UsersTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<bool> isMetric = const Value.absent(),
                 Value<String> formIF = const Value.absent(),
-                Value<bool> isFasting = const Value.absent(),
                 Value<String> experience = const Value.absent(),
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -1252,7 +1188,6 @@ class $$UsersTableTableManager
                 name: name,
                 isMetric: isMetric,
                 formIF: formIF,
-                isFasting: isFasting,
                 experience: experience,
                 typicalEatingStart: typicalEatingStart,
                 typicalEatingEnd: typicalEatingEnd,
@@ -1264,7 +1199,6 @@ class $$UsersTableTableManager
                 required String name,
                 Value<bool> isMetric = const Value.absent(),
                 required String formIF,
-                Value<bool> isFasting = const Value.absent(),
                 required String experience,
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -1274,7 +1208,6 @@ class $$UsersTableTableManager
                 name: name,
                 isMetric: isMetric,
                 formIF: formIF,
-                isFasting: isFasting,
                 experience: experience,
                 typicalEatingStart: typicalEatingStart,
                 typicalEatingEnd: typicalEatingEnd,

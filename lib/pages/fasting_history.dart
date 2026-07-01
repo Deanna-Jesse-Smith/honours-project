@@ -31,39 +31,33 @@ class _FastingHistoryState extends State<FastingHistory> {
       ),
       body: Column(
         children: [
-           GridView.count(
-    crossAxisCount: 3, // 3 columns
-    crossAxisSpacing: 8,
-    mainAxisSpacing: 8,
-    children: List.generate(40, (index) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(color: Colors.green),
-      );
-    }),
-  ),
-          // GridView.builder(
-          //   itemCount: 30,
-          //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //     crossAxisCount: 6,
-          //     mainAxisSpacing: 5,
-          //     crossAxisSpacing: 6,
-          //   ),
-          //   itemBuilder: (context, index) {
-          //     return Padding(
-          //       padding: const EdgeInsets.all(8.0),
-          //       child: Container(
-          //         color: Colors.green,
-          //         child: Center(
-          //           child: Text(
-          //             "Builder: $index",
-          //             style: TextStyle(color: Colors.white, fontSize: 30),
-          //           ),
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Expanded(
+              child: GridView.builder(
+                itemCount: 30,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 3,
+                ),
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Container(
+                      color: Colors.green,
+                      child: Center(
+                        child: Text(
+                          "Builder: $index",
+                          style: TextStyle(color: Colors.white, fontSize: 30),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );

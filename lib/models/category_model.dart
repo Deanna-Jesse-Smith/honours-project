@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/utils/user_state.dart';
 
 class FabButton {
   final String title;
@@ -13,6 +16,7 @@ class FabButton {
 }
 
 class BuildFAB {
+  static late bool isFasting;
   static const buttonOrder = [
     FabButton(title: 'Start my fast', colour: Colors.deepPurpleAccent, isFasting: true),
     FabButton(title: 'Log Weight', colour: Colors.green),
@@ -22,6 +26,7 @@ class BuildFAB {
 
   static List<FabButton> buildFab({required int index}) {
     final actions = List<FabButton>.from(buttonOrder);
+    bool isFasting = userState.isFasting.value;
     
     final rotation = [
       ...actions.sublist(index - 1),
@@ -30,7 +35,10 @@ class BuildFAB {
 
     return rotation.map((action) {
       if (action.isFasting) {
-        return FabButton(title: action.isFasting ? 'Break my fast' : 'Start my fast', colour: action.colour);
+        return FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: action.colour);
+
+        // return ValueListenableBuilder<FabButton>(valueListenable: valueListenable, builder: builder);
+
       }
       return action;
     }).toList();

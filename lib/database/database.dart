@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/tables/fasting_tables.dart';
 
@@ -15,6 +16,7 @@ part 'database.g.dart';
   ],
   daos: [
     UserDao,
+    FastingDao
     ]
 )
 
@@ -22,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]): super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -37,6 +39,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openConnection() {
+    print(getApplicationSupportDirectory());
     return driftDatabase(
       name: 'ifs',
       native: const DriftNativeOptions(

@@ -1,8 +1,12 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/main_app_bar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -10,8 +14,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CustomWidgets customWidgets = CustomWidgets();
+    calculatePercentageTRE();
     return Scaffold(
-      appBar: customWidgets.appBar('Welcome back'),
+      appBar: MainAppBar.appBar(''),
       // appBar: customWidgets.appBar(customWidgets.insertRow().then((value) => ,),
       // body: circleIndicator(0.4, Colors.blueAccent, Colors.lightBlueAccent),
       body: Container(
@@ -37,7 +42,7 @@ class HomePage extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.all(35),
-              child: customWidgets.circularIndicator(0.4, Colors.cyan, Colors.lightBlueAccent)
+              child: circularIndicator(calculatePercentageTRE(), Colors.cyan, Colors.lightBlueAccent)
             ),
         ],),
         ),
@@ -52,49 +57,35 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  PercentCircleIndicator circleIndicator(
+    CircularPercentIndicator circularIndicator(
     double percent,
-    Color progress,
     Color backgroundColor,
+    progress,
   ) {
-    return PercentCircleIndicator(
+    return CircularPercentIndicator(
+      radius: 100,
       percent: percent,
-      strokeWidth: 20,
-      // animated: true,
-      // duration: Duration(seconds: 1),
-      progress: progress,
+      lineWidth: 40,
+      header: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: const Text(
+          "You're only an hour away from the end",
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: TextSizing.small),
+        ),
+      ),
+      progressColor: progress,
       backgroundColor: backgroundColor,
-      textStyle: TextStyle(fontSize: 24, color: Colors.white),
+      circularStrokeCap: CircularStrokeCap.round,
+      animationDuration: 500,
     );
   }
 
-  AppBar appBar() {
-    return AppBar(
-      title: Text(
-        'Welcome back',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
-      // leading: GestureDetector(
-      //   onTap: () {},
-      //   child: Container(
-      //     margin: EdgeInsets.all(5),
-      //     alignment: Alignment.center,
-      //     decoration: BoxDecoration(
-      //       color: Colors.blueAccent,
-      //       borderRadius: BorderRadius.circular(20),
-      //     ),
-      //     child: Icon(Icons.menu),
-      //     // child: SvgPicture.asset('assets/icons/hamburger-menu.svg'),
-      //     // child: SvgPicture.asset('assets/icons/LefArrow.svg'),
-      //   ),
-      // ),
-    );
+  double calculatePercentageTRE() {
+    final Duration diff = userState.endTime.value.difference(userState.startTime.value);
+    int diffMinutes = diff.inMinutes;
+    print('minues: ' + diffMinutes.toString());
+    return 700 / 1440;
   }
 }

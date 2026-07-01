@@ -9,23 +9,43 @@ part 'user_dao.g.dart';
 
 @DriftAccessor(tables: [Users])
 class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
-  UserDao(super.attachedDatabase);
+  UserDao(super.db);
 
-  Future<int> addUser(String name, bool isMetric, FastingForm form, String exp) {
-    return into(users).insert(UsersCompanion.insert(formIF: form.name, experience: exp, name: name, isFasting: Value(false)));
+  Future<int> addUser(
+    String name,
+    bool isMetric,
+    FastingForm form,
+    String exp,
+  ) {
+    return into(users).insert(
+      UsersCompanion.insert(formIF: form.name, experience: exp, name: name),
+    );
   }
 
   Future<void> updateTREtimes(int id, DateTime start, DateTime end) {
-    return (update(users)..where((u) => u.userID.equals(id))).write(UsersCompanion(typicalEatingStart: Value(start), typicalEatingEnd: Value(end)));
+    return (update(users)..where((u) => u.userID.equals(id))).write(
+      UsersCompanion(
+        typicalEatingStart: Value(start),
+        typicalEatingEnd: Value(end),
+      ),
+    );
   }
 
-  Future<void> changeIsFasting(int id, bool changeTo) {
-    return (update(users)..where((u) => u.userID.equals(id))).write(UsersCompanion(isFasting: Value(changeTo)));
-  }
+Future<String?> getName() async {
+  final lastUser = await (select(users)
+        ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+        ..limit(1))
+      .getSingleOrNull();
 
-  Future<User> getIsFasting(int id) {
-    final user = (select(users)..where((u) => u.userID.equals(id))).getSingle();
+  return lastUser?.name;
+}
 
-    return user;
-  }
+Future<User?> getUser() async {
+  final lastUser = await (select(users)
+        ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+        ..limit(1))
+      .getSingleOrNull();
+
+  return lastUser;
+}
 }

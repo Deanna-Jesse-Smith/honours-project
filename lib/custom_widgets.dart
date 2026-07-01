@@ -3,6 +3,7 @@ import 'package:flutter_logs/flutter_logs.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/database/converters.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/category_model.dart';
@@ -15,52 +16,78 @@ class CustomWidgets {
 
   late String userName;
 
-  Future<String> insertRow() async {
-    final allUsers = await db.select(db.users).get();
+  late BuildFAB fabBuilder;
+
+  late UserDao uDao;
+
+  late FastingDao fDao;
+
+  // String getUserName() {
+
+  // }
+
+  void insert() {
+    UserDao uDao = UserDao(db);
+
+    uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner');
+  }
+
+  Future<String> findUser() async {
+    final curUser = await db.select(db.users).get();
+
+    User thisUser = curUser.last;
+
+    print(thisUser);
+
+    return thisUser.name;
+  }
+
+  // Future<String> insertRow() async {
+  //   final allUsers = await db.select(db.users).get();
 
 
-  //  FlutterLogs.logInfo("Value", "Name", oneUser.name);
+  // //  FlutterLogs.logInfo("Value", "Name", oneUser.name);
    
-   UserDao uDao = UserDao(db);
-  //  uDao.addUser('Deedee', true, FastingForm.tre, 'Intermediate');
+  //  UserDao uDao = UserDao(db);
+  // //  uDao.addUser('temp', true, FastingForm.tre, 'Intermediate');
 
-      User oneUser = allUsers.last;
-  //  print(oneUser);
-  //  uDao.changeIsFasting(oneUser.userID, false);
-  // //  await uDao.updateTREtimes(oneUser.userID, test1(), test2());
+  //     User oneUser = allUsers.last;
+  // //  print(oneUser);
+  // //  uDao.changeIsFasting(oneUser.userID, false);
+  // // //  await uDao.updateTREtimes(oneUser.userID, test1(), test2());
 
-   final updatedUser = await (db.select(db.users)..where((u) => u.userID.equals(oneUser.userID))).getSingle();
-  //      bool testing = updatedUser.typicalEatingStart == null;
+  //  final updatedUser = await (db.select(db.users)..where((u) => u.userID.equals(oneUser.userID))).getSingle();
+  // //      bool testing = updatedUser.typicalEatingStart == null;
+  // //   print('This is printing: $testing');
+
+  // //   print(updatedUser.typicalEatingEnd?.hour);
+
+  //   // return name;
+
+  //  return updatedUser.name;
+
+
+  // }
+
+  // Future<void> testTimes() async {
+  //   final allUsers = await db.select(db.users).get();
+
+  //   User oneUser = allUsers.last;
+  //   print(oneUser);
+
+  //   bool testing = oneUser.typicalEatingStart == null;
   //   print('This is printing: $testing');
 
-  //   print(updatedUser.typicalEatingEnd?.hour);
+  //   print(oneUser.typicalEatingEnd?.hour);
+  // }
 
-    // return name;
+  // DateTime test1() {
+  //   return DateTime(2026, 1, 1, 12, 30);
+  // }
 
-   return updatedUser.name;
-
-
-  }
-
-  Future<void> testTimes() async {
-    final allUsers = await db.select(db.users).get();
-
-    User oneUser = allUsers.last;
-    print(oneUser);
-
-    bool testing = oneUser.typicalEatingStart == null;
-    print('This is printing: $testing');
-
-    print(oneUser.typicalEatingEnd?.hour);
-  }
-
-  DateTime test1() {
-    return DateTime(2026, 1, 1, 12, 30);
-  }
-
-   DateTime test2() {
-    return DateTime(2026, 0, 0, 18);
-  }
+  //  DateTime test2() {
+  //   return DateTime(2026, 0, 0, 18);
+  // }
 
   
   PercentCircleIndicator circleIndicator(
@@ -120,51 +147,50 @@ class CustomWidgets {
     );
   }
 
-  AppBar appBar(String title) {
-    testTimes();
-
-    return AppBar(
-      title: FutureBuilder<String>(future: insertRow(), builder:(context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text('Welcome back', style: TextStyle(
-          color: Colors.black,
-          fontSize: TextSizing.large,
-          fontWeight: FontWeight.bold,
-        ));
-          }
-          if (snapshot.hasError) {
-            print(snapshot.error.toString());
-            return Text('Error', style: TextStyle(
-          color: Colors.black,
-          fontSize: TextSizing.large,
-          fontWeight: FontWeight.bold,
-        ));
-          }
-          return Text('Welcome back, ${snapshot.data}', style: TextStyle(
-          color: Colors.black,
-          fontSize: TextSizing.large,
-          fontWeight: FontWeight.bold,
-        ));
-        },),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
-      // leading: GestureDetector(
-      //   onTap: () {},
-      //   child: Container(
-      //     margin: EdgeInsets.all(5),
-      //     alignment: Alignment.center,
-      //     decoration: BoxDecoration(
-      //       color: Colors.blueAccent,
-      //       borderRadius: BorderRadius.circular(20),
-      //     ),
-      //     child: Icon(Icons.menu),
-      //     // child: SvgPicture.asset('assets/icons/hamburger-menu.svg'),
-      //     // child: SvgPicture.asset('assets/icons/LefArrow.svg'),
-      //   ),
-      // ),
-    );
-  }
+  // AppBar appBar(String title) {
+  // initializeObjects();
+  //   return AppBar(
+  //     title: FutureBuilder<String>(future: findUser(), builder:(context, snapshot) {
+  //         if (snapshot.connectionState == ConnectionState.waiting) {
+  //           return Text('Welcome back', style: TextStyle(
+  //         color: Colors.black,
+  //         fontSize: TextSizing.large,
+  //         fontWeight: FontWeight.bold,
+  //       ));
+  //         }
+  //         if (snapshot.hasError) {
+  //           return Text('Error', style: TextStyle(
+  //         color: Colors.black,
+  //         fontSize: TextSizing.large,
+  //         fontWeight: FontWeight.bold,
+  //       ));
+  //         }
+  //         return Text('Welcome back, ${snapshot.data}', style: TextStyle(
+  //         color: Colors.black,
+  //         fontSize: TextSizing.large,
+  //         fontWeight: FontWeight.bold,
+  //       ));
+  //       },),
+  //     // title: Text(title, style: TextStyle(fontSize: TextSizing.large),),
+  //     backgroundColor: Colors.white,
+  //     elevation: 0.0,
+  //     centerTitle: true,
+  //     // leading: GestureDetector(
+  //     //   onTap: () {},
+  //     //   child: Container(
+  //     //     margin: EdgeInsets.all(5),
+  //     //     alignment: Alignment.center,
+  //     //     decoration: BoxDecoration(
+  //     //       color: Colors.blueAccent,
+  //     //       borderRadius: BorderRadius.circular(20),
+  //     //     ),
+  //     //     child: Icon(Icons.menu),
+  //     //     // child: SvgPicture.asset('assets/icons/hamburger-menu.svg'),
+  //     //     // child: SvgPicture.asset('assets/icons/LefArrow.svg'),
+  //     //   ),
+  //     // ),
+  //   );
+  // }
 
   Container encouragementContainer(String streakInfo) {
     return Container(

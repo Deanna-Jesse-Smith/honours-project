@@ -4,11 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/database/converters.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
+import 'package:testrun/widgets/main_app_bar.dart';
 
 class FastingPlan extends StatefulWidget {
+
   const FastingPlan({super.key});
   @override
   State<FastingPlan> createState() => FastingPlanState();
@@ -24,13 +30,14 @@ class FastingPlanState extends State<FastingPlan> {
           (String name) => DropdownMenuEntry(value: name, label: name),
         ),
       );
-  String dropDownValue = list.first;
+  String dropDownValue = userState.fastingForm.value.name;
 
   @override
   Widget build(BuildContext context) {
+      FastingDao  fDao = getIt<FastingDao>();
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
-      appBar: customWidgets.appBar('Fasting Plan'),
+      appBar: MainAppBar.appBar('Fasting Plan'),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -359,6 +366,30 @@ class FastingPlanState extends State<FastingPlan> {
   }
 
   Row chooseFastingPlan() {
+    FastingFormConverter formConverter = FastingFormConverter();
+    return .new(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
+        DropdownMenu<String>(
+          initialSelection: list.first,
+          // side
+          // menuStyle: MenuStyle(),
+          onSelected: (String? value) {
+            setState(() {
+              dropDownValue = value!;
+              userState.fastingForm.value = formConverter.fromSql(dropDownValue);
+            });
+          },
+          dropdownMenuEntries: entries,
+          textStyle: TextStyle(fontSize: TextSizing.large),
+        ),
+      ],
+    );
+  }
+
+    Row chooseFastingPlann() {
+      final plan = userState.fastingForm.value.name;
     return .new(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [

@@ -5,9 +5,9 @@ class Users extends Table {
   TextColumn get name => text()();
   BoolColumn get isMetric => boolean().withDefault(const Constant(true))();
   TextColumn get formIF => text()();
-  BoolColumn get isFasting => boolean().withDefault(const Constant(false))();
   TextColumn get experience => text()();
   DateTimeColumn get typicalEatingStart => dateTime().nullable()();
   DateTimeColumn get typicalEatingEnd => dateTime().nullable()();
   DateTimeColumn get createdDate => dateTime().withDefault(currentDateAndTime)();
+  // TextColumn get adfDays => text()();
 }

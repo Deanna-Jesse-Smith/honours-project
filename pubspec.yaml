@@ -41,11 +41,13 @@ dependencies:
   permission_handler: ^12.0.1
   flutter_logs: ^2.2.7
   percent_indicator: ^4.2.5
-  liquid_progress_indicator: ^0.4.0
+  liquid_progress_indicator_v2: ^0.5.0
   drift: ^2.34.0
   drift_flutter: ^0.3.0
   path_provider: ^2.1.5
   table_calendar: ^3.2.0
+  flutter_riverpod: ^3.3.2
+  get_it: ^9.2.1
 
 dev_dependencies:
   flutter_test:
