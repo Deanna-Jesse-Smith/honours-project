@@ -896,18 +896,647 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   }
 }
 
+class $HydrationLogTable extends HydrationLog
+    with TableInfo<$HydrationLogTable, HydrationLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HydrationLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _hydrationLogIDMeta = const VerificationMeta(
+    'hydrationLogID',
+  );
+  @override
+  late final GeneratedColumn<int> hydrationLogID = GeneratedColumn<int>(
+    'hydration_log_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIDMeta = const VerificationMeta('userID');
+  @override
+  late final GeneratedColumn<int> userID = GeneratedColumn<int>(
+    'user_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (user_i_d)',
+    ),
+  );
+  static const VerificationMeta _logDateTimeMeta = const VerificationMeta(
+    'logDateTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> logDateTime = GeneratedColumn<DateTime>(
+    'log_date_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    hydrationLogID,
+    userID,
+    logDateTime,
+    amount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'hydration_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HydrationLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('hydration_log_i_d')) {
+      context.handle(
+        _hydrationLogIDMeta,
+        hydrationLogID.isAcceptableOrUnknown(
+          data['hydration_log_i_d']!,
+          _hydrationLogIDMeta,
+        ),
+      );
+    }
+    if (data.containsKey('user_i_d')) {
+      context.handle(
+        _userIDMeta,
+        userID.isAcceptableOrUnknown(data['user_i_d']!, _userIDMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIDMeta);
+    }
+    if (data.containsKey('log_date_time')) {
+      context.handle(
+        _logDateTimeMeta,
+        logDateTime.isAcceptableOrUnknown(
+          data['log_date_time']!,
+          _logDateTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {hydrationLogID};
+  @override
+  HydrationLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HydrationLogData(
+      hydrationLogID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hydration_log_i_d'],
+      )!,
+      userID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_i_d'],
+      )!,
+      logDateTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}log_date_time'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+    );
+  }
+
+  @override
+  $HydrationLogTable createAlias(String alias) {
+    return $HydrationLogTable(attachedDatabase, alias);
+  }
+}
+
+class HydrationLogData extends DataClass
+    implements Insertable<HydrationLogData> {
+  final int hydrationLogID;
+  final int userID;
+  final DateTime logDateTime;
+  final double amount;
+  const HydrationLogData({
+    required this.hydrationLogID,
+    required this.userID,
+    required this.logDateTime,
+    required this.amount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['hydration_log_i_d'] = Variable<int>(hydrationLogID);
+    map['user_i_d'] = Variable<int>(userID);
+    map['log_date_time'] = Variable<DateTime>(logDateTime);
+    map['amount'] = Variable<double>(amount);
+    return map;
+  }
+
+  HydrationLogCompanion toCompanion(bool nullToAbsent) {
+    return HydrationLogCompanion(
+      hydrationLogID: Value(hydrationLogID),
+      userID: Value(userID),
+      logDateTime: Value(logDateTime),
+      amount: Value(amount),
+    );
+  }
+
+  factory HydrationLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HydrationLogData(
+      hydrationLogID: serializer.fromJson<int>(json['hydrationLogID']),
+      userID: serializer.fromJson<int>(json['userID']),
+      logDateTime: serializer.fromJson<DateTime>(json['logDateTime']),
+      amount: serializer.fromJson<double>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'hydrationLogID': serializer.toJson<int>(hydrationLogID),
+      'userID': serializer.toJson<int>(userID),
+      'logDateTime': serializer.toJson<DateTime>(logDateTime),
+      'amount': serializer.toJson<double>(amount),
+    };
+  }
+
+  HydrationLogData copyWith({
+    int? hydrationLogID,
+    int? userID,
+    DateTime? logDateTime,
+    double? amount,
+  }) => HydrationLogData(
+    hydrationLogID: hydrationLogID ?? this.hydrationLogID,
+    userID: userID ?? this.userID,
+    logDateTime: logDateTime ?? this.logDateTime,
+    amount: amount ?? this.amount,
+  );
+  HydrationLogData copyWithCompanion(HydrationLogCompanion data) {
+    return HydrationLogData(
+      hydrationLogID: data.hydrationLogID.present
+          ? data.hydrationLogID.value
+          : this.hydrationLogID,
+      userID: data.userID.present ? data.userID.value : this.userID,
+      logDateTime: data.logDateTime.present
+          ? data.logDateTime.value
+          : this.logDateTime,
+      amount: data.amount.present ? data.amount.value : this.amount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HydrationLogData(')
+          ..write('hydrationLogID: $hydrationLogID, ')
+          ..write('userID: $userID, ')
+          ..write('logDateTime: $logDateTime, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(hydrationLogID, userID, logDateTime, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HydrationLogData &&
+          other.hydrationLogID == this.hydrationLogID &&
+          other.userID == this.userID &&
+          other.logDateTime == this.logDateTime &&
+          other.amount == this.amount);
+}
+
+class HydrationLogCompanion extends UpdateCompanion<HydrationLogData> {
+  final Value<int> hydrationLogID;
+  final Value<int> userID;
+  final Value<DateTime> logDateTime;
+  final Value<double> amount;
+  const HydrationLogCompanion({
+    this.hydrationLogID = const Value.absent(),
+    this.userID = const Value.absent(),
+    this.logDateTime = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  HydrationLogCompanion.insert({
+    this.hydrationLogID = const Value.absent(),
+    required int userID,
+    this.logDateTime = const Value.absent(),
+    this.amount = const Value.absent(),
+  }) : userID = Value(userID);
+  static Insertable<HydrationLogData> custom({
+    Expression<int>? hydrationLogID,
+    Expression<int>? userID,
+    Expression<DateTime>? logDateTime,
+    Expression<double>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (hydrationLogID != null) 'hydration_log_i_d': hydrationLogID,
+      if (userID != null) 'user_i_d': userID,
+      if (logDateTime != null) 'log_date_time': logDateTime,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  HydrationLogCompanion copyWith({
+    Value<int>? hydrationLogID,
+    Value<int>? userID,
+    Value<DateTime>? logDateTime,
+    Value<double>? amount,
+  }) {
+    return HydrationLogCompanion(
+      hydrationLogID: hydrationLogID ?? this.hydrationLogID,
+      userID: userID ?? this.userID,
+      logDateTime: logDateTime ?? this.logDateTime,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (hydrationLogID.present) {
+      map['hydration_log_i_d'] = Variable<int>(hydrationLogID.value);
+    }
+    if (userID.present) {
+      map['user_i_d'] = Variable<int>(userID.value);
+    }
+    if (logDateTime.present) {
+      map['log_date_time'] = Variable<DateTime>(logDateTime.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HydrationLogCompanion(')
+          ..write('hydrationLogID: $hydrationLogID, ')
+          ..write('userID: $userID, ')
+          ..write('logDateTime: $logDateTime, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WeightLogTable extends WeightLog
+    with TableInfo<$WeightLogTable, WeightLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeightLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _weightLogIDMeta = const VerificationMeta(
+    'weightLogID',
+  );
+  @override
+  late final GeneratedColumn<int> weightLogID = GeneratedColumn<int>(
+    'weight_log_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIDMeta = const VerificationMeta('userID');
+  @override
+  late final GeneratedColumn<int> userID = GeneratedColumn<int>(
+    'user_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (user_i_d)',
+    ),
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [weightLogID, userID, date, amount];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weight_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WeightLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('weight_log_i_d')) {
+      context.handle(
+        _weightLogIDMeta,
+        weightLogID.isAcceptableOrUnknown(
+          data['weight_log_i_d']!,
+          _weightLogIDMeta,
+        ),
+      );
+    }
+    if (data.containsKey('user_i_d')) {
+      context.handle(
+        _userIDMeta,
+        userID.isAcceptableOrUnknown(data['user_i_d']!, _userIDMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIDMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {weightLogID};
+  @override
+  WeightLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeightLogData(
+      weightLogID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}weight_log_i_d'],
+      )!,
+      userID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_i_d'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+    );
+  }
+
+  @override
+  $WeightLogTable createAlias(String alias) {
+    return $WeightLogTable(attachedDatabase, alias);
+  }
+}
+
+class WeightLogData extends DataClass implements Insertable<WeightLogData> {
+  final int weightLogID;
+  final int userID;
+  final DateTime date;
+  final double amount;
+  const WeightLogData({
+    required this.weightLogID,
+    required this.userID,
+    required this.date,
+    required this.amount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['weight_log_i_d'] = Variable<int>(weightLogID);
+    map['user_i_d'] = Variable<int>(userID);
+    map['date'] = Variable<DateTime>(date);
+    map['amount'] = Variable<double>(amount);
+    return map;
+  }
+
+  WeightLogCompanion toCompanion(bool nullToAbsent) {
+    return WeightLogCompanion(
+      weightLogID: Value(weightLogID),
+      userID: Value(userID),
+      date: Value(date),
+      amount: Value(amount),
+    );
+  }
+
+  factory WeightLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeightLogData(
+      weightLogID: serializer.fromJson<int>(json['weightLogID']),
+      userID: serializer.fromJson<int>(json['userID']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      amount: serializer.fromJson<double>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'weightLogID': serializer.toJson<int>(weightLogID),
+      'userID': serializer.toJson<int>(userID),
+      'date': serializer.toJson<DateTime>(date),
+      'amount': serializer.toJson<double>(amount),
+    };
+  }
+
+  WeightLogData copyWith({
+    int? weightLogID,
+    int? userID,
+    DateTime? date,
+    double? amount,
+  }) => WeightLogData(
+    weightLogID: weightLogID ?? this.weightLogID,
+    userID: userID ?? this.userID,
+    date: date ?? this.date,
+    amount: amount ?? this.amount,
+  );
+  WeightLogData copyWithCompanion(WeightLogCompanion data) {
+    return WeightLogData(
+      weightLogID: data.weightLogID.present
+          ? data.weightLogID.value
+          : this.weightLogID,
+      userID: data.userID.present ? data.userID.value : this.userID,
+      date: data.date.present ? data.date.value : this.date,
+      amount: data.amount.present ? data.amount.value : this.amount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeightLogData(')
+          ..write('weightLogID: $weightLogID, ')
+          ..write('userID: $userID, ')
+          ..write('date: $date, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(weightLogID, userID, date, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeightLogData &&
+          other.weightLogID == this.weightLogID &&
+          other.userID == this.userID &&
+          other.date == this.date &&
+          other.amount == this.amount);
+}
+
+class WeightLogCompanion extends UpdateCompanion<WeightLogData> {
+  final Value<int> weightLogID;
+  final Value<int> userID;
+  final Value<DateTime> date;
+  final Value<double> amount;
+  const WeightLogCompanion({
+    this.weightLogID = const Value.absent(),
+    this.userID = const Value.absent(),
+    this.date = const Value.absent(),
+    this.amount = const Value.absent(),
+  });
+  WeightLogCompanion.insert({
+    this.weightLogID = const Value.absent(),
+    required int userID,
+    this.date = const Value.absent(),
+    required double amount,
+  }) : userID = Value(userID),
+       amount = Value(amount);
+  static Insertable<WeightLogData> custom({
+    Expression<int>? weightLogID,
+    Expression<int>? userID,
+    Expression<DateTime>? date,
+    Expression<double>? amount,
+  }) {
+    return RawValuesInsertable({
+      if (weightLogID != null) 'weight_log_i_d': weightLogID,
+      if (userID != null) 'user_i_d': userID,
+      if (date != null) 'date': date,
+      if (amount != null) 'amount': amount,
+    });
+  }
+
+  WeightLogCompanion copyWith({
+    Value<int>? weightLogID,
+    Value<int>? userID,
+    Value<DateTime>? date,
+    Value<double>? amount,
+  }) {
+    return WeightLogCompanion(
+      weightLogID: weightLogID ?? this.weightLogID,
+      userID: userID ?? this.userID,
+      date: date ?? this.date,
+      amount: amount ?? this.amount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (weightLogID.present) {
+      map['weight_log_i_d'] = Variable<int>(weightLogID.value);
+    }
+    if (userID.present) {
+      map['user_i_d'] = Variable<int>(userID.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeightLogCompanion(')
+          ..write('weightLogID: $weightLogID, ')
+          ..write('userID: $userID, ')
+          ..write('date: $date, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
   late final $FastLogTable fastLog = $FastLogTable(this);
+  late final $HydrationLogTable hydrationLog = $HydrationLogTable(this);
+  late final $WeightLogTable weightLog = $WeightLogTable(this);
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final FastingDao fastingDao = FastingDao(this as AppDatabase);
+  late final HydrationDao hydrationDao = HydrationDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [users, fastLog];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    users,
+    fastLog,
+    hydrationLog,
+    weightLog,
+  ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder =
@@ -950,6 +1579,42 @@ final class $$UsersTableReferences
     ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
 
     final cache = $_typedResult.readTableOrNull(_fastLogRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$HydrationLogTable, List<HydrationLogData>>
+  _hydrationLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.hydrationLog,
+    aliasName: 'users__user_i_d__hydration_log__user_i_d',
+  );
+
+  $$HydrationLogTableProcessedTableManager get hydrationLogRefs {
+    final manager = $$HydrationLogTableTableManager(
+      $_db,
+      $_db.hydrationLog,
+    ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_hydrationLogRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$WeightLogTable, List<WeightLogData>>
+  _weightLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.weightLog,
+    aliasName: 'users__user_i_d__weight_log__user_i_d',
+  );
+
+  $$WeightLogTableProcessedTableManager get weightLogRefs {
+    final manager = $$WeightLogTableTableManager(
+      $_db,
+      $_db.weightLog,
+    ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_weightLogRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -1020,6 +1685,56 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$FastLogTableFilterComposer(
             $db: $db,
             $table: $db.fastLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> hydrationLogRefs(
+    Expression<bool> Function($$HydrationLogTableFilterComposer f) f,
+  ) {
+    final $$HydrationLogTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.hydrationLog,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HydrationLogTableFilterComposer(
+            $db: $db,
+            $table: $db.hydrationLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> weightLogRefs(
+    Expression<bool> Function($$WeightLogTableFilterComposer f) f,
+  ) {
+    final $$WeightLogTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.weightLog,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WeightLogTableFilterComposer(
+            $db: $db,
+            $table: $db.weightLog,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1145,6 +1860,56 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> hydrationLogRefs<T extends Object>(
+    Expression<T> Function($$HydrationLogTableAnnotationComposer a) f,
+  ) {
+    final $$HydrationLogTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.hydrationLog,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HydrationLogTableAnnotationComposer(
+            $db: $db,
+            $table: $db.hydrationLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> weightLogRefs<T extends Object>(
+    Expression<T> Function($$WeightLogTableAnnotationComposer a) f,
+  ) {
+    final $$WeightLogTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.weightLog,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WeightLogTableAnnotationComposer(
+            $db: $db,
+            $table: $db.weightLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -1160,7 +1925,11 @@ class $$UsersTableTableManager
           $$UsersTableUpdateCompanionBuilder,
           (User, $$UsersTableReferences),
           User,
-          PrefetchHooks Function({bool fastLogRefs})
+          PrefetchHooks Function({
+            bool fastLogRefs,
+            bool hydrationLogRefs,
+            bool weightLogRefs,
+          })
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -1219,29 +1988,85 @@ class $$UsersTableTableManager
                     (e.readTable(table), $$UsersTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({fastLogRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (fastLogRefs) db.fastLog],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (fastLogRefs)
-                    await $_getPrefetchedData<User, $UsersTable, FastLogData>(
-                      currentTable: table,
-                      referencedTable: $$UsersTableReferences._fastLogRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$UsersTableReferences(db, table, p0).fastLogRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.userID == item.userID),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                fastLogRefs = false,
+                hydrationLogRefs = false,
+                weightLogRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (fastLogRefs) db.fastLog,
+                    if (hydrationLogRefs) db.hydrationLog,
+                    if (weightLogRefs) db.weightLog,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (fastLogRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          FastLogData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._fastLogRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(db, table, p0).fastLogRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userID == item.userID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (hydrationLogRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          HydrationLogData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._hydrationLogRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).hydrationLogRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userID == item.userID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (weightLogRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          WeightLogData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._weightLogRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).weightLogRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userID == item.userID,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1258,7 +2083,11 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function({bool fastLogRefs})
+      PrefetchHooks Function({
+        bool fastLogRefs,
+        bool hydrationLogRefs,
+        bool weightLogRefs,
+      })
     >;
 typedef $$FastLogTableCreateCompanionBuilder =
     FastLogCompanion Function({
@@ -1575,6 +2404,597 @@ typedef $$FastLogTableProcessedTableManager =
       FastLogData,
       PrefetchHooks Function({bool userID})
     >;
+typedef $$HydrationLogTableCreateCompanionBuilder =
+    HydrationLogCompanion Function({
+      Value<int> hydrationLogID,
+      required int userID,
+      Value<DateTime> logDateTime,
+      Value<double> amount,
+    });
+typedef $$HydrationLogTableUpdateCompanionBuilder =
+    HydrationLogCompanion Function({
+      Value<int> hydrationLogID,
+      Value<int> userID,
+      Value<DateTime> logDateTime,
+      Value<double> amount,
+    });
+
+final class $$HydrationLogTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $HydrationLogTable, HydrationLogData> {
+  $$HydrationLogTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIDTable(_$AppDatabase db) =>
+      db.users.createAlias('hydration_log__user_i_d__users__user_i_d');
+
+  $$UsersTableProcessedTableManager get userID {
+    final $_column = $_itemColumn<int>('user_i_d')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.userID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$HydrationLogTableFilterComposer
+    extends Composer<_$AppDatabase, $HydrationLogTable> {
+  $$HydrationLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get hydrationLogID => $composableBuilder(
+    column: $table.hydrationLogID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get logDateTime => $composableBuilder(
+    column: $table.logDateTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userID {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $HydrationLogTable> {
+  $$HydrationLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get hydrationLogID => $composableBuilder(
+    column: $table.hydrationLogID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get logDateTime => $composableBuilder(
+    column: $table.logDateTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userID {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HydrationLogTable> {
+  $$HydrationLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get hydrationLogID => $composableBuilder(
+    column: $table.hydrationLogID,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get logDateTime => $composableBuilder(
+    column: $table.logDateTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userID {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HydrationLogTable,
+          HydrationLogData,
+          $$HydrationLogTableFilterComposer,
+          $$HydrationLogTableOrderingComposer,
+          $$HydrationLogTableAnnotationComposer,
+          $$HydrationLogTableCreateCompanionBuilder,
+          $$HydrationLogTableUpdateCompanionBuilder,
+          (HydrationLogData, $$HydrationLogTableReferences),
+          HydrationLogData,
+          PrefetchHooks Function({bool userID})
+        > {
+  $$HydrationLogTableTableManager(_$AppDatabase db, $HydrationLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HydrationLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HydrationLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HydrationLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> hydrationLogID = const Value.absent(),
+                Value<int> userID = const Value.absent(),
+                Value<DateTime> logDateTime = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+              }) => HydrationLogCompanion(
+                hydrationLogID: hydrationLogID,
+                userID: userID,
+                logDateTime: logDateTime,
+                amount: amount,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> hydrationLogID = const Value.absent(),
+                required int userID,
+                Value<DateTime> logDateTime = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+              }) => HydrationLogCompanion.insert(
+                hydrationLogID: hydrationLogID,
+                userID: userID,
+                logDateTime: logDateTime,
+                amount: amount,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$HydrationLogTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userID,
+                                referencedTable: $$HydrationLogTableReferences
+                                    ._userIDTable(db),
+                                referencedColumn: $$HydrationLogTableReferences
+                                    ._userIDTable(db)
+                                    .userID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$HydrationLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HydrationLogTable,
+      HydrationLogData,
+      $$HydrationLogTableFilterComposer,
+      $$HydrationLogTableOrderingComposer,
+      $$HydrationLogTableAnnotationComposer,
+      $$HydrationLogTableCreateCompanionBuilder,
+      $$HydrationLogTableUpdateCompanionBuilder,
+      (HydrationLogData, $$HydrationLogTableReferences),
+      HydrationLogData,
+      PrefetchHooks Function({bool userID})
+    >;
+typedef $$WeightLogTableCreateCompanionBuilder =
+    WeightLogCompanion Function({
+      Value<int> weightLogID,
+      required int userID,
+      Value<DateTime> date,
+      required double amount,
+    });
+typedef $$WeightLogTableUpdateCompanionBuilder =
+    WeightLogCompanion Function({
+      Value<int> weightLogID,
+      Value<int> userID,
+      Value<DateTime> date,
+      Value<double> amount,
+    });
+
+final class $$WeightLogTableReferences
+    extends BaseReferences<_$AppDatabase, $WeightLogTable, WeightLogData> {
+  $$WeightLogTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIDTable(_$AppDatabase db) =>
+      db.users.createAlias('weight_log__user_i_d__users__user_i_d');
+
+  $$UsersTableProcessedTableManager get userID {
+    final $_column = $_itemColumn<int>('user_i_d')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.userID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WeightLogTableFilterComposer
+    extends Composer<_$AppDatabase, $WeightLogTable> {
+  $$WeightLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get weightLogID => $composableBuilder(
+    column: $table.weightLogID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userID {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $WeightLogTable> {
+  $$WeightLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get weightLogID => $composableBuilder(
+    column: $table.weightLogID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userID {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WeightLogTable> {
+  $$WeightLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get weightLogID => $composableBuilder(
+    column: $table.weightLogID,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userID {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WeightLogTable,
+          WeightLogData,
+          $$WeightLogTableFilterComposer,
+          $$WeightLogTableOrderingComposer,
+          $$WeightLogTableAnnotationComposer,
+          $$WeightLogTableCreateCompanionBuilder,
+          $$WeightLogTableUpdateCompanionBuilder,
+          (WeightLogData, $$WeightLogTableReferences),
+          WeightLogData,
+          PrefetchHooks Function({bool userID})
+        > {
+  $$WeightLogTableTableManager(_$AppDatabase db, $WeightLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WeightLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WeightLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WeightLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> weightLogID = const Value.absent(),
+                Value<int> userID = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+              }) => WeightLogCompanion(
+                weightLogID: weightLogID,
+                userID: userID,
+                date: date,
+                amount: amount,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> weightLogID = const Value.absent(),
+                required int userID,
+                Value<DateTime> date = const Value.absent(),
+                required double amount,
+              }) => WeightLogCompanion.insert(
+                weightLogID: weightLogID,
+                userID: userID,
+                date: date,
+                amount: amount,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$WeightLogTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userID,
+                                referencedTable: $$WeightLogTableReferences
+                                    ._userIDTable(db),
+                                referencedColumn: $$WeightLogTableReferences
+                                    ._userIDTable(db)
+                                    .userID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WeightLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WeightLogTable,
+      WeightLogData,
+      $$WeightLogTableFilterComposer,
+      $$WeightLogTableOrderingComposer,
+      $$WeightLogTableAnnotationComposer,
+      $$WeightLogTableCreateCompanionBuilder,
+      $$WeightLogTableUpdateCompanionBuilder,
+      (WeightLogData, $$WeightLogTableReferences),
+      WeightLogData,
+      PrefetchHooks Function({bool userID})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1583,4 +3003,8 @@ class $AppDatabaseManager {
       $$UsersTableTableManager(_db, _db.users);
   $$FastLogTableTableManager get fastLog =>
       $$FastLogTableTableManager(_db, _db.fastLog);
+  $$HydrationLogTableTableManager get hydrationLog =>
+      $$HydrationLogTableTableManager(_db, _db.hydrationLog);
+  $$WeightLogTableTableManager get weightLog =>
+      $$WeightLogTableTableManager(_db, _db.weightLog);
 }

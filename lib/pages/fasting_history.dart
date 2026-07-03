@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/widgets/history_item.dart';
 
 class FastingHistory extends StatefulWidget {
   const FastingHistory({super.key});
@@ -30,10 +31,27 @@ class _FastingHistoryState extends State<FastingHistory> {
         ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Expanded(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+          child: Icon(Icons.arrow_back),
+          onTap: () => {
+            // TODO Previous month
+          },
+        ),
+        Text('Temp', style: TextStyle(fontSize: TextSizing.medium),),
+        GestureDetector(
+          child: Icon(Icons.arrow_forward),
+          onTap: () => {
+            // TODO Subsequent month
+          },
+        )],),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: GridView.builder(
                 itemCount: 30,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -42,22 +60,26 @@ class _FastingHistoryState extends State<FastingHistory> {
                   crossAxisSpacing: 3,
                 ),
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Container(
-                      color: Colors.green,
-                      child: Center(
-                        child: Text(
-                          "Builder: $index",
-                          style: TextStyle(color: Colors.white, fontSize: 30),
-                        ),
-                      ),
-                    ),
-                  );
+                  return HistoryItem(date: DateTime.now()).getDay();
                 },
+                // itemBuilder: (context, index) {
+                //   return Padding(
+                //     padding: const EdgeInsets.all(4.0),
+                //     child: Container(
+                //       color: Colors.green,
+                //       child: Center(
+                //         child: Text(
+                //           "Builder: $index",
+                //           style: TextStyle(color: Colors.white, fontSize: 30),
+                //         ),
+                //       ),
+                //     ),
+                //   );
+                // },
               ),
             ),
           ),
+            Text('Total Hours Fasted in :', style: TextStyle(fontSize: TextSizing.medium),),
         ],
       ),
     );

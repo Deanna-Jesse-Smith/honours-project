@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:testrun/database/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/pages/FastingPlan.dart';
@@ -20,8 +21,9 @@ void main() async {
   getIt.registerSingleton<AppDatabase>(db);
   getIt.registerSingleton<UserDao>(UserDao(db));
   getIt.registerSingleton<FastingDao>(FastingDao(db));
+  getIt.registerSingleton<HydrationDao>(HydrationDao(db));
   print('end');
-  await AppInitializer(uDao: getIt<UserDao>(), fDao: getIt<FastingDao>()).initialize();
+  await AppInitializer(uDao: getIt<UserDao>(), fDao: getIt<FastingDao>(), hDao: getIt<HydrationDao>()).initialize();
 runApp(const MyApp());
 
 // Future<void> main() async {
@@ -149,8 +151,9 @@ class MyApp extends StatelessWidget {
 class AppInitializer {
   final UserDao uDao;
   final FastingDao fDao;
+  final HydrationDao hDao;
 
-  AppInitializer({required this.uDao, required this.fDao});
+  AppInitializer({required this.uDao, required this.fDao, required this.hDao});
 
   Future<void> initialize() async {
     debugPrint("hello");
@@ -161,12 +164,12 @@ class AppInitializer {
         return;
       }
 
-      print(user);
+      userState.userID = user.userID;
       userState.userName.value = user.name;
       userState.startTime.value = user.typicalEatingStart!;
       userState.endTime.value = user.typicalEatingEnd!;
       userState.fastingForm.value = FastingFormConverter().fromSql(user.formIF);
-      print("hello");
+      
 
       final fast = await fDao.isFasting(user.userID);
       userState.isFasting.value = fast != null && fast.endDateTime == null;

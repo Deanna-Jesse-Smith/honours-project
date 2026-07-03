@@ -13,7 +13,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return into(fastLog).insert(FastLogCompanion.insert(userID: userID, formIF: form.name, startDateTime: Value(startTime)));
   }
 
-  Future<int> breakFast(int userID, int fastID, DateTime endTime) async {
+  Future<int> breakFast(int userID, DateTime endTime) async {
     final curLog = await (select(fastLog)
     ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
     ..limit(1))
@@ -30,4 +30,8 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
 
     return fast;
   }
+
+  // Future<FastLogData> getHistory() {
+  //   final (select(fastLog))
+  // }
 }

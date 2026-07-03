@@ -34,7 +34,7 @@ class FastingPlanState extends State<FastingPlan> {
 
   @override
   Widget build(BuildContext context) {
-      FastingDao  fDao = getIt<FastingDao>();
+   FastingDao  fDao = getIt<FastingDao>();
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: MainAppBar.appBar('Fasting Plan'),

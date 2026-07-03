@@ -3,6 +3,7 @@ import 'package:flutter_logs/flutter_logs.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/database/converters.dart';
+// import 'package:testrun/de/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/database.dart';
@@ -10,6 +11,7 @@ import 'package:testrun/models/category_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/utils/user_state.dart';
 
 class CustomWidgets {
   final db = AppDatabase();
@@ -265,7 +267,21 @@ class CustomWidgets {
       margin: const EdgeInsets.all(10),
       children: actions.reversed.map((buttons) {
         return ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            switch (buttons.title) {
+              case 'Break my fast':
+              // fDao.breakFast(userState.userID, DateTime.now());
+              BuildFAB.isFasting = false;
+              case 'Start my fast':
+              BuildFAB.isFasting = true;
+              case 'Log Weight':
+              
+              case 'Log Meal':
+              break;
+              case 'Log Hydration':
+              break;
+            }
+          },
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.black,
             backgroundColor: buttons.colour,
