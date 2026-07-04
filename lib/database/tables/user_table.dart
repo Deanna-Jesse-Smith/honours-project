@@ -9,5 +9,6 @@ class Users extends Table {
   DateTimeColumn get typicalEatingStart => dateTime().nullable()();
   DateTimeColumn get typicalEatingEnd => dateTime().nullable()();
   DateTimeColumn get createdDate => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get daysSelected => text().withDefault(const Constant(''))();
+  TextColumn get adfDaysSelected => text().withDefault(const Constant(''))();
+  TextColumn get fiveTwoDaysSelected => text().withDefault(const Constant(''))();
 }

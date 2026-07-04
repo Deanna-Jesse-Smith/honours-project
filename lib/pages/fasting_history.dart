@@ -1,4 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/history_item.dart';
 
@@ -9,9 +13,15 @@ class FastingHistory extends StatefulWidget {
   State<FastingHistory> createState() => _FastingHistoryState();
 }
 
+const List<String> months = <String>['January', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// const DoubleLinkedQueue monthss = Dou
+
 class _FastingHistoryState extends State<FastingHistory> {
+  final FastingDao fDao = getIt<FastingDao>();
   @override
   Widget build(BuildContext context) {
+    DateTime today = DateTime.now();
+    int thisMonth = today.month - 1;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -27,12 +37,15 @@ class _FastingHistoryState extends State<FastingHistory> {
         centerTitle: true,
         leading: GestureDetector(
           child: Icon(Icons.arrow_back),
-          onTap: () => {Navigator.of(context).pop()},
+          onTap: () => {
+            Navigator.of(context).pop()
+            },
         ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // ? Consider using DateTimeRange here?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -40,13 +53,15 @@ class _FastingHistoryState extends State<FastingHistory> {
           child: Icon(Icons.arrow_back),
           onTap: () => {
             // TODO Previous month
+            // thisMonth = thisMonth - 1 == 0 ? 12 : thisMonth--
           },
         ),
-        Text('Temp', style: TextStyle(fontSize: TextSizing.medium),),
+        Text(months[thisMonth], style: TextStyle(fontSize: TextSizing.medium),),
         GestureDetector(
           child: Icon(Icons.arrow_forward),
           onTap: () => {
             // TODO Subsequent month
+            // thisMonth = thisMonth + 1 == 2 ? 1 : thisMonth++
           },
         )],),
           Expanded(
@@ -84,4 +99,6 @@ class _FastingHistoryState extends State<FastingHistory> {
       ),
     );
   }
+
+  // Map<DateTime, FastData> getFastData() 
 }

@@ -34,6 +34,8 @@ class CustomWidgets {
     uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner');
   }
 
+
+ // #region old
   Future<String> findUser() async {
     final curUser = await db.select(db.users).get();
 
@@ -90,7 +92,7 @@ class CustomWidgets {
   //  DateTime test2() {
   //   return DateTime(2026, 0, 0, 18);
   // }
-
+ // #endregion
   
   PercentCircleIndicator circleIndicator(
     double percent,
@@ -207,6 +209,7 @@ class CustomWidgets {
   }
 
   Drawer getDrawer(BuildContext context) {
+    insert();
     return Drawer(
       child: ListView(
         padding: const EdgeInsets.all(10),

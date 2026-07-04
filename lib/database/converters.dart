@@ -14,13 +14,23 @@ class FastingFormConverter extends TypeConverter<FastingForm, String> {
   String toSql(FastingForm value) => value.name;
 }
 
-enum DayOfWeek {m, t, w, th, f, sat, sun}
+// ignore: constant_identifier_names
+enum DayOfWeek {M, T, W, TH, F, SAT, SUN}
 
 class DayOfWeekConverter extends TypeConverter<DayOfWeek, String> {
   const DayOfWeekConverter();
 
   @override
   DayOfWeek fromSql(String fromDB) {
+    // List<String> days = fromDB.split(',');
+    // List<DayOfWeek> formatted = List.empty();
+
+    // days.forEach((day) => {
+
+    // });
+    // final m = switch (fromDB) {
+
+    // }
     return DayOfWeek.values.firstWhere((f) => f.name == fromDB);
   }
   

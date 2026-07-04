@@ -169,6 +169,7 @@ class AppInitializer {
       userState.startTime.value = user.typicalEatingStart!;
       userState.endTime.value = user.typicalEatingEnd!;
       userState.fastingForm.value = FastingFormConverter().fromSql(user.formIF);
+      // userState.adfDaysSelected.value = user.adfDaysSelected!;
       
 
       final fast = await fDao.isFasting(user.userID);

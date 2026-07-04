@@ -16,7 +16,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     String exp,
   ) {
     return into(users).insert(
-      UsersCompanion.insert(formIF: form.name, experience: exp, name: name),
+      UsersCompanion.insert(formIF: Value(form.name), experience: Value(exp), name: name),
     );
   }
 

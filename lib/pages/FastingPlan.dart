@@ -6,6 +6,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -21,7 +22,8 @@ class FastingPlan extends StatefulWidget {
 }
 
 const List<String> list = <String>['ADF', 'TRE', '5:2'];
-List<bool> daysSelected = List.filled(7, false);
+List<bool> adfDaysSelected = List.filled(7, false);
+List<bool> fiveTwoDaysSelected = List.filled(7, false);
 
 class FastingPlanState extends State<FastingPlan> {
   static final List<DropdownMenuEntry<String>> entries =
@@ -35,6 +37,7 @@ class FastingPlanState extends State<FastingPlan> {
   @override
   Widget build(BuildContext context) {
    FastingDao  fDao = getIt<FastingDao>();
+   UserDao  uDao = getIt<UserDao>();
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: MainAppBar.appBar('Fasting Plan'),
@@ -79,7 +82,16 @@ class FastingPlanState extends State<FastingPlan> {
     }
   }
 
+  List<bool> convertDaysSelectedToList(String selected, List<bool> list) {
+    List<String> days = selected.split(',');
+    for (var day in days) {
+      list[int.parse(day)] = true;
+    }
+    return list;
+  }
+
   Column create52() {
+    fiveTwoDaysSelected = convertDaysSelectedToList(userState.fiveTwoDaysSelected.value, fiveTwoDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
@@ -89,38 +101,38 @@ class FastingPlanState extends State<FastingPlan> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CustomCheckbox(
-                isSelected: daysSelected[0],
+                isSelected: fiveTwoDaysSelected[0],
                 dayOfWeek: 'M',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[0] = val;
+                    fiveTwoDaysSelected[0] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[1],
+                isSelected: fiveTwoDaysSelected[1],
                 dayOfWeek: 'Tu',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[1] = val;
+                    fiveTwoDaysSelected[1] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[2],
+                isSelected: fiveTwoDaysSelected[2],
                 dayOfWeek: 'W',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[2] = val;
+                    fiveTwoDaysSelected[2] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[3],
+                isSelected: fiveTwoDaysSelected[3],
                 dayOfWeek: 'Th',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[3] = val;
+                    fiveTwoDaysSelected[3] = val;
                   });
                 },
               ),
@@ -133,29 +145,29 @@ class FastingPlanState extends State<FastingPlan> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CustomCheckbox(
-                isSelected: daysSelected[4],
+                isSelected: fiveTwoDaysSelected[4],
                 dayOfWeek: 'F',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[4] = val;
+                    fiveTwoDaysSelected[4] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[5],
+                isSelected: fiveTwoDaysSelected[5],
                 dayOfWeek: 'Sat',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[5] = val;
+                    fiveTwoDaysSelected[5] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[6],
+                isSelected: fiveTwoDaysSelected[6],
                 dayOfWeek: 'Sun',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[6] = val;
+                    fiveTwoDaysSelected[6] = val;
                   });
                 },
               ),
@@ -224,6 +236,7 @@ class FastingPlanState extends State<FastingPlan> {
   }
 
   Column createADF() {
+    adfDaysSelected = convertDaysSelectedToList(userState.adfDaysSelected.value, adfDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
@@ -240,38 +253,38 @@ class FastingPlanState extends State<FastingPlan> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CustomCheckbox(
-                isSelected: daysSelected[0],
+                isSelected: adfDaysSelected[0],
                 dayOfWeek: 'M',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[0] = val;
+                    adfDaysSelected[0] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[1],
+                isSelected: adfDaysSelected[1],
                 dayOfWeek: 'Tu',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[1] = val;
+                    adfDaysSelected[1] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[2],
+                isSelected: adfDaysSelected[2],
                 dayOfWeek: 'W',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[2] = val;
+                    adfDaysSelected[2] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[3],
+                isSelected: adfDaysSelected[3],
                 dayOfWeek: 'Th',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[3] = val;
+                    adfDaysSelected[3] = val;
                   });
                 },
               ),
@@ -284,29 +297,29 @@ class FastingPlanState extends State<FastingPlan> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CustomCheckbox(
-                isSelected: daysSelected[4],
+                isSelected: adfDaysSelected[4],
                 dayOfWeek: 'F',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[4] = val;
+                    adfDaysSelected[4] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[5],
+                isSelected: adfDaysSelected[5],
                 dayOfWeek: 'Sat',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[5] = val;
+                    adfDaysSelected[5] = val;
                   });
                 },
               ),
               CustomCheckbox(
-                isSelected: daysSelected[6],
+                isSelected: adfDaysSelected[6],
                 dayOfWeek: 'Sun',
                 onTap: (bool val) {
                   setState(() {
-                    daysSelected[6] = val;
+                    adfDaysSelected[6] = val;
                   });
                 },
               ),
