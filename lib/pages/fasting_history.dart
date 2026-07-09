@@ -2,8 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/history_item.dart';
 
 class FastingHistory extends StatefulWidget {
@@ -100,5 +102,23 @@ class _FastingHistoryState extends State<FastingHistory> {
     );
   }
 
-  // Map<DateTime, FastData> getFastData() 
+  // StreamBuilder<List> populateCalendar(BuildContext context) {
+  //   DateTime today = DateTime.now();
+  //   DateTime start = DateTime(today.year, today.month, 1);
+  //   DateTime end = DateTime(today.year, today.month + 1, 0);
+  //   int daysInMonth = end.day;
+
+  //   Stream<List> test = fDao.findFastsInRange(userState.userID, DateTimeRange(start: start, end: end));
+
+  //   StreamBuilder<List> make = StreamBuilder<List>(stream: test, builder: (context, snapshot) {
+  //     if (!snapshot.hasData) {
+  //       return const Center(child: CircularProgressIndicator());
+  //     }
+
+  //     final dayByDay = <int, FastLogData>{
+  //       for(FastLogData fast in snapshot.data!) fast.startDateTime.day: fast,
+  //     };
+
+  //   });
+  // }
 }

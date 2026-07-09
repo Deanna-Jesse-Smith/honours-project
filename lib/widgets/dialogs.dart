@@ -1,0 +1,102 @@
+import 'package:flutter/material.dart';
+
+class Dialogs {
+  static Future<bool> dangerDialog(BuildContext context, {required String title, required String message, String confrim = 'Continue', String cancel = 'Cancel'}) async {
+    final decision = await showDialog<bool>(context: context, builder: (context) => AlertDialog(
+      title: Row(
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+        const Icon(Icons.warning_amber_sharp, color: Colors.orange,),
+        const SizedBox(width: 8),
+        Expanded(child: Text(title))
+      ],),
+      content: Text(message),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(cancel)),
+        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(confrim))
+      ],
+    ));
+    return decision ?? false;
+  }
+
+  static Future<double?> getNewInput(BuildContext context, {required String title, String unit = '', double? initialVal}) async {
+    final contorller = TextEditingController(text: initialVal?.toString() ?? '');
+    
+    final input = await showDialog<double>(context: context, builder: (context) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: contorller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        autofocus: true,
+        decoration: InputDecoration(suffixText: unit)
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+        TextButton(onPressed: () {
+          final value = double.tryParse(contorller.text);
+          Navigator.pop(context, value);
+          }, 
+          child: Text('Save'))
+      ],
+    ));
+    return input;
+  }
+
+    static Future<TimeOfDay?> showTimeInput(BuildContext context, {TimeOfDay? initialTime}) {
+    return showTimePicker(context: context,initialTime: initialTime ?? TimeOfDay.now());
+  }
+
+    static Future<int?> getSpinnerInput(BuildContext context, {required String title,int initialValue = 0,int min = 0,int max = 100}) async {
+    int value = initialValue;
+    return showDialog<int>(context: context, builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(title),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline),
+                onPressed: value > min ? () => setState(() => value--) : null,
+              ),
+              Text('$value', style: const TextStyle(fontSize: 24)),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline),
+                onPressed: value < max ? () => setState(() => value++) : null,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, value),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+  //   Future<String?> openDialog(BuildContext context) => showDialog<String?>(  // final thing = await openDialog();
+  //   context: context, 
+  //   builder: (context) => AlertDialog(
+  //     title: Text('Title'),
+  //     content: TextField(
+  //       keyboardType: TextInputType.number        ,
+  //       decoration: InputDecoration(hintText: 'Spinner'), 
+  //       controller: controller,
+  //       onSubmitted: (_) => closed(),
+  //       ),
+  //     actions: [
+  //       TextButton(onPressed: closed, child: Text('Press'))
+  //       // WheelPicker(
+  //       //   builder: (context, index) => Text('$index'),
+
+  //       //   )
+  //     ],
+  //   )
+  //   );

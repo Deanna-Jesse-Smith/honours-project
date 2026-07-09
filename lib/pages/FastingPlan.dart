@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
 import 'package:testrun/custom_widgets.dart';
-import 'package:testrun/database/converters.dart';
+import 'package:testrun/models/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/main.dart';
@@ -21,7 +21,7 @@ class FastingPlan extends StatefulWidget {
   State<FastingPlan> createState() => FastingPlanState();
 }
 
-const List<String> list = <String>['ADF', 'TRE', '5:2'];
+const List<String> list = <String>['ADF', 'TRE', 'FiveTwo'];
 List<bool> adfDaysSelected = List.filled(7, false);
 List<bool> fiveTwoDaysSelected = List.filled(7, false);
 
@@ -39,6 +39,8 @@ class FastingPlanState extends State<FastingPlan> {
    FastingDao  fDao = getIt<FastingDao>();
    UserDao  uDao = getIt<UserDao>();
     CustomWidgets customWidgets = CustomWidgets();
+    // uDao.testing();
+    
     return Scaffold(
       appBar: MainAppBar.appBar('Fasting Plan'),
       body: Container(
@@ -72,10 +74,53 @@ class FastingPlanState extends State<FastingPlan> {
     );
   }
 
+  // late TextEditingController controller;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   controller = TextEditingController();
+  // }
+
+  // @override
+  // void dispose() {
+  //   controller.dispose();
+
+  //   super.dispose();
+  // }
+
+  //   Future<String?> openDialog(BuildContext context) => showDialog<String?>(  // final thing = await openDialog();
+  //   context: context, 
+  //   builder: (context) => AlertDialog(
+  //     title: Text('Title'),
+  //     content: TextField(
+  //       keyboardType: TextInputType.number        ,
+  //       decoration: InputDecoration(hintText: 'Spinner'), 
+  //       controller: controller,
+  //       onSubmitted: (_) => closed(),
+  //       ),
+  //     actions: [
+  //       TextButton(onPressed: closed, child: Text('Press'))
+  //       // WheelPicker(
+  //       //   builder: (context, index) => Text('$index'),
+
+  //       //   )
+  //     ],
+  //   )
+  //   );
+
+  //   void closed() {
+  //     Navigator.of(context).pop(controller.text);
+
+  //     controller.clear();
+  //   }
+
   Column getCorrectLayout() {
-    if (dropDownValue == 'ADF') {
+    print(dropDownValue);
+    if (dropDownValue.toLowerCase() == 'adf') {
       return createADF();
-    } else if (dropDownValue == 'TRE') {
+    } else if (dropDownValue.toLowerCase() == 'tre') {
       return createTRE();
     } else {
       return create52();
@@ -91,7 +136,7 @@ class FastingPlanState extends State<FastingPlan> {
   }
 
   Column create52() {
-    fiveTwoDaysSelected = convertDaysSelectedToList(userState.fiveTwoDaysSelected.value, fiveTwoDaysSelected);
+    // fiveTwoDaysSelected = convertDaysSelectedToList(userState.fiveTwoDaysSelected.value, fiveTwoDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
@@ -236,7 +281,7 @@ class FastingPlanState extends State<FastingPlan> {
   }
 
   Column createADF() {
-    adfDaysSelected = convertDaysSelectedToList(userState.adfDaysSelected.value, adfDaysSelected);
+    // adfDaysSelected = convertDaysSelectedToList(userState.adfDaysSelected.value, adfDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),

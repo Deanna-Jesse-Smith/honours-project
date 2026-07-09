@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:testrun/database/converters.dart';
+import 'package:testrun/models/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
+import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
-import 'package:testrun/pages/meal_tracking.dart';
+import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -18,27 +20,43 @@ void main() async {
   print('start');
   WidgetsFlutterBinding.ensureInitialized();
   final db = AppDatabase();
+  // insert(db);
   getIt.registerSingleton<AppDatabase>(db);
   getIt.registerSingleton<UserDao>(UserDao(db));
   getIt.registerSingleton<FastingDao>(FastingDao(db));
   getIt.registerSingleton<HydrationDao>(HydrationDao(db));
+  getIt.registerSingleton<WeightDao>(WeightDao(db));
   print('end');
-  await AppInitializer(uDao: getIt<UserDao>(), fDao: getIt<FastingDao>(), hDao: getIt<HydrationDao>()).initialize();
-runApp(const MyApp());
+  await AppInitializer(
+    uDao: getIt<UserDao>(),
+    fDao: getIt<FastingDao>(),
+    hDao: getIt<HydrationDao>(),
+  ).initialize();
+  runApp(const MyApp());
+  
 
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
+  // Future<void> main() async {
+  //   WidgetsFlutterBinding.ensureInitialized();
 
-//   final db = AppDatabase();
-//   final userDao = UserDao(db);
-//   final fastingDao = FastingDao(db);
+  //   final db = AppDatabase();
+  //   final userDao = UserDao(db);
+  //   final fastingDao = FastingDao(db);
 
-//   final initializer = AppInitializer(uDao: userDao, fDao: fastingDao);
-//   await initializer.initialize(); // this must call your findName logic internally
+  //   final initializer = AppInitializer(uDao: userDao, fDao: fastingDao);
+  //   await initializer.initialize(); // this must call your findName logic internally
 
-//   runApp(MyApp(database: db, uDao: userDao, fDao: fastingDao));
-// }
+  //   runApp(MyApp(database: db, uDao: userDao, fDao: fastingDao));
+  // }
 }
+
+  void insert(AppDatabase db) {
+    UserDao uDao = UserDao(db);
+
+    DateTime start = DateTime(2026, 1, 1, 12, 30);
+    DateTime end = DateTime(2026, 1, 1, 18);
+
+    uDao.addUser('Deanna', true, FastingForm.tre, 'Beginner', start, end, '1,3,5', '2,4,6');
+  }
 
 class MyApp extends StatelessWidget {
   // final AppDatabase database;
@@ -92,16 +110,15 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
 
-  }
-
- Future<void> findName(UserDao uDao, FastingDao fDao) async {
+Future<void> findName(UserDao uDao, FastingDao fDao) async {
   try {
     final user = await uDao.getUser();
 
     if (user != null) {
       debugPrint("findName: user found - ${user.userID}");
-      debugPrint("findName: typicalEatingStart raw = ${user.typicalEatingStart}");
+      debugPrint("findName: typicalEatingStart raw = ${user.typicalEatingStart}",);
       debugPrint("findName: typicalEatingEnd raw = ${user.typicalEatingEnd}");
 
       userState.userName.value = user.name;
@@ -125,28 +142,27 @@ class MyApp extends StatelessWidget {
     debugPrint(stack.toString());
   }
 
-    // final user = await uDao.getUser();
+  // final user = await uDao.getUser();
 
-    // if (user != null) {
-    //     userState.userName.value = user.name;
-    //     userState.startTime.value = user.typicalEatingStart!;
-    //     print("Reached");
-    //     print(user);
-    //     print("Reached");
-    //     print(user.typicalEatingStart);
-    //     userState.endTime.value = user.typicalEatingEnd!;
-    //     FastingFormConverter formConverter = FastingFormConverter();
-    //     userState.fastingForm.value = formConverter.fromSql(user.formIF);
-    //     final isFasting = await fDao.isFasting(user.userID);
-    //     final start = isFasting?.startDateTime;
-    //     userState.isFasting.value = start == null ? true : false;
-    //     print(userState.isFasting.value);
-    //     print("Reached");
-    // } else {
-    //   // TODO Go to Sign Up instead
-    // }
-  }
-
+  // if (user != null) {
+  //     userState.userName.value = user.name;
+  //     userState.startTime.value = user.typicalEatingStart!;
+  //     print("Reached");
+  //     print(user);
+  //     print("Reached");
+  //     print(user.typicalEatingStart);
+  //     userState.endTime.value = user.typicalEatingEnd!;
+  //     FastingFormConverter formConverter = FastingFormConverter();
+  //     userState.fastingForm.value = formConverter.fromSql(user.formIF);
+  //     final isFasting = await fDao.isFasting(user.userID);
+  //     final start = isFasting?.startDateTime;
+  //     userState.isFasting.value = start == null ? true : false;
+  //     print(userState.isFasting.value);
+  //     print("Reached");
+  // } else {
+  //   // TODO Go to Sign Up instead
+  // }
+}
 
 class AppInitializer {
   final UserDao uDao;
@@ -156,7 +172,6 @@ class AppInitializer {
   AppInitializer({required this.uDao, required this.fDao, required this.hDao});
 
   Future<void> initialize() async {
-    debugPrint("hello");
     try {
       final user = await uDao.getUser();
 
@@ -164,16 +179,26 @@ class AppInitializer {
         return;
       }
 
+      debugPrint(user.toString());
+
       userState.userID = user.userID;
       userState.userName.value = user.name;
       userState.startTime.value = user.typicalEatingStart!;
       userState.endTime.value = user.typicalEatingEnd!;
       userState.fastingForm.value = FastingFormConverter().fromSql(user.formIF);
-      // userState.adfDaysSelected.value = user.adfDaysSelected!;
-      
+      userState.adfDaysSelected.value = user.adfDaysSelected;
+      userState.fiveTwoDaysSelected.value = user.fiveTwoDaysSelected;
 
       final fast = await fDao.isFasting(user.userID);
-      userState.isFasting.value = fast != null && fast.endDateTime == null;
+
+      FastingStatus test = determineFastingStatus(now: DateTime.now(), calculator: TRECalculator(), user: user, activeLog: fast);
+      userState.status.value = test;
+
+      if (fast == null) {
+        userState.isFasting.value = false;
+      } else {
+        userState.isFasting.value = !fast.endDateTime.isAtSameMomentAs(fast.startDateTime);
+      }
     } catch (e, stack) {
       debugPrint("AppInitializer failed: $e");
       debugPrint(stack.toString());

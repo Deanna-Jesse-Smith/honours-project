@@ -678,6 +678,18 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     requiredDuringInsert: false,
     defaultValue: const Constant('TRE'),
   );
+  static const VerificationMeta _fastResultMeta = const VerificationMeta(
+    'fastResult',
+  );
+  @override
+  late final GeneratedColumn<String> fastResult = GeneratedColumn<String>(
+    'fast_result',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _startDateTimeMeta = const VerificationMeta(
     'startDateTime',
   );
@@ -708,6 +720,7 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     fastLogID,
     userID,
     formIF,
+    fastResult,
     startDateTime,
     endDateTime,
   ];
@@ -741,6 +754,12 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
       context.handle(
         _formIFMeta,
         formIF.isAcceptableOrUnknown(data['form_i_f']!, _formIFMeta),
+      );
+    }
+    if (data.containsKey('fast_result')) {
+      context.handle(
+        _fastResultMeta,
+        fastResult.isAcceptableOrUnknown(data['fast_result']!, _fastResultMeta),
       );
     }
     if (data.containsKey('start_date_time')) {
@@ -782,6 +801,10 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
         DriftSqlType.string,
         data['${effectivePrefix}form_i_f'],
       )!,
+      fastResult: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fast_result'],
+      )!,
       startDateTime: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date_time'],
@@ -803,12 +826,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
   final int fastLogID;
   final int userID;
   final String formIF;
+  final String fastResult;
   final DateTime startDateTime;
   final DateTime endDateTime;
   const FastLogData({
     required this.fastLogID,
     required this.userID,
     required this.formIF,
+    required this.fastResult,
     required this.startDateTime,
     required this.endDateTime,
   });
@@ -818,6 +843,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     map['fast_log_i_d'] = Variable<int>(fastLogID);
     map['user_i_d'] = Variable<int>(userID);
     map['form_i_f'] = Variable<String>(formIF);
+    map['fast_result'] = Variable<String>(fastResult);
     map['start_date_time'] = Variable<DateTime>(startDateTime);
     map['end_date_time'] = Variable<DateTime>(endDateTime);
     return map;
@@ -828,6 +854,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastLogID: Value(fastLogID),
       userID: Value(userID),
       formIF: Value(formIF),
+      fastResult: Value(fastResult),
       startDateTime: Value(startDateTime),
       endDateTime: Value(endDateTime),
     );
@@ -842,6 +869,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastLogID: serializer.fromJson<int>(json['fastLogID']),
       userID: serializer.fromJson<int>(json['userID']),
       formIF: serializer.fromJson<String>(json['formIF']),
+      fastResult: serializer.fromJson<String>(json['fastResult']),
       startDateTime: serializer.fromJson<DateTime>(json['startDateTime']),
       endDateTime: serializer.fromJson<DateTime>(json['endDateTime']),
     );
@@ -853,6 +881,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       'fastLogID': serializer.toJson<int>(fastLogID),
       'userID': serializer.toJson<int>(userID),
       'formIF': serializer.toJson<String>(formIF),
+      'fastResult': serializer.toJson<String>(fastResult),
       'startDateTime': serializer.toJson<DateTime>(startDateTime),
       'endDateTime': serializer.toJson<DateTime>(endDateTime),
     };
@@ -862,12 +891,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     int? fastLogID,
     int? userID,
     String? formIF,
+    String? fastResult,
     DateTime? startDateTime,
     DateTime? endDateTime,
   }) => FastLogData(
     fastLogID: fastLogID ?? this.fastLogID,
     userID: userID ?? this.userID,
     formIF: formIF ?? this.formIF,
+    fastResult: fastResult ?? this.fastResult,
     startDateTime: startDateTime ?? this.startDateTime,
     endDateTime: endDateTime ?? this.endDateTime,
   );
@@ -876,6 +907,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastLogID: data.fastLogID.present ? data.fastLogID.value : this.fastLogID,
       userID: data.userID.present ? data.userID.value : this.userID,
       formIF: data.formIF.present ? data.formIF.value : this.formIF,
+      fastResult: data.fastResult.present
+          ? data.fastResult.value
+          : this.fastResult,
       startDateTime: data.startDateTime.present
           ? data.startDateTime.value
           : this.startDateTime,
@@ -891,6 +925,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           ..write('fastLogID: $fastLogID, ')
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
+          ..write('fastResult: $fastResult, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -898,8 +933,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(fastLogID, userID, formIF, startDateTime, endDateTime);
+  int get hashCode => Object.hash(
+    fastLogID,
+    userID,
+    formIF,
+    fastResult,
+    startDateTime,
+    endDateTime,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -907,6 +948,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           other.fastLogID == this.fastLogID &&
           other.userID == this.userID &&
           other.formIF == this.formIF &&
+          other.fastResult == this.fastResult &&
           other.startDateTime == this.startDateTime &&
           other.endDateTime == this.endDateTime);
 }
@@ -915,12 +957,14 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   final Value<int> fastLogID;
   final Value<int> userID;
   final Value<String> formIF;
+  final Value<String> fastResult;
   final Value<DateTime> startDateTime;
   final Value<DateTime> endDateTime;
   const FastLogCompanion({
     this.fastLogID = const Value.absent(),
     this.userID = const Value.absent(),
     this.formIF = const Value.absent(),
+    this.fastResult = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   });
@@ -928,6 +972,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     this.fastLogID = const Value.absent(),
     required int userID,
     this.formIF = const Value.absent(),
+    this.fastResult = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   }) : userID = Value(userID);
@@ -935,6 +980,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Expression<int>? fastLogID,
     Expression<int>? userID,
     Expression<String>? formIF,
+    Expression<String>? fastResult,
     Expression<DateTime>? startDateTime,
     Expression<DateTime>? endDateTime,
   }) {
@@ -942,6 +988,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       if (fastLogID != null) 'fast_log_i_d': fastLogID,
       if (userID != null) 'user_i_d': userID,
       if (formIF != null) 'form_i_f': formIF,
+      if (fastResult != null) 'fast_result': fastResult,
       if (startDateTime != null) 'start_date_time': startDateTime,
       if (endDateTime != null) 'end_date_time': endDateTime,
     });
@@ -951,6 +998,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Value<int>? fastLogID,
     Value<int>? userID,
     Value<String>? formIF,
+    Value<String>? fastResult,
     Value<DateTime>? startDateTime,
     Value<DateTime>? endDateTime,
   }) {
@@ -958,6 +1006,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       fastLogID: fastLogID ?? this.fastLogID,
       userID: userID ?? this.userID,
       formIF: formIF ?? this.formIF,
+      fastResult: fastResult ?? this.fastResult,
       startDateTime: startDateTime ?? this.startDateTime,
       endDateTime: endDateTime ?? this.endDateTime,
     );
@@ -975,6 +1024,9 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     if (formIF.present) {
       map['form_i_f'] = Variable<String>(formIF.value);
     }
+    if (fastResult.present) {
+      map['fast_result'] = Variable<String>(fastResult.value);
+    }
     if (startDateTime.present) {
       map['start_date_time'] = Variable<DateTime>(startDateTime.value);
     }
@@ -990,6 +1042,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
           ..write('fastLogID: $fastLogID, ')
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
+          ..write('fastResult: $fastResult, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -4925,6 +4978,7 @@ typedef $$FastLogTableCreateCompanionBuilder =
       Value<int> fastLogID,
       required int userID,
       Value<String> formIF,
+      Value<String> fastResult,
       Value<DateTime> startDateTime,
       Value<DateTime> endDateTime,
     });
@@ -4933,6 +4987,7 @@ typedef $$FastLogTableUpdateCompanionBuilder =
       Value<int> fastLogID,
       Value<int> userID,
       Value<String> formIF,
+      Value<String> fastResult,
       Value<DateTime> startDateTime,
       Value<DateTime> endDateTime,
     });
@@ -4975,6 +5030,11 @@ class $$FastLogTableFilterComposer
 
   ColumnFilters<String> get formIF => $composableBuilder(
     column: $table.formIF,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fastResult => $composableBuilder(
+    column: $table.fastResult,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5031,6 +5091,11 @@ class $$FastLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get fastResult => $composableBuilder(
+    column: $table.fastResult,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get startDateTime => $composableBuilder(
     column: $table.startDateTime,
     builder: (column) => ColumnOrderings(column),
@@ -5079,6 +5144,11 @@ class $$FastLogTableAnnotationComposer
 
   GeneratedColumn<String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
+
+  GeneratedColumn<String> get fastResult => $composableBuilder(
+    column: $table.fastResult,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get startDateTime => $composableBuilder(
     column: $table.startDateTime,
@@ -5145,12 +5215,14 @@ class $$FastLogTableTableManager
                 Value<int> fastLogID = const Value.absent(),
                 Value<int> userID = const Value.absent(),
                 Value<String> formIF = const Value.absent(),
+                Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime> endDateTime = const Value.absent(),
               }) => FastLogCompanion(
                 fastLogID: fastLogID,
                 userID: userID,
                 formIF: formIF,
+                fastResult: fastResult,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),
@@ -5159,12 +5231,14 @@ class $$FastLogTableTableManager
                 Value<int> fastLogID = const Value.absent(),
                 required int userID,
                 Value<String> formIF = const Value.absent(),
+                Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime> endDateTime = const Value.absent(),
               }) => FastLogCompanion.insert(
                 fastLogID: fastLogID,
                 userID: userID,
                 formIF: formIF,
+                fastResult: fastResult,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),

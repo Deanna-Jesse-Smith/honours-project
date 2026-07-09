@@ -92,4 +92,20 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       );
     }
   }
+
+  Future<List<MealFoodContentData>> getMealsFood(List<DateTime> days) async {
+    final allMeals = await (select(meals)..where((m) => m.date.isIn(days))).get();
+
+    final mealIDs = allMeals.map((m) => m.mealID).toList();
+
+    final foodContent = await (select(mealFoodContent)
+    .join([innerJoin(food, food.foodID.equalsExp(mealFoodContent.foodID))])
+    ..where(mealFoodContent.mealID.isIn(mealIDs))).get();
+
+    final recipeContent = await (select(mealRecipeContent)
+    .join([innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID))])
+    ..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
+
+    
+  }
 }

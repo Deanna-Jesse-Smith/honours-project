@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_logs/flutter_logs.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:testrun/database/converters.dart';
+import 'package:testrun/models/converters.dart';
 // import 'package:testrun/de/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
@@ -12,9 +12,10 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:wheel_picker/wheel_picker.dart';
 
 class CustomWidgets {
-  final db = AppDatabase();
+  // final db = AppDatabase();
 
   late String userName;
 
@@ -28,23 +29,26 @@ class CustomWidgets {
 
   // }
 
-  void insert() {
-    UserDao uDao = UserDao(db);
+//   void insert() {
+//     UserDao uDao = UserDao(db);
 
-    uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner');
-  }
+//     DateTime start = DateTime(2026, 1, 1, 12, 30);
+//     DateTime end = DateTime(2026, 1, 1, 18);
+
+//     uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner', start, end);
+//   }
 
 
- // #region old
-  Future<String> findUser() async {
-    final curUser = await db.select(db.users).get();
+//  // #region old
+//   Future<String> findUser() async {
+//     final curUser = await db.select(db.users).get();
 
-    User thisUser = curUser.last;
+//     User thisUser = curUser.last;
 
-    print(thisUser);
+//     print(thisUser);
 
-    return thisUser.name;
-  }
+//     return thisUser.name;
+//   }
 
   // Future<String> insertRow() async {
   //   final allUsers = await db.select(db.users).get();
@@ -209,7 +213,7 @@ class CustomWidgets {
   }
 
   Drawer getDrawer(BuildContext context) {
-    insert();
+    // insert();
     return Drawer(
       child: ListView(
         padding: const EdgeInsets.all(10),

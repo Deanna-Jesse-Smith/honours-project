@@ -14,6 +14,30 @@ class MealTracking extends StatelessWidget {
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: customWidgets.getFAB(3),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          groupedMeals(context),
+          groupedMeals(context),
+          groupedMeals(context)
+        ],
+      )
+    );
+  }
+
+
+  Container groupedMeals(BuildContext context) {
+    return .new(
+      width: MediaQuery.sizeOf(context).width - 50,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: Colors.amberAccent, borderRadius: BorderRadius.circular(25)),
+      child: Text('Hello')
+    );
+  }
+
+  Container individualMeal() {
+    return .new(
+      
     );
   }
 }

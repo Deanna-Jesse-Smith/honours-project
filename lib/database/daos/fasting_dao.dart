@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:testrun/database/converters.dart';
+import 'package:testrun/models/converters.dart';
 import '../database.dart';
 import '../tables/fasting_tables.dart';
 
@@ -16,6 +16,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         userID: userID,
         formIF: Value(form.name),
         startDateTime: Value(startTime),
+        endDateTime: Value(startTime)
       ),
     );
   }

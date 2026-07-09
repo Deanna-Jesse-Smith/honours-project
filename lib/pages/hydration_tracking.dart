@@ -7,6 +7,7 @@ import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
@@ -48,14 +49,15 @@ class HydrationTracking extends StatelessWidget {
                 if (snapshot.hasData) {
                   amount = snapshot.data!;
                 }
-                return LiquidCircularProgressIndicator(
+                return LiquidCustomProgressIndicator(
                 value: amount,
                 valueColor: AlwaysStoppedAnimation( Colors.pink),
                 backgroundColor: Colors.white,
-                borderColor: Colors.red,
-                borderWidth: 5.0,
+                // borderColor: Colors.red,
+                // borderWidth: 5.0,
                 direction: Axis.vertical,
-                center: Text("Loading..."),
+                center: Text("Get drinking!"),
+                shapePath: buildBottlePath(const Size(100, 180)),
               );}),
               // child: LiquidCircularProgressIndicator(
               //   value: amount, // Defaults to 0.5.
@@ -70,6 +72,7 @@ class HydrationTracking extends StatelessWidget {
               //   center: Text("Loading..."),
               // ),
             ),
+            // ElevatedButton(onPressed: () => Dialogs.getNewInput(context, title: 'Test Title'), child: Text('test'))
           ],
         ),
       ),
@@ -92,4 +95,40 @@ class HydrationTracking extends StatelessWidget {
 
     // return todays.fold(0, (sum, log) => sum + log.amount);
   }
+}
+
+Path buildBottlePath(Size size) {
+  final w = size.width;
+  final h = size.height;
+  final path = Path();
+
+  final neckWidth = w * 0.35;
+  final neckLeft = (w - neckWidth) / 2;
+  final neckHeight = h * 0.15;
+
+  path.moveTo(neckLeft, 0);
+  path.lineTo(neckLeft + neckWidth, 0);
+  path.lineTo(neckLeft + neckWidth, neckHeight);
+
+  // Shoulder curve out to full body width
+  path.quadraticBezierTo(
+    neckLeft + neckWidth, neckHeight + h * 0.05,
+    w, neckHeight + h * 0.12,
+  );
+
+  // Body down to base
+  path.lineTo(w, h - h * 0.05);
+  path.quadraticBezierTo(w, h, w - w * 0.05, h);
+  path.lineTo(w * 0.05, h);
+  path.quadraticBezierTo(0, h, 0, h - h * 0.05);
+
+  // Body up to shoulder
+  path.lineTo(0, neckHeight + h * 0.12);
+  path.quadraticBezierTo(
+    0, neckHeight + h * 0.05,
+    neckLeft, neckHeight,
+  );
+
+  path.close();
+  return path;
 }
