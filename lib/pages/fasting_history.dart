@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
@@ -8,18 +9,18 @@ import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/history_item.dart';
 
-class FastingHistory extends StatefulWidget {
+class FastingHistory extends ConsumerStatefulWidget {
   const FastingHistory({super.key});
 
   @override
-  State<FastingHistory> createState() => _FastingHistoryState();
+  ConsumerState<FastingHistory> createState() => _FastingHistoryState();
 }
 
 const List<String> months = <String>['January', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 // const DoubleLinkedQueue monthss = Dou
 
-class _FastingHistoryState extends State<FastingHistory> {
-  final FastingDao fDao = getIt<FastingDao>();
+class _FastingHistoryState extends ConsumerState<FastingHistory> {
+  // final FastingDao fDao = getIt<FastingDao>();
   @override
   Widget build(BuildContext context) {
     DateTime today = DateTime.now();

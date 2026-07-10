@@ -3,28 +3,29 @@ class Ingredient {
   final int id;
   final String name;
   final double quantity;
+  final IngredientType type;
 
-  Ingredient({
-    required this.id,
-    required this.name,
-    required this.quantity,
-  });
+  Ingredient(this.id, this.name, this.quantity, this.type);
 }
 
-class Recipe {
-  
+enum IngredientType {
+  food,
+  recipe,
 }
 
-class Meal {
+class MealItem {
   final int id;
-  final List<Ingredient> ingredients;
+  final List<Ingredient>? ingredients;
   final DateTime date;
   final bool isInEatingWindow;
   final LogMethod log;
+
+  MealItem(this.id, this.ingredients, this.date, this.isInEatingWindow, this.log);
 }
 
 enum LogMethod {
   quick,
   full,
-  repeat
+  repeat,
+  none
 }

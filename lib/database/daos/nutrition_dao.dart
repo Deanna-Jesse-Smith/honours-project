@@ -6,6 +6,8 @@ import 'package:testrun/database/tables/nutrition_tables/meals_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/nutrition_log_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_quantities_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_table.dart';
+import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/meals_model.dart';
 
 part 'nutrition_dao.g.dart';
 
@@ -35,9 +37,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
 
   }
 
-  Future<int> addMealRecipeContent(int userID, int mealID, int recipeID, double amount, DateTime date, String logMethod) async {
+  Future<int> addMealRecipeContent(int userID, int mealID, int recipeID, double amount, DateTime date, LogMethod logMethod) async {
     if (mealID < 0) {
-      mealID = await insertMeal(userID, amount, date, logMethod);
+      mealID = await insertMeal(userID, date, logMethod);
       // TODO put the 'is in eating window' thing in place
     }
 
@@ -45,9 +47,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return content;
   }
 
-    Future<int> addMealFoodContent(int userID, int mealID, int foodID, double amount, DateTime date, String logMethod) async {
+    Future<int> addMealFoodContent(int userID, int mealID, int foodID, double amount, DateTime date, LogMethod logMethod) async {
     if (mealID < 0) {
-      mealID = await insertMeal(userID, amount, date, logMethod);
+      mealID = await insertMeal(userID, date, logMethod);
       // TODO put the 'is in eating window' thing in place
     }
 
@@ -55,8 +57,8 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return content;
   }
 
-  Future<int> insertMeal(int userID, double amount, DateTime date, String logMethod) async {
-    final meal = await into(meals).insert(MealsCompanion.insert(userID: userID, date: Value(date), inEatingWindow: Value(false), logMethod: Value(logMethod), amount: Value(amount)));
+  Future<int> insertMeal(int userID, DateTime date, LogMethod logMethod) async {
+    final meal = await into(meals).insert(MealsCompanion.insert(userID: userID, date: Value(date), inEatingWindow: Value(false), logMethod: Value(LogMethodConverter().toSql(logMethod))));
     return meal;
   }
 
@@ -93,19 +95,51 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
-  Future<List<MealFoodContentData>> getMealsFood(List<DateTime> days) async {
-    final allMeals = await (select(meals)..where((m) => m.date.isIn(days))).get();
+  Future<List<MealItem>> getMealsInRange(List<DateTime> days) async {
+    final allMeals = await (select(meals)
+    ..where((m) => m.date.isIn(days))
+    ..orderBy([(d) => OrderingTerm.desc(d.date)])
+    ).get();
+
+    List<MealItem> mealLogs = List.empty();
 
     final mealIDs = allMeals.map((m) => m.mealID).toList();
 
-    final foodContent = await (select(mealFoodContent)
+    Map<int, List<Ingredient>> mealFoods = {};
+
+    final foodContentRows = await (select(mealFoodContent)
     .join([innerJoin(food, food.foodID.equalsExp(mealFoodContent.foodID))])
     ..where(mealFoodContent.mealID.isIn(mealIDs))).get();
 
-    final recipeContent = await (select(mealRecipeContent)
+    for (final row in foodContentRows) {
+      final foodContent = row.readTable(mealFoodContent);
+      final foodItem = row.readTable(food);
+
+      final ingredient = Ingredient(foodItem.foodID, foodItem.name, foodContent.quantity, IngredientType.food);
+      mealFoods.putIfAbsent(foodContent.mealID, () => []).add(ingredient);
+    }
+
+    final recipeContentRows = await (select(mealRecipeContent)
     .join([innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID))])
     ..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
 
-    
+    for (final row in recipeContentRows) {
+      final recipeContent = row.readTable(mealRecipeContent);
+      final recipeItem = row.readTable(recipe);
+
+      final ingredient = Ingredient(recipeItem.recipeID, recipeItem.recipeName, recipeContent.quantity, IngredientType.recipe);
+      mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
+    }
+
+    for (final meal in allMeals) {
+      MealItem temp = MealItem(meal.mealID, mealFoods[meal.mealID], meal.date, meal.inEatingWindow, LogMethodConverter().fromSql(meal.logMethod));
+      mealLogs.add(temp);
+    }
+
+    return mealLogs;
+  }
+
+  Future<List<FoodData>> getFoodForSearch() {
+    return (select(food)).get();
   }
 }

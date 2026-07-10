@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]): super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -53,15 +53,7 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
     },
     onUpgrade: (m, from, to) async {
-      // await m.createTable(Food as TableInfo<Table, dynamic>);
-      // await m.createTable(Recipe as TableInfo<Table, dynamic>);
-      // await m.createTable(Meals as TableInfo<Table, dynamic>);
-      // await m.createTable(NutritionLog as TableInfo<Table, dynamic>);
-      // await m.createTable(MealFoodContent as TableInfo<Table, dynamic>);
-      // await m.createTable(MealRecipeContent as TableInfo<Table, dynamic>);
-      // await m.createTable(RecipeQuantities as TableInfo<Table, dynamic>);
-
-    await m.createTable(FastLog as TableInfo<Table, dynamic>);
+    // await m.createTable(FastLog);
     }
   );
 

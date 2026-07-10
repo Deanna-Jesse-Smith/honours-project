@@ -20,9 +20,11 @@ class _SetupUserState extends State<SetupUser> {
 
   @override
   Widget build(BuildContext context) {
+    int initialVal = 0;
+    final contorller = TextEditingController(text: initialVal?.toString() ?? '');
     return Scaffold(
       appBar: AppBar(title: Text('Beginner'), centerTitle: true),
-      body: ListView(
+      body: Column(
         children: [
           Text(
             'Forms of Intermittent Fasting',
@@ -121,6 +123,19 @@ class _SetupUserState extends State<SetupUser> {
                 });
               }
           }, child: Text('Select Birthday')),
+          Text('How tall are you?'),
+          TextField(
+            controller: contorller,
+            keyboardType: TextInputType.numberWithOptions(decimal: false),
+            decoration: InputDecoration(suffixText: 'cm'),
+          ),
+          Text('How much do you weigh?'),
+          TextField(
+            controller: contorller,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(suffixText: 'kg'),
+          ),
+          Text('Do you eat meals with family or friends regularly?')
         ],
       ),
     );

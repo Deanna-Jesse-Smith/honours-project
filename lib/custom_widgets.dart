@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_logs/flutter_logs.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 // import 'package:testrun/de/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
@@ -15,8 +17,6 @@ import 'package:testrun/utils/user_state.dart';
 import 'package:wheel_picker/wheel_picker.dart';
 
 class CustomWidgets {
-  // final db = AppDatabase();
-
   late String userName;
 
   late BuildFAB fabBuilder;
@@ -29,33 +29,31 @@ class CustomWidgets {
 
   // }
 
-//   void insert() {
-//     UserDao uDao = UserDao(db);
+  //   void insert() {
+  //     UserDao uDao = UserDao(db);
 
-//     DateTime start = DateTime(2026, 1, 1, 12, 30);
-//     DateTime end = DateTime(2026, 1, 1, 18);
+  //     DateTime start = DateTime(2026, 1, 1, 12, 30);
+  //     DateTime end = DateTime(2026, 1, 1, 18);
 
-//     uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner', start, end);
-//   }
+  //     uDao.addUser('Deanna', true, FastingForm.adf, 'Beginner', start, end);
+  //   }
 
+  //  // #region old
+  //   Future<String> findUser() async {
+  //     final curUser = await db.select(db.users).get();
 
-//  // #region old
-//   Future<String> findUser() async {
-//     final curUser = await db.select(db.users).get();
+  //     User thisUser = curUser.last;
 
-//     User thisUser = curUser.last;
+  //     print(thisUser);
 
-//     print(thisUser);
-
-//     return thisUser.name;
-//   }
+  //     return thisUser.name;
+  //   }
 
   // Future<String> insertRow() async {
   //   final allUsers = await db.select(db.users).get();
 
-
   // //  FlutterLogs.logInfo("Value", "Name", oneUser.name);
-   
+
   //  UserDao uDao = UserDao(db);
   // //  uDao.addUser('temp', true, FastingForm.tre, 'Intermediate');
 
@@ -73,7 +71,6 @@ class CustomWidgets {
   //   // return name;
 
   //  return updatedUser.name;
-
 
   // }
 
@@ -96,8 +93,8 @@ class CustomWidgets {
   //  DateTime test2() {
   //   return DateTime(2026, 0, 0, 18);
   // }
- // #endregion
-  
+  // #endregion
+
   PercentCircleIndicator circleIndicator(
     double percent,
     progress,
@@ -249,6 +246,12 @@ class CustomWidgets {
             },
           ),
           ListTile(
+            title: const Text('Weight Tracking'),
+            onTap: () {
+              Navigator.pushNamed(context, '/WeightTracking');
+            },
+          ),
+          ListTile(
             title: const Text('Setup'),
             onTap: () {
               Navigator.pushNamed(context, '/SetupUser');
@@ -260,89 +263,73 @@ class CustomWidgets {
   }
 
   ExpandableFab getFAB(
+    WidgetRef ref,
+    UserSessionData session,
     int index, {
     ExpandableFabPos posi = ExpandableFabPos.center,
   }) {
     // CategoryModel model = CategoryModel(index: index);
 
-    final actions = BuildFAB.buildFab(index: index);
+    final actions = BuildFAB.buildFab(
+      session,
+      index: index,
+      onFastTapped: () {
+        if (session.isFasting) {
+          ref.read(fDaoProvider).breakFast(session.userId, DateTime.now());
+        } else {
+          ref.read(fDaoProvider).startFast(session.userId, session.fastingForm, DateTime.now());
+        }
+      },
+      onHydrationTapped: () {},
+      onMealTapped: () {},
+      onWeightTapped: () {},
+    );
 
     return ExpandableFab(
       type: ExpandableFabType.up,
       pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
       margin: const EdgeInsets.all(10),
-      children: actions.reversed.map((buttons) {
-        return ElevatedButton(
-          onPressed: () {
-            switch (buttons.title) {
-              case 'Break my fast':
-              // fDao.breakFast(userState.userID, DateTime.now());
-              BuildFAB.isFasting = false;
-              case 'Start my fast':
-              BuildFAB.isFasting = true;
-              case 'Log Weight':
-              
-              case 'Log Meal':
-              break;
-              case 'Log Hydration':
-              break;
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: buttons.colour,
-            textStyle: const TextStyle(fontSize: TextSizing.small),
-          ),
-          child: Text(buttons.title),
-        );
-      }).toList(),
+      children: actions.reversed
+          .map(
+            (button) => ElevatedButton(
+              onPressed: button.onPressed,
+              child: Text(button.title),
+            ),
+          )
+          .toList(),
     );
 
-    // List<CategoryModel> configs = model.getFABList();
     // return ExpandableFab(
     //   type: ExpandableFabType.up,
     //   pos: posi,
     //   overlayStyle: ExpandableFabOverlayStyle(blur: 20),
-    //   margin: EdgeInsets.all(10),
-    //   children: [
-    //     ElevatedButton(
-    //       onPressed: () {},
+    //   margin: const EdgeInsets.all(10),
+    //   children: actions.reversed.map((buttons) {
+    //     return ElevatedButton(
+    //       onPressed: () {
+    //         switch (buttons.title) {
+    //           case 'Break my fast':
+    //           // fDao.breakFast(userState.userID, DateTime.now());
+    //           BuildFAB.isFasting = false;
+    //           case 'Start my fast':
+    //           BuildFAB.isFasting = true;
+    //           case 'Log Weight':
+
+    //           case 'Log Meal':
+    //           break;
+    //           case 'Log Hydration':
+    //           break;
+    //         }
+    //       },
     //       style: ElevatedButton.styleFrom(
     //         foregroundColor: Colors.black,
-    //         backgroundColor: configs[3].primaryColour,
-    //         textStyle: TextStyle(fontSize: TextSizing.small),
+    //         backgroundColor: buttons.colour,
+    //         textStyle: const TextStyle(fontSize: TextSizing.small),
     //       ),
-    //       child: Text(configs[3].text),
-    //     ),
-    //     ElevatedButton(
-    //       onPressed: () {},
-    //       style: ElevatedButton.styleFrom(
-    //         foregroundColor: Colors.black,
-    //         backgroundColor: configs[2].primaryColour,
-    //         textStyle: TextStyle(fontSize: TextSizing.small),
-    //       ),
-    //       child: Text(configs[2].text),
-    //     ),
-    //     ElevatedButton(
-    //       onPressed: () {},
-    //       style: ElevatedButton.styleFrom(
-    //         foregroundColor: Colors.black,
-    //         backgroundColor: configs[1].primaryColour,
-    //         textStyle: TextStyle(fontSize: TextSizing.small),
-    //       ),
-    //       child: Text(configs[1].text),
-    //     ),
-    //     ElevatedButton(
-    //       onPressed: () {},
-    //       style: ElevatedButton.styleFrom(
-    //         foregroundColor: Colors.black,
-    //         backgroundColor: configs[0].primaryColour,
-    //         textStyle: TextStyle(fontSize: TextSizing.small),
-    //       ),
-    //       child: Text(configs[0].text),
-    //     ),
-    //   ],
+    //       child: Text(buttons.title),
+    //     );
+    //   }).toList(),
     // );
   }
 }

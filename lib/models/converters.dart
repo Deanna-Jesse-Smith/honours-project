@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:testrun/models/meals_model.dart';
 
 enum FastingForm {tre, fiveTwo, adf}
 
@@ -15,6 +16,21 @@ class FastingFormConverter extends TypeConverter<FastingForm, String> {
   
   @override
   String toSql(FastingForm value) => value.name;
+}
+
+class LogMethodConverter extends TypeConverter<LogMethod, String> {
+  const LogMethodConverter();
+
+  @override
+  LogMethod fromSql(String fromDB) {
+    return LogMethod.values.firstWhere(
+      (f) => f.name == fromDB,
+      orElse: () => LogMethod.quick
+      );
+  }
+  
+  @override
+  String toSql(LogMethod value) => value.name;
 }
 
 // ignore: constant_identifier_names
@@ -44,12 +60,12 @@ enum DayOfWeek {M, T, W, TH, F, SAT, SUN}
 class DayOfWeekConverter {
   const DayOfWeekConverter();
 
-  static List<int> fromSQL(String fromDB) {
+  List<int> fromSQL(String fromDB) {
     List<int> days = fromDB.split(',').map((d) => int.parse(d)).toList();
     return days;
   }
 
-  static String toSQL(List<int> days) {
+  String toSQL(List<int> days) {
     String selected = days.fold('', (prev, ele) => '$prev,$ele');
     return selected;
   }

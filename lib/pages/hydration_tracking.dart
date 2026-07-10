@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/hydration_dao.dart';
+import 'package:testrun/database/tables/user_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -11,16 +13,17 @@ import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
-class HydrationTracking extends StatelessWidget {
+class HydrationTracking extends ConsumerWidget {
   const HydrationTracking({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(userSessionProvider).value;
     double amount = 0;
 
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
-      appBar: MainAppBar.appBar('Hydration Tracking'),
+      appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -45,11 +48,14 @@ class HydrationTracking extends StatelessWidget {
             SizedBox(
               width: 100,
               height: 100,
-              child: FutureBuilder<double>(future: getTodayHydration(), builder: (context, snapshot) {
+              child: FutureBuilder<double>(future: getTodayHydration(ref, session.userId), builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  debugPrint('No hydr data');
+                }
                 if (snapshot.hasData) {
                   amount = snapshot.data!;
                 }
-                return LiquidCustomProgressIndicator(
+                return LiquidCircularProgressIndicator(
                 value: amount,
                 valueColor: AlwaysStoppedAnimation( Colors.pink),
                 backgroundColor: Colors.white,
@@ -57,7 +63,7 @@ class HydrationTracking extends StatelessWidget {
                 // borderWidth: 5.0,
                 direction: Axis.vertical,
                 center: Text("Get drinking!"),
-                shapePath: buildBottlePath(const Size(100, 180)),
+                // shapePath: buildBottlePath(const Size(100, 180)),
               );}),
               // child: LiquidCircularProgressIndicator(
               //   value: amount, // Defaults to 0.5.
@@ -72,22 +78,27 @@ class HydrationTracking extends StatelessWidget {
               //   center: Text("Loading..."),
               // ),
             ),
-            // ElevatedButton(onPressed: () => Dialogs.getNewInput(context, title: 'Test Title'), child: Text('test'))
+            ElevatedButton(onPressed: () async {
+              final newAmount = await Dialogs.getSpinnerWaterInput(context, title: 'How many cups have you drank?');
+              if (newAmount != null) ref.read(hDaoProvider).addHydration(session.userId, DateTime.now(), newAmount);
+            }, child: Text('Log Hydration'))
           ],
         ),
       ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(4),
+      floatingActionButton: customWidgets.getFAB(ref, session, 4),
     );
   }
 
-  Future<double> getTodayHydration() async {
-    final todays = await getIt<HydrationDao>().getTodayHydration(userState.userID, DateTime.now());
+  Future<double> getTodayHydration(WidgetRef ref, int userID) async {
+    // final todays = await getIt<HydrationDao>().getTodayHydration(userState.userID, DateTime.now());
+    debugPrint('getTodayHydration');
+    final curHydr = await ref.watch(hDaoProvider).getTodayHydration(userID, DateTime.now());
 
     double sum = 0;
 
-    for (var log in todays) {
+    for (var log in curHydr) {
       sum += log.amount;
     }
 

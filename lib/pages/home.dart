@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:testrun/custom_widgets.dart';
@@ -14,19 +15,21 @@ import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   // var state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(userSessionProvider).value;
+
     CustomWidgets customWidgets = CustomWidgets();
-    double percent = calculatePercentageTRE();
-    // curProgress();
+    double percent = calculatePercentageTRE(session!);
+    // curProgress(ref);
 
     return Scaffold(
-      appBar: MainAppBar.appBar(''),
+      appBar: MainAppBar.appBar('', session.userName),
       // appBar: customWidgets.appBar(customWidgets.insertRow().then((value) => ,),
       // body: circleIndicator(0.4, Colors.blueAccent, Colors.lightBlueAccent),
       body: Container(
@@ -52,13 +55,13 @@ class HomePage extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.all(35),
-              child: circularIndicator(percent, Colors.cyan, Colors.lightBlueAccent)
+              child: circularIndicator(percent, Colors.cyan, Colors.lightBlueAccent, session)
             ),
         ],),
         ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(1),
+      floatingActionButton: customWidgets.getFAB(ref, session, 1),
       // floatingActionButton: FloatingActionButton(
       //   backgroundColor: Colors.purpleAccent,
       //   onPressed: () {
@@ -71,8 +74,9 @@ class HomePage extends StatelessWidget {
     double percent,
     Color backgroundColor,
     progress,
+    UserSessionData ses
   ) {
-    String temp = userState.status.value.homeReminder;
+    String temp = ses.status.homeReminder;
     return CircularPercentIndicator(
       radius: 100,
       percent: percent,
@@ -94,10 +98,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  double calculatePercentageTRE() {
-    final Duration diff = userState.endTime.value.difference(userState.startTime.value);
+  double calculatePercentageTRE(UserSessionData ses) {
+    final Duration diff = ses.endTime.difference(ses.startTime);
     int diffMinutes = diff.inMinutes;
-    print('Calculate: ${diffMinutes} from ${userState.endTime.value} and ${userState.userID}');
+    print('Calculate: ${diffMinutes} from ${ses.endTime} and ${ses.userId}');
     return diffMinutes / 1440;
   }
 
@@ -113,29 +117,30 @@ class HomePage extends StatelessWidget {
   //   }
   // }
 
-  Future<void> curProgress() async {
-    final cur = await getIt<FastingDao>().isFasting(userState.userID);
-    if (cur == null) {
-      // await getIt<FastingDao>().startFast(userState.userID, FastingForm.tre, DateTime.now());
-      return;
-    }
+  // Future<void> curProgress(WiedgetRef ref) async {
+  //   final cur = await getIt<FastingDao>().isFasting(userState.userID);
 
-    final userSnapshot = User(
-    userID: userState.userID,
-    name: userState.userName.value,
-    typicalEatingStart: userState.startTime.value,
-    typicalEatingEnd: userState.endTime.value,
-    isMetric: true,
-    experience: 'Beginner',
-    createdDate: DateTime.now(),
-    adfDaysSelected: '',
-    fiveTwoDaysSelected: '',
-    formIF: FastingFormConverter().toSql(userState.fastingForm.value),
-    // fill any other required non-nullable fields your User class has
-  );
-    FastingStatus test = determineFastingStatus(now: DateTime.now(), calculator: TRECalculator(), user: userSnapshot, activeLog: cur);
-    userState.status.value = test;
-    // getIt.registerSingleton<FastingStatus>(test);
-    print('Status: $test');
-  }
+  //   // final cur = ref.
+  //   if (cur == null) {
+  //     // await getIt<FastingDao>().startFast(userState.userID, FastingForm.tre, DateTime.now());
+  //     return;
+  //   }
+
+  //   final userSnapshot = User(
+  //   userID: userState.userID,
+  //   name: userState.userName.value,
+  //   typicalEatingStart: userState.startTime.value,
+  //   typicalEatingEnd: userState.endTime.value,
+  //   isMetric: true,
+  //   experience: 'Beginner',
+  //   createdDate: DateTime.now(),
+  //   adfDaysSelected: '',
+  //   fiveTwoDaysSelected: '',
+  //   formIF: FastingFormConverter().toSql(userState.fastingForm.value)
+  // );
+  //   FastingStatus test = determineFastingStatus(now: DateTime.now(), calculator: TRECalculator(), user: userSnapshot, activeLog: cur);
+  //   userState.status.value = test;
+  //   // getIt.registerSingleton<FastingStatus>(test);
+  //   print('Status: $test');
+  // }
 }

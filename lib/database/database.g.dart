@@ -710,10 +710,9 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
   late final GeneratedColumn<DateTime> endDateTime = GeneratedColumn<DateTime>(
     'end_date_time',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -812,7 +811,7 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
       endDateTime: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}end_date_time'],
-      )!,
+      ),
     );
   }
 
@@ -828,14 +827,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
   final String formIF;
   final String fastResult;
   final DateTime startDateTime;
-  final DateTime endDateTime;
+  final DateTime? endDateTime;
   const FastLogData({
     required this.fastLogID,
     required this.userID,
     required this.formIF,
     required this.fastResult,
     required this.startDateTime,
-    required this.endDateTime,
+    this.endDateTime,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -845,7 +844,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     map['form_i_f'] = Variable<String>(formIF);
     map['fast_result'] = Variable<String>(fastResult);
     map['start_date_time'] = Variable<DateTime>(startDateTime);
-    map['end_date_time'] = Variable<DateTime>(endDateTime);
+    if (!nullToAbsent || endDateTime != null) {
+      map['end_date_time'] = Variable<DateTime>(endDateTime);
+    }
     return map;
   }
 
@@ -856,7 +857,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       formIF: Value(formIF),
       fastResult: Value(fastResult),
       startDateTime: Value(startDateTime),
-      endDateTime: Value(endDateTime),
+      endDateTime: endDateTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDateTime),
     );
   }
 
@@ -871,7 +874,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       formIF: serializer.fromJson<String>(json['formIF']),
       fastResult: serializer.fromJson<String>(json['fastResult']),
       startDateTime: serializer.fromJson<DateTime>(json['startDateTime']),
-      endDateTime: serializer.fromJson<DateTime>(json['endDateTime']),
+      endDateTime: serializer.fromJson<DateTime?>(json['endDateTime']),
     );
   }
   @override
@@ -883,7 +886,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       'formIF': serializer.toJson<String>(formIF),
       'fastResult': serializer.toJson<String>(fastResult),
       'startDateTime': serializer.toJson<DateTime>(startDateTime),
-      'endDateTime': serializer.toJson<DateTime>(endDateTime),
+      'endDateTime': serializer.toJson<DateTime?>(endDateTime),
     };
   }
 
@@ -893,14 +896,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     String? formIF,
     String? fastResult,
     DateTime? startDateTime,
-    DateTime? endDateTime,
+    Value<DateTime?> endDateTime = const Value.absent(),
   }) => FastLogData(
     fastLogID: fastLogID ?? this.fastLogID,
     userID: userID ?? this.userID,
     formIF: formIF ?? this.formIF,
     fastResult: fastResult ?? this.fastResult,
     startDateTime: startDateTime ?? this.startDateTime,
-    endDateTime: endDateTime ?? this.endDateTime,
+    endDateTime: endDateTime.present ? endDateTime.value : this.endDateTime,
   );
   FastLogData copyWithCompanion(FastLogCompanion data) {
     return FastLogData(
@@ -959,7 +962,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   final Value<String> formIF;
   final Value<String> fastResult;
   final Value<DateTime> startDateTime;
-  final Value<DateTime> endDateTime;
+  final Value<DateTime?> endDateTime;
   const FastLogCompanion({
     this.fastLogID = const Value.absent(),
     this.userID = const Value.absent(),
@@ -1000,7 +1003,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Value<String>? formIF,
     Value<String>? fastResult,
     Value<DateTime>? startDateTime,
-    Value<DateTime>? endDateTime,
+    Value<DateTime?>? endDateTime,
   }) {
     return FastLogCompanion(
       fastLogID: fastLogID ?? this.fastLogID,
@@ -1687,6 +1690,15 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _userIDMeta = const VerificationMeta('userID');
   @override
   late final GeneratedColumn<int> userID = GeneratedColumn<int>(
@@ -1756,6 +1768,7 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
   @override
   List<GeneratedColumn> get $columns => [
     foodID,
+    name,
     userID,
     carbs,
     fat,
@@ -1780,6 +1793,14 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
         _foodIDMeta,
         foodID.isAcceptableOrUnknown(data['food_i_d']!, _foodIDMeta),
       );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
     }
     if (data.containsKey('user_i_d')) {
       context.handle(
@@ -1832,6 +1853,10 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
         DriftSqlType.int,
         data['${effectivePrefix}food_i_d'],
       )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
       userID: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}user_i_d'],
@@ -1867,6 +1892,7 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
 
 class FoodData extends DataClass implements Insertable<FoodData> {
   final int foodID;
+  final String name;
   final int userID;
   final double carbs;
   final double fat;
@@ -1875,6 +1901,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   final double calories;
   const FoodData({
     required this.foodID,
+    required this.name,
     required this.userID,
     required this.carbs,
     required this.fat,
@@ -1886,6 +1913,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['food_i_d'] = Variable<int>(foodID);
+    map['name'] = Variable<String>(name);
     map['user_i_d'] = Variable<int>(userID);
     map['carbs'] = Variable<double>(carbs);
     map['fat'] = Variable<double>(fat);
@@ -1898,6 +1926,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   FoodCompanion toCompanion(bool nullToAbsent) {
     return FoodCompanion(
       foodID: Value(foodID),
+      name: Value(name),
       userID: Value(userID),
       carbs: Value(carbs),
       fat: Value(fat),
@@ -1914,6 +1943,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FoodData(
       foodID: serializer.fromJson<int>(json['foodID']),
+      name: serializer.fromJson<String>(json['name']),
       userID: serializer.fromJson<int>(json['userID']),
       carbs: serializer.fromJson<double>(json['carbs']),
       fat: serializer.fromJson<double>(json['fat']),
@@ -1927,6 +1957,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'foodID': serializer.toJson<int>(foodID),
+      'name': serializer.toJson<String>(name),
       'userID': serializer.toJson<int>(userID),
       'carbs': serializer.toJson<double>(carbs),
       'fat': serializer.toJson<double>(fat),
@@ -1938,6 +1969,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
 
   FoodData copyWith({
     int? foodID,
+    String? name,
     int? userID,
     double? carbs,
     double? fat,
@@ -1946,6 +1978,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     double? calories,
   }) => FoodData(
     foodID: foodID ?? this.foodID,
+    name: name ?? this.name,
     userID: userID ?? this.userID,
     carbs: carbs ?? this.carbs,
     fat: fat ?? this.fat,
@@ -1956,6 +1989,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   FoodData copyWithCompanion(FoodCompanion data) {
     return FoodData(
       foodID: data.foodID.present ? data.foodID.value : this.foodID,
+      name: data.name.present ? data.name.value : this.name,
       userID: data.userID.present ? data.userID.value : this.userID,
       carbs: data.carbs.present ? data.carbs.value : this.carbs,
       fat: data.fat.present ? data.fat.value : this.fat,
@@ -1969,6 +2003,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   String toString() {
     return (StringBuffer('FoodData(')
           ..write('foodID: $foodID, ')
+          ..write('name: $name, ')
           ..write('userID: $userID, ')
           ..write('carbs: $carbs, ')
           ..write('fat: $fat, ')
@@ -1981,12 +2016,13 @@ class FoodData extends DataClass implements Insertable<FoodData> {
 
   @override
   int get hashCode =>
-      Object.hash(foodID, userID, carbs, fat, protein, fibre, calories);
+      Object.hash(foodID, name, userID, carbs, fat, protein, fibre, calories);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FoodData &&
           other.foodID == this.foodID &&
+          other.name == this.name &&
           other.userID == this.userID &&
           other.carbs == this.carbs &&
           other.fat == this.fat &&
@@ -1997,6 +2033,7 @@ class FoodData extends DataClass implements Insertable<FoodData> {
 
 class FoodCompanion extends UpdateCompanion<FoodData> {
   final Value<int> foodID;
+  final Value<String> name;
   final Value<int> userID;
   final Value<double> carbs;
   final Value<double> fat;
@@ -2005,6 +2042,7 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   final Value<double> calories;
   const FoodCompanion({
     this.foodID = const Value.absent(),
+    this.name = const Value.absent(),
     this.userID = const Value.absent(),
     this.carbs = const Value.absent(),
     this.fat = const Value.absent(),
@@ -2014,15 +2052,18 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   });
   FoodCompanion.insert({
     this.foodID = const Value.absent(),
+    required String name,
     required int userID,
     this.carbs = const Value.absent(),
     this.fat = const Value.absent(),
     this.protein = const Value.absent(),
     this.fibre = const Value.absent(),
     this.calories = const Value.absent(),
-  }) : userID = Value(userID);
+  }) : name = Value(name),
+       userID = Value(userID);
   static Insertable<FoodData> custom({
     Expression<int>? foodID,
+    Expression<String>? name,
     Expression<int>? userID,
     Expression<double>? carbs,
     Expression<double>? fat,
@@ -2032,6 +2073,7 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   }) {
     return RawValuesInsertable({
       if (foodID != null) 'food_i_d': foodID,
+      if (name != null) 'name': name,
       if (userID != null) 'user_i_d': userID,
       if (carbs != null) 'carbs': carbs,
       if (fat != null) 'fat': fat,
@@ -2043,6 +2085,7 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
 
   FoodCompanion copyWith({
     Value<int>? foodID,
+    Value<String>? name,
     Value<int>? userID,
     Value<double>? carbs,
     Value<double>? fat,
@@ -2052,6 +2095,7 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   }) {
     return FoodCompanion(
       foodID: foodID ?? this.foodID,
+      name: name ?? this.name,
       userID: userID ?? this.userID,
       carbs: carbs ?? this.carbs,
       fat: fat ?? this.fat,
@@ -2066,6 +2110,9 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
     final map = <String, Expression>{};
     if (foodID.present) {
       map['food_i_d'] = Variable<int>(foodID.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (userID.present) {
       map['user_i_d'] = Variable<int>(userID.value);
@@ -2092,6 +2139,7 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   String toString() {
     return (StringBuffer('FoodCompanion(')
           ..write('foodID: $foodID, ')
+          ..write('name: $name, ')
           ..write('userID: $userID, ')
           ..write('carbs: $carbs, ')
           ..write('fat: $fat, ')
@@ -4980,7 +5028,7 @@ typedef $$FastLogTableCreateCompanionBuilder =
       Value<String> formIF,
       Value<String> fastResult,
       Value<DateTime> startDateTime,
-      Value<DateTime> endDateTime,
+      Value<DateTime?> endDateTime,
     });
 typedef $$FastLogTableUpdateCompanionBuilder =
     FastLogCompanion Function({
@@ -4989,7 +5037,7 @@ typedef $$FastLogTableUpdateCompanionBuilder =
       Value<String> formIF,
       Value<String> fastResult,
       Value<DateTime> startDateTime,
-      Value<DateTime> endDateTime,
+      Value<DateTime?> endDateTime,
     });
 
 final class $$FastLogTableReferences
@@ -5217,7 +5265,7 @@ class $$FastLogTableTableManager
                 Value<String> formIF = const Value.absent(),
                 Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
-                Value<DateTime> endDateTime = const Value.absent(),
+                Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion(
                 fastLogID: fastLogID,
                 userID: userID,
@@ -5233,7 +5281,7 @@ class $$FastLogTableTableManager
                 Value<String> formIF = const Value.absent(),
                 Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
-                Value<DateTime> endDateTime = const Value.absent(),
+                Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion.insert(
                 fastLogID: fastLogID,
                 userID: userID,
@@ -5903,6 +5951,7 @@ typedef $$WeightLogTableProcessedTableManager =
 typedef $$FoodTableCreateCompanionBuilder =
     FoodCompanion Function({
       Value<int> foodID,
+      required String name,
       required int userID,
       Value<double> carbs,
       Value<double> fat,
@@ -5913,6 +5962,7 @@ typedef $$FoodTableCreateCompanionBuilder =
 typedef $$FoodTableUpdateCompanionBuilder =
     FoodCompanion Function({
       Value<int> foodID,
+      Value<String> name,
       Value<int> userID,
       Value<double> carbs,
       Value<double> fat,
@@ -5993,6 +6043,11 @@ class $$FoodTableFilterComposer extends Composer<_$AppDatabase, $FoodTable> {
   });
   ColumnFilters<int> get foodID => $composableBuilder(
     column: $table.foodID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6108,6 +6163,11 @@ class $$FoodTableOrderingComposer extends Composer<_$AppDatabase, $FoodTable> {
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get carbs => $composableBuilder(
     column: $table.carbs,
     builder: (column) => ColumnOrderings(column),
@@ -6168,6 +6228,9 @@ class $$FoodTableAnnotationComposer
   });
   GeneratedColumn<int> get foodID =>
       $composableBuilder(column: $table.foodID, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<double> get carbs =>
       $composableBuilder(column: $table.carbs, builder: (column) => column);
@@ -6291,6 +6354,7 @@ class $$FoodTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> foodID = const Value.absent(),
+                Value<String> name = const Value.absent(),
                 Value<int> userID = const Value.absent(),
                 Value<double> carbs = const Value.absent(),
                 Value<double> fat = const Value.absent(),
@@ -6299,6 +6363,7 @@ class $$FoodTableTableManager
                 Value<double> calories = const Value.absent(),
               }) => FoodCompanion(
                 foodID: foodID,
+                name: name,
                 userID: userID,
                 carbs: carbs,
                 fat: fat,
@@ -6309,6 +6374,7 @@ class $$FoodTableTableManager
           createCompanionCallback:
               ({
                 Value<int> foodID = const Value.absent(),
+                required String name,
                 required int userID,
                 Value<double> carbs = const Value.absent(),
                 Value<double> fat = const Value.absent(),
@@ -6317,6 +6383,7 @@ class $$FoodTableTableManager
                 Value<double> calories = const Value.absent(),
               }) => FoodCompanion.insert(
                 foodID: foodID,
+                name: name,
                 userID: userID,
                 carbs: carbs,
                 fat: fat,

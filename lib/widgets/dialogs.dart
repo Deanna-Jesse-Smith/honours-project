@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testrun/models/meals_model.dart';
 
 class Dialogs {
   static Future<bool> dangerDialog(BuildContext context, {required String title, required String message, String confrim = 'Continue', String cancel = 'Cancel'}) async {
@@ -79,7 +80,55 @@ class Dialogs {
       ),
     );
   }
+
+    static Future<int?> getSpinnerWaterInput(BuildContext context, {required String title, int initialValue = 250, int min = 0,int max = 1000}) async {
+    int value = initialValue;
+    return showDialog<int>(context: context, builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(title),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline),
+                onPressed: value > min ? () => setState(() => value -= 250) : null,
+              ),
+              Text('$value ml', style: const TextStyle(fontSize: 24)),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline),
+                onPressed: value < max ? () => setState(() => value += 250) : null,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, value),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Future<LogMethod?> getCurLogMethod(BuildContext context) async {
+    final method =  showDialog<LogMethod>(context: context, builder: (context) => AlertDialog(
+      title: Center(child: Text('How would you like to log your meal?')),
+      content: Text('You can:'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, LogMethod.quick), child: Text('Log that I ate')),
+        TextButton(onPressed: () => Navigator.pop(context, LogMethod.repeat), child: Text('Repeat yesterday')),
+        TextButton(onPressed: () => Navigator.pop(context, LogMethod.full), child: Text('Log Full Meal'))
+      ]
+    ));
+    return method ?? LogMethod.none;
 }
+}
+
 
   //   Future<String?> openDialog(BuildContext context) => showDialog<String?>(  // final thing = await openDialog();
   //   context: context, 

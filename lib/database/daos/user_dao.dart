@@ -18,10 +18,18 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     DateTime start,
     DateTime end,
     String days52,
-    String daysADF
+    String daysADF,
   ) {
     return into(users).insert(
-      UsersCompanion.insert(formIF: Value(form.name), experience: Value(exp), name: name, typicalEatingStart: Value(start), typicalEatingEnd: Value(end), adfDaysSelected: Value(daysADF), fiveTwoDaysSelected: Value(days52)),
+      UsersCompanion.insert(
+        formIF: Value(form.name),
+        experience: Value(exp),
+        name: name,
+        typicalEatingStart: Value(start),
+        typicalEatingEnd: Value(end),
+        adfDaysSelected: Value(daysADF),
+        fiveTwoDaysSelected: Value(days52),
+      ),
     );
   }
 
@@ -40,72 +48,96 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     print('User number: ' + count.length.toString());
   }
 
-Future<String?> getName() async {
-  final lastUser = await (select(users)
-        ..orderBy([(u) => OrderingTerm.desc(u.userID)])
-        ..limit(1))
-      .getSingleOrNull();
+  Future<String?> getName() async {
+    final lastUser =
+        await (select(users)
+              ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+              ..limit(1))
+            .getSingleOrNull();
 
-  return lastUser?.name;
-}
+    return lastUser?.name;
+  }
 
-Future<User?> getUser() async {
-  final lastUser = await (select(users)
-        ..orderBy([(u) => OrderingTerm.desc(u.userID)])
-        ..limit(1))
-      .getSingleOrNull();
-  final count = await (select(users)).get();
-  print('User number: ' + count.length.toString());
+  Future<User?> getUser() async {
+    debugPrint('getting');
+    final lastUser =
+        await (select(users)
+              ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+              ..limit(1))
+            .getSingleOrNull();
+            debugPrint('got');
+    final count = await (select(users)).get();
+    debugPrint('User number: ' + count.length.toString());
 
-  return lastUser;
-}
+    return lastUser;
+  }
 
-Future<void> updateADF(int userID, List<int> newDays) async {
-  String sqlDays = DayOfWeekConverter.toSQL(newDays);
+  Future<void> updateADF(int userID, List<int> newDays) async {
+    String sqlDays = DayOfWeekConverter().toSQL(newDays);
 
-  (update(users)..where((u) => u.userID.equals(userID))).write(
-    UsersCompanion(
-      adfDaysSelected: Value(sqlDays),
-    ),
-  );
-}
+    (update(users)..where((u) => u.userID.equals(userID))).write(
+      UsersCompanion(adfDaysSelected: Value(sqlDays)),
+    );
+  }
 
-Future<void> update52(int userID, List<int> newDays) async {
-  String sqlDays = DayOfWeekConverter.toSQL(newDays);
+  Future<void> update52(int userID, List<int> newDays) async {
+    String sqlDays = DayOfWeekConverter().toSQL(newDays);
 
-  (update(users)..where((u) => u.userID.equals(userID))).write(
-    UsersCompanion(
-      fiveTwoDaysSelected: Value(sqlDays),
-    ),
-  );
-}
+    (update(users)..where((u) => u.userID.equals(userID))).write(
+      UsersCompanion(fiveTwoDaysSelected: Value(sqlDays)),
+    );
+  }
 
-Future<void> changeToTRE(int userID, DateTime start, DateTime end) async {
-  (update(users)..where((u) => u.userID.equals(1))).write(
-    UsersCompanion(
-      formIF: Value('tre'),
-      typicalEatingStart: Value(start),
-      typicalEatingEnd: Value(end)
-    ),
-  );
-}
+  Future<void> changeFormIF(
+    int userID,
+    FastingForm newForm,
+    DateTime start,
+    DateTime end,
+    List<int> days,
+  ) async {
+    if (newForm == FastingForm.tre) {
+      (update(users)..where((u) => u.userID.equals(1))).write(
+        UsersCompanion(
+          formIF: Value('tre'),
+          typicalEatingStart: Value(start),
+          typicalEatingEnd: Value(end),
+        ),
+      );
+    } else {
+      (update(users)..where((u) => u.userID.equals(userID))).write(
+      UsersCompanion(
+        formIF: Value(newForm.name),
+        adfDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
+      ),
+    );
+    }
+  }
 
-Future<void> changeToADF(int userID, List<int> days) async {
-  (update(users)..where((u) => u.userID.equals(userID))).write(
-    UsersCompanion(
-      formIF: Value('adf'),
-      adfDaysSelected: Value(DayOfWeekConverter.toSQL(days))
-    ),
-  );
-}
+  Future<void> changeToTRE(int userID, DateTime start, DateTime end) async {
+    (update(users)..where((u) => u.userID.equals(1))).write(
+      UsersCompanion(
+        formIF: Value('tre'),
+        typicalEatingStart: Value(start),
+        typicalEatingEnd: Value(end),
+      ),
+    );
+  }
 
-Future<void> changeTo52(int userID, List<int> days) async {
-  (update(users)..where((u) => u.userID.equals(userID))).write(
-    UsersCompanion(
-      formIF: Value('fiveTwo'),
-      adfDaysSelected: Value(DayOfWeekConverter.toSQL(days))
-    ),
-  );
-}
+  Future<void> changeToADF(int userID, List<int> days) async {
+    (update(users)..where((u) => u.userID.equals(userID))).write(
+      UsersCompanion(
+        formIF: Value('adf'),
+        adfDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
+      ),
+    );
+  }
 
+  Future<void> changeTo52(int userID, List<int> days) async {
+    (update(users)..where((u) => u.userID.equals(userID))).write(
+      UsersCompanion(
+        formIF: Value('fiveTwo'),
+        adfDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
+      ),
+    );
+  }
 }

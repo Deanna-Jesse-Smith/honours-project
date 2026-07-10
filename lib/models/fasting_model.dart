@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/converters.dart';
 
@@ -17,7 +19,7 @@ class TRECalculator implements FastingScheduleCalculator {
   DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart) {
     var end = DateTime(date.year, date.month, date.day).add(dateTimeToDuration(user.typicalEatingStart!));
     
-    // Eating window crosses midnight (e.g. ends 20:00, starts 12:00 next day)
+    //! Add something to account for if the window goes over midnight
     if (end.isBefore(expectedStartFor(date, user)!)) {
       end = end.add(const Duration(days: 1));
     }
@@ -92,15 +94,18 @@ extension FastingStatusAppearance on FastingStatus {
 
 FastingStatus determineFastingStatus({
   required DateTime now,
-  required FastingScheduleCalculator calculator,
   required User user,
   required FastLogData? activeLog,
 }) {
   final today = DateTime(now.year, now.month, now.day);
+  final calculator = calculatorFor(FastingFormConverter().fromSql(user.formIF));
   final expectedStart = calculator.expectedStartFor(today, user);
+
   if (expectedStart == null) return FastingStatus.notFastingDay;
 
   final expectedEnd = calculator.expectedEndFor(today, user, activeLog?.startDateTime);
+
+  debugPrint('Status: ${DateFormat('HH:mm a').format(today)} start at ${DateFormat('HH:mm a').format(expectedStart!)} end at ${DateFormat('HH:mm a').format(expectedEnd!)}');
 
   if (activeLog != null) {
     if (expectedEnd != null && expectedEnd.difference(now).inMinutes <= 30) {

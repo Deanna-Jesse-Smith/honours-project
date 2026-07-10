@@ -2,51 +2,49 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/models/converters.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
-import 'package:testrun/database/daos/user_dao.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
-class FastingPlan extends StatefulWidget {
+class FastingPlan extends ConsumerStatefulWidget {
 
   const FastingPlan({super.key});
   @override
-  State<FastingPlan> createState() => FastingPlanState();
+  ConsumerState<FastingPlan> createState() => FastingPlanState();
 }
 
 const List<String> list = <String>['ADF', 'TRE', 'FiveTwo'];
 List<bool> adfDaysSelected = List.filled(7, false);
 List<bool> fiveTwoDaysSelected = List.filled(7, false);
 
-class FastingPlanState extends State<FastingPlan> {
+class FastingPlanState extends ConsumerState<FastingPlan> {
   static final List<DropdownMenuEntry<String>> entries =
       UnmodifiableListView<DropdownMenuEntry<String>>(
         list.map<DropdownMenuEntry<String>>(
           (String name) => DropdownMenuEntry(value: name, label: name),
         ),
       );
-  String dropDownValue = userState.fastingForm.value.name;
+  late String dropDownValue;
 
   @override
   Widget build(BuildContext context) {
-   FastingDao  fDao = getIt<FastingDao>();
-   UserDao  uDao = getIt<UserDao>();
+   final session = ref.watch(userSessionProvider).value;
+   dropDownValue = session!.fastingForm.name;
     CustomWidgets customWidgets = CustomWidgets();
     // uDao.testing();
     
     return Scaffold(
-      appBar: MainAppBar.appBar('Fasting Plan'),
+      appBar: MainAppBar.appBar('Fasting Plan', session.userName),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
-        child: getCorrectLayout(),
+        child: getCorrectLayout(session),
       ),
       persistentFooterButtons: [
         Container(
@@ -67,7 +65,7 @@ class FastingPlanState extends State<FastingPlan> {
       ],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(
+      floatingActionButton: customWidgets.getFAB(ref, session,
         1,
         posi: ExpandableFabPos.right,
       ),
@@ -116,30 +114,29 @@ class FastingPlanState extends State<FastingPlan> {
   //     controller.clear();
   //   }
 
-  Column getCorrectLayout() {
-    print(dropDownValue);
+  Column getCorrectLayout(UserSessionData session) {
     if (dropDownValue.toLowerCase() == 'adf') {
-      return createADF();
+      return createADF(session);
     } else if (dropDownValue.toLowerCase() == 'tre') {
-      return createTRE();
+      return createTRE(session);
     } else {
-      return create52();
+      return create52(session);
     }
   }
 
-  List<bool> convertDaysSelectedToList(String selected, List<bool> list) {
-    List<String> days = selected.split(',');
-    for (var day in days) {
-      list[int.parse(day)] = true;
+  List<bool> convertDaysSelected(List<int> days, List<bool> list) {
+    list.fillRange(0, 6, false);
+    for (int day in days) {
+      list[day] = true;
     }
     return list;
   }
 
-  Column create52() {
-    // fiveTwoDaysSelected = convertDaysSelectedToList(userState.fiveTwoDaysSelected.value, fiveTwoDaysSelected);
+  Column create52(UserSessionData session) {
+    fiveTwoDaysSelected = convertDaysSelected(session.fiveTwoDaysSelected, fiveTwoDaysSelected);
     return Column(
       children: [
-        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
         Padding(
           padding: EdgeInsets.all(15),
           child: Row(
@@ -247,11 +244,11 @@ class FastingPlanState extends State<FastingPlan> {
     );
   }
 
-  Column createTRE() {
+  Column createTRE(UserSessionData session) {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
         Padding(
           padding: EdgeInsets.all(15),
           child: const Text(
@@ -280,11 +277,11 @@ class FastingPlanState extends State<FastingPlan> {
     );
   }
 
-  Column createADF() {
-    // adfDaysSelected = convertDaysSelectedToList(userState.adfDaysSelected.value, adfDaysSelected);
+  Column createADF(UserSessionData session) {
+    adfDaysSelected = convertDaysSelected(session.adfDaysSelected, adfDaysSelected);
     return Column(
       children: [
-        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan()),
+        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
         Padding(
           padding: EdgeInsets.all(15),
           child: Text(
@@ -423,7 +420,7 @@ class FastingPlanState extends State<FastingPlan> {
     );
   }
 
-  Row chooseFastingPlan() {
+  Row chooseFastingPlan(UserSessionData session) {
     FastingFormConverter formConverter = FastingFormConverter();
     return .new(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -436,7 +433,8 @@ class FastingPlanState extends State<FastingPlan> {
           onSelected: (String? value) {
             setState(() {
               dropDownValue = value!;
-              userState.fastingForm.value = formConverter.fromSql(dropDownValue);
+              // session.fastingForm = formConverter.fromSql(dropDownValue);
+              //! Figure out when/how to update the fasting form in the table
             });
           },
           dropdownMenuEntries: entries,
@@ -446,8 +444,8 @@ class FastingPlanState extends State<FastingPlan> {
     );
   }
 
-    Row chooseFastingPlann() {
-      final plan = userState.fastingForm.value.name;
+    Row chooseFastingPlann(UserSessionData session) {
+      final plan = session.fastingForm.name;
     return .new(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
