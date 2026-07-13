@@ -1,7 +1,24 @@
+import 'dart:ui';
+
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:testrun/models/meals_model.dart';
 
 enum FastingForm {tre, fiveTwo, adf}
+
+extension FastingFormExt on FastingForm {
+  Color get colour => switch (this) {
+    FastingForm.tre => throw UnimplementedError(),
+    FastingForm.fiveTwo => throw UnimplementedError(),
+    FastingForm.adf => throw UnimplementedError(),
+  };
+
+  Icon get icon => switch (this) {
+    FastingForm.tre => Icon(Icons.timer),
+    FastingForm.fiveTwo => Icon(Icons.date_range),
+    FastingForm.adf => Icon(Icons.sync_alt),
+  };
+}
 
 class FastingFormConverter extends TypeConverter<FastingForm, String> {
   const FastingFormConverter();

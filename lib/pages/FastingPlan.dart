@@ -19,7 +19,7 @@ class FastingPlan extends ConsumerStatefulWidget {
   ConsumerState<FastingPlan> createState() => FastingPlanState();
 }
 
-const List<String> list = <String>['ADF', 'TRE', 'FiveTwo'];
+const List<String> list = <String>['adf', 'tre', 'fiveTwo'];
 List<bool> adfDaysSelected = List.filled(7, false);
 List<bool> fiveTwoDaysSelected = List.filled(7, false);
 
@@ -33,14 +33,20 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   late String dropDownValue;
 
   @override
+  void initState() {
+    final session = ref.watch(userSessionProvider).value;
+   dropDownValue = session!.fastingForm.name;
+   debugPrint('The value is: $dropDownValue');
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
    final session = ref.watch(userSessionProvider).value;
-   dropDownValue = session!.fastingForm.name;
     CustomWidgets customWidgets = CustomWidgets();
-    // uDao.testing();
     
     return Scaffold(
-      appBar: MainAppBar.appBar('Fasting Plan', session.userName),
+      appBar: MainAppBar.appBar('Fasting Plan', session!.userName),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -427,36 +433,15 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       children: [
         const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
         DropdownMenu<String>(
-          initialSelection: list.first,
+          initialSelection: dropDownValue,
           // side
           // menuStyle: MenuStyle(),
           onSelected: (String? value) {
             setState(() {
               dropDownValue = value!;
+              debugPrint('The user selected: $value');
               // session.fastingForm = formConverter.fromSql(dropDownValue);
               //! Figure out when/how to update the fasting form in the table
-            });
-          },
-          dropdownMenuEntries: entries,
-          textStyle: TextStyle(fontSize: TextSizing.large),
-        ),
-      ],
-    );
-  }
-
-    Row chooseFastingPlann(UserSessionData session) {
-      final plan = session.fastingForm.name;
-    return .new(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-        DropdownMenu<String>(
-          initialSelection: list.first,
-          // side
-          // menuStyle: MenuStyle(),
-          onSelected: (String? value) {
-            setState(() {
-              dropDownValue = value!;
             });
           },
           dropdownMenuEntries: entries,

@@ -21,7 +21,7 @@ class _SetupUserState extends State<SetupUser> {
   @override
   Widget build(BuildContext context) {
     int initialVal = 0;
-    final contorller = TextEditingController(text: initialVal?.toString() ?? '');
+    final contorller = TextEditingController(text: initialVal.toString());
     return Scaffold(
       appBar: AppBar(title: Text('Beginner'), centerTitle: true),
       body: Column(

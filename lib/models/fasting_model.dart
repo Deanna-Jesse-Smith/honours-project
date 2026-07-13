@@ -124,3 +124,55 @@ FastingStatus determineFastingStatus({
 // Duration _timeOfDayToDuration(TimeOfDay t) => Duration(hours: t.hour, minutes: t.minute);
 
 Duration dateTimeToDuration(DateTime dt) => Duration(hours: dt.hour, minutes: dt.minute);
+
+enum FastResult { //? I can have multiple of these stored maybe? Then I can show more icons in the fasting history calendar?
+  asPlanned,
+  lateStart,
+  earlyStart,
+  lateEnd,
+  earlyEnd,
+  skipped,
+  interrupted,  // half fast in some way?
+  overate,  // 5:2 specific
+  underate, // 5:2 specific
+}
+
+extension FastResultHistory on FastResult {
+  Color get colour => switch (this) {
+    FastResult.asPlanned => throw UnimplementedError(),
+    FastResult.lateStart => throw UnimplementedError(),
+    FastResult.earlyStart => throw UnimplementedError(),
+    FastResult.lateEnd => throw UnimplementedError(),
+    FastResult.earlyEnd => throw UnimplementedError(),
+    FastResult.skipped => throw UnimplementedError(),
+    FastResult.interrupted => throw UnimplementedError(),
+    FastResult.overate => throw UnimplementedError(),
+    FastResult.underate => throw UnimplementedError(),
+  };
+
+  Icon get resultIcon => switch (this) {
+    FastResult.asPlanned => Icon(Icons.timer), // TRE
+    FastResult.lateStart => Icon(Icons.sync_alt), // ADF
+    FastResult.earlyStart => Icon(Icons.date_range), // 5:2
+    // TODO: Handle this case.
+    FastResult.lateEnd => throw UnimplementedError(),
+    // TODO: Handle this case.
+    FastResult.earlyEnd => throw UnimplementedError(),
+    // TODO: Handle this case.
+    FastResult.skipped => throw UnimplementedError(),
+    // TODO: Handle this case.
+    FastResult.interrupted => throw UnimplementedError(),
+    // TODO: Handle this case.
+    FastResult.overate => throw UnimplementedError(),
+    // TODO: Handle this case.
+    FastResult.underate => throw UnimplementedError(),
+  };
+}
+
+class Fast {
+  final DateTime start, end;
+  final FastingForm form;
+  final Set<FastResult> results;
+
+  Fast({required this.start, required this.end, required this.form, required this.results});
+}
