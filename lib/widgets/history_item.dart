@@ -48,7 +48,7 @@ class HistoryItem {
         final dayByDay = <int, FastLogData>{
           for (FastLogData fast in snapshot.data!) fast.startDateTime.day: fast,
         };
-
+        
         return GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,

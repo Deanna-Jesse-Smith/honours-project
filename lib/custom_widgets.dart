@@ -12,8 +12,11 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/models/category_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/pages/nutrition_pages/meal_log.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/dialogs.dart';
 import 'package:wheel_picker/wheel_picker.dart';
 
 class CustomWidgets {
@@ -264,25 +267,65 @@ class CustomWidgets {
 
   ExpandableFab getFAB(
     WidgetRef ref,
-    UserSessionData session,
+    BuildContext context,
     int index, {
     ExpandableFabPos posi = ExpandableFabPos.center,
   }) {
-    // CategoryModel model = CategoryModel(index: index);
-
+    final session = ref.watch(userSessionProvider).value;
     final actions = BuildFAB.buildFab(
-      session,
+      ref,
       index: index,
-      onFastTapped: () {
-        if (session.isFasting) {
-          ref.read(fDaoProvider).breakFast(session.userId, DateTime.now());
-        } else {
-          ref.read(fDaoProvider).startFast(session.userId, session.fastingForm, DateTime.now());
+      onHydrationTapped: () async {
+        final newAmount = await Dialogs.getSpinnerWaterInput(
+          context,
+          title: 'How many cups have you drank?',
+        );
+        if (newAmount != null) {
+          ref
+              .read(hDaoProvider)
+              .addHydration(session!.userId, DateTime.now(), newAmount);
         }
       },
-      onHydrationTapped: () {},
-      onMealTapped: () {},
-      onWeightTapped: () {},
+      onMealTapped: () async {
+        final newLog = await Dialogs.getCurLogMethod(context, ref, session!);
+        debugPrint('Log testing');
+        
+        if (newLog != null) {
+          debugPrint('Log: ${newLog.name}');
+          if (newLog == LogMethod.quick) {
+            ref
+              .read(nDaoProvider)
+              .insertMeal(session.userId, DateTime.now(), newLog);
+          } else if (newLog == LogMethod.full) {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const MealLog()),
+              );
+          } else {
+
+          }
+        } else {
+          debugPrint('Log: null');
+        }
+      },
+      onWeightTapped: () async {
+        double? curWeight = await ref
+            .read(wDaoProvider)
+            .latestWeight(session!.userId);
+        final newAmount = await Dialogs.getNewInput(
+          context,
+          initialVal: curWeight,
+          title: 'Log Weight',
+        );
+        if (newAmount != null) {
+          ref
+              .read(wDaoProvider)
+              .insertWeight(
+                session.userId,
+                newAmount.toDouble(),
+                DateTime.now(),
+              );
+        }
+      },
     );
 
     return ExpandableFab(

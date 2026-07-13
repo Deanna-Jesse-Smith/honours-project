@@ -61,7 +61,7 @@ class HomePage extends ConsumerWidget {
         ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, session, 1),
+      floatingActionButton: customWidgets.getFAB(ref, context, 1),
       // floatingActionButton: FloatingActionButton(
       //   backgroundColor: Colors.purpleAccent,
       //   onPressed: () {

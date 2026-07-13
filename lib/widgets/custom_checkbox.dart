@@ -19,8 +19,8 @@ class CustomCheckbox extends StatelessWidget {
       onTap: () => onTap(!isSelected),
       child: Container(
         alignment: Alignment.center,
-        width: 50,
-        height: 50,
+        width: 65,
+        height: 65,
         decoration: BoxDecoration(
           color: isSelected
               ? const Color.fromARGB(255, 143, 110, 199)

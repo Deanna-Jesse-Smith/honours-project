@@ -51,6 +51,7 @@ class WeightTracking extends ConsumerWidget {
             ),
             ElevatedButton(onPressed: () async {
               double? curWeight = await ref.read(wDaoProvider).latestWeight(session.userId);
+
               final newAmount = await Dialogs.getNewInput(context, initialVal: curWeight, title: 'Log Weight');
               if (newAmount != null) ref.read(wDaoProvider).insertWeight(session.userId, newAmount.toDouble(), DateTime.now());
             }, child: Text('Log Weight'))
@@ -59,7 +60,7 @@ class WeightTracking extends ConsumerWidget {
       ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, session, 4),
+      floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }
 

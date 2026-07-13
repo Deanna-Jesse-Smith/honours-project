@@ -33,30 +33,47 @@ const List<String> months = <String>[
   'Dec',
 ];
 
-const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 class _FastingHistoryState extends ConsumerState<FastingHistory> {
-  int thisMonth = DateTime.now().month - 1;
+  int thisMonth = DateTime.now().month - 1, thisYear = DateTime.now().year;
+  late int daysInMonth, firstWeekday, totalCells;
   Stream<FastLogData> data = Stream.empty();
+  late DateTime start, end;
 
   @override
   void initState() {
-    //! Think about moving the start/end variables here so that they can get initialized once. 
-    //! Maybe make a method to recalculate them each time the user looks at a different month
     final session = ref.watch(userSessionProvider);
+
+    DateTime focusMonth = DateTime(thisYear, thisMonth + 1);
+    start = DateTime(focusMonth.year, focusMonth.month, 1);
+    end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
+    daysInMonth = end.day;
+    // firstWeekday = start.weekday % 7;
+    firstWeekday = start.weekday - 1;
+    totalCells = firstWeekday + daysInMonth;
+
+    print("Year: $thisYear");
+print("Month: $thisMonth");
+print("Focus month: $focusMonth");
+print("Start: $start");
+print("End: $end");
+print("Days: $daysInMonth");
+print("First weekday: $firstWeekday");
+
     // data = ref.watch(fDaoProvider).findFastsInRange(session.userID, range)
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    DateTime today = DateTime.now();
-    DateTime start = DateTime(today.year, today.month, 1);
-    DateTime end = DateTime(today.year, today.month + 1, 0);
-    int daysInMonth = end.day;
-    
-    final firstWeekday = start.weekday % 7; // adjust for your week-start convention
-    final totalCells = firstWeekday + daysInMonth;
+    // DateTime focusMonth = DateTime.now();
+    // DateTime start = DateTime(focusMonth.year, focusMonth.month, 1);
+    // DateTime end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
+    // int daysInMonth = end.day;
+
+    // final firstWeekday = start.weekday % 7;
+    // final totalCells = firstWeekday + daysInMonth;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -86,7 +103,15 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 onTap: () {
                   // TODO Previous month from FastLog
                   setState(() {
-                    thisMonth = thisMonth - 1 == -1 ? 11 : thisMonth - 1;
+                    // thisMonth = thisMonth - 1 == -1 ? 11 : thisMonth - 1;
+
+                    if (thisMonth - 1 == -1) {
+                      thisMonth = 11;
+                      thisYear = thisYear - 1;
+                    } else {
+                      thisMonth = thisMonth - 1;
+                    }
+                    changeFocus(thisYear, thisMonth);
                   });
                 },
               ),
@@ -99,77 +124,37 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 onTap: () {
                   // TODO Subsequent month from FastLog
                   setState(() {
-                    thisMonth = thisMonth + 1 == 12 ? 0 : thisMonth + 1;
+                    // thisMonth = thisMonth + 1 == 12 ? 0 : thisMonth + 1;
+
+                    if (thisMonth + 1 == 12) {
+                      thisMonth = 0;
+                      thisYear = thisYear + 1;
+                    } else {
+                      thisMonth = thisMonth + 1;
+                    }
+                    changeFocus(thisYear, thisMonth);
                   });
                 },
               ),
             ],
           ),
           Row(
-            children: daysOfWeek.map(
-              (day) => Expanded(
-                child: Center(
-                  child: Text(
-                    day,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+            children: daysOfWeek
+                .map(
+                  (day) => Expanded(
+                    child: Center(
+                      child: Text(
+                        day,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ).toList(),
+                )
+                .toList(),
           ),
-          // StreamBuilder(
-          //   stream: stream,
-          //   builder: (context, asyncSnapshot) {
-          //     return GridView.builder(  //? FutureBuilder, depending
-          //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7),
-          //       itemCount: totalCells,
-          //       itemBuilder: (context, index) {
-          //         if (index < firstWeekday) {
-          //           return const SizedBox.shrink();
-          //         }
-          //         final day = index - firstWeekday + 1;
-          //         final log = dayByDay[day];
-              
-          //         if (log == null) {
-          //           return emptyDay(day: day);
-          //         }
-          //         return fastDay(day: day, log: log);
-          //       },
-          //     );
-          //   }
-          // ),
-          // Expanded(
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(8.0),
-          //     child: GridView.builder(
-          //       itemCount: 30,
-          //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //         crossAxisCount: 7,
-          //         mainAxisSpacing: 5,
-          //         crossAxisSpacing: 3,
-          //       ),
-          //       itemBuilder: (context, index) {
-          //         return HistoryItem(date: DateTime.now()).getDay();
-          //       },
-          //       // itemBuilder: (context, index) {
-          //       //   return Padding(
-          //       //     padding: const EdgeInsets.all(4.0),
-          //       //     child: Container(
-          //       //       color: Colors.green,
-          //       //       child: Center(
-          //       //         child: Text(
-          //       //           "Builder: $index",
-          //       //           style: TextStyle(color: Colors.white, fontSize: 30),
-          //       //         ),
-          //       //       ),
-          //       //     ),
-          //       //   );
-          //       // },
-          //     ),
-          //   ),
-          // ),
+          Expanded(child: getCalendar()),
           Text(
-            'Total Hours Fasted in :',
+            'Total Hours Fasted in : ${months[thisMonth]}',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
         ],
@@ -177,47 +162,86 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     );
   }
 
+  // void goToPreviousMonth() {
+  //   final newDate = DateTime(thisYear, thisMonth - 1, 1);
+  //   changeFocus(newDate.year, newDate.month);
+  // }
+
+  // void goToNextMonth() {
+  //   final newDate = DateTime(thisYear, thisMonth + 1, 1);
+  //   changeFocus(newDate.year, newDate.month);
+  // }
+
+  void changeFocus(int curYear, int curMonth) {
+    DateTime focusMonth = DateTime(curYear, curMonth + 1);
+    start = DateTime(focusMonth.year, focusMonth.month, 1);
+    end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
+    daysInMonth = end.day;
+    // firstWeekday = start.weekday % 7;
+    firstWeekday = start.weekday - 1;
+    totalCells = firstWeekday + daysInMonth;
+  }
+
   Padding emptyDay(DateTime day) {
-    return .new(padding: EdgeInsets.all(8),
-    child: Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-    )
+    return .new(
+      padding: EdgeInsets.all(8),
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
     );
   }
 
   Padding fastDay(DateTime day, Set<FastResult> log, FastingForm form) {
-        return .new(padding: EdgeInsets.all(8),
-    child: Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-    )
+    return .new(
+      padding: EdgeInsets.all(8),
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
     );
   }
 
-  // StreamBuilder<List> populateCalendar(BuildContext context) {
-  //   DateTime today = DateTime.now();
-  //   DateTime start = DateTime(today.year, today.month, 1);
-  //   DateTime end = DateTime(today.year, today.month + 1, 0);
-  //   int daysInMonth = end.day;
+  GridView getCalendar() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+      ),
+      itemCount: totalCells,
+      itemBuilder: (context, index) {
+        if (index < firstWeekday) {
+          return const SizedBox.shrink();
+        }
+        final day = index - firstWeekday + 1;
+        // final log = dayByDay[day];
 
-  //   Stream<List> test = fDao.findFastsInRange(userState.userID, DateTimeRange(start: start, end: end));
-
-  //   StreamBuilder<List> make = StreamBuilder<List>(stream: test, builder: (context, snapshot) {
-  //     if (!snapshot.hasData) {
-  //       return const Center(child: CircularProgressIndicator());
-  //     }
-
-  //     final dayByDay = <int, FastLogData>{
-  //       for(FastLogData fast in snapshot.data!) fast.startDateTime.day: fast,
-  //     };
-
-  //   });
-  // }
+        // if (log == null) {
+        //   return emptyDay(day: day);
+        // }
+        // return fastDay(day: day, log: log);
+        return Padding(
+          padding: EdgeInsets.all(4.0),
+          child: Container(
+            height: 80,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 2),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Center(
+              child: Text(
+                '$day',
+                style: TextStyle(color: Colors.black, fontSize: 30),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -10,6 +10,7 @@ import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
+import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
 class FastingPlan extends ConsumerStatefulWidget {
@@ -37,6 +38,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     final session = ref.watch(userSessionProvider).value;
    dropDownValue = session!.fastingForm.name;
    debugPrint('The value is: $dropDownValue');
+
+       fiveTwoDaysSelected = intsToBools(session.fiveTwoDaysSelected, fiveTwoDaysSelected);
+           adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
     super.initState();
   }
 
@@ -71,54 +75,12 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, session,
+      floatingActionButton: customWidgets.getFAB(ref, context,
         1,
         posi: ExpandableFabPos.right,
       ),
     );
   }
-
-  // late TextEditingController controller;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   controller = TextEditingController();
-  // }
-
-  // @override
-  // void dispose() {
-  //   controller.dispose();
-
-  //   super.dispose();
-  // }
-
-  //   Future<String?> openDialog(BuildContext context) => showDialog<String?>(  // final thing = await openDialog();
-  //   context: context, 
-  //   builder: (context) => AlertDialog(
-  //     title: Text('Title'),
-  //     content: TextField(
-  //       keyboardType: TextInputType.number        ,
-  //       decoration: InputDecoration(hintText: 'Spinner'), 
-  //       controller: controller,
-  //       onSubmitted: (_) => closed(),
-  //       ),
-  //     actions: [
-  //       TextButton(onPressed: closed, child: Text('Press'))
-  //       // WheelPicker(
-  //       //   builder: (context, index) => Text('$index'),
-
-  //       //   )
-  //     ],
-  //   )
-  //   );
-
-  //   void closed() {
-  //     Navigator.of(context).pop(controller.text);
-
-  //     controller.clear();
-  //   }
 
   Column getCorrectLayout(UserSessionData session) {
     if (dropDownValue.toLowerCase() == 'adf') {
@@ -130,7 +92,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     }
   }
 
-  List<bool> convertDaysSelected(List<int> days, List<bool> list) {
+  List<bool> intsToBools(List<int> days, List<bool> list) {
     list.fillRange(0, 6, false);
     for (int day in days) {
       list[day] = true;
@@ -138,88 +100,40 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     return list;
   }
 
+  List<int> boolsToInts(List<bool> days) => [
+      for (int loop = 0; loop < days.length; loop++)
+        if (days[loop]) loop,
+    ];
+
+  CustomCheckbox getBox(int index, List<bool> curList) => .new(isSelected: curList[index], dayOfWeek: daysOfWeek[index], onTap: (bool val) {
+      setState(() {
+        curList[index] = val;
+      });
+    });
+
   Column create52(UserSessionData session) {
-    fiveTwoDaysSelected = convertDaysSelected(session.fiveTwoDaysSelected, fiveTwoDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
         Padding(
           padding: EdgeInsets.all(15),
+          child: Text(
+            'Select Fasting Days',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[0],
-                dayOfWeek: 'M',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[0] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[1],
-                dayOfWeek: 'Tu',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[1] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[2],
-                dayOfWeek: 'W',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[2] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[3],
-                dayOfWeek: 'Th',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[3] = val;
-                  });
-                },
-              ),
-            ],
+            children: List.generate(4, (c) => getBox(c, fiveTwoDaysSelected)),
           ),
         ),
         Padding(
           padding: EdgeInsets.all(10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[4],
-                dayOfWeek: 'F',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[4] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[5],
-                dayOfWeek: 'Sat',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[5] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: fiveTwoDaysSelected[6],
-                dayOfWeek: 'Sun',
-                onTap: (bool val) {
-                  setState(() {
-                    fiveTwoDaysSelected[6] = val;
-                  });
-                },
-              ),
-            ],
+            children: List.generate(3, (c) => getBox(c + 4, fiveTwoDaysSelected))
           ),
         ),
         Padding(
@@ -252,6 +166,15 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   Column createTRE(UserSessionData session) {
     final theme = Theme.of(context);
+    TimeOfDay? start, end;
+    List<String> headings = ['Starting Time', 'Ending Time'];
+    List<ElevatedButton> times = [changeTime('Start', () async {
+       start = await Dialogs.showTimeInput(context);
+    }),
+    changeTime('End', () async {
+      end = await Dialogs.showTimeInput(context);
+    })];
+
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
@@ -261,6 +184,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             'Encouragement Text',
             style: TextStyle(fontSize: TextSizing.large),
           ),
+        ),
+        Table(
+          children: [
+            TableRow(
+              children: headings.map((heading) => Center(child: Text(heading),)).toList()
+            ),
+            TableRow(children: times.map((times) => Center(child: times)).toList()),
+          ],
         ),
         Padding(
           padding: EdgeInsets.all(15),
@@ -284,7 +215,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   }
 
   Column createADF(UserSessionData session) {
-    adfDaysSelected = convertDaysSelected(session.adfDaysSelected, adfDaysSelected);
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
@@ -299,79 +229,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           padding: EdgeInsets.all(15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: adfDaysSelected[0],
-                dayOfWeek: 'M',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[0] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: adfDaysSelected[1],
-                dayOfWeek: 'Tu',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[1] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: adfDaysSelected[2],
-                dayOfWeek: 'W',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[2] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: adfDaysSelected[3],
-                dayOfWeek: 'Th',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[3] = val;
-                  });
-                },
-              ),
-            ],
+            children: List.generate(4, (c) => getBox(c, adfDaysSelected)),
           ),
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: adfDaysSelected[4],
-                dayOfWeek: 'F',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[4] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: adfDaysSelected[5],
-                dayOfWeek: 'Sat',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[5] = val;
-                  });
-                },
-              ),
-              CustomCheckbox(
-                isSelected: adfDaysSelected[6],
-                dayOfWeek: 'Sun',
-                onTap: (bool val) {
-                  setState(() {
-                    adfDaysSelected[6] = val;
-                  });
-                },
-              ),
-            ],
+            children: List.generate(3, (c) => getBox(c + 4, adfDaysSelected)),
           ),
         ),
         Padding(
@@ -440,8 +305,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             setState(() {
               dropDownValue = value!;
               debugPrint('The user selected: $value');
-              // session.fastingForm = formConverter.fromSql(dropDownValue);
               //! Figure out when/how to update the fasting form in the table
+              // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
             });
           },
           dropdownMenuEntries: entries,
@@ -449,5 +314,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ],
     );
+  }
+
+  ElevatedButton changeTime(String text, VoidCallback onPressed) {
+    return .new(onPressed: onPressed, child: Text(text));
   }
 }

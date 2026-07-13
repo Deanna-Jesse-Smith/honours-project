@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/utils/user_state.dart';
 
 class Dialogs {
   static Future<bool> dangerDialog(BuildContext context, {required String title, required String message, String confrim = 'Continue', String cancel = 'Cancel'}) async {
@@ -115,16 +118,21 @@ class Dialogs {
     );
   }
 
-  static Future<LogMethod?> getCurLogMethod(BuildContext context) async {
+  static Future<LogMethod?> getCurLogMethod(BuildContext context, WidgetRef ref, UserSessionData session) async {
     final method =  showDialog<LogMethod>(context: context, builder: (context) => AlertDialog(
       title: Center(child: Text('How would you like to log your meal?')),
       content: Text('You can:'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, LogMethod.quick), child: Text('Log that I ate')),
+        TextButton(onPressed: () {
+          // ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), LogMethod.quick);
+          Navigator.pop(context, LogMethod.quick);
+        }, child: Text('Log that I ate')),
         TextButton(onPressed: () => Navigator.pop(context, LogMethod.repeat), child: Text('Repeat yesterday')),
         TextButton(onPressed: () => Navigator.pop(context, LogMethod.full), child: Text('Log Full Meal'))
       ]
     ));
+
+
     return method ?? LogMethod.none;
 }
 }

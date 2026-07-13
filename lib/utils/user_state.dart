@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/database/tables/fasting_tables.dart';
+import 'package:testrun/database/tables/user_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -101,10 +103,10 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   );
 
     FastingStatus updatedStatus = determineFastingStatus(now: DateTime.now(), user: userSnapshot, activeLog: cur);
-    state = AsyncData(copyWithStatus(curUser, updatedStatus));
+    state = AsyncData(copy(updatedStatus, curUser.isFasting, data: curUser));
   }
 
-    UserSessionData copyWithStatus(UserSessionData data, FastingStatus status) {
+    UserSessionData copy(FastingStatus status, bool isFasting, {required UserSessionData data}) {
     return UserSessionData(
       userId: data.userId,
       userName: data.userName,
@@ -114,8 +116,60 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       adfDaysSelected: data.adfDaysSelected,
       fiveTwoDaysSelected: data.fiveTwoDaysSelected,
       status: status,
-      isFasting: data.isFasting,
+      isFasting: isFasting,
     );
+  }
+
+  Future<void> toggleFast() async {
+    debugPrint('Toggling fast');
+    final cur = state.requireValue;
+    if (cur == null) return;
+
+    final fDao = ref.read(fDaoProvider);
+    final now = DateTime.now();
+    final prevFasting = cur.isFasting;
+
+    try {
+      FastLogData? updated;
+      
+      if (!prevFasting) {
+        await fDao.startFast(cur.userId, cur.fastingForm, now);
+        updated = await fDao.isFasting(cur.userId);
+      } else {
+        await fDao.breakFast(cur.userId, now);
+        updated = null;
+      }
+
+          final userSnapshot = User(
+    userID: cur.userId,
+    name: cur.userName,
+    typicalEatingStart: cur.startTime,
+    typicalEatingEnd: cur.endTime,
+    isMetric: true,
+    experience: 'Beginner',
+    createdDate: DateTime.now(),
+    adfDaysSelected: '',
+    fiveTwoDaysSelected: '',
+    formIF: FastingFormConverter().toSql(cur.fastingForm)
+  );
+
+      final newStatus = determineFastingStatus(now: now, user: userSnapshot, activeLog: updated);
+
+      final toggled = copy(newStatus, !prevFasting, data: cur);
+      state = AsyncData(toggled);
+    } catch (e) {
+      rethrow;
+    }
+
+    // final toggle = copy(cur.status, !cur.isFasting, data:cur);
+    // final prev = state;
+    // state = AsyncData(toggle);
+    
+    // if (state.value!.isFasting) {
+    //   ref.read(fDaoProvider).startFast(toggle.userId, toggle.fastingForm, DateTime.now());
+    // } else {
+    //   ref.read(fDaoProvider).breakFast(toggle.userId, DateTime.now());
+    // }
   }
 }
 

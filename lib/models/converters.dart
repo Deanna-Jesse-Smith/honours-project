@@ -83,7 +83,9 @@ class DayOfWeekConverter {
   }
 
   String toSQL(List<int> days) {
-    String selected = days.fold('', (prev, ele) => '$prev,$ele');
+    String selected = days.join(',');
+    // String selected = days.fold('', (prev, ele) => '$prev,$ele');
+    //? Originally went with the one above, but the top one is so much cooler
     return selected;
   }
 }

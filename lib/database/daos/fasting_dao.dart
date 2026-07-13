@@ -35,6 +35,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
   Future<FastLogData?> isFasting(int userID) {
     final fast =
         (select(fastLog)
+        ..where((f) => f.userID.equals(userID) & f.endDateTime.isNull())
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
               ..limit(1))
             .getSingleOrNull();
@@ -47,14 +48,13 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         (select(fastLog)..where(
               (u) =>
                   u.userID.equals(userID) &
-                  u.startDateTime.isBetweenValues(range.start, range.end),
-            ))
+                  u.startDateTime.isSmallerOrEqualValue(range.end) &  // fasts that start before the end of the range
+                  (u.endDateTime.isNull() | // current fast
+                  u.endDateTime.isBiggerOrEqualValue(range.start))  // fasts that end during the range
+            )
+            ..orderBy([(f) => OrderingTerm.asc(f.startDateTime)]))
             .watch();
 
     return history;
   }
-
-  // Future<FastLogData> getHistory() {
-  //   final (select(fastLog))
-  // }
 }

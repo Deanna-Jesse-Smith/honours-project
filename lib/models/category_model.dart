@@ -1,29 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/utils/user_state.dart';
 
 class FabButton {
   final String title;
   final Color colour;
-  final bool isFasting;
   final VoidCallback onPressed;
 
   const FabButton ({
     required this.title,
     required this.colour,
     required this.onPressed,
-    this.isFasting = false
   });
 }
 
 class BuildFAB {
-  static late bool isFasting;
-
-  static List<FabButton> buildFab(UserSessionData session, {required int index, required VoidCallback onFastTapped, required VoidCallback onWeightTapped, required VoidCallback onMealTapped, required VoidCallback onHydrationTapped}) {
-    bool isFasting = session.isFasting;
+  static List<FabButton> buildFab(WidgetRef ref, {required int index, required VoidCallback onWeightTapped, required VoidCallback onMealTapped, required VoidCallback onHydrationTapped}) {
+    final isFasting = ref.watch(isFastingProvider);
     final actions = [
-    FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: Colors.deepPurpleAccent, onPressed: onFastTapped, isFasting: true),
+    FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: Colors.deepPurpleAccent, onPressed: () => ref.read(userSessionProvider.notifier).toggleFast()),
     FabButton(title: 'Log Weight', colour: Colors.green, onPressed: onWeightTapped),
     FabButton(title: 'Log Meal', colour: Colors.amber, onPressed: onMealTapped),
     FabButton(title: 'Log Hydration', colour: Colors.blue, onPressed: onHydrationTapped)
@@ -33,16 +30,6 @@ class BuildFAB {
       ...actions.sublist(index - 1),
       ...actions.sublist(0, index - 1),
     ];
-
-    // return rotation.map((action) {
-    //   if (action.isFasting) {
-    //     return FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: action.colour);
-
-    //     // return ValueListenableBuilder<FabButton>(valueListenable: valueListenable, builder: builder);
-
-    //   }
-    //   return action;
-    // }).toList();
   }
 }
 

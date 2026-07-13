@@ -87,7 +87,7 @@ class HydrationTracking extends ConsumerWidget {
       ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, session, 4),
+      floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }
 

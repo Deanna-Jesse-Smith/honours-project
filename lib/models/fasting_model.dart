@@ -121,7 +121,7 @@ FastingStatus determineFastingStatus({
   return FastingStatus.overdue;
 }
 
-// Duration _timeOfDayToDuration(TimeOfDay t) => Duration(hours: t.hour, minutes: t.minute);
+Duration timeOfDayToDuration(TimeOfDay t) => Duration(hours: t.hour, minutes: t.minute);
 
 Duration dateTimeToDuration(DateTime dt) => Duration(hours: dt.hour, minutes: dt.minute);
 

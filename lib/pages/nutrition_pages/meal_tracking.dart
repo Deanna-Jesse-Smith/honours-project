@@ -27,7 +27,7 @@ class MealTracking extends ConsumerWidget {
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, session, 3),
+      floatingActionButton: customWidgets.getFAB(ref, context, 3),
       // body: ListView.builder(
       //   itemBuilder: (context, index) {
       //     return Column(
@@ -51,7 +51,7 @@ class MealTracking extends ConsumerWidget {
           // groupedMeals(context),
           // groupedMeals(context),
           ElevatedButton(onPressed: () async {
-              final newLog = await Dialogs.getCurLogMethod(context);
+              final newLog = await Dialogs.getCurLogMethod(context, ref, session);
               if (newLog != null) ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), newLog);
             }, child: Text('Log Weight'))
         ],
