@@ -220,45 +220,31 @@ class CustomWidgets {
         children: [
           ListTile(
             title: const Text('Home'),
-            onTap: () {
-              Navigator.pushNamed(context, '/');
-            },
+            onTap: () => Navigator.pushNamed(context, '/'),
           ),
           ListTile(
             title: const Text('Fasting Plan'),
-            onTap: () {
-              Navigator.pushNamed(context, '/FastingPlan');
-            },
+            onTap: () => Navigator.pushNamed(context, '/FastingPlan'),
           ),
           ListTile(
             title: const Text('Track Meals'),
-            onTap: () {
-              Navigator.pushNamed(context, '/MealTracking');
-            },
+            onTap: () => Navigator.pushNamed(context, '/MealTracking'),
           ),
           ListTile(
             title: const Text('Step Tracking'),
-            onTap: () {
-              Navigator.pushNamed(context, '/StepCount');
-            },
+            onTap: () => Navigator.pushNamed(context, '/StepCount'),
           ),
           ListTile(
             title: const Text('Hydration Tracking'),
-            onTap: () {
-              Navigator.pushNamed(context, '/HydrationTracking');
-            },
+            onTap: () => Navigator.pushNamed(context, '/HydrationTracking'),
           ),
           ListTile(
             title: const Text('Weight Tracking'),
-            onTap: () {
-              Navigator.pushNamed(context, '/WeightTracking');
-            },
+            onTap: () => Navigator.pushNamed(context, '/WeightTracking'),
           ),
           ListTile(
             title: const Text('Setup'),
-            onTap: () {
-              Navigator.pushNamed(context, '/SetupUser');
-            },
+            onTap: () => Navigator.pushNamed(context, '/SetupUser'),
           ),
         ],
       ),

@@ -14,7 +14,6 @@ import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
 class FastingPlan extends ConsumerStatefulWidget {
-
   const FastingPlan({super.key});
   @override
   ConsumerState<FastingPlan> createState() => FastingPlanState();
@@ -36,19 +35,22 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   @override
   void initState() {
     final session = ref.watch(userSessionProvider).value;
-   dropDownValue = session!.fastingForm.name;
-   debugPrint('The value is: $dropDownValue');
+    dropDownValue = session!.fastingForm.name;
+    debugPrint('The value is: $dropDownValue');
 
-       fiveTwoDaysSelected = intsToBools(session.fiveTwoDaysSelected, fiveTwoDaysSelected);
-           adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
+    fiveTwoDaysSelected = intsToBools(
+      session.fiveTwoDaysSelected,
+      fiveTwoDaysSelected,
+    );
+    adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-   final session = ref.watch(userSessionProvider).value;
+    final session = ref.watch(userSessionProvider).value;
     CustomWidgets customWidgets = CustomWidgets();
-    
+
     return Scaffold(
       appBar: MainAppBar.appBar('Fasting Plan', session!.userName),
       body: Container(
@@ -75,7 +77,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, context,
+      floatingActionButton: customWidgets.getFAB(
+        ref,
+        context,
         1,
         posi: ExpandableFabPos.right,
       ),
@@ -101,79 +105,83 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   }
 
   List<int> boolsToInts(List<bool> days) => [
-      for (int loop = 0; loop < days.length; loop++)
-        if (days[loop]) loop,
-    ];
+    for (int loop = 0; loop < days.length; loop++)
+      if (days[loop]) loop,
+  ];
 
-  CustomCheckbox getBox(int index, List<bool> curList) => .new(isSelected: curList[index], dayOfWeek: daysOfWeek[index], onTap: (bool val) {
+  CustomCheckbox getBox(int index, List<bool> curList) => .new(
+    isSelected: curList[index],
+    dayOfWeek: daysOfWeek[index],
+    onTap: (bool val) {
       setState(() {
         curList[index] = val;
       });
-    });
+    },
+  );
 
-  Column create52(UserSessionData session) {
-    return Column(
-      children: [
-        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: Text(
-            'Select Fasting Days',
-            style: TextStyle(fontSize: TextSizing.medium),
-          ),
+  Column create52(UserSessionData session) => Column(
+    children: [
+      Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: Text(
+          'Select Fasting Days',
+          style: TextStyle(fontSize: TextSizing.medium),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(4, (c) => getBox(c, fiveTwoDaysSelected)),
-          ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(4, (c) => getBox(c, fiveTwoDaysSelected)),
         ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(3, (c) => getBox(c + 4, fiveTwoDaysSelected))
-          ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(3, (c) => getBox(c + 4, fiveTwoDaysSelected)),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: const Text(
-            'Encouragement Text',
-            style: TextStyle(fontSize: TextSizing.large),
-          ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'Encouragement Text',
+          style: TextStyle(fontSize: TextSizing.large),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: const Text(
-            'Streak progress text',
-            style: TextStyle(fontSize: TextSizing.medium),
-          ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'Streak progress text',
+          style: TextStyle(fontSize: TextSizing.medium),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: CustomWidgets().streakIndicator(
-            'Streak underway',
-            0.6,
-            Colors.orange,
-            Colors.amberAccent,
-            context,
-          ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: CustomWidgets().streakIndicator(
+          'Streak underway',
+          0.6,
+          Colors.orange,
+          Colors.amberAccent,
+          context,
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 
   Column createTRE(UserSessionData session) {
     final theme = Theme.of(context);
     TimeOfDay? start, end;
     List<String> headings = ['Starting Time', 'Ending Time'];
-    List<ElevatedButton> times = [changeTime('Start', () async {
-       start = await Dialogs.showTimeInput(context);
-    }),
-    changeTime('End', () async {
-      end = await Dialogs.showTimeInput(context);
-    })];
+    List<ElevatedButton> times = [
+      changeTime('Start', () async {
+        start = await Dialogs.showTimeInput(context);
+      }),
+      changeTime('End', () async {
+        end = await Dialogs.showTimeInput(context);
+      }),
+    ];
 
     return Column(
       children: [
@@ -188,9 +196,13 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         Table(
           children: [
             TableRow(
-              children: headings.map((heading) => Center(child: Text(heading),)).toList()
+              children: headings
+                  .map((heading) => Center(child: Text(heading)))
+                  .toList(),
             ),
-            TableRow(children: times.map((times) => Center(child: times)).toList()),
+            TableRow(
+              children: times.map((times) => Center(child: times)).toList(),
+            ),
           ],
         ),
         Padding(
@@ -214,107 +226,78 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
   }
 
-  Column createADF(UserSessionData session) {
-    return Column(
-      children: [
-        Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: Text(
-            'Select Fasting Days',
-            style: TextStyle(fontSize: TextSizing.medium),
-          ),
+  Column createADF(UserSessionData session) => Column(
+    children: [
+      Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: Text(
+          'Select Fasting Days',
+          style: TextStyle(fontSize: TextSizing.medium),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(4, (c) => getBox(c, adfDaysSelected)),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(3, (c) => getBox(c + 4, adfDaysSelected)),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: const Text(
-            'Encouragement Text',
-            style: TextStyle(fontSize: TextSizing.large),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: const Text(
-            'Streak progress text',
-            style: TextStyle(fontSize: TextSizing.medium),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: CustomWidgets().streakIndicator(
-            'Streak underway',
-            0.6,
-            Colors.orange,
-            Colors.amberAccent,
-            context,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Padding selectFastingPlan() {
-    return .new(
-      padding: EdgeInsets.all(15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-          DropdownMenu<String>(
-            initialSelection: list.first,
-            // side
-            // menuStyle: MenuStyle(),
-            onSelected: (String? value) {
-              setState(() {
-                dropDownValue = value!;
-              });
-            },
-            dropdownMenuEntries: entries,
-            textStyle: TextStyle(fontSize: TextSizing.large),
-          ),
-        ],
       ),
-    );
-  }
-
-  Row chooseFastingPlan(UserSessionData session) {
-    FastingFormConverter formConverter = FastingFormConverter();
-    return .new(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-        DropdownMenu<String>(
-          initialSelection: dropDownValue,
-          // side
-          // menuStyle: MenuStyle(),
-          onSelected: (String? value) {
-            setState(() {
-              dropDownValue = value!;
-              debugPrint('The user selected: $value');
-              //! Figure out when/how to update the fasting form in the table
-              // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-            });
-          },
-          dropdownMenuEntries: entries,
-          textStyle: TextStyle(fontSize: TextSizing.large),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(4, (c) => getBox(c, adfDaysSelected)),
         ),
-      ],
-    );
-  }
+      ),
+      Padding(
+        padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(3, (c) => getBox(c + 4, adfDaysSelected)),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'Encouragement Text',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'Streak progress text',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: CustomWidgets().streakIndicator(
+          'Streak underway',
+          0.6,
+          Colors.orange,
+          Colors.amberAccent,
+          context,
+        ),
+      ),
+    ],
+  );
+
+  Row chooseFastingPlan(UserSessionData session) => .new(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
+      DropdownMenu<String>(
+        initialSelection: dropDownValue,
+        // side
+        // menuStyle: MenuStyle(),
+        onSelected: (String? value) {
+          setState(() {
+            dropDownValue = value!;
+            debugPrint('The user selected: $value');
+            //! Figure out when/how to update the fasting form in the table
+            // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+          });
+        },
+        dropdownMenuEntries: entries,
+        textStyle: TextStyle(fontSize: TextSizing.large),
+      ),
+    ],
+  );
 
   ElevatedButton changeTime(String text, VoidCallback onPressed) {
     return .new(onPressed: onPressed, child: Text(text));

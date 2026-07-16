@@ -1,15 +1,10 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/database.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
-import 'package:testrun/widgets/history_item.dart';
 
 class FastingHistory extends ConsumerStatefulWidget {
   const FastingHistory({super.key});
@@ -53,27 +48,12 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
 
-    print("Year: $thisYear");
-print("Month: $thisMonth");
-print("Focus month: $focusMonth");
-print("Start: $start");
-print("End: $end");
-print("Days: $daysInMonth");
-print("First weekday: $firstWeekday");
-
     // data = ref.watch(fDaoProvider).findFastsInRange(session.userID, range)
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // DateTime focusMonth = DateTime.now();
-    // DateTime start = DateTime(focusMonth.year, focusMonth.month, 1);
-    // DateTime end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
-    // int daysInMonth = end.day;
-
-    // final firstWeekday = start.weekday % 7;
-    // final totalCells = firstWeekday + daysInMonth;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -162,22 +142,11 @@ print("First weekday: $firstWeekday");
     );
   }
 
-  // void goToPreviousMonth() {
-  //   final newDate = DateTime(thisYear, thisMonth - 1, 1);
-  //   changeFocus(newDate.year, newDate.month);
-  // }
-
-  // void goToNextMonth() {
-  //   final newDate = DateTime(thisYear, thisMonth + 1, 1);
-  //   changeFocus(newDate.year, newDate.month);
-  // }
-
   void changeFocus(int curYear, int curMonth) {
     DateTime focusMonth = DateTime(curYear, curMonth + 1);
     start = DateTime(focusMonth.year, focusMonth.month, 1);
     end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
     daysInMonth = end.day;
-    // firstWeekday = start.weekday % 7;
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
   }

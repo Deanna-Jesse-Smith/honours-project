@@ -1,15 +1,8 @@
-import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:testrun/custom_widgets.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
-import 'package:testrun/database/database.dart';
-import 'package:testrun/main.dart';
-import 'package:testrun/models/converters.dart';
-import 'package:testrun/database/tables/user_table.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -101,7 +94,7 @@ class HomePage extends ConsumerWidget {
   double calculatePercentageTRE(UserSessionData ses) {
     final Duration diff = ses.endTime.difference(ses.startTime);
     int diffMinutes = diff.inMinutes;
-    print('Calculate: ${diffMinutes} from ${ses.endTime} and ${ses.userId}');
+    debugPrint('Calculate: $diffMinutes from ${ses.endTime} and ${ses.userId}');
     return diffMinutes / 1440;
   }
 

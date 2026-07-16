@@ -10,6 +10,7 @@ import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/pages/final_setup.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
@@ -68,6 +69,7 @@ class MyApp extends ConsumerWidget {
         '/SetupUser': (context) => SetupUser(),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
+        '/FinalSetup':(context) => FinalSetup(),
       },
       home: session.when(
         data: (data) => data == null ? const SetupUser() : HomePage(),
