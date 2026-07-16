@@ -139,7 +139,63 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return mealLogs;
   }
 
-  Future<List<FoodData>> getFoodForSearch() {
+  Future<List<FoodData>> getFoodForSearch(String searchValue) {
     return (select(food)).get();
+  }
+
+  Future<void> dummyDataInsertion() async {
+    await into(food).insert(FoodCompanion.insert(
+  name: "Rolled Oats",
+  userID: 0,
+  calories: Value(380),
+  protein:  Value(16.9),
+  carbs:  Value(66.3),
+  fat:  Value(6.9),
+  fibre:  Value(10.6),
+));
+
+// await into(food).insert(FoodCompanion.insert(
+//   name: "Chicken Breast",
+//   servingDescription: "1 fillet",
+//   servingGrams: 150,
+//   caloriesPer100g: 165,
+//   proteinPer100g: 31,
+//   carbsPer100g: 0,
+//   fatPer100g: 3.6,
+//   fibrePer100g: 0,
+// ));
+
+// await into(food).insert(FoodCompanion.insert(
+//   name: "Brown Rice",
+//   servingDescription: "1 cup cooked",
+//   servingGrams: 195,
+//   caloriesPer100g: 111,
+//   proteinPer100g: 2.6,
+//   carbsPer100g: 23,
+//   fatPer100g: 0.9,
+//   fibrePer100g: 1.8,
+// ));
+
+// await into(food).insert(FoodCompanion.insert(
+//   name: "Apple",
+//   servingDescription: "1 medium",
+//   servingGrams: 182,
+//   caloriesPer100g: 52,
+//   proteinPer100g: 0.3,
+//   carbsPer100g: 14,
+//   fatPer100g: 0.2,
+//   fibrePer100g: 2.4,
+// ));
+
+// await into(food).insert(FoodCompanion.insert(
+//   name: "Greek Yoghurt",
+//   servingDescription: "170 g tub",
+//   servingGrams: 170,
+//   caloriesPer100g: 59,
+//   proteinPer100g: 10.3,
+//   carbsPer100g: 3.6,
+//   fatPer100g: 0.4,
+//   fibrePer100g: 0,
+// ));
   }
 }

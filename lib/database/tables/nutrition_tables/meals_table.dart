@@ -9,5 +9,6 @@ class Meals extends Table {
   DateTimeColumn get date => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get inEatingWindow => boolean().withDefault(const Constant(false))();
   TextColumn get logMethod => text().withDefault(const Constant(''))();
+  TextColumn get mealType => text().withDefault(const Constant(''))();
   RealColumn get amount => real().withDefault(const Constant(0))();
 }

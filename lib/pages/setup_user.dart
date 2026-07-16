@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 
@@ -39,76 +40,11 @@ class _SetupUserState extends State<SetupUser> {
           buildQuestion('Do you prefer metric or imperial?'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: daysSelected[0],
-                dayOfWeek: 'M',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[0] = val;
-                    });
-                  },
-              ),
-              CustomCheckbox(
-                isSelected: daysSelected[1],
-                dayOfWeek: 'Tu',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[1] = val;
-                    });
-                  },
-              ),
-              CustomCheckbox(
-                isSelected: daysSelected[2],
-                dayOfWeek: 'W',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[2] = val;
-                    });
-                  },
-              ),
-              CustomCheckbox(
-                isSelected: daysSelected[3],
-                dayOfWeek: 'Th',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[3] = val;
-                    });
-                  },
-              ),
-            ],
+            children: List.generate(4, (c) => getBox(c, daysSelected)),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomCheckbox(
-                isSelected: daysSelected[4],
-                dayOfWeek: 'F',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[4] = val;
-                    });
-                  },
-              ),
-              CustomCheckbox(
-                isSelected: daysSelected[5],
-                dayOfWeek: 'Sat',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[5] = val;
-                    });
-                  },
-              ),
-              CustomCheckbox(
-                isSelected: daysSelected[6],
-                dayOfWeek: 'Sun',
-                onTap: (bool val) {
-                    setState(() {
-                      daysSelected[6] = val;
-                    });
-                  },
-              ),
-            ],
+            children: List.generate(3, (c) => getBox(c + 4, daysSelected)),
           ),
           ElevatedButton(onPressed: () async {
             final DateTime? dateTime = await showDatePicker(
@@ -155,6 +91,12 @@ class _SetupUserState extends State<SetupUser> {
   //     });
   //   }
   // }
+
+    CustomCheckbox getBox(int index, List<bool> curList) => .new(isSelected: curList[index], dayOfWeek: daysOfWeek[index], onTap: (bool val) {
+      setState(() {
+        curList[index] = val;
+      });
+    });
 
   Widget buildTextCard(String title, text) {
     //  bool isExpanded = false;

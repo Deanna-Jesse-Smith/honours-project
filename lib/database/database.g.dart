@@ -2481,6 +2481,18 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _mealTypeMeta = const VerificationMeta(
+    'mealType',
+  );
+  @override
+  late final GeneratedColumn<String> mealType = GeneratedColumn<String>(
+    'meal_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
@@ -2498,6 +2510,7 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
     date,
     inEatingWindow,
     logMethod,
+    mealType,
     amount,
   ];
   @override
@@ -2547,6 +2560,12 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
         logMethod.isAcceptableOrUnknown(data['log_method']!, _logMethodMeta),
       );
     }
+    if (data.containsKey('meal_type')) {
+      context.handle(
+        _mealTypeMeta,
+        mealType.isAcceptableOrUnknown(data['meal_type']!, _mealTypeMeta),
+      );
+    }
     if (data.containsKey('amount')) {
       context.handle(
         _amountMeta,
@@ -2582,6 +2601,10 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
         DriftSqlType.string,
         data['${effectivePrefix}log_method'],
       )!,
+      mealType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}meal_type'],
+      )!,
       amount: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}amount'],
@@ -2601,6 +2624,7 @@ class Meal extends DataClass implements Insertable<Meal> {
   final DateTime date;
   final bool inEatingWindow;
   final String logMethod;
+  final String mealType;
   final double amount;
   const Meal({
     required this.mealID,
@@ -2608,6 +2632,7 @@ class Meal extends DataClass implements Insertable<Meal> {
     required this.date,
     required this.inEatingWindow,
     required this.logMethod,
+    required this.mealType,
     required this.amount,
   });
   @override
@@ -2618,6 +2643,7 @@ class Meal extends DataClass implements Insertable<Meal> {
     map['date'] = Variable<DateTime>(date);
     map['in_eating_window'] = Variable<bool>(inEatingWindow);
     map['log_method'] = Variable<String>(logMethod);
+    map['meal_type'] = Variable<String>(mealType);
     map['amount'] = Variable<double>(amount);
     return map;
   }
@@ -2629,6 +2655,7 @@ class Meal extends DataClass implements Insertable<Meal> {
       date: Value(date),
       inEatingWindow: Value(inEatingWindow),
       logMethod: Value(logMethod),
+      mealType: Value(mealType),
       amount: Value(amount),
     );
   }
@@ -2644,6 +2671,7 @@ class Meal extends DataClass implements Insertable<Meal> {
       date: serializer.fromJson<DateTime>(json['date']),
       inEatingWindow: serializer.fromJson<bool>(json['inEatingWindow']),
       logMethod: serializer.fromJson<String>(json['logMethod']),
+      mealType: serializer.fromJson<String>(json['mealType']),
       amount: serializer.fromJson<double>(json['amount']),
     );
   }
@@ -2656,6 +2684,7 @@ class Meal extends DataClass implements Insertable<Meal> {
       'date': serializer.toJson<DateTime>(date),
       'inEatingWindow': serializer.toJson<bool>(inEatingWindow),
       'logMethod': serializer.toJson<String>(logMethod),
+      'mealType': serializer.toJson<String>(mealType),
       'amount': serializer.toJson<double>(amount),
     };
   }
@@ -2666,6 +2695,7 @@ class Meal extends DataClass implements Insertable<Meal> {
     DateTime? date,
     bool? inEatingWindow,
     String? logMethod,
+    String? mealType,
     double? amount,
   }) => Meal(
     mealID: mealID ?? this.mealID,
@@ -2673,6 +2703,7 @@ class Meal extends DataClass implements Insertable<Meal> {
     date: date ?? this.date,
     inEatingWindow: inEatingWindow ?? this.inEatingWindow,
     logMethod: logMethod ?? this.logMethod,
+    mealType: mealType ?? this.mealType,
     amount: amount ?? this.amount,
   );
   Meal copyWithCompanion(MealsCompanion data) {
@@ -2684,6 +2715,7 @@ class Meal extends DataClass implements Insertable<Meal> {
           ? data.inEatingWindow.value
           : this.inEatingWindow,
       logMethod: data.logMethod.present ? data.logMethod.value : this.logMethod,
+      mealType: data.mealType.present ? data.mealType.value : this.mealType,
       amount: data.amount.present ? data.amount.value : this.amount,
     );
   }
@@ -2696,14 +2728,22 @@ class Meal extends DataClass implements Insertable<Meal> {
           ..write('date: $date, ')
           ..write('inEatingWindow: $inEatingWindow, ')
           ..write('logMethod: $logMethod, ')
+          ..write('mealType: $mealType, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(mealID, userID, date, inEatingWindow, logMethod, amount);
+  int get hashCode => Object.hash(
+    mealID,
+    userID,
+    date,
+    inEatingWindow,
+    logMethod,
+    mealType,
+    amount,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2713,6 +2753,7 @@ class Meal extends DataClass implements Insertable<Meal> {
           other.date == this.date &&
           other.inEatingWindow == this.inEatingWindow &&
           other.logMethod == this.logMethod &&
+          other.mealType == this.mealType &&
           other.amount == this.amount);
 }
 
@@ -2722,6 +2763,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
   final Value<DateTime> date;
   final Value<bool> inEatingWindow;
   final Value<String> logMethod;
+  final Value<String> mealType;
   final Value<double> amount;
   const MealsCompanion({
     this.mealID = const Value.absent(),
@@ -2729,6 +2771,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     this.date = const Value.absent(),
     this.inEatingWindow = const Value.absent(),
     this.logMethod = const Value.absent(),
+    this.mealType = const Value.absent(),
     this.amount = const Value.absent(),
   });
   MealsCompanion.insert({
@@ -2737,6 +2780,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     this.date = const Value.absent(),
     this.inEatingWindow = const Value.absent(),
     this.logMethod = const Value.absent(),
+    this.mealType = const Value.absent(),
     this.amount = const Value.absent(),
   }) : userID = Value(userID);
   static Insertable<Meal> custom({
@@ -2745,6 +2789,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     Expression<DateTime>? date,
     Expression<bool>? inEatingWindow,
     Expression<String>? logMethod,
+    Expression<String>? mealType,
     Expression<double>? amount,
   }) {
     return RawValuesInsertable({
@@ -2753,6 +2798,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
       if (date != null) 'date': date,
       if (inEatingWindow != null) 'in_eating_window': inEatingWindow,
       if (logMethod != null) 'log_method': logMethod,
+      if (mealType != null) 'meal_type': mealType,
       if (amount != null) 'amount': amount,
     });
   }
@@ -2763,6 +2809,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     Value<DateTime>? date,
     Value<bool>? inEatingWindow,
     Value<String>? logMethod,
+    Value<String>? mealType,
     Value<double>? amount,
   }) {
     return MealsCompanion(
@@ -2771,6 +2818,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
       date: date ?? this.date,
       inEatingWindow: inEatingWindow ?? this.inEatingWindow,
       logMethod: logMethod ?? this.logMethod,
+      mealType: mealType ?? this.mealType,
       amount: amount ?? this.amount,
     );
   }
@@ -2793,6 +2841,9 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     if (logMethod.present) {
       map['log_method'] = Variable<String>(logMethod.value);
     }
+    if (mealType.present) {
+      map['meal_type'] = Variable<String>(mealType.value);
+    }
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
     }
@@ -2807,6 +2858,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
           ..write('date: $date, ')
           ..write('inEatingWindow: $inEatingWindow, ')
           ..write('logMethod: $logMethod, ')
+          ..write('mealType: $mealType, ')
           ..write('amount: $amount')
           ..write(')'))
         .toString();
@@ -6890,6 +6942,7 @@ typedef $$MealsTableCreateCompanionBuilder =
       Value<DateTime> date,
       Value<bool> inEatingWindow,
       Value<String> logMethod,
+      Value<String> mealType,
       Value<double> amount,
     });
 typedef $$MealsTableUpdateCompanionBuilder =
@@ -6899,6 +6952,7 @@ typedef $$MealsTableUpdateCompanionBuilder =
       Value<DateTime> date,
       Value<bool> inEatingWindow,
       Value<String> logMethod,
+      Value<String> mealType,
       Value<double> amount,
     });
 
@@ -6993,6 +7047,11 @@ class $$MealsTableFilterComposer extends Composer<_$AppDatabase, $MealsTable> {
 
   ColumnFilters<String> get logMethod => $composableBuilder(
     column: $table.logMethod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mealType => $composableBuilder(
+    column: $table.mealType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7104,6 +7163,11 @@ class $$MealsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get mealType => $composableBuilder(
+    column: $table.mealType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnOrderings(column),
@@ -7155,6 +7219,9 @@ class $$MealsTableAnnotationComposer
 
   GeneratedColumn<String> get logMethod =>
       $composableBuilder(column: $table.logMethod, builder: (column) => column);
+
+  GeneratedColumn<String> get mealType =>
+      $composableBuilder(column: $table.mealType, builder: (column) => column);
 
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
@@ -7271,6 +7338,7 @@ class $$MealsTableTableManager
                 Value<DateTime> date = const Value.absent(),
                 Value<bool> inEatingWindow = const Value.absent(),
                 Value<String> logMethod = const Value.absent(),
+                Value<String> mealType = const Value.absent(),
                 Value<double> amount = const Value.absent(),
               }) => MealsCompanion(
                 mealID: mealID,
@@ -7278,6 +7346,7 @@ class $$MealsTableTableManager
                 date: date,
                 inEatingWindow: inEatingWindow,
                 logMethod: logMethod,
+                mealType: mealType,
                 amount: amount,
               ),
           createCompanionCallback:
@@ -7287,6 +7356,7 @@ class $$MealsTableTableManager
                 Value<DateTime> date = const Value.absent(),
                 Value<bool> inEatingWindow = const Value.absent(),
                 Value<String> logMethod = const Value.absent(),
+                Value<String> mealType = const Value.absent(),
                 Value<double> amount = const Value.absent(),
               }) => MealsCompanion.insert(
                 mealID: mealID,
@@ -7294,6 +7364,7 @@ class $$MealsTableTableManager
                 date: date,
                 inEatingWindow: inEatingWindow,
                 logMethod: logMethod,
+                mealType: mealType,
                 amount: amount,
               ),
           withReferenceMapper: (p0) => p0
