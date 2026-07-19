@@ -43,6 +43,29 @@ class UserSessionData {
     required this.status,
     required this.isFasting,
   });
+
+    UserSessionData copyWith({
+    String? userName,
+    DateTime? startTime,
+    DateTime? endTime,
+    FastingForm? fastingForm,
+    List<int>? adfDaysSelected,
+    List<int>? fiveTwoDaysSelected,
+    FastingStatus? status,
+    bool? isFasting,
+  }) {
+    return UserSessionData(
+      userId: userId,
+      userName: userName ?? this.userName,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      fastingForm: fastingForm ?? this.fastingForm,
+      adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
+      fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
+      status: status ?? this.status,
+      isFasting: isFasting ?? this.isFasting,
+    );
+  }
 }
 
 class UserSession extends AsyncNotifier<UserSessionData?> {
@@ -103,6 +126,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   );
 
     FastingStatus updatedStatus = determineFastingStatus(now: DateTime.now(), user: userSnapshot, activeLog: cur);
+    debugPrint('Updated fasting status: ${updatedStatus.name}');
     state = AsyncData(copy(updatedStatus, curUser.isFasting, data: curUser));
   }
 
@@ -118,6 +142,19 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       status: status,
       isFasting: isFasting,
     );
+  }
+
+  Future<void> updateUser({String? userName, DateTime? start, DateTime? end, FastingForm? form, List<int>? adfDays, List<int>? fiveTwoDays}) async {
+    final cur = state.value;
+    if (cur == null) return;
+
+    final uDao = ref.read(uDaoProvider);
+    final fDao = ref.read(fDaoProvider);
+
+    state = await AsyncValue.guard(() async {
+      // await uDao.upd
+      //! Figure out how to do this well
+    });
   }
 
   Future<void> toggleFast() async {
@@ -154,22 +191,12 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   );
 
       final newStatus = determineFastingStatus(now: now, user: userSnapshot, activeLog: updated);
-
+      debugPrint('Toggled fasting status: ${newStatus.name}');
       final toggled = copy(newStatus, !prevFasting, data: cur);
       state = AsyncData(toggled);
     } catch (e) {
       rethrow;
     }
-
-    // final toggle = copy(cur.status, !cur.isFasting, data:cur);
-    // final prev = state;
-    // state = AsyncData(toggle);
-    
-    // if (state.value!.isFasting) {
-    //   ref.read(fDaoProvider).startFast(toggle.userId, toggle.fastingForm, DateTime.now());
-    // } else {
-    //   ref.read(fDaoProvider).breakFast(toggle.userId, DateTime.now());
-    // }
   }
 }
 

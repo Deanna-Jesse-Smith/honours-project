@@ -58,6 +58,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // insert(ref);
+    // ref.read(fDaoProvider).dummyData();
       final session = ref.watch(userSessionProvider);
     
     return MaterialApp(

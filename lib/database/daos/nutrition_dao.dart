@@ -15,7 +15,7 @@ part 'nutrition_dao.g.dart';
 // MealFoodContent PK (mealID, foodID) FK mealID FK foodID quantity
 // MealRecipeContent PK (mealID, recipeID) FK mealID FK recipeID quantity Recipe PK recipeID recipeName isFavourite
 // RecipeQuantities PK (recipeID, foodID) FK recipeID FK foodID quantity
-// Food PK foodID name servingDescription servingGrams caloriesPer100g proteinPer100g carbsPer100g fatPer100g fibrePer100g
+// Food PK foodID name servingDescription servingGrams calories protein carbs fat fibre
 // NutritionLog PK nutritionLogID FK mealID carbs fat protein fibre calories
 
 @DriftAccessor(
@@ -144,58 +144,114 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<void> dummyDataInsertion() async {
-    await into(food).insert(FoodCompanion.insert(
+final oatsID = await into(food).insert(FoodCompanion.insert(
   name: "Rolled Oats",
-  userID: 0,
-  calories: Value(380),
-  protein:  Value(16.9),
-  carbs:  Value(66.3),
-  fat:  Value(6.9),
-  fibre:  Value(10.6),
+  servingDescription: "100 g",
+  servingGrams: 100,
+  calories: Value(389),
+  protein: Value(16.9),
+  carbs: Value(66.3),
+  fat: Value(6.9),
+  fibre: Value(10.6),
 ));
 
-// await into(food).insert(FoodCompanion.insert(
-//   name: "Chicken Breast",
-//   servingDescription: "1 fillet",
-//   servingGrams: 150,
-//   caloriesPer100g: 165,
-//   proteinPer100g: 31,
-//   carbsPer100g: 0,
-//   fatPer100g: 3.6,
-//   fibrePer100g: 0,
-// ));
+final milkID = await into(food).insert(FoodCompanion.insert(
+  name: "Low Fat Milk",
+  servingDescription: "100 ml",
+  servingGrams: 100,
+  calories: Value(42),
+  protein: Value(3.4),
+  carbs: Value(5),
+  fat: Value(1),
+  fibre: Value(0),
+));
 
-// await into(food).insert(FoodCompanion.insert(
-//   name: "Brown Rice",
-//   servingDescription: "1 cup cooked",
-//   servingGrams: 195,
-//   caloriesPer100g: 111,
-//   proteinPer100g: 2.6,
-//   carbsPer100g: 23,
-//   fatPer100g: 0.9,
-//   fibrePer100g: 1.8,
-// ));
+final chickenID = await into(food).insert(FoodCompanion.insert(
+  name: "Chicken Breast",
+  servingDescription: "100 g",
+  servingGrams: 100,
+  calories: Value(165),
+  protein: Value(31),
+  carbs: Value(0),
+  fat: Value(3.6),
+  fibre: Value(0),
+));
 
-// await into(food).insert(FoodCompanion.insert(
-//   name: "Apple",
-//   servingDescription: "1 medium",
-//   servingGrams: 182,
-//   caloriesPer100g: 52,
-//   proteinPer100g: 0.3,
-//   carbsPer100g: 14,
-//   fatPer100g: 0.2,
-//   fibrePer100g: 2.4,
-// ));
+final riceID = await into(food).insert(FoodCompanion.insert(
+  name: "Brown Rice",
+  servingDescription: "100 g cooked",
+  servingGrams: 100,
+  calories: Value(111),
+  protein: Value(2.6),
+  carbs: Value(23),
+  fat: Value(0.9),
+  fibre: Value(1.8),
+));
 
-// await into(food).insert(FoodCompanion.insert(
-//   name: "Greek Yoghurt",
-//   servingDescription: "170 g tub",
-//   servingGrams: 170,
-//   caloriesPer100g: 59,
-//   proteinPer100g: 10.3,
-//   carbsPer100g: 3.6,
-//   fatPer100g: 0.4,
-//   fibrePer100g: 0,
-// ));
+final broccoliID = await into(food).insert(FoodCompanion.insert(
+  name: "Broccoli",
+  servingDescription: "100 g",
+  servingGrams: 100,
+  calories: Value(35),
+  protein: Value(2.4),
+  carbs: Value(7),
+  fat: Value(0.4),
+  fibre: Value(3.3),
+));
+
+final bananaID = await into(food).insert(FoodCompanion.insert(
+  name: "Banana",
+  servingDescription: "1 medium",
+  servingGrams: 118,
+  calories: Value(89),
+  protein: Value(1.1),
+  carbs: Value(22.8),
+  fat: Value(0.3),
+  fibre: Value(2.6),
+));
+
+final eggID = await into(food).insert(FoodCompanion.insert(
+  name: "Egg",
+  servingDescription: "1 large",
+  servingGrams: 50,
+  calories: Value(143),
+  protein: Value(13),
+  carbs: Value(1.1),
+  fat: Value(10),
+  fibre: Value(0),
+));
+
+final breadID = await into(food).insert(FoodCompanion.insert(
+  name: "Whole Wheat Bread",
+  servingDescription: "1 slice",
+  servingGrams: 40,
+  calories: Value(247),
+  protein: Value(13),
+  carbs: Value(41),
+  fat: Value(4.2),
+  fibre: Value(7),
+));
+
+final yoghurtID = await into(food).insert(FoodCompanion.insert(
+  name: "Greek Yoghurt",
+  servingDescription: "100 g",
+  servingGrams: 100,
+  calories: Value(59),
+  protein: Value(10),
+  carbs: Value(3.6),
+  fat: Value(0.4),
+  fibre: Value(0),
+));
+
+final peanutButterID = await into(food).insert(FoodCompanion.insert(
+  name: "Peanut Butter",
+  servingDescription: "1 tbsp",
+  servingGrams: 16,
+  calories: Value(588),
+  protein: Value(25),
+  carbs: Value(20),
+  fat: Value(50),
+  fibre: Value(6),
+));
   }
 }

@@ -4,11 +4,11 @@ part of 'nutrition_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$NutritionDaoMixin on DatabaseAccessor<AppDatabase> {
-  $UsersTable get users => attachedDatabase.users;
   $FoodTable get food => attachedDatabase.food;
   $RecipeTable get recipe => attachedDatabase.recipe;
   $RecipeQuantitiesTable get recipeQuantities =>
       attachedDatabase.recipeQuantities;
+  $UsersTable get users => attachedDatabase.users;
   $MealsTable get meals => attachedDatabase.meals;
   $MealFoodContentTable get mealFoodContent => attachedDatabase.mealFoodContent;
   $MealRecipeContentTable get mealRecipeContent =>
@@ -20,8 +20,6 @@ mixin _$NutritionDaoMixin on DatabaseAccessor<AppDatabase> {
 class NutritionDaoManager {
   final _$NutritionDaoMixin _db;
   NutritionDaoManager(this._db);
-  $$UsersTableTableManager get users =>
-      $$UsersTableTableManager(_db.attachedDatabase, _db.users);
   $$FoodTableTableManager get food =>
       $$FoodTableTableManager(_db.attachedDatabase, _db.food);
   $$RecipeTableTableManager get recipe =>
@@ -31,6 +29,8 @@ class NutritionDaoManager {
         _db.attachedDatabase,
         _db.recipeQuantities,
       );
+  $$UsersTableTableManager get users =>
+      $$UsersTableTableManager(_db.attachedDatabase, _db.users);
   $$MealsTableTableManager get meals =>
       $$MealsTableTableManager(_db.attachedDatabase, _db.meals);
   $$MealFoodContentTableTableManager get mealFoodContent =>

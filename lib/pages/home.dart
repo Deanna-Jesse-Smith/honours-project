@@ -69,7 +69,7 @@ class HomePage extends ConsumerWidget {
     progress,
     UserSessionData ses
   ) {
-    String temp = ses.status.homeReminder;
+    // String temp = ses.status.homeReminder;
     return CircularPercentIndicator(
       radius: 100,
       percent: percent,
@@ -77,7 +77,7 @@ class HomePage extends ConsumerWidget {
       header: Padding(
         padding: EdgeInsets.only(bottom: 10),
         child: Text(
-          temp,
+          ses.status.homeReminder,
           // "You're only an hour away from the end",
           maxLines: 2,
           textAlign: TextAlign.center,

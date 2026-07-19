@@ -1,12 +1,12 @@
 // Food PK foodID name servingDescription servingGrams caloriesPer100g proteinPer100g carbsPer100g fatPer100g fibrePer100g
 
 import 'package:drift/drift.dart';
-import 'package:testrun/database/tables/user_table.dart';
 
 class Food extends Table {
   IntColumn get foodID => integer().autoIncrement()();
   TextColumn get name => text()();
-  IntColumn get userID => integer().references(Users, #userID)();
+  TextColumn get servingDescription => text()();
+  IntColumn get servingGrams => integer()();
   RealColumn get carbs => real().withDefault(const Constant(0))();
   RealColumn get fat => real().withDefault(const Constant(0))();
   RealColumn get protein => real().withDefault(const Constant(0))();

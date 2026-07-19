@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 
 enum FastingForm {tre, fiveTwo, adf}
@@ -33,6 +34,19 @@ class FastingFormConverter extends TypeConverter<FastingForm, String> {
   
   @override
   String toSql(FastingForm value) => value.name;
+}
+
+class FastResultConverter extends TypeConverter<FastResult, String> {
+  const FastResultConverter();
+
+  @override
+  FastResult fromSql(String fromDb) {
+    return FastResult.values.firstWhere((r) => r.name == fromDb,
+    orElse: () => FastResult.asPlanned);
+  }
+
+  @override
+  String toSql(FastResult value) => value.name;
 }
 
 class LogMethodConverter extends TypeConverter<LogMethod, String> {

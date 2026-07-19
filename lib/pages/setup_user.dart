@@ -2,15 +2,13 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/main.dart';
-import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
+import 'package:testrun/widgets/dialogs.dart';
 
-class SetupUser extends ConsumerStatefulWidget
- {
+class SetupUser extends ConsumerStatefulWidget {
   const SetupUser({super.key});
 
   @override
@@ -22,7 +20,7 @@ enum Measurement { metric, imperial }
 List<bool> daysSelected = List.filled(7, false);
 
 class _SetupUserState extends ConsumerState<SetupUser> {
-    static final List<DropdownMenuEntry<String>> entries =
+  static final List<DropdownMenuEntry<String>> entries =
       UnmodifiableListView<DropdownMenuEntry<String>>(
         list.map<DropdownMenuEntry<String>>(
           (String name) => DropdownMenuEntry(value: name, label: name),
@@ -32,6 +30,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
   // bool? measurement = false;
+
+  bool obligationVisibility = false;
+  List<bool> obligationDays = List.filled(7, false);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -60,36 +62,39 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
             ),
             Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-      DropdownMenu<String>(
-        initialSelection: dropDownValue,
-        // side
-        // menuStyle: MenuStyle(),
-        onSelected: (String? value) {
-          setState(() {
-            dropDownValue = value!;
-            debugPrint('The user selected: $value');
-            //! Figure out when/how to update the fasting form in the table
-            // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-          });
-        },
-        dropdownMenuEntries: entries,
-        textStyle: TextStyle(fontSize: TextSizing.large),
-      ),
-    ],
-  ),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'Plan',
+                  style: TextStyle(fontSize: TextSizing.large),
+                ),
+                DropdownMenu<String>(
+                  initialSelection: dropDownValue,
+                  // side
+                  // menuStyle: MenuStyle(),
+                  onSelected: (String? value) {
+                    setState(() {
+                      dropDownValue = value!;
+                      debugPrint('The user selected: $value');
+                      //! Figure out when/how to update the fasting form in the table
+                      // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+                    });
+                  },
+                  dropdownMenuEntries: entries,
+                  textStyle: TextStyle(fontSize: TextSizing.large),
+                ),
+              ],
+            ),
             Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
             buildQuestion('Do you prefer metric or imperial?'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(4, (c) => getBox(c, daysSelected)),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(3, (c) => getBox(c + 4, daysSelected)),
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: List.generate(4, (c) => getBox(c, daysSelected)),
+            // ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: List.generate(3, (c) => getBox(c + 4, daysSelected)),
+            // ),
             ElevatedButton(
               onPressed: () async {
                 final DateTime? dateTime = await showDatePicker(
@@ -104,49 +109,96 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                   });
                 }
               },
-              child: Text('Select Birthday'),
+              child: const Text('Select Birthday'),
             ),
-            Text('How tall are you?'),
+            const Text('How tall are you?'),
             TextField(
               controller: contorller,
               keyboardType: TextInputType.numberWithOptions(decimal: false),
               decoration: InputDecoration(suffixText: 'cm'),
             ),
-            Text('How much do you weigh?'),
+            const Text('How much do you weigh?'),
             TextField(
               controller: contorller,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(suffixText: 'kg'),
             ),
-            Text('Do you eat meals with family or friends regularly?'),
-            //? Create and push through a provider with all the input? Or just create the UserSessionProvider with the data and add the user before going to the next page?
-            ElevatedButton(onPressed: () {
-              // final uDao = ref.watch(uDaoProvider);
-              // uDao.addUser('Temp', measurement == Measurement.metric ? true : false, FastingFormConverter.fromSql(dropDownValue), exp, start, end, days52, daysADF);
-              Navigator.pushNamed(context, '/FinalSetup');
-            }, child: Text('Finished')),
+            const Text('Do you eat meals with family or friends regularly?'),
+            // buildYesNo('Do you eat meals with family or friends regularly?'),
+            Checkbox(
+              value: obligationVisibility,
+              onChanged: (value) {
+                setState(() => obligationVisibility = value ?? false);
+              },
+            ),
+            if (obligationVisibility) getWeek(),
+              //? Create and push through a provider with all the input? Or just create the UserSessionProvider with the data and add the user before going to the next page?
+              ElevatedButton(
+                onPressed: () {
+                  // final uDao = ref.watch(uDaoProvider);
+                  // uDao.addUser('Temp', measurement == Measurement.metric ? true : false, FastingFormConverter.fromSql(dropDownValue), exp, start, end, days52, daysADF);
+                  Navigator.pushNamed(context, '/FinalSetup');
+                },
+                child: Text('Finished'),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // final setupProvider = Provider(_create)
+  Column getWeek() {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(4, (c) => getBox(c, obligationDays)),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(3, (c) => getBox(c + 4, obligationDays)),
+          ),
+        ),
+        const Text('Which meals are reserved for these obligations?'),
+        getObligationMeal(),
+      ],
+    );
+  }
 
-  // selectBirthday(BuildContext context) async {
-  //   final DateTime? selected = await showDatePicker(
-  //     context: context,
-  //     initialDate: selectedDate,
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2008),
-  //   );
+  // List<String> mealOptions = ['Breakfast', 'Lunch', 'Supper', 'Snack'];
+  //   static final List<DropdownMenuEntry<String>> mealEntries =
+  //     UnmodifiableListView<DropdownMenuEntry<String>>(
+  //       list.map<DropdownMenuEntry<String>>(
+  //         (String name) => DropdownMenuEntry(value: name, label: name),
+  //       ),
+  //     );
+  int mealCap = 3;
+  String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
-  //   if (selected != selectedDate) {
-  //     setState(() {
-  //       selectedDate = selected;
-  //     });
-  //   }
-  // }
+  Row getObligationMeal() {
+    return .new(children: [
+      ElevatedButton(onPressed: selectMealTime, child: Text(mealOneText)),
+    ]);
+  }
+
+  Future<void> selectMealTime() async {
+    final time = await Dialogs.showTimeInput(context);
+    if (time != null) {
+      setState(() {
+        mealOneText = time.format(context);
+        // switch (index) {
+        //   case 1: mealOneText = time.format(context);
+        //   case 2: mealTwoText = time.format(context);
+        //   case 3: mealThreeText = time.format(context);
+        // }
+      });
+    }
+  }
 
   CustomCheckbox getBox(int index, List<bool> curList) => .new(
     isSelected: curList[index],
@@ -197,6 +249,39 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 const SizedBox(width: 12),
                 Text('Imperial'),
                 Radio<Measurement>(value: Measurement.imperial),
+                // ListTile(
+                //   title: Text("Imperial"),
+                //   leading: Radio<Measurement>(value: Measurement.imperial),
+                // )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildYesNo(String title) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Text(title),
+          RadioGroup<bool>(
+            groupValue: obligationVisibility,
+            onChanged: (bool? value) {
+              setState(() {
+                obligationVisibility = !obligationVisibility;
+              });
+            },
+            child: Row(
+              children: [
+                SizedBox(width: 30),
+                Text('Yes'),
+                Radio<bool>(value: true),
+                const SizedBox(width: 12),
+                Text('No'),
+                Radio<bool>(value: false),
                 // ListTile(
                 //   title: Text("Imperial"),
                 //   leading: Radio<Measurement>(value: Measurement.imperial),

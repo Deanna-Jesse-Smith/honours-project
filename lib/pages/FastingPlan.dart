@@ -31,6 +31,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late String dropDownValue;
+  TimeOfDay? start, end;
 
   @override
   void initState() {
@@ -170,17 +171,34 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     ],
   );
 
+  String startText = 'Start', endText = 'End';
+
+  Future<void> selectStartTime() async {
+    final time = await Dialogs.showTimeInput(context);
+    if (time != null) {
+      setState(() {
+        start = time;
+        startText = time.format(context);
+      });
+    }
+  }
+
+  Future<void> selectEndTime() async {
+    final time = await Dialogs.showTimeInput(context);
+    if (time != null) {
+      setState(() {
+        end = time;
+        endText = time.format(context);
+      });
+    }
+  }
+
   Column createTRE(UserSessionData session) {
     final theme = Theme.of(context);
-    TimeOfDay? start, end;
     List<String> headings = ['Starting Time', 'Ending Time'];
     List<ElevatedButton> times = [
-      changeTime('Start', () async {
-        start = await Dialogs.showTimeInput(context);
-      }),
-      changeTime('End', () async {
-        end = await Dialogs.showTimeInput(context);
-      }),
+      ElevatedButton(onPressed: selectStartTime, child: Text(startText)),
+      ElevatedButton(onPressed: selectEndTime, child: Text(endText)),
     ];
 
     return Column(
@@ -298,8 +316,4 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     ],
   );
-
-  ElevatedButton changeTime(String text, VoidCallback onPressed) {
-    return .new(onPressed: onPressed, child: Text(text));
-  }
 }
