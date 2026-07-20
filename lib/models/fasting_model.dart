@@ -32,9 +32,9 @@ FastingScheduleCalculator calculatorFor(FastingForm form) {
     case FastingForm.tre:
       return TRECalculator();
     case FastingForm.adf:
-      return WeekdayBasedCalculator(fastDurationHours: 36); // adjust to your ADF definition
+      return WeekdayBasedCalculator(fastDurationHours: 36);
     case FastingForm.fiveTwo:
-      return WeekdayBasedCalculator(fastDurationHours: 24); // 5:2 typically 24hr fasting days
+      return WeekdayBasedCalculator(fastDurationHours: 24);
   }
 }
 
@@ -52,7 +52,7 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
 
   bool isFastingDay(DateTime date, User user) {
     final fastingDays = parseFastingDays(user.adfDaysSelected);
-    return fastingDays.contains(date.weekday); // DateTime.weekday: Mon=1 ... Sun=7
+    return fastingDays.contains(date.weekday); // My weeks start on Monday
   }
 
   @override
@@ -68,28 +68,6 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
     
     return start.add(Duration(hours: fastDurationHours));
   }
-}
-
-enum FastingStatus {
-  notFastingDay,   // ADF rest day
-  upcoming,        // more than 1hr before expected start
-  startingSoon,    // within 1hr of expected start, not yet started
-  overdue,         // 30+ min past expected start, not yet started
-  active,          // fast in progress
-  endingSoon,       // within some threshold of expected end
-  completed,
-}
-
-extension FastingStatusAppearance on FastingStatus {
-  String get homeReminder => switch (this) {
-    FastingStatus.notFastingDay => 'Today\'s your day off',
-    FastingStatus.upcoming => 'In a while',
-    FastingStatus.startingSoon => 'Your fast starts soon!',
-    FastingStatus.overdue => 'It\'s not too late to start now!',
-    FastingStatus.active => 'You remembered!',
-    FastingStatus.endingSoon => 'Almost at the finish line',
-    FastingStatus.completed => 'Well done!',
-  };
 }
 
 FastingStatus determineFastingStatus({
@@ -115,20 +93,43 @@ FastingStatus determineFastingStatus({
   }
 
   final diff = expectedStart.difference(now);
-  if (diff.inMinutes <= 30) return FastingStatus.startingSoon;
-  if (diff.inHours < 4) return FastingStatus.upcoming;
 
-  // if (diff.inMinutes > 60) {
-  //   return FastingStatus.upcoming; 
-  // }
-  // if (diff.inMinutes >= -30) return FastingStatus.startingSoon;
+  if (diff.inMinutes <= 30 && diff.inMinutes > 0) {
+      return FastingStatus.startingSoon;
+  }
+
+  if (diff.inHours < 4 && diff.inHours > 0) {
+    return FastingStatus.upcoming;
+  }
   
   return FastingStatus.overdue;
+}
+
+enum FastingStatus {
+  notFastingDay,
+  upcoming,
+  startingSoon,
+  overdue,
+  active,
+  endingSoon,
+  completed,
 }
 
 Duration timeOfDayToDuration(TimeOfDay t) => Duration(hours: t.hour, minutes: t.minute);
 
 Duration dateTimeToDuration(DateTime dt) => Duration(hours: dt.hour, minutes: dt.minute);
+
+extension FastingStatusAppearance on FastingStatus {
+  String get homeReminder => switch (this) {
+    FastingStatus.notFastingDay => 'Today\'s your day off',
+    FastingStatus.upcoming => 'In a while',
+    FastingStatus.startingSoon => 'Your fast starts soon!',
+    FastingStatus.overdue => 'It\'s not too late to start now!',
+    FastingStatus.active => 'You remembered!',
+    FastingStatus.endingSoon => 'Almost at the finish line',
+    FastingStatus.completed => 'Well done!',
+  };
+}
 
 enum FastResult { //? I can have multiple of these stored maybe? Then I can show more icons in the fasting history calendar?
   asPlanned,

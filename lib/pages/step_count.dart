@@ -11,6 +11,7 @@ class StepCounts extends StatefulWidget {
   State<StepCounts> createState() => _StepCountState();
 }
 
+//! Temporarily here for me to change when I get to this part of the project
 class _StepCountState extends State<StepCounts> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
