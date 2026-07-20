@@ -38,24 +38,24 @@ class MealTracking extends ConsumerWidget {
       //   },
       // ),
 
-      //  body: threeDaysMeals.when(
-      //   data: (meals) =>
-      //       ListView(children: meals.map((m) => MealCard(meal: m)).toList()),
-      //   error: (e, st) => Text('Error: $e'),
-      //   loading: () => const CircularProgressIndicator(),
-      // ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // groupedMeals(context),
-          // groupedMeals(context),
-          // groupedMeals(context),
-          ElevatedButton(onPressed: () async {
-              final newLog = await Dialogs.getCurLogMethod(context, ref, session);
-              if (newLog != null) ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), newLog);
-            }, child: Text('Log Weight'))
-        ],
-      )
+       body: threeDaysMeals.when(
+        data: (meals) =>
+            ListView(children: meals.map((m) => MealCard(meal: m)).toList()),
+        error: (e, st) => Text('Error: $e'),
+        loading: () => const CircularProgressIndicator(),
+      ),
+      // body: Column(
+      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //   children: [
+      //     // groupedMeals(context),
+      //     // groupedMeals(context),
+      //     // groupedMeals(context),
+      //     ElevatedButton(onPressed: () async {
+      //         final newLog = await Dialogs.getCurLogMethod(context, ref, session);
+      //         if (newLog != null) ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), newLog);
+      //       }, child: Text('Log Weight'))
+      //   ],
+      // )
     );
   }
 

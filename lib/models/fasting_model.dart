@@ -196,5 +196,8 @@ class Fast {
 }
 
 extension FastLogDataHelper on FastLogData {
-  Duration? get duration => endDateTime?.difference(startDateTime);
+  Duration? get duration {
+    if (endDateTime == null) return Duration();
+    return endDateTime?.difference(startDateTime);
+    }
 }

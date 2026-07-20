@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
@@ -34,13 +33,20 @@ const List<String> months = <String>[
 
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+final fastsInMonthProvider = StreamProvider.autoDispose.family<StatisticsModel, ({int userID, FastingForm curForm, DateTimeRange range})>((ref, params) {
+  final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.range);
+
+  return repo.map((fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm));
+});
+
 class _FastingHistoryState extends ConsumerState<FastingHistory> {
   int thisMonth = DateTime.now().month - 1, thisYear = DateTime.now().year;
   late int daysInMonth, firstWeekday, totalCells;
   Stream<List<FastLogData>> data = Stream.empty();
+  Stream<StatisticsModel> sm = Stream.empty();
   late DateTime start, end;
 
-  late Future<StatisticsModel> sm;
+  late Stream<StatisticsModel> sms;
   late Stream<List<FastLogData>> fasts;
 
   @override
@@ -53,13 +59,25 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
 
-    // data = ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end));
+
+    resetStreams();
     super.initState();
+  }
+
+  void resetStreams() {
+    final session = ref.watch(userSessionProvider).value;
+    data = ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end));
+
+    sms = data.map((convert) => StatisticsModel(curFasts: convert, curForm: session!.fastingForm));
   }
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(userSessionProvider).value;
+final session = ref.watch(userSessionProvider).value;
+            // data = ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end));
+        
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -98,7 +116,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                     } else {
                       thisMonth = thisMonth - 1;
                     }
-                    changeFocus(thisYear, thisMonth);
+                    changeFocus(thisYear, thisMonth, session!);
                   });
                 },
               ),
@@ -116,7 +134,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                     } else {
                       thisMonth = thisMonth + 1;
                     }
-                    changeFocus(thisYear, thisMonth);
+                    changeFocus(thisYear, thisMonth, session!);
                   });
                 },
               ),
@@ -138,11 +156,65 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 .toList(),
           ),
           // Expanded(child: getCalendar(session!)),
-          getCalendar(session!),
+          StreamBuilder<List<FastLogData>>(
+      stream: data,
+      builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+        final fasts = asyncSnapshot.data!;
+
+                    // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');
+        // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
+
+        return GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisExtent: 90
+          ),
+          itemCount: totalCells,
+          itemBuilder: (context, index) {
+            if (index < firstWeekday) {
+              return const SizedBox.shrink();
+            }
+            final day = index - firstWeekday + 1;
+            final log = fasts.where((f) => f.startDateTime.year == thisYear && f.startDateTime.month == thisMonth + 1 && f.startDateTime.day == day).firstOrNull;
+
+            if (log != null) {
+              return fastDay(day, log);
+            }
+            return emptyDay(day);
+          },
+        );
+      },
+    ),
           SizedBox(height: 15,),
-          Text(
-            'Total Hours Fasted in ${months[thisMonth]}:',
-            style: TextStyle(fontSize: TextSizing.medium),
+          StreamBuilder(
+            stream: sms,
+            builder: (context, asyncSnapshot) {
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                debugPrint('SMS: waiting');
+                return CircularProgressIndicator();
+              }
+              if (asyncSnapshot.hasError) {
+                debugPrint('SMS: ${asyncSnapshot.error}');
+                return CircularProgressIndicator();
+              }
+              if (!asyncSnapshot.hasData) {
+                debugPrint('SMS: null');
+                return CircularProgressIndicator();
+              }
+              StatisticsModel sm = asyncSnapshot.data!;
+              debugPrint('SMS rebuild ${sm.getLength()}');
+              return Column(
+                children: [
+                  Text(
+                    'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)}',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                  Text('Longest Fast: ${sm.getLongest().inMinutes}')
+                ],
+              );
+            }
           ),
         ],
       ),
@@ -154,19 +226,23 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   //           style: TextStyle(fontSize: TextSizing.medium),);
   // }
 
-  Future<StatisticsModel> getModel(UserSessionData session) async {
-    //! change getDurations to fasts in range
-    final curFasts = await ref.watch(fDaoProvider).getDurations(session.userId, session.fastingForm.name);
-    return StatisticsModel(curFasts: curFasts, curForm: session.fastingForm);
-  }
+  // Future<StatisticsModel> getModel(UserSessionData session) async {
+  //   //! change getDurations to fasts in range
+  //   final curFasts = await ref.watch(fDaoProvider).getDurations(session.userId, session.fastingForm.name);
+  //   return StatisticsModel(curFasts: curFasts, curForm: session.fastingForm);
+  // }
 
-  void changeFocus(int curYear, int curMonth) {
-    DateTime focusMonth = DateTime(curYear, curMonth + 1);
+  void changeFocus(int curYear, int curMonth, UserSessionData session) {
+    setState(() {
+          DateTime focusMonth = DateTime(curYear, curMonth + 1);
     start = DateTime(focusMonth.year, focusMonth.month, 1);
     end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
     daysInMonth = end.day;
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
+
+    resetStreams();
+    });
   }
 
   Padding emptyDay(int day) {

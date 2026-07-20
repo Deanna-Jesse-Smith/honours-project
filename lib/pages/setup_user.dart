@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -37,6 +38,9 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   @override
   Widget build(BuildContext context) {
+
+    // ref.watch(uDaoProvider).addUser('Deanna', true, FastingForm.tre, 'Beginner', start, end, '1,3,5', '2,4,6');
+    //! This adds info from previous page
     int initialVal = 0;
     final contorller = TextEditingController(text: initialVal.toString());
     return Scaffold(
@@ -75,7 +79,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                   onSelected: (String? value) {
                     setState(() {
                       dropDownValue = value!;
-                      debugPrint('The user selected: $value');
                       //! Figure out when/how to update the fasting form in the table
                       // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
                     });
@@ -183,6 +186,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   Row getObligationMeal() {
     return .new(children: [
       ElevatedButton(onPressed: selectMealTime, child: Text(mealOneText)),
+      // IconButton(onPressed: () => , icon: Icon(Icons.cancel)),
     ]);
   }
 

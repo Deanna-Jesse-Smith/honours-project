@@ -33,32 +33,63 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     with _$NutritionDaoMixin {
   NutritionDao(super.db);
 
-  Future<void> updateFoodLog(DateTime date) async {
+  Future<void> updateFoodLog(DateTime date) async {}
 
-  }
-
-  Future<int> addMealRecipeContent(int userID, int mealID, int recipeID, double amount, DateTime date, LogMethod logMethod) async {
+  Future<int> addMealRecipeContent(
+    int userID,
+    int mealID,
+    int recipeID,
+    double amount,
+    DateTime date,
+    LogMethod logMethod,
+  ) async {
     if (mealID < 0) {
       mealID = await insertMeal(userID, date, logMethod);
       // TODO put the 'is in eating window' thing in place
     }
 
-    final content = await into(mealRecipeContent).insert(MealRecipeContentCompanion.insert(mealID: mealID, recipeID: recipeID, quantity: Value(amount)));
+    final content = await into(mealRecipeContent).insert(
+      MealRecipeContentCompanion.insert(
+        mealID: mealID,
+        recipeID: recipeID,
+        quantity: Value(amount),
+      ),
+    );
     return content;
   }
 
-    Future<int> addMealFoodContent(int userID, int mealID, int foodID, double amount, DateTime date, LogMethod logMethod) async {
+  Future<int> addMealFoodContent(
+    int userID,
+    int mealID,
+    int foodID,
+    double amount,
+    DateTime date,
+    LogMethod logMethod,
+  ) async {
     if (mealID < 0) {
       mealID = await insertMeal(userID, date, logMethod);
       // TODO put the 'is in eating window' thing in place
     }
 
-    final content = await into(mealFoodContent).insert(MealFoodContentCompanion.insert(mealID: mealID, foodID: foodID, quantity: Value(amount)));
+    final content = await into(mealFoodContent).insert(
+      MealFoodContentCompanion.insert(
+        mealID: mealID,
+        foodID: foodID,
+        quantity: Value(amount),
+      ),
+    );
     return content;
   }
 
   Future<int> insertMeal(int userID, DateTime date, LogMethod logMethod) async {
-    final meal = await into(meals).insert(MealsCompanion.insert(userID: userID, date: Value(date), inEatingWindow: Value(false), logMethod: Value(LogMethodConverter().toSql(logMethod))));
+    final meal = await into(meals).insert(
+      MealsCompanion.insert(
+        userID: userID,
+        date: Value(date),
+        inEatingWindow: Value(false),
+        logMethod: Value(LogMethodConverter().toSql(logMethod)),
+      ),
+    );
     return meal;
   }
 
@@ -96,10 +127,11 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<List<MealItem>> getMealsInRange(List<DateTime> days) async {
-    final allMeals = await (select(meals)
-    ..where((m) => m.date.isIn(days))
-    ..orderBy([(d) => OrderingTerm.desc(d.date)])
-    ).get();
+    final allMeals =
+        await (select(meals)
+              ..where((m) => m.date.isIn(days))
+              ..orderBy([(d) => OrderingTerm.desc(d.date)]))
+            .get();
 
     List<MealItem> mealLogs = List.empty();
 
@@ -107,32 +139,48 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
 
     Map<int, List<Ingredient>> mealFoods = {};
 
-    final foodContentRows = await (select(mealFoodContent)
-    .join([innerJoin(food, food.foodID.equalsExp(mealFoodContent.foodID))])
-    ..where(mealFoodContent.mealID.isIn(mealIDs))).get();
+    final foodContentRows = await (select(mealFoodContent).join([
+      innerJoin(food, food.foodID.equalsExp(mealFoodContent.foodID)),
+    ])..where(mealFoodContent.mealID.isIn(mealIDs))).get();
 
     for (final row in foodContentRows) {
       final foodContent = row.readTable(mealFoodContent);
       final foodItem = row.readTable(food);
 
-      final ingredient = Ingredient(foodItem.foodID, foodItem.name, foodContent.quantity, IngredientType.food);
+      final ingredient = Ingredient(
+        foodItem.foodID,
+        foodItem.name,
+        foodContent.quantity,
+        IngredientType.food,
+      );
       mealFoods.putIfAbsent(foodContent.mealID, () => []).add(ingredient);
     }
 
-    final recipeContentRows = await (select(mealRecipeContent)
-    .join([innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID))])
-    ..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
+    final recipeContentRows = await (select(mealRecipeContent).join([
+      innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID)),
+    ])..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
 
     for (final row in recipeContentRows) {
       final recipeContent = row.readTable(mealRecipeContent);
       final recipeItem = row.readTable(recipe);
 
-      final ingredient = Ingredient(recipeItem.recipeID, recipeItem.recipeName, recipeContent.quantity, IngredientType.recipe);
+      final ingredient = Ingredient(
+        recipeItem.recipeID,
+        recipeItem.recipeName,
+        recipeContent.quantity,
+        IngredientType.recipe,
+      );
       mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
     }
 
     for (final meal in allMeals) {
-      MealItem temp = MealItem(meal.mealID, mealFoods[meal.mealID], meal.date, meal.inEatingWindow, LogMethodConverter().fromSql(meal.logMethod));
+      MealItem temp = MealItem(
+        meal.mealID,
+        mealFoods[meal.mealID],
+        meal.date,
+        meal.inEatingWindow,
+        LogMethodConverter().fromSql(meal.logMethod),
+      );
       mealLogs.add(temp);
     }
 
@@ -144,114 +192,219 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<void> dummyDataInsertion() async {
-final oatsID = await into(food).insert(FoodCompanion.insert(
-  name: "Rolled Oats",
-  servingDescription: "100 g",
-  servingGrams: 100,
-  calories: Value(389),
-  protein: Value(16.9),
-  carbs: Value(66.3),
-  fat: Value(6.9),
-  fibre: Value(10.6),
-));
+    final oatsID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Rolled Oats",
+        servingDescription: "100 g",
+        servingGrams: 100,
+        calories: Value(389),
+        protein: Value(16.9),
+        carbs: Value(66.3),
+        fat: Value(6.9),
+        fibre: Value(10.6),
+      ),
+    );
 
-final milkID = await into(food).insert(FoodCompanion.insert(
-  name: "Low Fat Milk",
-  servingDescription: "100 ml",
-  servingGrams: 100,
-  calories: Value(42),
-  protein: Value(3.4),
-  carbs: Value(5),
-  fat: Value(1),
-  fibre: Value(0),
-));
+    final milkID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Low Fat Milk",
+        servingDescription: "100 ml",
+        servingGrams: 100,
+        calories: Value(42),
+        protein: Value(3.4),
+        carbs: Value(5),
+        fat: Value(1),
+        fibre: Value(0),
+      ),
+    );
 
-final chickenID = await into(food).insert(FoodCompanion.insert(
-  name: "Chicken Breast",
-  servingDescription: "100 g",
-  servingGrams: 100,
-  calories: Value(165),
-  protein: Value(31),
-  carbs: Value(0),
-  fat: Value(3.6),
-  fibre: Value(0),
-));
+    final chickenID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Chicken Breast",
+        servingDescription: "100 g",
+        servingGrams: 100,
+        calories: Value(165),
+        protein: Value(31),
+        carbs: Value(0),
+        fat: Value(3.6),
+        fibre: Value(0),
+      ),
+    );
 
-final riceID = await into(food).insert(FoodCompanion.insert(
-  name: "Brown Rice",
-  servingDescription: "100 g cooked",
-  servingGrams: 100,
-  calories: Value(111),
-  protein: Value(2.6),
-  carbs: Value(23),
-  fat: Value(0.9),
-  fibre: Value(1.8),
-));
+    final riceID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Brown Rice",
+        servingDescription: "100 g cooked",
+        servingGrams: 100,
+        calories: Value(111),
+        protein: Value(2.6),
+        carbs: Value(23),
+        fat: Value(0.9),
+        fibre: Value(1.8),
+      ),
+    );
 
-final broccoliID = await into(food).insert(FoodCompanion.insert(
-  name: "Broccoli",
-  servingDescription: "100 g",
-  servingGrams: 100,
-  calories: Value(35),
-  protein: Value(2.4),
-  carbs: Value(7),
-  fat: Value(0.4),
-  fibre: Value(3.3),
-));
+    final broccoliID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Broccoli",
+        servingDescription: "100 g",
+        servingGrams: 100,
+        calories: Value(35),
+        protein: Value(2.4),
+        carbs: Value(7),
+        fat: Value(0.4),
+        fibre: Value(3.3),
+      ),
+    );
 
-final bananaID = await into(food).insert(FoodCompanion.insert(
-  name: "Banana",
-  servingDescription: "1 medium",
-  servingGrams: 118,
-  calories: Value(89),
-  protein: Value(1.1),
-  carbs: Value(22.8),
-  fat: Value(0.3),
-  fibre: Value(2.6),
-));
+    final bananaID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Banana",
+        servingDescription: "1 medium",
+        servingGrams: 118,
+        calories: Value(89),
+        protein: Value(1.1),
+        carbs: Value(22.8),
+        fat: Value(0.3),
+        fibre: Value(2.6),
+      ),
+    );
 
-final eggID = await into(food).insert(FoodCompanion.insert(
-  name: "Egg",
-  servingDescription: "1 large",
-  servingGrams: 50,
-  calories: Value(143),
-  protein: Value(13),
-  carbs: Value(1.1),
-  fat: Value(10),
-  fibre: Value(0),
-));
+    final eggID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Egg",
+        servingDescription: "1 large",
+        servingGrams: 50,
+        calories: Value(143),
+        protein: Value(13),
+        carbs: Value(1.1),
+        fat: Value(10),
+        fibre: Value(0),
+      ),
+    );
 
-final breadID = await into(food).insert(FoodCompanion.insert(
-  name: "Whole Wheat Bread",
-  servingDescription: "1 slice",
-  servingGrams: 40,
-  calories: Value(247),
-  protein: Value(13),
-  carbs: Value(41),
-  fat: Value(4.2),
-  fibre: Value(7),
-));
+    final breadID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Whole Wheat Bread",
+        servingDescription: "1 slice",
+        servingGrams: 40,
+        calories: Value(247),
+        protein: Value(13),
+        carbs: Value(41),
+        fat: Value(4.2),
+        fibre: Value(7),
+      ),
+    );
 
-final yoghurtID = await into(food).insert(FoodCompanion.insert(
-  name: "Greek Yoghurt",
-  servingDescription: "100 g",
-  servingGrams: 100,
-  calories: Value(59),
-  protein: Value(10),
-  carbs: Value(3.6),
-  fat: Value(0.4),
-  fibre: Value(0),
-));
+    final yoghurtID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Greek Yoghurt",
+        servingDescription: "100 g",
+        servingGrams: 100,
+        calories: Value(59),
+        protein: Value(10),
+        carbs: Value(3.6),
+        fat: Value(0.4),
+        fibre: Value(0),
+      ),
+    );
 
-final peanutButterID = await into(food).insert(FoodCompanion.insert(
-  name: "Peanut Butter",
-  servingDescription: "1 tbsp",
-  servingGrams: 16,
-  calories: Value(588),
-  protein: Value(25),
-  carbs: Value(20),
-  fat: Value(50),
-  fibre: Value(6),
-));
+    final peanutButterID = await into(food).insert(
+      FoodCompanion.insert(
+        name: "Peanut Butter",
+        servingDescription: "1 tbsp",
+        servingGrams: 16,
+        calories: Value(588),
+        protein: Value(25),
+        carbs: Value(20),
+        fat: Value(50),
+        fibre: Value(6),
+      ),
+    );
+
+    final overnightOatsID = await into(
+      recipe,
+    ).insert(RecipeCompanion.insert(recipeName: 'Overnight oats'));
+
+    final chickenDonburiID = await into(
+      recipe,
+    ).insert(RecipeCompanion.insert(recipeName: 'Chicken Rice Bowl'));
+
+    final eggToastID = await into(
+      recipe,
+    ).insert(RecipeCompanion.insert(recipeName: 'Egg Toast'));
+
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: overnightOatsID,
+        foodID: oatsID,
+        quantity: Value(80),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: overnightOatsID,
+        foodID: milkID,
+        quantity: Value(200),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: overnightOatsID,
+        foodID: bananaID,
+        quantity: Value(100),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: overnightOatsID,
+        foodID: yoghurtID,
+        quantity: Value(150),
+      ),
+    );
+
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: chickenDonburiID,
+        foodID: chickenID,
+        quantity: Value(180),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: chickenDonburiID,
+        foodID: riceID,
+        quantity: Value(200),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: chickenDonburiID,
+        foodID: broccoliID,
+        quantity: Value(100),
+      ),
+    );
+
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: eggToastID,
+        foodID: eggID,
+        quantity: Value(100),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: eggToastID,
+        foodID: breadID,
+        quantity: Value(80),
+      ),
+    );
+    await into(recipeQuantities).insert(
+      RecipeQuantitiesCompanion.insert(
+        recipeID: eggToastID,
+        foodID: peanutButterID,
+        quantity: Value(20),
+      ),
+    );
   }
 }

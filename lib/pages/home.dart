@@ -3,6 +3,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -16,6 +17,8 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
+
+    // ref.read(fDaoProvider).dummyData();
 
     CustomWidgets customWidgets = CustomWidgets();
     double percent = calculatePercentageTRE(session!);

@@ -86,6 +86,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     debugPrint('User number: ${count.length}');
   }
 
+  void deleteAll() {
+    fastLog.deleteAll();
+  }
+
   Future<void> dummyData() async {
     await into(fastLog).insert(FastLogCompanion.insert(
   userID: 1,

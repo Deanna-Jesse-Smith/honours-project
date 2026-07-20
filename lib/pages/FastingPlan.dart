@@ -31,12 +31,21 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late String dropDownValue;
+
+  //   static final List<DropdownMenuEntry<FastingForm>> entries =
+  //     UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
+  //       FastingForm.values.map<DropdownMenuEntry<FastingForm>>(
+  //         (FastingForm form) => DropdownMenuEntry(value: form, label: form.name.toUpperCase()),
+  //       ),
+  //     );
+  // late FastingForm dropDownValue;
   TimeOfDay? start, end;
 
   @override
   void initState() {
     final session = ref.watch(userSessionProvider).value;
     dropDownValue = session!.fastingForm.name;
+    // dropDownValue = session!.fastingForm;
     debugPrint('The value is: $dropDownValue');
 
     fiveTwoDaysSelected = intsToBools(
@@ -88,6 +97,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   }
 
   Column getCorrectLayout(UserSessionData session) {
+    // if (dropDownValue == FastingForm.adf) {
+    //   return createADF(session);
+    // } else if (dropDownValue == FastingForm.tre) {
+    //   return createTRE(session);
+    // } else {
+    //   return create52(session);
+    // }
+
     if (dropDownValue.toLowerCase() == 'adf') {
       return createADF(session);
     } else if (dropDownValue.toLowerCase() == 'tre') {
@@ -316,4 +333,26 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     ],
   );
+
+  //   Row chooseFastingPlan(UserSessionData session) => .new(
+  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //   children: [
+  //     const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
+  //     DropdownMenu<FastingForm>(
+  //       initialSelection: dropDownValue,
+  //       // side
+  //       // menuStyle: MenuStyle(),
+  //       onSelected: (FastingForm? value) {
+  //         setState(() {
+  //           dropDownValue = value!;
+  //           debugPrint('The user selected: $value');
+  //           //! Figure out when/how to update the fasting form in the table
+  //           // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+  //         });
+  //       },
+  //       dropdownMenuEntries: entries,
+  //       textStyle: TextStyle(fontSize: TextSizing.large),
+  //     ),
+  //   ],
+  // );
 }
