@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
-import 'package:testrun/database/tables/fasting_tables.dart';
-import 'package:testrun/database/tables/user_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -71,7 +69,6 @@ class UserSessionData {
 class UserSession extends AsyncNotifier<UserSessionData?> {
   @override
   Future<UserSessionData?> build() async {
-    debugPrint('made user');
     final uDao = ref.watch(uDaoProvider);
     final fDao = ref.watch(fDaoProvider);
 

@@ -121,7 +121,7 @@ final session = ref.watch(userSessionProvider).value;
                 },
               ),
               Text(
-                months[thisMonth],
+                '${months[thisMonth]} $thisYear',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               GestureDetector(
