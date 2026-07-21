@@ -33,11 +33,17 @@ const List<String> months = <String>[
 
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-final fastsInMonthProvider = StreamProvider.autoDispose.family<StatisticsModel, ({int userID, FastingForm curForm, DateTimeRange range})>((ref, params) {
-  final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.range);
+final fastsInMonthProvider = StreamProvider.autoDispose
+    .family<
+      StatisticsModel,
+      ({int userID, FastingForm curForm, DateTimeRange range})
+    >((ref, params) {
+      final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.range);
 
-  return repo.map((fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm));
-});
+      return repo.map(
+        (fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm),
+      );
+    });
 
 class _FastingHistoryState extends ConsumerState<FastingHistory> {
   int thisMonth = DateTime.now().month - 1, thisYear = DateTime.now().year;
@@ -59,25 +65,25 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
 
-
     resetStreams();
     super.initState();
   }
 
   void resetStreams() {
     final session = ref.watch(userSessionProvider).value;
-    data = ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end));
+    data = ref
+        .watch(fDaoProvider)
+        .findFastsInRange(1, DateTimeRange(start: start, end: end));
 
-    sms = data.map((convert) => StatisticsModel(curFasts: convert, curForm: session!.fastingForm));
+    sms = data.map(
+      (convert) =>
+          StatisticsModel(curFasts: convert, curForm: session!.fastingForm),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-final session = ref.watch(userSessionProvider).value;
-            // data = ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end));
-        
-
-
+    final session = ref.watch(userSessionProvider).value;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -96,13 +102,20 @@ final session = ref.watch(userSessionProvider).value;
           onTap: () => {Navigator.of(context).pop()},
         ),
         actions: [
-          Tooltip(message: 'Test', triggerMode: TooltipTriggerMode.tap, child: IconButton(onPressed: () => Dialogs.getFastResultHelp(context), icon: Icon(Icons.question_mark)))
+          Tooltip(
+            message: 'Test',
+            triggerMode: TooltipTriggerMode.tap,
+            child: IconButton(
+              onPressed: () => Dialogs.getFastResultHelp(context),
+              icon: Icon(Icons.question_mark),
+            ),
+          ),
         ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: 15,),
+          SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -140,7 +153,7 @@ final session = ref.watch(userSessionProvider).value;
               ),
             ],
           ),
-          SizedBox(height: 15,),
+          SizedBox(height: 15),
           Row(
             children: daysOfWeek
                 .map(
@@ -157,37 +170,45 @@ final session = ref.watch(userSessionProvider).value;
           ),
           // Expanded(child: getCalendar(session!)),
           StreamBuilder<List<FastLogData>>(
-      stream: data,
-      builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
-        final fasts = asyncSnapshot.data!;
+            stream: data,
+            builder: (context, asyncSnapshot) {
+              if (asyncSnapshot.connectionState == ConnectionState.waiting)
+                return const CircularProgressIndicator();
+              final fasts = asyncSnapshot.data!;
 
-                    // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');
-        // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
+              // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');
+              // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
 
-        return GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisExtent: 90
+              return GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  mainAxisExtent: 90,
+                ),
+                itemCount: totalCells,
+                itemBuilder: (context, index) {
+                  if (index < firstWeekday) {
+                    return const SizedBox.shrink();
+                  }
+                  final day = index - firstWeekday + 1;
+                  final log = fasts
+                      .where(
+                        (f) =>
+                            f.startDateTime.year == thisYear &&
+                            f.startDateTime.month == thisMonth + 1 &&
+                            f.startDateTime.day == day,
+                      )
+                      .firstOrNull;
+
+                  if (log != null) {
+                    return fastDay(day, log);
+                  }
+                  return emptyDay(day);
+                },
+              );
+            },
           ),
-          itemCount: totalCells,
-          itemBuilder: (context, index) {
-            if (index < firstWeekday) {
-              return const SizedBox.shrink();
-            }
-            final day = index - firstWeekday + 1;
-            final log = fasts.where((f) => f.startDateTime.year == thisYear && f.startDateTime.month == thisMonth + 1 && f.startDateTime.day == day).firstOrNull;
-
-            if (log != null) {
-              return fastDay(day, log);
-            }
-            return emptyDay(day);
-          },
-        );
-      },
-    ),
-          SizedBox(height: 15,),
+          SizedBox(height: 15),
           StreamBuilder(
             stream: sms,
             builder: (context, asyncSnapshot) {
@@ -211,10 +232,10 @@ final session = ref.watch(userSessionProvider).value;
                     'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)}',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  Text('Longest Fast: ${sm.getLongest().inMinutes}')
+                  Text('Longest Fast: ${sm.getLongest().inMinutes}'),
                 ],
               );
-            }
+            },
           ),
         ],
       ),
@@ -234,14 +255,14 @@ final session = ref.watch(userSessionProvider).value;
 
   void changeFocus(int curYear, int curMonth, UserSessionData session) {
     setState(() {
-          DateTime focusMonth = DateTime(curYear, curMonth + 1);
-    start = DateTime(focusMonth.year, focusMonth.month, 1);
-    end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
-    daysInMonth = end.day;
-    firstWeekday = start.weekday - 1;
-    totalCells = firstWeekday + daysInMonth;
+      DateTime focusMonth = DateTime(curYear, curMonth + 1);
+      start = DateTime(focusMonth.year, focusMonth.month, 1);
+      end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
+      daysInMonth = end.day;
+      firstWeekday = start.weekday - 1;
+      totalCells = firstWeekday + daysInMonth;
 
-    resetStreams();
+      resetStreams();
     });
   }
 
@@ -282,7 +303,13 @@ final session = ref.watch(userSessionProvider).value;
               ),
             ),
             const SizedBox.shrink(),
-            Expanded(child: Row(children: getIcons(log).map((i) => Expanded(child: FittedBox(child: i),)).toList()),)
+            Expanded(
+              child: Row(
+                children: getIcons(
+                  log,
+                ).map((i) => Expanded(child: FittedBox(child: i))).toList(),
+              ),
+            ),
           ],
         ),
       ),
@@ -307,9 +334,12 @@ final session = ref.watch(userSessionProvider).value;
       //     .findFasts(
       //       1
       //     ),
-      stream: ref.watch(fDaoProvider).findFastsInRange(1, DateTimeRange(start: start, end: end)),
+      stream: ref
+          .watch(fDaoProvider)
+          .findFastsInRange(1, DateTimeRange(start: start, end: end)),
       builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+        if (asyncSnapshot.connectionState == ConnectionState.waiting)
+          return const CircularProgressIndicator();
         final fasts = asyncSnapshot.data!;
 
         // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
@@ -318,7 +348,7 @@ final session = ref.watch(userSessionProvider).value;
           shrinkWrap: true,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            mainAxisExtent: 90
+            mainAxisExtent: 90,
           ),
           itemCount: totalCells,
           itemBuilder: (context, index) {
@@ -326,7 +356,14 @@ final session = ref.watch(userSessionProvider).value;
               return const SizedBox.shrink();
             }
             final day = index - firstWeekday + 1;
-            final log = fasts.where((f) => f.startDateTime.year == thisYear && f.startDateTime.month == thisMonth + 1 && f.startDateTime.day == day).firstOrNull;
+            final log = fasts
+                .where(
+                  (f) =>
+                      f.startDateTime.year == thisYear &&
+                      f.startDateTime.month == thisMonth + 1 &&
+                      f.startDateTime.day == day,
+                )
+                .firstOrNull;
 
             if (log != null) {
               return fastDay(day, log);
@@ -338,7 +375,7 @@ final session = ref.watch(userSessionProvider).value;
     );
   }
 
-    GridView getCalendarr(UserSessionData session) {
+  GridView getCalendarr(UserSessionData session) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,

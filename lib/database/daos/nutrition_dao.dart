@@ -187,8 +187,19 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return mealLogs;
   }
 
-  Future<List<FoodData>> getFoodForSearch(String searchValue) {
-    return (select(food)).get();
+  Future<List<FoodData>> getFoodForSearch(String searchValue) async {
+    if (searchValue.isEmpty) {
+      final results = await (select(
+        food,
+      )).get();
+      if (results.isEmpty) return List.empty();
+      return results;
+    }
+    final results = await (select(
+      food,
+    )..where((f) => f.name.like('%$searchValue%'))).get();
+    if (results.isEmpty) return List.empty();
+    return results;
   }
 
   Future<void> dummyDataInsertion() async {
