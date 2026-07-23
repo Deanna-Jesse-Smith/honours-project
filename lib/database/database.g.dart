@@ -4241,6 +4241,3300 @@ class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
   }
 }
 
+class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StreaksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _streakIDMeta = const VerificationMeta(
+    'streakID',
+  );
+  @override
+  late final GeneratedColumn<int> streakID = GeneratedColumn<int>(
+    'streak_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _streakProgressMeta = const VerificationMeta(
+    'streakProgress',
+  );
+  @override
+  late final GeneratedColumn<int> streakProgress = GeneratedColumn<int>(
+    'streak_progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bestStreakMeta = const VerificationMeta(
+    'bestStreak',
+  );
+  @override
+  late final GeneratedColumn<int> bestStreak = GeneratedColumn<int>(
+    'best_streak',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<StreakType, String> streakType =
+      GeneratedColumn<String>(
+        'streak_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<StreakType>($StreaksTable.$converterstreakType);
+  @override
+  late final GeneratedColumnWithTypeConverter<UnlockType?, String> unlockType =
+      GeneratedColumn<String>(
+        'unlock_type',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<UnlockType?>($StreaksTable.$converterunlockTypen);
+  @override
+  List<GeneratedColumn> get $columns => [
+    streakID,
+    streakProgress,
+    bestStreak,
+    startDate,
+    endDate,
+    streakType,
+    unlockType,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'streaks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Streak> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('streak_i_d')) {
+      context.handle(
+        _streakIDMeta,
+        streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
+      );
+    }
+    if (data.containsKey('streak_progress')) {
+      context.handle(
+        _streakProgressMeta,
+        streakProgress.isAcceptableOrUnknown(
+          data['streak_progress']!,
+          _streakProgressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('best_streak')) {
+      context.handle(
+        _bestStreakMeta,
+        bestStreak.isAcceptableOrUnknown(data['best_streak']!, _bestStreakMeta),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {streakID};
+  @override
+  Streak map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Streak(
+      streakID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}streak_i_d'],
+      )!,
+      streakProgress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}streak_progress'],
+      )!,
+      bestStreak: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}best_streak'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      ),
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_date'],
+      ),
+      streakType: $StreaksTable.$converterstreakType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}streak_type'],
+        )!,
+      ),
+      unlockType: $StreaksTable.$converterunlockTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}unlock_type'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $StreaksTable createAlias(String alias) {
+    return $StreaksTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<StreakType, String, String> $converterstreakType =
+      const EnumNameConverter<StreakType>(StreakType.values);
+  static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
+      const EnumNameConverter<UnlockType>(UnlockType.values);
+  static JsonTypeConverter2<UnlockType?, String?, String?>
+  $converterunlockTypen = JsonTypeConverter2.asNullable($converterunlockType);
+}
+
+class Streak extends DataClass implements Insertable<Streak> {
+  final int streakID;
+  final int streakProgress;
+  final int bestStreak;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final StreakType streakType;
+  final UnlockType? unlockType;
+  const Streak({
+    required this.streakID,
+    required this.streakProgress,
+    required this.bestStreak,
+    this.startDate,
+    this.endDate,
+    required this.streakType,
+    this.unlockType,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['streak_i_d'] = Variable<int>(streakID);
+    map['streak_progress'] = Variable<int>(streakProgress);
+    map['best_streak'] = Variable<int>(bestStreak);
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<DateTime>(startDate);
+    }
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    {
+      map['streak_type'] = Variable<String>(
+        $StreaksTable.$converterstreakType.toSql(streakType),
+      );
+    }
+    if (!nullToAbsent || unlockType != null) {
+      map['unlock_type'] = Variable<String>(
+        $StreaksTable.$converterunlockTypen.toSql(unlockType),
+      );
+    }
+    return map;
+  }
+
+  StreaksCompanion toCompanion(bool nullToAbsent) {
+    return StreaksCompanion(
+      streakID: Value(streakID),
+      streakProgress: Value(streakProgress),
+      bestStreak: Value(bestStreak),
+      startDate: startDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      streakType: Value(streakType),
+      unlockType: unlockType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unlockType),
+    );
+  }
+
+  factory Streak.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Streak(
+      streakID: serializer.fromJson<int>(json['streakID']),
+      streakProgress: serializer.fromJson<int>(json['streakProgress']),
+      bestStreak: serializer.fromJson<int>(json['bestStreak']),
+      startDate: serializer.fromJson<DateTime?>(json['startDate']),
+      endDate: serializer.fromJson<DateTime?>(json['endDate']),
+      streakType: $StreaksTable.$converterstreakType.fromJson(
+        serializer.fromJson<String>(json['streakType']),
+      ),
+      unlockType: $StreaksTable.$converterunlockTypen.fromJson(
+        serializer.fromJson<String?>(json['unlockType']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'streakID': serializer.toJson<int>(streakID),
+      'streakProgress': serializer.toJson<int>(streakProgress),
+      'bestStreak': serializer.toJson<int>(bestStreak),
+      'startDate': serializer.toJson<DateTime?>(startDate),
+      'endDate': serializer.toJson<DateTime?>(endDate),
+      'streakType': serializer.toJson<String>(
+        $StreaksTable.$converterstreakType.toJson(streakType),
+      ),
+      'unlockType': serializer.toJson<String?>(
+        $StreaksTable.$converterunlockTypen.toJson(unlockType),
+      ),
+    };
+  }
+
+  Streak copyWith({
+    int? streakID,
+    int? streakProgress,
+    int? bestStreak,
+    Value<DateTime?> startDate = const Value.absent(),
+    Value<DateTime?> endDate = const Value.absent(),
+    StreakType? streakType,
+    Value<UnlockType?> unlockType = const Value.absent(),
+  }) => Streak(
+    streakID: streakID ?? this.streakID,
+    streakProgress: streakProgress ?? this.streakProgress,
+    bestStreak: bestStreak ?? this.bestStreak,
+    startDate: startDate.present ? startDate.value : this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+    streakType: streakType ?? this.streakType,
+    unlockType: unlockType.present ? unlockType.value : this.unlockType,
+  );
+  Streak copyWithCompanion(StreaksCompanion data) {
+    return Streak(
+      streakID: data.streakID.present ? data.streakID.value : this.streakID,
+      streakProgress: data.streakProgress.present
+          ? data.streakProgress.value
+          : this.streakProgress,
+      bestStreak: data.bestStreak.present
+          ? data.bestStreak.value
+          : this.bestStreak,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      streakType: data.streakType.present
+          ? data.streakType.value
+          : this.streakType,
+      unlockType: data.unlockType.present
+          ? data.unlockType.value
+          : this.unlockType,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Streak(')
+          ..write('streakID: $streakID, ')
+          ..write('streakProgress: $streakProgress, ')
+          ..write('bestStreak: $bestStreak, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('streakType: $streakType, ')
+          ..write('unlockType: $unlockType')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    streakID,
+    streakProgress,
+    bestStreak,
+    startDate,
+    endDate,
+    streakType,
+    unlockType,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Streak &&
+          other.streakID == this.streakID &&
+          other.streakProgress == this.streakProgress &&
+          other.bestStreak == this.bestStreak &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.streakType == this.streakType &&
+          other.unlockType == this.unlockType);
+}
+
+class StreaksCompanion extends UpdateCompanion<Streak> {
+  final Value<int> streakID;
+  final Value<int> streakProgress;
+  final Value<int> bestStreak;
+  final Value<DateTime?> startDate;
+  final Value<DateTime?> endDate;
+  final Value<StreakType> streakType;
+  final Value<UnlockType?> unlockType;
+  const StreaksCompanion({
+    this.streakID = const Value.absent(),
+    this.streakProgress = const Value.absent(),
+    this.bestStreak = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.streakType = const Value.absent(),
+    this.unlockType = const Value.absent(),
+  });
+  StreaksCompanion.insert({
+    this.streakID = const Value.absent(),
+    this.streakProgress = const Value.absent(),
+    this.bestStreak = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    required StreakType streakType,
+    this.unlockType = const Value.absent(),
+  }) : streakType = Value(streakType);
+  static Insertable<Streak> custom({
+    Expression<int>? streakID,
+    Expression<int>? streakProgress,
+    Expression<int>? bestStreak,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+    Expression<String>? streakType,
+    Expression<String>? unlockType,
+  }) {
+    return RawValuesInsertable({
+      if (streakID != null) 'streak_i_d': streakID,
+      if (streakProgress != null) 'streak_progress': streakProgress,
+      if (bestStreak != null) 'best_streak': bestStreak,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (streakType != null) 'streak_type': streakType,
+      if (unlockType != null) 'unlock_type': unlockType,
+    });
+  }
+
+  StreaksCompanion copyWith({
+    Value<int>? streakID,
+    Value<int>? streakProgress,
+    Value<int>? bestStreak,
+    Value<DateTime?>? startDate,
+    Value<DateTime?>? endDate,
+    Value<StreakType>? streakType,
+    Value<UnlockType?>? unlockType,
+  }) {
+    return StreaksCompanion(
+      streakID: streakID ?? this.streakID,
+      streakProgress: streakProgress ?? this.streakProgress,
+      bestStreak: bestStreak ?? this.bestStreak,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      streakType: streakType ?? this.streakType,
+      unlockType: unlockType ?? this.unlockType,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (streakID.present) {
+      map['streak_i_d'] = Variable<int>(streakID.value);
+    }
+    if (streakProgress.present) {
+      map['streak_progress'] = Variable<int>(streakProgress.value);
+    }
+    if (bestStreak.present) {
+      map['best_streak'] = Variable<int>(bestStreak.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (streakType.present) {
+      map['streak_type'] = Variable<String>(
+        $StreaksTable.$converterstreakType.toSql(streakType.value),
+      );
+    }
+    if (unlockType.present) {
+      map['unlock_type'] = Variable<String>(
+        $StreaksTable.$converterunlockTypen.toSql(unlockType.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StreaksCompanion(')
+          ..write('streakID: $streakID, ')
+          ..write('streakProgress: $streakProgress, ')
+          ..write('bestStreak: $bestStreak, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('streakType: $streakType, ')
+          ..write('unlockType: $unlockType')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GoalType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<GoalType>($GoalsTable.$convertertype);
+  static const VerificationMeta _thresholdValueMeta = const VerificationMeta(
+    'thresholdValue',
+  );
+  @override
+  late final GeneratedColumn<double> thresholdValue = GeneratedColumn<double>(
+    'threshold_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _metricTypeMeta = const VerificationMeta(
+    'metricType',
+  );
+  @override
+  late final GeneratedColumn<String> metricType = GeneratedColumn<String>(
+    'metric_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _operatorMeta = const VerificationMeta(
+    'operator',
+  );
+  @override
+  late final GeneratedColumn<String> operator = GeneratedColumn<String>(
+    'operator',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _streakIDMeta = const VerificationMeta(
+    'streakID',
+  );
+  @override
+  late final GeneratedColumn<int> streakID = GeneratedColumn<int>(
+    'streak_i_d',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES streaks (streak_i_d)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    goalID,
+    type,
+    thresholdValue,
+    metricType,
+    operator,
+    streakID,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Goal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    }
+    if (data.containsKey('threshold_value')) {
+      context.handle(
+        _thresholdValueMeta,
+        thresholdValue.isAcceptableOrUnknown(
+          data['threshold_value']!,
+          _thresholdValueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('metric_type')) {
+      context.handle(
+        _metricTypeMeta,
+        metricType.isAcceptableOrUnknown(data['metric_type']!, _metricTypeMeta),
+      );
+    }
+    if (data.containsKey('operator')) {
+      context.handle(
+        _operatorMeta,
+        operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta),
+      );
+    }
+    if (data.containsKey('streak_i_d')) {
+      context.handle(
+        _streakIDMeta,
+        streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalID};
+  @override
+  Goal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Goal(
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      type: $GoalsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      thresholdValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}threshold_value'],
+      ),
+      metricType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metric_type'],
+      ),
+      operator: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}operator'],
+      ),
+      streakID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}streak_i_d'],
+      ),
+    );
+  }
+
+  @override
+  $GoalsTable createAlias(String alias) {
+    return $GoalsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GoalType, String, String> $convertertype =
+      const EnumNameConverter<GoalType>(GoalType.values);
+}
+
+class Goal extends DataClass implements Insertable<Goal> {
+  final int goalID;
+  final GoalType type;
+  final double? thresholdValue;
+  final String? metricType;
+  final String? operator;
+  final int? streakID;
+  const Goal({
+    required this.goalID,
+    required this.type,
+    this.thresholdValue,
+    this.metricType,
+    this.operator,
+    this.streakID,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_i_d'] = Variable<int>(goalID);
+    {
+      map['type'] = Variable<String>($GoalsTable.$convertertype.toSql(type));
+    }
+    if (!nullToAbsent || thresholdValue != null) {
+      map['threshold_value'] = Variable<double>(thresholdValue);
+    }
+    if (!nullToAbsent || metricType != null) {
+      map['metric_type'] = Variable<String>(metricType);
+    }
+    if (!nullToAbsent || operator != null) {
+      map['operator'] = Variable<String>(operator);
+    }
+    if (!nullToAbsent || streakID != null) {
+      map['streak_i_d'] = Variable<int>(streakID);
+    }
+    return map;
+  }
+
+  GoalsCompanion toCompanion(bool nullToAbsent) {
+    return GoalsCompanion(
+      goalID: Value(goalID),
+      type: Value(type),
+      thresholdValue: thresholdValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thresholdValue),
+      metricType: metricType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metricType),
+      operator: operator == null && nullToAbsent
+          ? const Value.absent()
+          : Value(operator),
+      streakID: streakID == null && nullToAbsent
+          ? const Value.absent()
+          : Value(streakID),
+    );
+  }
+
+  factory Goal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Goal(
+      goalID: serializer.fromJson<int>(json['goalID']),
+      type: $GoalsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      thresholdValue: serializer.fromJson<double?>(json['thresholdValue']),
+      metricType: serializer.fromJson<String?>(json['metricType']),
+      operator: serializer.fromJson<String?>(json['operator']),
+      streakID: serializer.fromJson<int?>(json['streakID']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalID': serializer.toJson<int>(goalID),
+      'type': serializer.toJson<String>(
+        $GoalsTable.$convertertype.toJson(type),
+      ),
+      'thresholdValue': serializer.toJson<double?>(thresholdValue),
+      'metricType': serializer.toJson<String?>(metricType),
+      'operator': serializer.toJson<String?>(operator),
+      'streakID': serializer.toJson<int?>(streakID),
+    };
+  }
+
+  Goal copyWith({
+    int? goalID,
+    GoalType? type,
+    Value<double?> thresholdValue = const Value.absent(),
+    Value<String?> metricType = const Value.absent(),
+    Value<String?> operator = const Value.absent(),
+    Value<int?> streakID = const Value.absent(),
+  }) => Goal(
+    goalID: goalID ?? this.goalID,
+    type: type ?? this.type,
+    thresholdValue: thresholdValue.present
+        ? thresholdValue.value
+        : this.thresholdValue,
+    metricType: metricType.present ? metricType.value : this.metricType,
+    operator: operator.present ? operator.value : this.operator,
+    streakID: streakID.present ? streakID.value : this.streakID,
+  );
+  Goal copyWithCompanion(GoalsCompanion data) {
+    return Goal(
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      type: data.type.present ? data.type.value : this.type,
+      thresholdValue: data.thresholdValue.present
+          ? data.thresholdValue.value
+          : this.thresholdValue,
+      metricType: data.metricType.present
+          ? data.metricType.value
+          : this.metricType,
+      operator: data.operator.present ? data.operator.value : this.operator,
+      streakID: data.streakID.present ? data.streakID.value : this.streakID,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Goal(')
+          ..write('goalID: $goalID, ')
+          ..write('type: $type, ')
+          ..write('thresholdValue: $thresholdValue, ')
+          ..write('metricType: $metricType, ')
+          ..write('operator: $operator, ')
+          ..write('streakID: $streakID')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(goalID, type, thresholdValue, metricType, operator, streakID);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Goal &&
+          other.goalID == this.goalID &&
+          other.type == this.type &&
+          other.thresholdValue == this.thresholdValue &&
+          other.metricType == this.metricType &&
+          other.operator == this.operator &&
+          other.streakID == this.streakID);
+}
+
+class GoalsCompanion extends UpdateCompanion<Goal> {
+  final Value<int> goalID;
+  final Value<GoalType> type;
+  final Value<double?> thresholdValue;
+  final Value<String?> metricType;
+  final Value<String?> operator;
+  final Value<int?> streakID;
+  const GoalsCompanion({
+    this.goalID = const Value.absent(),
+    this.type = const Value.absent(),
+    this.thresholdValue = const Value.absent(),
+    this.metricType = const Value.absent(),
+    this.operator = const Value.absent(),
+    this.streakID = const Value.absent(),
+  });
+  GoalsCompanion.insert({
+    this.goalID = const Value.absent(),
+    required GoalType type,
+    this.thresholdValue = const Value.absent(),
+    this.metricType = const Value.absent(),
+    this.operator = const Value.absent(),
+    this.streakID = const Value.absent(),
+  }) : type = Value(type);
+  static Insertable<Goal> custom({
+    Expression<int>? goalID,
+    Expression<String>? type,
+    Expression<double>? thresholdValue,
+    Expression<String>? metricType,
+    Expression<String>? operator,
+    Expression<int>? streakID,
+  }) {
+    return RawValuesInsertable({
+      if (goalID != null) 'goal_i_d': goalID,
+      if (type != null) 'type': type,
+      if (thresholdValue != null) 'threshold_value': thresholdValue,
+      if (metricType != null) 'metric_type': metricType,
+      if (operator != null) 'operator': operator,
+      if (streakID != null) 'streak_i_d': streakID,
+    });
+  }
+
+  GoalsCompanion copyWith({
+    Value<int>? goalID,
+    Value<GoalType>? type,
+    Value<double?>? thresholdValue,
+    Value<String?>? metricType,
+    Value<String?>? operator,
+    Value<int?>? streakID,
+  }) {
+    return GoalsCompanion(
+      goalID: goalID ?? this.goalID,
+      type: type ?? this.type,
+      thresholdValue: thresholdValue ?? this.thresholdValue,
+      metricType: metricType ?? this.metricType,
+      operator: operator ?? this.operator,
+      streakID: streakID ?? this.streakID,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $GoalsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (thresholdValue.present) {
+      map['threshold_value'] = Variable<double>(thresholdValue.value);
+    }
+    if (metricType.present) {
+      map['metric_type'] = Variable<String>(metricType.value);
+    }
+    if (operator.present) {
+      map['operator'] = Variable<String>(operator.value);
+    }
+    if (streakID.present) {
+      map['streak_i_d'] = Variable<int>(streakID.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalsCompanion(')
+          ..write('goalID: $goalID, ')
+          ..write('type: $type, ')
+          ..write('thresholdValue: $thresholdValue, ')
+          ..write('metricType: $metricType, ')
+          ..write('operator: $operator, ')
+          ..write('streakID: $streakID')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FastingGoalsTable extends FastingGoals
+    with TableInfo<$FastingGoalsTable, FastingGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FastingGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _targetHoursMeta = const VerificationMeta(
+    'targetHours',
+  );
+  @override
+  late final GeneratedColumn<double> targetHours = GeneratedColumn<double>(
+    'target_hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetDaysMeta = const VerificationMeta(
+    'targetDays',
+  );
+  @override
+  late final GeneratedColumn<int> targetDays = GeneratedColumn<int>(
+    'target_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetCaloriesMeta = const VerificationMeta(
+    'targetCalories',
+  );
+  @override
+  late final GeneratedColumn<int> targetCalories = GeneratedColumn<int>(
+    'target_calories',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    goalID,
+    targetHours,
+    targetDays,
+    targetCalories,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fasting_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FastingGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    }
+    if (data.containsKey('target_hours')) {
+      context.handle(
+        _targetHoursMeta,
+        targetHours.isAcceptableOrUnknown(
+          data['target_hours']!,
+          _targetHoursMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_days')) {
+      context.handle(
+        _targetDaysMeta,
+        targetDays.isAcceptableOrUnknown(data['target_days']!, _targetDaysMeta),
+      );
+    }
+    if (data.containsKey('target_calories')) {
+      context.handle(
+        _targetCaloriesMeta,
+        targetCalories.isAcceptableOrUnknown(
+          data['target_calories']!,
+          _targetCaloriesMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalID};
+  @override
+  FastingGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FastingGoal(
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      targetHours: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}target_hours'],
+      ),
+      targetDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_days'],
+      ),
+      targetCalories: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_calories'],
+      ),
+    );
+  }
+
+  @override
+  $FastingGoalsTable createAlias(String alias) {
+    return $FastingGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class FastingGoal extends DataClass implements Insertable<FastingGoal> {
+  final int goalID;
+  final double? targetHours;
+  final int? targetDays;
+  final int? targetCalories;
+  const FastingGoal({
+    required this.goalID,
+    this.targetHours,
+    this.targetDays,
+    this.targetCalories,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_i_d'] = Variable<int>(goalID);
+    if (!nullToAbsent || targetHours != null) {
+      map['target_hours'] = Variable<double>(targetHours);
+    }
+    if (!nullToAbsent || targetDays != null) {
+      map['target_days'] = Variable<int>(targetDays);
+    }
+    if (!nullToAbsent || targetCalories != null) {
+      map['target_calories'] = Variable<int>(targetCalories);
+    }
+    return map;
+  }
+
+  FastingGoalsCompanion toCompanion(bool nullToAbsent) {
+    return FastingGoalsCompanion(
+      goalID: Value(goalID),
+      targetHours: targetHours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetHours),
+      targetDays: targetDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetDays),
+      targetCalories: targetCalories == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetCalories),
+    );
+  }
+
+  factory FastingGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FastingGoal(
+      goalID: serializer.fromJson<int>(json['goalID']),
+      targetHours: serializer.fromJson<double?>(json['targetHours']),
+      targetDays: serializer.fromJson<int?>(json['targetDays']),
+      targetCalories: serializer.fromJson<int?>(json['targetCalories']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalID': serializer.toJson<int>(goalID),
+      'targetHours': serializer.toJson<double?>(targetHours),
+      'targetDays': serializer.toJson<int?>(targetDays),
+      'targetCalories': serializer.toJson<int?>(targetCalories),
+    };
+  }
+
+  FastingGoal copyWith({
+    int? goalID,
+    Value<double?> targetHours = const Value.absent(),
+    Value<int?> targetDays = const Value.absent(),
+    Value<int?> targetCalories = const Value.absent(),
+  }) => FastingGoal(
+    goalID: goalID ?? this.goalID,
+    targetHours: targetHours.present ? targetHours.value : this.targetHours,
+    targetDays: targetDays.present ? targetDays.value : this.targetDays,
+    targetCalories: targetCalories.present
+        ? targetCalories.value
+        : this.targetCalories,
+  );
+  FastingGoal copyWithCompanion(FastingGoalsCompanion data) {
+    return FastingGoal(
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      targetHours: data.targetHours.present
+          ? data.targetHours.value
+          : this.targetHours,
+      targetDays: data.targetDays.present
+          ? data.targetDays.value
+          : this.targetDays,
+      targetCalories: data.targetCalories.present
+          ? data.targetCalories.value
+          : this.targetCalories,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FastingGoal(')
+          ..write('goalID: $goalID, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('targetDays: $targetDays, ')
+          ..write('targetCalories: $targetCalories')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(goalID, targetHours, targetDays, targetCalories);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FastingGoal &&
+          other.goalID == this.goalID &&
+          other.targetHours == this.targetHours &&
+          other.targetDays == this.targetDays &&
+          other.targetCalories == this.targetCalories);
+}
+
+class FastingGoalsCompanion extends UpdateCompanion<FastingGoal> {
+  final Value<int> goalID;
+  final Value<double?> targetHours;
+  final Value<int?> targetDays;
+  final Value<int?> targetCalories;
+  const FastingGoalsCompanion({
+    this.goalID = const Value.absent(),
+    this.targetHours = const Value.absent(),
+    this.targetDays = const Value.absent(),
+    this.targetCalories = const Value.absent(),
+  });
+  FastingGoalsCompanion.insert({
+    this.goalID = const Value.absent(),
+    this.targetHours = const Value.absent(),
+    this.targetDays = const Value.absent(),
+    this.targetCalories = const Value.absent(),
+  });
+  static Insertable<FastingGoal> custom({
+    Expression<int>? goalID,
+    Expression<double>? targetHours,
+    Expression<int>? targetDays,
+    Expression<int>? targetCalories,
+  }) {
+    return RawValuesInsertable({
+      if (goalID != null) 'goal_i_d': goalID,
+      if (targetHours != null) 'target_hours': targetHours,
+      if (targetDays != null) 'target_days': targetDays,
+      if (targetCalories != null) 'target_calories': targetCalories,
+    });
+  }
+
+  FastingGoalsCompanion copyWith({
+    Value<int>? goalID,
+    Value<double?>? targetHours,
+    Value<int?>? targetDays,
+    Value<int?>? targetCalories,
+  }) {
+    return FastingGoalsCompanion(
+      goalID: goalID ?? this.goalID,
+      targetHours: targetHours ?? this.targetHours,
+      targetDays: targetDays ?? this.targetDays,
+      targetCalories: targetCalories ?? this.targetCalories,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (targetHours.present) {
+      map['target_hours'] = Variable<double>(targetHours.value);
+    }
+    if (targetDays.present) {
+      map['target_days'] = Variable<int>(targetDays.value);
+    }
+    if (targetCalories.present) {
+      map['target_calories'] = Variable<int>(targetCalories.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FastingGoalsCompanion(')
+          ..write('goalID: $goalID, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('targetDays: $targetDays, ')
+          ..write('targetCalories: $targetCalories')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WeightGoalsTable extends WeightGoals
+    with TableInfo<$WeightGoalsTable, WeightGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeightGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _targetWeightMeta = const VerificationMeta(
+    'targetWeight',
+  );
+  @override
+  late final GeneratedColumn<double> targetWeight = GeneratedColumn<double>(
+    'target_weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startWeightMeta = const VerificationMeta(
+    'startWeight',
+  );
+  @override
+  late final GeneratedColumn<double> startWeight = GeneratedColumn<double>(
+    'start_weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [goalID, targetWeight, startWeight];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weight_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WeightGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    }
+    if (data.containsKey('target_weight')) {
+      context.handle(
+        _targetWeightMeta,
+        targetWeight.isAcceptableOrUnknown(
+          data['target_weight']!,
+          _targetWeightMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_weight')) {
+      context.handle(
+        _startWeightMeta,
+        startWeight.isAcceptableOrUnknown(
+          data['start_weight']!,
+          _startWeightMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalID};
+  @override
+  WeightGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeightGoal(
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      targetWeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}target_weight'],
+      ),
+      startWeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_weight'],
+      ),
+    );
+  }
+
+  @override
+  $WeightGoalsTable createAlias(String alias) {
+    return $WeightGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class WeightGoal extends DataClass implements Insertable<WeightGoal> {
+  final int goalID;
+  final double? targetWeight;
+  final double? startWeight;
+  const WeightGoal({required this.goalID, this.targetWeight, this.startWeight});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_i_d'] = Variable<int>(goalID);
+    if (!nullToAbsent || targetWeight != null) {
+      map['target_weight'] = Variable<double>(targetWeight);
+    }
+    if (!nullToAbsent || startWeight != null) {
+      map['start_weight'] = Variable<double>(startWeight);
+    }
+    return map;
+  }
+
+  WeightGoalsCompanion toCompanion(bool nullToAbsent) {
+    return WeightGoalsCompanion(
+      goalID: Value(goalID),
+      targetWeight: targetWeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetWeight),
+      startWeight: startWeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startWeight),
+    );
+  }
+
+  factory WeightGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeightGoal(
+      goalID: serializer.fromJson<int>(json['goalID']),
+      targetWeight: serializer.fromJson<double?>(json['targetWeight']),
+      startWeight: serializer.fromJson<double?>(json['startWeight']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalID': serializer.toJson<int>(goalID),
+      'targetWeight': serializer.toJson<double?>(targetWeight),
+      'startWeight': serializer.toJson<double?>(startWeight),
+    };
+  }
+
+  WeightGoal copyWith({
+    int? goalID,
+    Value<double?> targetWeight = const Value.absent(),
+    Value<double?> startWeight = const Value.absent(),
+  }) => WeightGoal(
+    goalID: goalID ?? this.goalID,
+    targetWeight: targetWeight.present ? targetWeight.value : this.targetWeight,
+    startWeight: startWeight.present ? startWeight.value : this.startWeight,
+  );
+  WeightGoal copyWithCompanion(WeightGoalsCompanion data) {
+    return WeightGoal(
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      targetWeight: data.targetWeight.present
+          ? data.targetWeight.value
+          : this.targetWeight,
+      startWeight: data.startWeight.present
+          ? data.startWeight.value
+          : this.startWeight,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeightGoal(')
+          ..write('goalID: $goalID, ')
+          ..write('targetWeight: $targetWeight, ')
+          ..write('startWeight: $startWeight')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(goalID, targetWeight, startWeight);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeightGoal &&
+          other.goalID == this.goalID &&
+          other.targetWeight == this.targetWeight &&
+          other.startWeight == this.startWeight);
+}
+
+class WeightGoalsCompanion extends UpdateCompanion<WeightGoal> {
+  final Value<int> goalID;
+  final Value<double?> targetWeight;
+  final Value<double?> startWeight;
+  const WeightGoalsCompanion({
+    this.goalID = const Value.absent(),
+    this.targetWeight = const Value.absent(),
+    this.startWeight = const Value.absent(),
+  });
+  WeightGoalsCompanion.insert({
+    this.goalID = const Value.absent(),
+    this.targetWeight = const Value.absent(),
+    this.startWeight = const Value.absent(),
+  });
+  static Insertable<WeightGoal> custom({
+    Expression<int>? goalID,
+    Expression<double>? targetWeight,
+    Expression<double>? startWeight,
+  }) {
+    return RawValuesInsertable({
+      if (goalID != null) 'goal_i_d': goalID,
+      if (targetWeight != null) 'target_weight': targetWeight,
+      if (startWeight != null) 'start_weight': startWeight,
+    });
+  }
+
+  WeightGoalsCompanion copyWith({
+    Value<int>? goalID,
+    Value<double?>? targetWeight,
+    Value<double?>? startWeight,
+  }) {
+    return WeightGoalsCompanion(
+      goalID: goalID ?? this.goalID,
+      targetWeight: targetWeight ?? this.targetWeight,
+      startWeight: startWeight ?? this.startWeight,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (targetWeight.present) {
+      map['target_weight'] = Variable<double>(targetWeight.value);
+    }
+    if (startWeight.present) {
+      map['start_weight'] = Variable<double>(startWeight.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeightGoalsCompanion(')
+          ..write('goalID: $goalID, ')
+          ..write('targetWeight: $targetWeight, ')
+          ..write('startWeight: $startWeight')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HydrationGoalsTable extends HydrationGoals
+    with TableInfo<$HydrationGoalsTable, HydrationGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HydrationGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _hdrAmountMeta = const VerificationMeta(
+    'hdrAmount',
+  );
+  @override
+  late final GeneratedColumn<int> hdrAmount = GeneratedColumn<int>(
+    'hdr_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hdrDateMeta = const VerificationMeta(
+    'hdrDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> hdrDate = GeneratedColumn<DateTime>(
+    'hdr_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [goalID, hdrAmount, hdrDate];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'hydration_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HydrationGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    }
+    if (data.containsKey('hdr_amount')) {
+      context.handle(
+        _hdrAmountMeta,
+        hdrAmount.isAcceptableOrUnknown(data['hdr_amount']!, _hdrAmountMeta),
+      );
+    }
+    if (data.containsKey('hdr_date')) {
+      context.handle(
+        _hdrDateMeta,
+        hdrDate.isAcceptableOrUnknown(data['hdr_date']!, _hdrDateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalID};
+  @override
+  HydrationGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HydrationGoal(
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      hdrAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hdr_amount'],
+      ),
+      hdrDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}hdr_date'],
+      ),
+    );
+  }
+
+  @override
+  $HydrationGoalsTable createAlias(String alias) {
+    return $HydrationGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class HydrationGoal extends DataClass implements Insertable<HydrationGoal> {
+  final int goalID;
+  final int? hdrAmount;
+  final DateTime? hdrDate;
+  const HydrationGoal({required this.goalID, this.hdrAmount, this.hdrDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_i_d'] = Variable<int>(goalID);
+    if (!nullToAbsent || hdrAmount != null) {
+      map['hdr_amount'] = Variable<int>(hdrAmount);
+    }
+    if (!nullToAbsent || hdrDate != null) {
+      map['hdr_date'] = Variable<DateTime>(hdrDate);
+    }
+    return map;
+  }
+
+  HydrationGoalsCompanion toCompanion(bool nullToAbsent) {
+    return HydrationGoalsCompanion(
+      goalID: Value(goalID),
+      hdrAmount: hdrAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hdrAmount),
+      hdrDate: hdrDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hdrDate),
+    );
+  }
+
+  factory HydrationGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HydrationGoal(
+      goalID: serializer.fromJson<int>(json['goalID']),
+      hdrAmount: serializer.fromJson<int?>(json['hdrAmount']),
+      hdrDate: serializer.fromJson<DateTime?>(json['hdrDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalID': serializer.toJson<int>(goalID),
+      'hdrAmount': serializer.toJson<int?>(hdrAmount),
+      'hdrDate': serializer.toJson<DateTime?>(hdrDate),
+    };
+  }
+
+  HydrationGoal copyWith({
+    int? goalID,
+    Value<int?> hdrAmount = const Value.absent(),
+    Value<DateTime?> hdrDate = const Value.absent(),
+  }) => HydrationGoal(
+    goalID: goalID ?? this.goalID,
+    hdrAmount: hdrAmount.present ? hdrAmount.value : this.hdrAmount,
+    hdrDate: hdrDate.present ? hdrDate.value : this.hdrDate,
+  );
+  HydrationGoal copyWithCompanion(HydrationGoalsCompanion data) {
+    return HydrationGoal(
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      hdrAmount: data.hdrAmount.present ? data.hdrAmount.value : this.hdrAmount,
+      hdrDate: data.hdrDate.present ? data.hdrDate.value : this.hdrDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HydrationGoal(')
+          ..write('goalID: $goalID, ')
+          ..write('hdrAmount: $hdrAmount, ')
+          ..write('hdrDate: $hdrDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(goalID, hdrAmount, hdrDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HydrationGoal &&
+          other.goalID == this.goalID &&
+          other.hdrAmount == this.hdrAmount &&
+          other.hdrDate == this.hdrDate);
+}
+
+class HydrationGoalsCompanion extends UpdateCompanion<HydrationGoal> {
+  final Value<int> goalID;
+  final Value<int?> hdrAmount;
+  final Value<DateTime?> hdrDate;
+  const HydrationGoalsCompanion({
+    this.goalID = const Value.absent(),
+    this.hdrAmount = const Value.absent(),
+    this.hdrDate = const Value.absent(),
+  });
+  HydrationGoalsCompanion.insert({
+    this.goalID = const Value.absent(),
+    this.hdrAmount = const Value.absent(),
+    this.hdrDate = const Value.absent(),
+  });
+  static Insertable<HydrationGoal> custom({
+    Expression<int>? goalID,
+    Expression<int>? hdrAmount,
+    Expression<DateTime>? hdrDate,
+  }) {
+    return RawValuesInsertable({
+      if (goalID != null) 'goal_i_d': goalID,
+      if (hdrAmount != null) 'hdr_amount': hdrAmount,
+      if (hdrDate != null) 'hdr_date': hdrDate,
+    });
+  }
+
+  HydrationGoalsCompanion copyWith({
+    Value<int>? goalID,
+    Value<int?>? hdrAmount,
+    Value<DateTime?>? hdrDate,
+  }) {
+    return HydrationGoalsCompanion(
+      goalID: goalID ?? this.goalID,
+      hdrAmount: hdrAmount ?? this.hdrAmount,
+      hdrDate: hdrDate ?? this.hdrDate,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (hdrAmount.present) {
+      map['hdr_amount'] = Variable<int>(hdrAmount.value);
+    }
+    if (hdrDate.present) {
+      map['hdr_date'] = Variable<DateTime>(hdrDate.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HydrationGoalsCompanion(')
+          ..write('goalID: $goalID, ')
+          ..write('hdrAmount: $hdrAmount, ')
+          ..write('hdrDate: $hdrDate')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NutritionGoalsTable extends NutritionGoals
+    with TableInfo<$NutritionGoalsTable, NutritionGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NutritionGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _nutrientTypeMeta = const VerificationMeta(
+    'nutrientType',
+  );
+  @override
+  late final GeneratedColumn<String> nutrientType = GeneratedColumn<String>(
+    'nutrient_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nutritionDailyTargetMeta =
+      const VerificationMeta('nutritionDailyTarget');
+  @override
+  late final GeneratedColumn<int> nutritionDailyTarget = GeneratedColumn<int>(
+    'nutrition_daily_target',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    goalID,
+    nutrientType,
+    nutritionDailyTarget,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'nutrition_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NutritionGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    }
+    if (data.containsKey('nutrient_type')) {
+      context.handle(
+        _nutrientTypeMeta,
+        nutrientType.isAcceptableOrUnknown(
+          data['nutrient_type']!,
+          _nutrientTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('nutrition_daily_target')) {
+      context.handle(
+        _nutritionDailyTargetMeta,
+        nutritionDailyTarget.isAcceptableOrUnknown(
+          data['nutrition_daily_target']!,
+          _nutritionDailyTargetMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalID};
+  @override
+  NutritionGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NutritionGoal(
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      nutrientType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nutrient_type'],
+      ),
+      nutritionDailyTarget: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}nutrition_daily_target'],
+      ),
+    );
+  }
+
+  @override
+  $NutritionGoalsTable createAlias(String alias) {
+    return $NutritionGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
+  final int goalID;
+  final String? nutrientType;
+  final int? nutritionDailyTarget;
+  const NutritionGoal({
+    required this.goalID,
+    this.nutrientType,
+    this.nutritionDailyTarget,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_i_d'] = Variable<int>(goalID);
+    if (!nullToAbsent || nutrientType != null) {
+      map['nutrient_type'] = Variable<String>(nutrientType);
+    }
+    if (!nullToAbsent || nutritionDailyTarget != null) {
+      map['nutrition_daily_target'] = Variable<int>(nutritionDailyTarget);
+    }
+    return map;
+  }
+
+  NutritionGoalsCompanion toCompanion(bool nullToAbsent) {
+    return NutritionGoalsCompanion(
+      goalID: Value(goalID),
+      nutrientType: nutrientType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutrientType),
+      nutritionDailyTarget: nutritionDailyTarget == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionDailyTarget),
+    );
+  }
+
+  factory NutritionGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NutritionGoal(
+      goalID: serializer.fromJson<int>(json['goalID']),
+      nutrientType: serializer.fromJson<String?>(json['nutrientType']),
+      nutritionDailyTarget: serializer.fromJson<int?>(
+        json['nutritionDailyTarget'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalID': serializer.toJson<int>(goalID),
+      'nutrientType': serializer.toJson<String?>(nutrientType),
+      'nutritionDailyTarget': serializer.toJson<int?>(nutritionDailyTarget),
+    };
+  }
+
+  NutritionGoal copyWith({
+    int? goalID,
+    Value<String?> nutrientType = const Value.absent(),
+    Value<int?> nutritionDailyTarget = const Value.absent(),
+  }) => NutritionGoal(
+    goalID: goalID ?? this.goalID,
+    nutrientType: nutrientType.present ? nutrientType.value : this.nutrientType,
+    nutritionDailyTarget: nutritionDailyTarget.present
+        ? nutritionDailyTarget.value
+        : this.nutritionDailyTarget,
+  );
+  NutritionGoal copyWithCompanion(NutritionGoalsCompanion data) {
+    return NutritionGoal(
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      nutrientType: data.nutrientType.present
+          ? data.nutrientType.value
+          : this.nutrientType,
+      nutritionDailyTarget: data.nutritionDailyTarget.present
+          ? data.nutritionDailyTarget.value
+          : this.nutritionDailyTarget,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionGoal(')
+          ..write('goalID: $goalID, ')
+          ..write('nutrientType: $nutrientType, ')
+          ..write('nutritionDailyTarget: $nutritionDailyTarget')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(goalID, nutrientType, nutritionDailyTarget);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NutritionGoal &&
+          other.goalID == this.goalID &&
+          other.nutrientType == this.nutrientType &&
+          other.nutritionDailyTarget == this.nutritionDailyTarget);
+}
+
+class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
+  final Value<int> goalID;
+  final Value<String?> nutrientType;
+  final Value<int?> nutritionDailyTarget;
+  const NutritionGoalsCompanion({
+    this.goalID = const Value.absent(),
+    this.nutrientType = const Value.absent(),
+    this.nutritionDailyTarget = const Value.absent(),
+  });
+  NutritionGoalsCompanion.insert({
+    this.goalID = const Value.absent(),
+    this.nutrientType = const Value.absent(),
+    this.nutritionDailyTarget = const Value.absent(),
+  });
+  static Insertable<NutritionGoal> custom({
+    Expression<int>? goalID,
+    Expression<String>? nutrientType,
+    Expression<int>? nutritionDailyTarget,
+  }) {
+    return RawValuesInsertable({
+      if (goalID != null) 'goal_i_d': goalID,
+      if (nutrientType != null) 'nutrient_type': nutrientType,
+      if (nutritionDailyTarget != null)
+        'nutrition_daily_target': nutritionDailyTarget,
+    });
+  }
+
+  NutritionGoalsCompanion copyWith({
+    Value<int>? goalID,
+    Value<String?>? nutrientType,
+    Value<int?>? nutritionDailyTarget,
+  }) {
+    return NutritionGoalsCompanion(
+      goalID: goalID ?? this.goalID,
+      nutrientType: nutrientType ?? this.nutrientType,
+      nutritionDailyTarget: nutritionDailyTarget ?? this.nutritionDailyTarget,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (nutrientType.present) {
+      map['nutrient_type'] = Variable<String>(nutrientType.value);
+    }
+    if (nutritionDailyTarget.present) {
+      map['nutrition_daily_target'] = Variable<int>(nutritionDailyTarget.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionGoalsCompanion(')
+          ..write('goalID: $goalID, ')
+          ..write('nutrientType: $nutrientType, ')
+          ..write('nutritionDailyTarget: $nutritionDailyTarget')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserGoalProgressTable extends UserGoalProgress
+    with TableInfo<$UserGoalProgressTable, UserGoalProgressData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserGoalProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userGoalIDMeta = const VerificationMeta(
+    'userGoalID',
+  );
+  @override
+  late final GeneratedColumn<int> userGoalID = GeneratedColumn<int>(
+    'user_goal_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userIDMeta = const VerificationMeta('userID');
+  @override
+  late final GeneratedColumn<int> userID = GeneratedColumn<int>(
+    'user_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (user_i_d)',
+    ),
+  );
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _dateCreatedMeta = const VerificationMeta(
+    'dateCreated',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dateCreated = GeneratedColumn<DateTime>(
+    'date_created',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _isMainMeta = const VerificationMeta('isMain');
+  @override
+  late final GeneratedColumn<bool> isMain = GeneratedColumn<bool>(
+    'is_main',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_main" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isCompleteMeta = const VerificationMeta(
+    'isComplete',
+  );
+  @override
+  late final GeneratedColumn<bool> isComplete = GeneratedColumn<bool>(
+    'is_complete',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_complete" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _progressValueMeta = const VerificationMeta(
+    'progressValue',
+  );
+  @override
+  late final GeneratedColumn<double> progressValue = GeneratedColumn<double>(
+    'progress_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    userGoalID,
+    userID,
+    goalID,
+    dateCreated,
+    isMain,
+    isComplete,
+    progressValue,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_goal_progress';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserGoalProgressData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_goal_i_d')) {
+      context.handle(
+        _userGoalIDMeta,
+        userGoalID.isAcceptableOrUnknown(
+          data['user_goal_i_d']!,
+          _userGoalIDMeta,
+        ),
+      );
+    }
+    if (data.containsKey('user_i_d')) {
+      context.handle(
+        _userIDMeta,
+        userID.isAcceptableOrUnknown(data['user_i_d']!, _userIDMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIDMeta);
+    }
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIDMeta);
+    }
+    if (data.containsKey('date_created')) {
+      context.handle(
+        _dateCreatedMeta,
+        dateCreated.isAcceptableOrUnknown(
+          data['date_created']!,
+          _dateCreatedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_main')) {
+      context.handle(
+        _isMainMeta,
+        isMain.isAcceptableOrUnknown(data['is_main']!, _isMainMeta),
+      );
+    }
+    if (data.containsKey('is_complete')) {
+      context.handle(
+        _isCompleteMeta,
+        isComplete.isAcceptableOrUnknown(data['is_complete']!, _isCompleteMeta),
+      );
+    }
+    if (data.containsKey('progress_value')) {
+      context.handle(
+        _progressValueMeta,
+        progressValue.isAcceptableOrUnknown(
+          data['progress_value']!,
+          _progressValueMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userGoalID};
+  @override
+  UserGoalProgressData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserGoalProgressData(
+      userGoalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_goal_i_d'],
+      )!,
+      userID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_i_d'],
+      )!,
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      dateCreated: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_created'],
+      )!,
+      isMain: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_main'],
+      )!,
+      isComplete: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_complete'],
+      )!,
+      progressValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}progress_value'],
+      )!,
+    );
+  }
+
+  @override
+  $UserGoalProgressTable createAlias(String alias) {
+    return $UserGoalProgressTable(attachedDatabase, alias);
+  }
+}
+
+class UserGoalProgressData extends DataClass
+    implements Insertable<UserGoalProgressData> {
+  final int userGoalID;
+  final int userID;
+  final int goalID;
+  final DateTime dateCreated;
+  final bool isMain;
+  final bool isComplete;
+  final double progressValue;
+  const UserGoalProgressData({
+    required this.userGoalID,
+    required this.userID,
+    required this.goalID,
+    required this.dateCreated,
+    required this.isMain,
+    required this.isComplete,
+    required this.progressValue,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_goal_i_d'] = Variable<int>(userGoalID);
+    map['user_i_d'] = Variable<int>(userID);
+    map['goal_i_d'] = Variable<int>(goalID);
+    map['date_created'] = Variable<DateTime>(dateCreated);
+    map['is_main'] = Variable<bool>(isMain);
+    map['is_complete'] = Variable<bool>(isComplete);
+    map['progress_value'] = Variable<double>(progressValue);
+    return map;
+  }
+
+  UserGoalProgressCompanion toCompanion(bool nullToAbsent) {
+    return UserGoalProgressCompanion(
+      userGoalID: Value(userGoalID),
+      userID: Value(userID),
+      goalID: Value(goalID),
+      dateCreated: Value(dateCreated),
+      isMain: Value(isMain),
+      isComplete: Value(isComplete),
+      progressValue: Value(progressValue),
+    );
+  }
+
+  factory UserGoalProgressData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserGoalProgressData(
+      userGoalID: serializer.fromJson<int>(json['userGoalID']),
+      userID: serializer.fromJson<int>(json['userID']),
+      goalID: serializer.fromJson<int>(json['goalID']),
+      dateCreated: serializer.fromJson<DateTime>(json['dateCreated']),
+      isMain: serializer.fromJson<bool>(json['isMain']),
+      isComplete: serializer.fromJson<bool>(json['isComplete']),
+      progressValue: serializer.fromJson<double>(json['progressValue']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userGoalID': serializer.toJson<int>(userGoalID),
+      'userID': serializer.toJson<int>(userID),
+      'goalID': serializer.toJson<int>(goalID),
+      'dateCreated': serializer.toJson<DateTime>(dateCreated),
+      'isMain': serializer.toJson<bool>(isMain),
+      'isComplete': serializer.toJson<bool>(isComplete),
+      'progressValue': serializer.toJson<double>(progressValue),
+    };
+  }
+
+  UserGoalProgressData copyWith({
+    int? userGoalID,
+    int? userID,
+    int? goalID,
+    DateTime? dateCreated,
+    bool? isMain,
+    bool? isComplete,
+    double? progressValue,
+  }) => UserGoalProgressData(
+    userGoalID: userGoalID ?? this.userGoalID,
+    userID: userID ?? this.userID,
+    goalID: goalID ?? this.goalID,
+    dateCreated: dateCreated ?? this.dateCreated,
+    isMain: isMain ?? this.isMain,
+    isComplete: isComplete ?? this.isComplete,
+    progressValue: progressValue ?? this.progressValue,
+  );
+  UserGoalProgressData copyWithCompanion(UserGoalProgressCompanion data) {
+    return UserGoalProgressData(
+      userGoalID: data.userGoalID.present
+          ? data.userGoalID.value
+          : this.userGoalID,
+      userID: data.userID.present ? data.userID.value : this.userID,
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      dateCreated: data.dateCreated.present
+          ? data.dateCreated.value
+          : this.dateCreated,
+      isMain: data.isMain.present ? data.isMain.value : this.isMain,
+      isComplete: data.isComplete.present
+          ? data.isComplete.value
+          : this.isComplete,
+      progressValue: data.progressValue.present
+          ? data.progressValue.value
+          : this.progressValue,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserGoalProgressData(')
+          ..write('userGoalID: $userGoalID, ')
+          ..write('userID: $userID, ')
+          ..write('goalID: $goalID, ')
+          ..write('dateCreated: $dateCreated, ')
+          ..write('isMain: $isMain, ')
+          ..write('isComplete: $isComplete, ')
+          ..write('progressValue: $progressValue')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    userGoalID,
+    userID,
+    goalID,
+    dateCreated,
+    isMain,
+    isComplete,
+    progressValue,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserGoalProgressData &&
+          other.userGoalID == this.userGoalID &&
+          other.userID == this.userID &&
+          other.goalID == this.goalID &&
+          other.dateCreated == this.dateCreated &&
+          other.isMain == this.isMain &&
+          other.isComplete == this.isComplete &&
+          other.progressValue == this.progressValue);
+}
+
+class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
+  final Value<int> userGoalID;
+  final Value<int> userID;
+  final Value<int> goalID;
+  final Value<DateTime> dateCreated;
+  final Value<bool> isMain;
+  final Value<bool> isComplete;
+  final Value<double> progressValue;
+  const UserGoalProgressCompanion({
+    this.userGoalID = const Value.absent(),
+    this.userID = const Value.absent(),
+    this.goalID = const Value.absent(),
+    this.dateCreated = const Value.absent(),
+    this.isMain = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.progressValue = const Value.absent(),
+  });
+  UserGoalProgressCompanion.insert({
+    this.userGoalID = const Value.absent(),
+    required int userID,
+    required int goalID,
+    this.dateCreated = const Value.absent(),
+    this.isMain = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.progressValue = const Value.absent(),
+  }) : userID = Value(userID),
+       goalID = Value(goalID);
+  static Insertable<UserGoalProgressData> custom({
+    Expression<int>? userGoalID,
+    Expression<int>? userID,
+    Expression<int>? goalID,
+    Expression<DateTime>? dateCreated,
+    Expression<bool>? isMain,
+    Expression<bool>? isComplete,
+    Expression<double>? progressValue,
+  }) {
+    return RawValuesInsertable({
+      if (userGoalID != null) 'user_goal_i_d': userGoalID,
+      if (userID != null) 'user_i_d': userID,
+      if (goalID != null) 'goal_i_d': goalID,
+      if (dateCreated != null) 'date_created': dateCreated,
+      if (isMain != null) 'is_main': isMain,
+      if (isComplete != null) 'is_complete': isComplete,
+      if (progressValue != null) 'progress_value': progressValue,
+    });
+  }
+
+  UserGoalProgressCompanion copyWith({
+    Value<int>? userGoalID,
+    Value<int>? userID,
+    Value<int>? goalID,
+    Value<DateTime>? dateCreated,
+    Value<bool>? isMain,
+    Value<bool>? isComplete,
+    Value<double>? progressValue,
+  }) {
+    return UserGoalProgressCompanion(
+      userGoalID: userGoalID ?? this.userGoalID,
+      userID: userID ?? this.userID,
+      goalID: goalID ?? this.goalID,
+      dateCreated: dateCreated ?? this.dateCreated,
+      isMain: isMain ?? this.isMain,
+      isComplete: isComplete ?? this.isComplete,
+      progressValue: progressValue ?? this.progressValue,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userGoalID.present) {
+      map['user_goal_i_d'] = Variable<int>(userGoalID.value);
+    }
+    if (userID.present) {
+      map['user_i_d'] = Variable<int>(userID.value);
+    }
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (dateCreated.present) {
+      map['date_created'] = Variable<DateTime>(dateCreated.value);
+    }
+    if (isMain.present) {
+      map['is_main'] = Variable<bool>(isMain.value);
+    }
+    if (isComplete.present) {
+      map['is_complete'] = Variable<bool>(isComplete.value);
+    }
+    if (progressValue.present) {
+      map['progress_value'] = Variable<double>(progressValue.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserGoalProgressCompanion(')
+          ..write('userGoalID: $userGoalID, ')
+          ..write('userID: $userID, ')
+          ..write('goalID: $goalID, ')
+          ..write('dateCreated: $dateCreated, ')
+          ..write('isMain: $isMain, ')
+          ..write('isComplete: $isComplete, ')
+          ..write('progressValue: $progressValue')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AchievementsTable extends Achievements
+    with TableInfo<$AchievementsTable, Achievement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AchievementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _achIDMeta = const VerificationMeta('achID');
+  @override
+  late final GeneratedColumn<int> achID = GeneratedColumn<int>(
+    'ach_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<AchievementType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<AchievementType>($AchievementsTable.$convertertype);
+  @override
+  late final GeneratedColumnWithTypeConverter<UnlockType, String> unlockType =
+      GeneratedColumn<String>(
+        'unlock_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<UnlockType>($AchievementsTable.$converterunlockType);
+  @override
+  List<GeneratedColumn> get $columns => [
+    achID,
+    name,
+    description,
+    type,
+    unlockType,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'achievements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Achievement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ach_i_d')) {
+      context.handle(
+        _achIDMeta,
+        achID.isAcceptableOrUnknown(data['ach_i_d']!, _achIDMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {achID};
+  @override
+  Achievement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Achievement(
+      achID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ach_i_d'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      type: $AchievementsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      unlockType: $AchievementsTable.$converterunlockType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}unlock_type'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $AchievementsTable createAlias(String alias) {
+    return $AchievementsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AchievementType, String, String> $convertertype =
+      const EnumNameConverter<AchievementType>(AchievementType.values);
+  static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
+      const EnumNameConverter<UnlockType>(UnlockType.values);
+}
+
+class Achievement extends DataClass implements Insertable<Achievement> {
+  final int achID;
+  final String name;
+  final String description;
+  final AchievementType type;
+  final UnlockType unlockType;
+  const Achievement({
+    required this.achID,
+    required this.name,
+    required this.description,
+    required this.type,
+    required this.unlockType,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ach_i_d'] = Variable<int>(achID);
+    map['name'] = Variable<String>(name);
+    map['description'] = Variable<String>(description);
+    {
+      map['type'] = Variable<String>(
+        $AchievementsTable.$convertertype.toSql(type),
+      );
+    }
+    {
+      map['unlock_type'] = Variable<String>(
+        $AchievementsTable.$converterunlockType.toSql(unlockType),
+      );
+    }
+    return map;
+  }
+
+  AchievementsCompanion toCompanion(bool nullToAbsent) {
+    return AchievementsCompanion(
+      achID: Value(achID),
+      name: Value(name),
+      description: Value(description),
+      type: Value(type),
+      unlockType: Value(unlockType),
+    );
+  }
+
+  factory Achievement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Achievement(
+      achID: serializer.fromJson<int>(json['achID']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
+      type: $AchievementsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      unlockType: $AchievementsTable.$converterunlockType.fromJson(
+        serializer.fromJson<String>(json['unlockType']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'achID': serializer.toJson<int>(achID),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
+      'type': serializer.toJson<String>(
+        $AchievementsTable.$convertertype.toJson(type),
+      ),
+      'unlockType': serializer.toJson<String>(
+        $AchievementsTable.$converterunlockType.toJson(unlockType),
+      ),
+    };
+  }
+
+  Achievement copyWith({
+    int? achID,
+    String? name,
+    String? description,
+    AchievementType? type,
+    UnlockType? unlockType,
+  }) => Achievement(
+    achID: achID ?? this.achID,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    type: type ?? this.type,
+    unlockType: unlockType ?? this.unlockType,
+  );
+  Achievement copyWithCompanion(AchievementsCompanion data) {
+    return Achievement(
+      achID: data.achID.present ? data.achID.value : this.achID,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      type: data.type.present ? data.type.value : this.type,
+      unlockType: data.unlockType.present
+          ? data.unlockType.value
+          : this.unlockType,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Achievement(')
+          ..write('achID: $achID, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('unlockType: $unlockType')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(achID, name, description, type, unlockType);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Achievement &&
+          other.achID == this.achID &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.type == this.type &&
+          other.unlockType == this.unlockType);
+}
+
+class AchievementsCompanion extends UpdateCompanion<Achievement> {
+  final Value<int> achID;
+  final Value<String> name;
+  final Value<String> description;
+  final Value<AchievementType> type;
+  final Value<UnlockType> unlockType;
+  const AchievementsCompanion({
+    this.achID = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.type = const Value.absent(),
+    this.unlockType = const Value.absent(),
+  });
+  AchievementsCompanion.insert({
+    this.achID = const Value.absent(),
+    required String name,
+    required String description,
+    required AchievementType type,
+    required UnlockType unlockType,
+  }) : name = Value(name),
+       description = Value(description),
+       type = Value(type),
+       unlockType = Value(unlockType);
+  static Insertable<Achievement> custom({
+    Expression<int>? achID,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? type,
+    Expression<String>? unlockType,
+  }) {
+    return RawValuesInsertable({
+      if (achID != null) 'ach_i_d': achID,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (type != null) 'type': type,
+      if (unlockType != null) 'unlock_type': unlockType,
+    });
+  }
+
+  AchievementsCompanion copyWith({
+    Value<int>? achID,
+    Value<String>? name,
+    Value<String>? description,
+    Value<AchievementType>? type,
+    Value<UnlockType>? unlockType,
+  }) {
+    return AchievementsCompanion(
+      achID: achID ?? this.achID,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      unlockType: unlockType ?? this.unlockType,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (achID.present) {
+      map['ach_i_d'] = Variable<int>(achID.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $AchievementsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (unlockType.present) {
+      map['unlock_type'] = Variable<String>(
+        $AchievementsTable.$converterunlockType.toSql(unlockType.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AchievementsCompanion(')
+          ..write('achID: $achID, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('unlockType: $unlockType')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReinforcementsTable extends Reinforcements
+    with TableInfo<$ReinforcementsTable, Reinforcement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReinforcementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _reinIDMeta = const VerificationMeta('reinID');
+  @override
+  late final GeneratedColumn<int> reinID = GeneratedColumn<int>(
+    'rein_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userGoalIDMeta = const VerificationMeta(
+    'userGoalID',
+  );
+  @override
+  late final GeneratedColumn<int> userGoalID = GeneratedColumn<int>(
+    'user_goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_goal_progress (user_goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _achIDMeta = const VerificationMeta('achID');
+  @override
+  late final GeneratedColumn<int> achID = GeneratedColumn<int>(
+    'ach_i_d',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES achievements (ach_i_d)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ReinforcementType, String>
+  reinType = GeneratedColumn<String>(
+    'rein_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<ReinforcementType>($ReinforcementsTable.$converterreinType);
+  static const VerificationMeta _displayContextMeta = const VerificationMeta(
+    'displayContext',
+  );
+  @override
+  late final GeneratedColumn<String> displayContext = GeneratedColumn<String>(
+    'display_context',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
+    'priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    reinID,
+    userGoalID,
+    achID,
+    reinType,
+    displayContext,
+    priority,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reinforcements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Reinforcement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('rein_i_d')) {
+      context.handle(
+        _reinIDMeta,
+        reinID.isAcceptableOrUnknown(data['rein_i_d']!, _reinIDMeta),
+      );
+    }
+    if (data.containsKey('user_goal_i_d')) {
+      context.handle(
+        _userGoalIDMeta,
+        userGoalID.isAcceptableOrUnknown(
+          data['user_goal_i_d']!,
+          _userGoalIDMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_userGoalIDMeta);
+    }
+    if (data.containsKey('ach_i_d')) {
+      context.handle(
+        _achIDMeta,
+        achID.isAcceptableOrUnknown(data['ach_i_d']!, _achIDMeta),
+      );
+    }
+    if (data.containsKey('display_context')) {
+      context.handle(
+        _displayContextMeta,
+        displayContext.isAcceptableOrUnknown(
+          data['display_context']!,
+          _displayContextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {reinID};
+  @override
+  Reinforcement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Reinforcement(
+      reinID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rein_i_d'],
+      )!,
+      userGoalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_goal_i_d'],
+      )!,
+      achID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ach_i_d'],
+      ),
+      reinType: $ReinforcementsTable.$converterreinType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}rein_type'],
+        )!,
+      ),
+      displayContext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_context'],
+      )!,
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}priority'],
+      )!,
+    );
+  }
+
+  @override
+  $ReinforcementsTable createAlias(String alias) {
+    return $ReinforcementsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ReinforcementType, String, String>
+  $converterreinType = const EnumNameConverter<ReinforcementType>(
+    ReinforcementType.values,
+  );
+}
+
+class Reinforcement extends DataClass implements Insertable<Reinforcement> {
+  final int reinID;
+  final int userGoalID;
+  final int? achID;
+  final ReinforcementType reinType;
+  final String displayContext;
+  final int priority;
+  const Reinforcement({
+    required this.reinID,
+    required this.userGoalID,
+    this.achID,
+    required this.reinType,
+    required this.displayContext,
+    required this.priority,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['rein_i_d'] = Variable<int>(reinID);
+    map['user_goal_i_d'] = Variable<int>(userGoalID);
+    if (!nullToAbsent || achID != null) {
+      map['ach_i_d'] = Variable<int>(achID);
+    }
+    {
+      map['rein_type'] = Variable<String>(
+        $ReinforcementsTable.$converterreinType.toSql(reinType),
+      );
+    }
+    map['display_context'] = Variable<String>(displayContext);
+    map['priority'] = Variable<int>(priority);
+    return map;
+  }
+
+  ReinforcementsCompanion toCompanion(bool nullToAbsent) {
+    return ReinforcementsCompanion(
+      reinID: Value(reinID),
+      userGoalID: Value(userGoalID),
+      achID: achID == null && nullToAbsent
+          ? const Value.absent()
+          : Value(achID),
+      reinType: Value(reinType),
+      displayContext: Value(displayContext),
+      priority: Value(priority),
+    );
+  }
+
+  factory Reinforcement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Reinforcement(
+      reinID: serializer.fromJson<int>(json['reinID']),
+      userGoalID: serializer.fromJson<int>(json['userGoalID']),
+      achID: serializer.fromJson<int?>(json['achID']),
+      reinType: $ReinforcementsTable.$converterreinType.fromJson(
+        serializer.fromJson<String>(json['reinType']),
+      ),
+      displayContext: serializer.fromJson<String>(json['displayContext']),
+      priority: serializer.fromJson<int>(json['priority']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'reinID': serializer.toJson<int>(reinID),
+      'userGoalID': serializer.toJson<int>(userGoalID),
+      'achID': serializer.toJson<int?>(achID),
+      'reinType': serializer.toJson<String>(
+        $ReinforcementsTable.$converterreinType.toJson(reinType),
+      ),
+      'displayContext': serializer.toJson<String>(displayContext),
+      'priority': serializer.toJson<int>(priority),
+    };
+  }
+
+  Reinforcement copyWith({
+    int? reinID,
+    int? userGoalID,
+    Value<int?> achID = const Value.absent(),
+    ReinforcementType? reinType,
+    String? displayContext,
+    int? priority,
+  }) => Reinforcement(
+    reinID: reinID ?? this.reinID,
+    userGoalID: userGoalID ?? this.userGoalID,
+    achID: achID.present ? achID.value : this.achID,
+    reinType: reinType ?? this.reinType,
+    displayContext: displayContext ?? this.displayContext,
+    priority: priority ?? this.priority,
+  );
+  Reinforcement copyWithCompanion(ReinforcementsCompanion data) {
+    return Reinforcement(
+      reinID: data.reinID.present ? data.reinID.value : this.reinID,
+      userGoalID: data.userGoalID.present
+          ? data.userGoalID.value
+          : this.userGoalID,
+      achID: data.achID.present ? data.achID.value : this.achID,
+      reinType: data.reinType.present ? data.reinType.value : this.reinType,
+      displayContext: data.displayContext.present
+          ? data.displayContext.value
+          : this.displayContext,
+      priority: data.priority.present ? data.priority.value : this.priority,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Reinforcement(')
+          ..write('reinID: $reinID, ')
+          ..write('userGoalID: $userGoalID, ')
+          ..write('achID: $achID, ')
+          ..write('reinType: $reinType, ')
+          ..write('displayContext: $displayContext, ')
+          ..write('priority: $priority')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    reinID,
+    userGoalID,
+    achID,
+    reinType,
+    displayContext,
+    priority,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Reinforcement &&
+          other.reinID == this.reinID &&
+          other.userGoalID == this.userGoalID &&
+          other.achID == this.achID &&
+          other.reinType == this.reinType &&
+          other.displayContext == this.displayContext &&
+          other.priority == this.priority);
+}
+
+class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
+  final Value<int> reinID;
+  final Value<int> userGoalID;
+  final Value<int?> achID;
+  final Value<ReinforcementType> reinType;
+  final Value<String> displayContext;
+  final Value<int> priority;
+  const ReinforcementsCompanion({
+    this.reinID = const Value.absent(),
+    this.userGoalID = const Value.absent(),
+    this.achID = const Value.absent(),
+    this.reinType = const Value.absent(),
+    this.displayContext = const Value.absent(),
+    this.priority = const Value.absent(),
+  });
+  ReinforcementsCompanion.insert({
+    this.reinID = const Value.absent(),
+    required int userGoalID,
+    this.achID = const Value.absent(),
+    required ReinforcementType reinType,
+    this.displayContext = const Value.absent(),
+    this.priority = const Value.absent(),
+  }) : userGoalID = Value(userGoalID),
+       reinType = Value(reinType);
+  static Insertable<Reinforcement> custom({
+    Expression<int>? reinID,
+    Expression<int>? userGoalID,
+    Expression<int>? achID,
+    Expression<String>? reinType,
+    Expression<String>? displayContext,
+    Expression<int>? priority,
+  }) {
+    return RawValuesInsertable({
+      if (reinID != null) 'rein_i_d': reinID,
+      if (userGoalID != null) 'user_goal_i_d': userGoalID,
+      if (achID != null) 'ach_i_d': achID,
+      if (reinType != null) 'rein_type': reinType,
+      if (displayContext != null) 'display_context': displayContext,
+      if (priority != null) 'priority': priority,
+    });
+  }
+
+  ReinforcementsCompanion copyWith({
+    Value<int>? reinID,
+    Value<int>? userGoalID,
+    Value<int?>? achID,
+    Value<ReinforcementType>? reinType,
+    Value<String>? displayContext,
+    Value<int>? priority,
+  }) {
+    return ReinforcementsCompanion(
+      reinID: reinID ?? this.reinID,
+      userGoalID: userGoalID ?? this.userGoalID,
+      achID: achID ?? this.achID,
+      reinType: reinType ?? this.reinType,
+      displayContext: displayContext ?? this.displayContext,
+      priority: priority ?? this.priority,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (reinID.present) {
+      map['rein_i_d'] = Variable<int>(reinID.value);
+    }
+    if (userGoalID.present) {
+      map['user_goal_i_d'] = Variable<int>(userGoalID.value);
+    }
+    if (achID.present) {
+      map['ach_i_d'] = Variable<int>(achID.value);
+    }
+    if (reinType.present) {
+      map['rein_type'] = Variable<String>(
+        $ReinforcementsTable.$converterreinType.toSql(reinType.value),
+      );
+    }
+    if (displayContext.present) {
+      map['display_context'] = Variable<String>(displayContext.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<int>(priority.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReinforcementsCompanion(')
+          ..write('reinID: $reinID, ')
+          ..write('userGoalID: $userGoalID, ')
+          ..write('achID: $achID, ')
+          ..write('reinType: $reinType, ')
+          ..write('displayContext: $displayContext, ')
+          ..write('priority: $priority')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4260,10 +7554,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MealFoodContentTable mealFoodContent = $MealFoodContentTable(
     this,
   );
-  late final UserDao userDao = UserDao(this as AppDatabase);
-  late final FastingDao fastingDao = FastingDao(this as AppDatabase);
-  late final HydrationDao hydrationDao = HydrationDao(this as AppDatabase);
-  late final NutritionDao nutritionDao = NutritionDao(this as AppDatabase);
+  late final $StreaksTable streaks = $StreaksTable(this);
+  late final $GoalsTable goals = $GoalsTable(this);
+  late final $FastingGoalsTable fastingGoals = $FastingGoalsTable(this);
+  late final $WeightGoalsTable weightGoals = $WeightGoalsTable(this);
+  late final $HydrationGoalsTable hydrationGoals = $HydrationGoalsTable(this);
+  late final $NutritionGoalsTable nutritionGoals = $NutritionGoalsTable(this);
+  late final $UserGoalProgressTable userGoalProgress = $UserGoalProgressTable(
+    this,
+  );
+  late final $AchievementsTable achievements = $AchievementsTable(this);
+  late final $ReinforcementsTable reinforcements = $ReinforcementsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4280,6 +7581,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     nutritionLog,
     mealRecipeContent,
     mealFoodContent,
+    streaks,
+    goals,
+    fastingGoals,
+    weightGoals,
+    hydrationGoals,
+    nutritionGoals,
+    userGoalProgress,
+    achievements,
+    reinforcements,
   ];
 }
 
@@ -4400,6 +7710,26 @@ final class $$UsersTableReferences
     ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
 
     final cache = $_typedResult.readTableOrNull(_nutritionLogRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$UserGoalProgressTable, List<UserGoalProgressData>>
+  _userGoalProgressRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userGoalProgress,
+    aliasName: 'users__user_i_d__user_goal_progress__user_i_d',
+  );
+
+  $$UserGoalProgressTableProcessedTableManager get userGoalProgressRefs {
+    final manager = $$UserGoalProgressTableTableManager(
+      $_db,
+      $_db.userGoalProgress,
+    ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _userGoalProgressRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4580,6 +7910,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$NutritionLogTableFilterComposer(
             $db: $db,
             $table: $db.nutritionLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> userGoalProgressRefs(
+    Expression<bool> Function($$UserGoalProgressTableFilterComposer f) f,
+  ) {
+    final $$UserGoalProgressTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableFilterComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4825,6 +8180,31 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> userGoalProgressRefs<T extends Object>(
+    Expression<T> Function($$UserGoalProgressTableAnnotationComposer a) f,
+  ) {
+    final $$UserGoalProgressTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -4846,6 +8226,7 @@ class $$UsersTableTableManager
             bool weightLogRefs,
             bool mealsRefs,
             bool nutritionLogRefs,
+            bool userGoalProgressRefs,
           })
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
@@ -4920,6 +8301,7 @@ class $$UsersTableTableManager
                 weightLogRefs = false,
                 mealsRefs = false,
                 nutritionLogRefs = false,
+                userGoalProgressRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -4929,6 +8311,7 @@ class $$UsersTableTableManager
                     if (weightLogRefs) db.weightLog,
                     if (mealsRefs) db.meals,
                     if (nutritionLogRefs) db.nutritionLog,
+                    if (userGoalProgressRefs) db.userGoalProgress,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -5026,6 +8409,27 @@ class $$UsersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (userGoalProgressRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          UserGoalProgressData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._userGoalProgressRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userGoalProgressRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userID == item.userID,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -5052,6 +8456,7 @@ typedef $$UsersTableProcessedTableManager =
         bool weightLogRefs,
         bool mealsRefs,
         bool nutritionLogRefs,
+        bool userGoalProgressRefs,
       })
     >;
 typedef $$FastLogTableCreateCompanionBuilder =
@@ -8895,6 +12300,3588 @@ typedef $$MealFoodContentTableProcessedTableManager =
       MealFoodContentData,
       PrefetchHooks Function({bool mealID, bool foodID})
     >;
+typedef $$StreaksTableCreateCompanionBuilder =
+    StreaksCompanion Function({
+      Value<int> streakID,
+      Value<int> streakProgress,
+      Value<int> bestStreak,
+      Value<DateTime?> startDate,
+      Value<DateTime?> endDate,
+      required StreakType streakType,
+      Value<UnlockType?> unlockType,
+    });
+typedef $$StreaksTableUpdateCompanionBuilder =
+    StreaksCompanion Function({
+      Value<int> streakID,
+      Value<int> streakProgress,
+      Value<int> bestStreak,
+      Value<DateTime?> startDate,
+      Value<DateTime?> endDate,
+      Value<StreakType> streakType,
+      Value<UnlockType?> unlockType,
+    });
+
+final class $$StreaksTableReferences
+    extends BaseReferences<_$AppDatabase, $StreaksTable, Streak> {
+  $$StreaksTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$GoalsTable, List<Goal>> _goalsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.goals,
+    aliasName: 'streaks__streak_i_d__goals__streak_i_d',
+  );
+
+  $$GoalsTableProcessedTableManager get goalsRefs {
+    final manager = $$GoalsTableTableManager($_db, $_db.goals).filter(
+      (f) => f.streakID.streakID.sqlEquals($_itemColumn<int>('streak_i_d')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_goalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$StreaksTableFilterComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get streakID => $composableBuilder(
+    column: $table.streakID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bestStreak => $composableBuilder(
+    column: $table.bestStreak,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<StreakType, StreakType, String>
+  get streakType => $composableBuilder(
+    column: $table.streakType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<UnlockType?, UnlockType, String>
+  get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  Expression<bool> goalsRefs(
+    Expression<bool> Function($$GoalsTableFilterComposer f) f,
+  ) {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.streakID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.streakID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$StreaksTableOrderingComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get streakID => $composableBuilder(
+    column: $table.streakID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bestStreak => $composableBuilder(
+    column: $table.bestStreak,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get streakType => $composableBuilder(
+    column: $table.streakType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StreaksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get streakID =>
+      $composableBuilder(column: $table.streakID, builder: (column) => column);
+
+  GeneratedColumn<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bestStreak => $composableBuilder(
+    column: $table.bestStreak,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<StreakType, String> get streakType =>
+      $composableBuilder(
+        column: $table.streakType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<UnlockType?, String> get unlockType =>
+      $composableBuilder(
+        column: $table.unlockType,
+        builder: (column) => column,
+      );
+
+  Expression<T> goalsRefs<T extends Object>(
+    Expression<T> Function($$GoalsTableAnnotationComposer a) f,
+  ) {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.streakID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.streakID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$StreaksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StreaksTable,
+          Streak,
+          $$StreaksTableFilterComposer,
+          $$StreaksTableOrderingComposer,
+          $$StreaksTableAnnotationComposer,
+          $$StreaksTableCreateCompanionBuilder,
+          $$StreaksTableUpdateCompanionBuilder,
+          (Streak, $$StreaksTableReferences),
+          Streak,
+          PrefetchHooks Function({bool goalsRefs})
+        > {
+  $$StreaksTableTableManager(_$AppDatabase db, $StreaksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StreaksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StreaksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StreaksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> streakID = const Value.absent(),
+                Value<int> streakProgress = const Value.absent(),
+                Value<int> bestStreak = const Value.absent(),
+                Value<DateTime?> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+                Value<StreakType> streakType = const Value.absent(),
+                Value<UnlockType?> unlockType = const Value.absent(),
+              }) => StreaksCompanion(
+                streakID: streakID,
+                streakProgress: streakProgress,
+                bestStreak: bestStreak,
+                startDate: startDate,
+                endDate: endDate,
+                streakType: streakType,
+                unlockType: unlockType,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> streakID = const Value.absent(),
+                Value<int> streakProgress = const Value.absent(),
+                Value<int> bestStreak = const Value.absent(),
+                Value<DateTime?> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+                required StreakType streakType,
+                Value<UnlockType?> unlockType = const Value.absent(),
+              }) => StreaksCompanion.insert(
+                streakID: streakID,
+                streakProgress: streakProgress,
+                bestStreak: bestStreak,
+                startDate: startDate,
+                endDate: endDate,
+                streakType: streakType,
+                unlockType: unlockType,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StreaksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (goalsRefs) db.goals],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (goalsRefs)
+                    await $_getPrefetchedData<Streak, $StreaksTable, Goal>(
+                      currentTable: table,
+                      referencedTable: $$StreaksTableReferences._goalsRefsTable(
+                        db,
+                      ),
+                      managerFromTypedResult: (p0) =>
+                          $$StreaksTableReferences(db, table, p0).goalsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.streakID == item.streakID,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StreaksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StreaksTable,
+      Streak,
+      $$StreaksTableFilterComposer,
+      $$StreaksTableOrderingComposer,
+      $$StreaksTableAnnotationComposer,
+      $$StreaksTableCreateCompanionBuilder,
+      $$StreaksTableUpdateCompanionBuilder,
+      (Streak, $$StreaksTableReferences),
+      Streak,
+      PrefetchHooks Function({bool goalsRefs})
+    >;
+typedef $$GoalsTableCreateCompanionBuilder =
+    GoalsCompanion Function({
+      Value<int> goalID,
+      required GoalType type,
+      Value<double?> thresholdValue,
+      Value<String?> metricType,
+      Value<String?> operator,
+      Value<int?> streakID,
+    });
+typedef $$GoalsTableUpdateCompanionBuilder =
+    GoalsCompanion Function({
+      Value<int> goalID,
+      Value<GoalType> type,
+      Value<double?> thresholdValue,
+      Value<String?> metricType,
+      Value<String?> operator,
+      Value<int?> streakID,
+    });
+
+final class $$GoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $GoalsTable, Goal> {
+  $$GoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $StreaksTable _streakIDTable(_$AppDatabase db) =>
+      db.streaks.createAlias('goals__streak_i_d__streaks__streak_i_d');
+
+  $$StreaksTableProcessedTableManager? get streakID {
+    final $_column = $_itemColumn<int>('streak_i_d');
+    if ($_column == null) return null;
+    final manager = $$StreaksTableTableManager(
+      $_db,
+      $_db.streaks,
+    ).filter((f) => f.streakID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_streakIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$FastingGoalsTable, List<FastingGoal>>
+  _fastingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.fastingGoals,
+    aliasName: 'goals__goal_i_d__fasting_goals__goal_i_d',
+  );
+
+  $$FastingGoalsTableProcessedTableManager get fastingGoalsRefs {
+    final manager = $$FastingGoalsTableTableManager(
+      $_db,
+      $_db.fastingGoals,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_fastingGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$WeightGoalsTable, List<WeightGoal>>
+  _weightGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.weightGoals,
+    aliasName: 'goals__goal_i_d__weight_goals__goal_i_d',
+  );
+
+  $$WeightGoalsTableProcessedTableManager get weightGoalsRefs {
+    final manager = $$WeightGoalsTableTableManager(
+      $_db,
+      $_db.weightGoals,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_weightGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$HydrationGoalsTable, List<HydrationGoal>>
+  _hydrationGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.hydrationGoals,
+    aliasName: 'goals__goal_i_d__hydration_goals__goal_i_d',
+  );
+
+  $$HydrationGoalsTableProcessedTableManager get hydrationGoalsRefs {
+    final manager = $$HydrationGoalsTableTableManager(
+      $_db,
+      $_db.hydrationGoals,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_hydrationGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$NutritionGoalsTable, List<NutritionGoal>>
+  _nutritionGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.nutritionGoals,
+    aliasName: 'goals__goal_i_d__nutrition_goals__goal_i_d',
+  );
+
+  $$NutritionGoalsTableProcessedTableManager get nutritionGoalsRefs {
+    final manager = $$NutritionGoalsTableTableManager(
+      $_db,
+      $_db.nutritionGoals,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_nutritionGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$UserGoalProgressTable, List<UserGoalProgressData>>
+  _userGoalProgressRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userGoalProgress,
+    aliasName: 'goals__goal_i_d__user_goal_progress__goal_i_d',
+  );
+
+  $$UserGoalProgressTableProcessedTableManager get userGoalProgressRefs {
+    final manager = $$UserGoalProgressTableTableManager(
+      $_db,
+      $_db.userGoalProgress,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _userGoalProgressRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get goalID => $composableBuilder(
+    column: $table.goalID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get type =>
+      $composableBuilder(
+        column: $table.type,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<double> get thresholdValue => $composableBuilder(
+    column: $table.thresholdValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metricType => $composableBuilder(
+    column: $table.metricType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get operator => $composableBuilder(
+    column: $table.operator,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$StreaksTableFilterComposer get streakID {
+    final $$StreaksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.streakID,
+      referencedTable: $db.streaks,
+      getReferencedColumn: (t) => t.streakID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StreaksTableFilterComposer(
+            $db: $db,
+            $table: $db.streaks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> fastingGoalsRefs(
+    Expression<bool> Function($$FastingGoalsTableFilterComposer f) f,
+  ) {
+    final $$FastingGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.fastingGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FastingGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.fastingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> weightGoalsRefs(
+    Expression<bool> Function($$WeightGoalsTableFilterComposer f) f,
+  ) {
+    final $$WeightGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.weightGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WeightGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.weightGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> hydrationGoalsRefs(
+    Expression<bool> Function($$HydrationGoalsTableFilterComposer f) f,
+  ) {
+    final $$HydrationGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.hydrationGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HydrationGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.hydrationGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> nutritionGoalsRefs(
+    Expression<bool> Function($$NutritionGoalsTableFilterComposer f) f,
+  ) {
+    final $$NutritionGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.nutritionGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NutritionGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.nutritionGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> userGoalProgressRefs(
+    Expression<bool> Function($$UserGoalProgressTableFilterComposer f) f,
+  ) {
+    final $$UserGoalProgressTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableFilterComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$GoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get goalID => $composableBuilder(
+    column: $table.goalID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get thresholdValue => $composableBuilder(
+    column: $table.thresholdValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metricType => $composableBuilder(
+    column: $table.metricType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get operator => $composableBuilder(
+    column: $table.operator,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$StreaksTableOrderingComposer get streakID {
+    final $$StreaksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.streakID,
+      referencedTable: $db.streaks,
+      getReferencedColumn: (t) => t.streakID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StreaksTableOrderingComposer(
+            $db: $db,
+            $table: $db.streaks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GoalsTable> {
+  $$GoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get goalID =>
+      $composableBuilder(column: $table.goalID, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<GoalType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<double> get thresholdValue => $composableBuilder(
+    column: $table.thresholdValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get metricType => $composableBuilder(
+    column: $table.metricType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get operator =>
+      $composableBuilder(column: $table.operator, builder: (column) => column);
+
+  $$StreaksTableAnnotationComposer get streakID {
+    final $$StreaksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.streakID,
+      referencedTable: $db.streaks,
+      getReferencedColumn: (t) => t.streakID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StreaksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.streaks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> fastingGoalsRefs<T extends Object>(
+    Expression<T> Function($$FastingGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$FastingGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.fastingGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FastingGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.fastingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> weightGoalsRefs<T extends Object>(
+    Expression<T> Function($$WeightGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$WeightGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.weightGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WeightGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.weightGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> hydrationGoalsRefs<T extends Object>(
+    Expression<T> Function($$HydrationGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$HydrationGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.hydrationGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HydrationGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.hydrationGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> nutritionGoalsRefs<T extends Object>(
+    Expression<T> Function($$NutritionGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$NutritionGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.nutritionGoals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NutritionGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.nutritionGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> userGoalProgressRefs<T extends Object>(
+    Expression<T> Function($$UserGoalProgressTableAnnotationComposer a) f,
+  ) {
+    final $$UserGoalProgressTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$GoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GoalsTable,
+          Goal,
+          $$GoalsTableFilterComposer,
+          $$GoalsTableOrderingComposer,
+          $$GoalsTableAnnotationComposer,
+          $$GoalsTableCreateCompanionBuilder,
+          $$GoalsTableUpdateCompanionBuilder,
+          (Goal, $$GoalsTableReferences),
+          Goal,
+          PrefetchHooks Function({
+            bool streakID,
+            bool fastingGoalsRefs,
+            bool weightGoalsRefs,
+            bool hydrationGoalsRefs,
+            bool nutritionGoalsRefs,
+            bool userGoalProgressRefs,
+          })
+        > {
+  $$GoalsTableTableManager(_$AppDatabase db, $GoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<GoalType> type = const Value.absent(),
+                Value<double?> thresholdValue = const Value.absent(),
+                Value<String?> metricType = const Value.absent(),
+                Value<String?> operator = const Value.absent(),
+                Value<int?> streakID = const Value.absent(),
+              }) => GoalsCompanion(
+                goalID: goalID,
+                type: type,
+                thresholdValue: thresholdValue,
+                metricType: metricType,
+                operator: operator,
+                streakID: streakID,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                required GoalType type,
+                Value<double?> thresholdValue = const Value.absent(),
+                Value<String?> metricType = const Value.absent(),
+                Value<String?> operator = const Value.absent(),
+                Value<int?> streakID = const Value.absent(),
+              }) => GoalsCompanion.insert(
+                goalID: goalID,
+                type: type,
+                thresholdValue: thresholdValue,
+                metricType: metricType,
+                operator: operator,
+                streakID: streakID,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$GoalsTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                streakID = false,
+                fastingGoalsRefs = false,
+                weightGoalsRefs = false,
+                hydrationGoalsRefs = false,
+                nutritionGoalsRefs = false,
+                userGoalProgressRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (fastingGoalsRefs) db.fastingGoals,
+                    if (weightGoalsRefs) db.weightGoals,
+                    if (hydrationGoalsRefs) db.hydrationGoals,
+                    if (nutritionGoalsRefs) db.nutritionGoals,
+                    if (userGoalProgressRefs) db.userGoalProgress,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (streakID) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.streakID,
+                                    referencedTable: $$GoalsTableReferences
+                                        ._streakIDTable(db),
+                                    referencedColumn: $$GoalsTableReferences
+                                        ._streakIDTable(db)
+                                        .streakID,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (fastingGoalsRefs)
+                        await $_getPrefetchedData<
+                          Goal,
+                          $GoalsTable,
+                          FastingGoal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._fastingGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).fastingGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (weightGoalsRefs)
+                        await $_getPrefetchedData<
+                          Goal,
+                          $GoalsTable,
+                          WeightGoal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._weightGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).weightGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (hydrationGoalsRefs)
+                        await $_getPrefetchedData<
+                          Goal,
+                          $GoalsTable,
+                          HydrationGoal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._hydrationGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).hydrationGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (nutritionGoalsRefs)
+                        await $_getPrefetchedData<
+                          Goal,
+                          $GoalsTable,
+                          NutritionGoal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._nutritionGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).nutritionGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (userGoalProgressRefs)
+                        await $_getPrefetchedData<
+                          Goal,
+                          $GoalsTable,
+                          UserGoalProgressData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._userGoalProgressRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userGoalProgressRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$GoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GoalsTable,
+      Goal,
+      $$GoalsTableFilterComposer,
+      $$GoalsTableOrderingComposer,
+      $$GoalsTableAnnotationComposer,
+      $$GoalsTableCreateCompanionBuilder,
+      $$GoalsTableUpdateCompanionBuilder,
+      (Goal, $$GoalsTableReferences),
+      Goal,
+      PrefetchHooks Function({
+        bool streakID,
+        bool fastingGoalsRefs,
+        bool weightGoalsRefs,
+        bool hydrationGoalsRefs,
+        bool nutritionGoalsRefs,
+        bool userGoalProgressRefs,
+      })
+    >;
+typedef $$FastingGoalsTableCreateCompanionBuilder =
+    FastingGoalsCompanion Function({
+      Value<int> goalID,
+      Value<double?> targetHours,
+      Value<int?> targetDays,
+      Value<int?> targetCalories,
+    });
+typedef $$FastingGoalsTableUpdateCompanionBuilder =
+    FastingGoalsCompanion Function({
+      Value<int> goalID,
+      Value<double?> targetHours,
+      Value<int?> targetDays,
+      Value<int?> targetCalories,
+    });
+
+final class $$FastingGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $FastingGoalsTable, FastingGoal> {
+  $$FastingGoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('fasting_goals__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FastingGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $FastingGoalsTable> {
+  $$FastingGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetDays => $composableBuilder(
+    column: $table.targetDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetCalories => $composableBuilder(
+    column: $table.targetCalories,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FastingGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FastingGoalsTable> {
+  $$FastingGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetDays => $composableBuilder(
+    column: $table.targetDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetCalories => $composableBuilder(
+    column: $table.targetCalories,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FastingGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FastingGoalsTable> {
+  $$FastingGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get targetDays => $composableBuilder(
+    column: $table.targetDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get targetCalories => $composableBuilder(
+    column: $table.targetCalories,
+    builder: (column) => column,
+  );
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FastingGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FastingGoalsTable,
+          FastingGoal,
+          $$FastingGoalsTableFilterComposer,
+          $$FastingGoalsTableOrderingComposer,
+          $$FastingGoalsTableAnnotationComposer,
+          $$FastingGoalsTableCreateCompanionBuilder,
+          $$FastingGoalsTableUpdateCompanionBuilder,
+          (FastingGoal, $$FastingGoalsTableReferences),
+          FastingGoal,
+          PrefetchHooks Function({bool goalID})
+        > {
+  $$FastingGoalsTableTableManager(_$AppDatabase db, $FastingGoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FastingGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FastingGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FastingGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<double?> targetHours = const Value.absent(),
+                Value<int?> targetDays = const Value.absent(),
+                Value<int?> targetCalories = const Value.absent(),
+              }) => FastingGoalsCompanion(
+                goalID: goalID,
+                targetHours: targetHours,
+                targetDays: targetDays,
+                targetCalories: targetCalories,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<double?> targetHours = const Value.absent(),
+                Value<int?> targetDays = const Value.absent(),
+                Value<int?> targetCalories = const Value.absent(),
+              }) => FastingGoalsCompanion.insert(
+                goalID: goalID,
+                targetHours: targetHours,
+                targetDays: targetDays,
+                targetCalories: targetCalories,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FastingGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable: $$FastingGoalsTableReferences
+                                    ._goalIDTable(db),
+                                referencedColumn: $$FastingGoalsTableReferences
+                                    ._goalIDTable(db)
+                                    .goalID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FastingGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FastingGoalsTable,
+      FastingGoal,
+      $$FastingGoalsTableFilterComposer,
+      $$FastingGoalsTableOrderingComposer,
+      $$FastingGoalsTableAnnotationComposer,
+      $$FastingGoalsTableCreateCompanionBuilder,
+      $$FastingGoalsTableUpdateCompanionBuilder,
+      (FastingGoal, $$FastingGoalsTableReferences),
+      FastingGoal,
+      PrefetchHooks Function({bool goalID})
+    >;
+typedef $$WeightGoalsTableCreateCompanionBuilder =
+    WeightGoalsCompanion Function({
+      Value<int> goalID,
+      Value<double?> targetWeight,
+      Value<double?> startWeight,
+    });
+typedef $$WeightGoalsTableUpdateCompanionBuilder =
+    WeightGoalsCompanion Function({
+      Value<int> goalID,
+      Value<double?> targetWeight,
+      Value<double?> startWeight,
+    });
+
+final class $$WeightGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $WeightGoalsTable, WeightGoal> {
+  $$WeightGoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('weight_goals__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WeightGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $WeightGoalsTable> {
+  $$WeightGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<double> get targetWeight => $composableBuilder(
+    column: $table.targetWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startWeight => $composableBuilder(
+    column: $table.startWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WeightGoalsTable> {
+  $$WeightGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<double> get targetWeight => $composableBuilder(
+    column: $table.targetWeight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startWeight => $composableBuilder(
+    column: $table.startWeight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WeightGoalsTable> {
+  $$WeightGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<double> get targetWeight => $composableBuilder(
+    column: $table.targetWeight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get startWeight => $composableBuilder(
+    column: $table.startWeight,
+    builder: (column) => column,
+  );
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WeightGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WeightGoalsTable,
+          WeightGoal,
+          $$WeightGoalsTableFilterComposer,
+          $$WeightGoalsTableOrderingComposer,
+          $$WeightGoalsTableAnnotationComposer,
+          $$WeightGoalsTableCreateCompanionBuilder,
+          $$WeightGoalsTableUpdateCompanionBuilder,
+          (WeightGoal, $$WeightGoalsTableReferences),
+          WeightGoal,
+          PrefetchHooks Function({bool goalID})
+        > {
+  $$WeightGoalsTableTableManager(_$AppDatabase db, $WeightGoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WeightGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WeightGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WeightGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<double?> targetWeight = const Value.absent(),
+                Value<double?> startWeight = const Value.absent(),
+              }) => WeightGoalsCompanion(
+                goalID: goalID,
+                targetWeight: targetWeight,
+                startWeight: startWeight,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<double?> targetWeight = const Value.absent(),
+                Value<double?> startWeight = const Value.absent(),
+              }) => WeightGoalsCompanion.insert(
+                goalID: goalID,
+                targetWeight: targetWeight,
+                startWeight: startWeight,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$WeightGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable: $$WeightGoalsTableReferences
+                                    ._goalIDTable(db),
+                                referencedColumn: $$WeightGoalsTableReferences
+                                    ._goalIDTable(db)
+                                    .goalID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WeightGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WeightGoalsTable,
+      WeightGoal,
+      $$WeightGoalsTableFilterComposer,
+      $$WeightGoalsTableOrderingComposer,
+      $$WeightGoalsTableAnnotationComposer,
+      $$WeightGoalsTableCreateCompanionBuilder,
+      $$WeightGoalsTableUpdateCompanionBuilder,
+      (WeightGoal, $$WeightGoalsTableReferences),
+      WeightGoal,
+      PrefetchHooks Function({bool goalID})
+    >;
+typedef $$HydrationGoalsTableCreateCompanionBuilder =
+    HydrationGoalsCompanion Function({
+      Value<int> goalID,
+      Value<int?> hdrAmount,
+      Value<DateTime?> hdrDate,
+    });
+typedef $$HydrationGoalsTableUpdateCompanionBuilder =
+    HydrationGoalsCompanion Function({
+      Value<int> goalID,
+      Value<int?> hdrAmount,
+      Value<DateTime?> hdrDate,
+    });
+
+final class $$HydrationGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $HydrationGoalsTable, HydrationGoal> {
+  $$HydrationGoalsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('hydration_goals__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$HydrationGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $HydrationGoalsTable> {
+  $$HydrationGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get hdrAmount => $composableBuilder(
+    column: $table.hdrAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get hdrDate => $composableBuilder(
+    column: $table.hdrDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $HydrationGoalsTable> {
+  $$HydrationGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get hdrAmount => $composableBuilder(
+    column: $table.hdrAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get hdrDate => $composableBuilder(
+    column: $table.hdrDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HydrationGoalsTable> {
+  $$HydrationGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get hdrAmount =>
+      $composableBuilder(column: $table.hdrAmount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get hdrDate =>
+      $composableBuilder(column: $table.hdrDate, builder: (column) => column);
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HydrationGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HydrationGoalsTable,
+          HydrationGoal,
+          $$HydrationGoalsTableFilterComposer,
+          $$HydrationGoalsTableOrderingComposer,
+          $$HydrationGoalsTableAnnotationComposer,
+          $$HydrationGoalsTableCreateCompanionBuilder,
+          $$HydrationGoalsTableUpdateCompanionBuilder,
+          (HydrationGoal, $$HydrationGoalsTableReferences),
+          HydrationGoal,
+          PrefetchHooks Function({bool goalID})
+        > {
+  $$HydrationGoalsTableTableManager(
+    _$AppDatabase db,
+    $HydrationGoalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HydrationGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HydrationGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HydrationGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<int?> hdrAmount = const Value.absent(),
+                Value<DateTime?> hdrDate = const Value.absent(),
+              }) => HydrationGoalsCompanion(
+                goalID: goalID,
+                hdrAmount: hdrAmount,
+                hdrDate: hdrDate,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<int?> hdrAmount = const Value.absent(),
+                Value<DateTime?> hdrDate = const Value.absent(),
+              }) => HydrationGoalsCompanion.insert(
+                goalID: goalID,
+                hdrAmount: hdrAmount,
+                hdrDate: hdrDate,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$HydrationGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable: $$HydrationGoalsTableReferences
+                                    ._goalIDTable(db),
+                                referencedColumn:
+                                    $$HydrationGoalsTableReferences
+                                        ._goalIDTable(db)
+                                        .goalID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$HydrationGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HydrationGoalsTable,
+      HydrationGoal,
+      $$HydrationGoalsTableFilterComposer,
+      $$HydrationGoalsTableOrderingComposer,
+      $$HydrationGoalsTableAnnotationComposer,
+      $$HydrationGoalsTableCreateCompanionBuilder,
+      $$HydrationGoalsTableUpdateCompanionBuilder,
+      (HydrationGoal, $$HydrationGoalsTableReferences),
+      HydrationGoal,
+      PrefetchHooks Function({bool goalID})
+    >;
+typedef $$NutritionGoalsTableCreateCompanionBuilder =
+    NutritionGoalsCompanion Function({
+      Value<int> goalID,
+      Value<String?> nutrientType,
+      Value<int?> nutritionDailyTarget,
+    });
+typedef $$NutritionGoalsTableUpdateCompanionBuilder =
+    NutritionGoalsCompanion Function({
+      Value<int> goalID,
+      Value<String?> nutrientType,
+      Value<int?> nutritionDailyTarget,
+    });
+
+final class $$NutritionGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $NutritionGoalsTable, NutritionGoal> {
+  $$NutritionGoalsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('nutrition_goals__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$NutritionGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get nutrientType => $composableBuilder(
+    column: $table.nutrientType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nutritionDailyTarget => $composableBuilder(
+    column: $table.nutritionDailyTarget,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NutritionGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get nutrientType => $composableBuilder(
+    column: $table.nutrientType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nutritionDailyTarget => $composableBuilder(
+    column: $table.nutritionDailyTarget,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NutritionGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get nutrientType => $composableBuilder(
+    column: $table.nutrientType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get nutritionDailyTarget => $composableBuilder(
+    column: $table.nutritionDailyTarget,
+    builder: (column) => column,
+  );
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NutritionGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NutritionGoalsTable,
+          NutritionGoal,
+          $$NutritionGoalsTableFilterComposer,
+          $$NutritionGoalsTableOrderingComposer,
+          $$NutritionGoalsTableAnnotationComposer,
+          $$NutritionGoalsTableCreateCompanionBuilder,
+          $$NutritionGoalsTableUpdateCompanionBuilder,
+          (NutritionGoal, $$NutritionGoalsTableReferences),
+          NutritionGoal,
+          PrefetchHooks Function({bool goalID})
+        > {
+  $$NutritionGoalsTableTableManager(
+    _$AppDatabase db,
+    $NutritionGoalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NutritionGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NutritionGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NutritionGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<String?> nutrientType = const Value.absent(),
+                Value<int?> nutritionDailyTarget = const Value.absent(),
+              }) => NutritionGoalsCompanion(
+                goalID: goalID,
+                nutrientType: nutrientType,
+                nutritionDailyTarget: nutritionDailyTarget,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> goalID = const Value.absent(),
+                Value<String?> nutrientType = const Value.absent(),
+                Value<int?> nutritionDailyTarget = const Value.absent(),
+              }) => NutritionGoalsCompanion.insert(
+                goalID: goalID,
+                nutrientType: nutrientType,
+                nutritionDailyTarget: nutritionDailyTarget,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$NutritionGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable: $$NutritionGoalsTableReferences
+                                    ._goalIDTable(db),
+                                referencedColumn:
+                                    $$NutritionGoalsTableReferences
+                                        ._goalIDTable(db)
+                                        .goalID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NutritionGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NutritionGoalsTable,
+      NutritionGoal,
+      $$NutritionGoalsTableFilterComposer,
+      $$NutritionGoalsTableOrderingComposer,
+      $$NutritionGoalsTableAnnotationComposer,
+      $$NutritionGoalsTableCreateCompanionBuilder,
+      $$NutritionGoalsTableUpdateCompanionBuilder,
+      (NutritionGoal, $$NutritionGoalsTableReferences),
+      NutritionGoal,
+      PrefetchHooks Function({bool goalID})
+    >;
+typedef $$UserGoalProgressTableCreateCompanionBuilder =
+    UserGoalProgressCompanion Function({
+      Value<int> userGoalID,
+      required int userID,
+      required int goalID,
+      Value<DateTime> dateCreated,
+      Value<bool> isMain,
+      Value<bool> isComplete,
+      Value<double> progressValue,
+    });
+typedef $$UserGoalProgressTableUpdateCompanionBuilder =
+    UserGoalProgressCompanion Function({
+      Value<int> userGoalID,
+      Value<int> userID,
+      Value<int> goalID,
+      Value<DateTime> dateCreated,
+      Value<bool> isMain,
+      Value<bool> isComplete,
+      Value<double> progressValue,
+    });
+
+final class $$UserGoalProgressTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $UserGoalProgressTable,
+          UserGoalProgressData
+        > {
+  $$UserGoalProgressTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userIDTable(_$AppDatabase db) =>
+      db.users.createAlias('user_goal_progress__user_i_d__users__user_i_d');
+
+  $$UsersTableProcessedTableManager get userID {
+    final $_column = $_itemColumn<int>('user_i_d')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.userID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('user_goal_progress__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ReinforcementsTable, List<Reinforcement>>
+  _reinforcementsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reinforcements,
+    aliasName:
+        'user_goal_progress__user_goal_i_d__reinforcements__user_goal_i_d',
+  );
+
+  $$ReinforcementsTableProcessedTableManager get reinforcementsRefs {
+    final manager = $$ReinforcementsTableTableManager($_db, $_db.reinforcements)
+        .filter(
+          (f) => f.userGoalID.userGoalID.sqlEquals(
+            $_itemColumn<int>('user_goal_i_d')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_reinforcementsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$UserGoalProgressTableFilterComposer
+    extends Composer<_$AppDatabase, $UserGoalProgressTable> {
+  $$UserGoalProgressTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get userGoalID => $composableBuilder(
+    column: $table.userGoalID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateCreated => $composableBuilder(
+    column: $table.dateCreated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isMain => $composableBuilder(
+    column: $table.isMain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userID {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> reinforcementsRefs(
+    Expression<bool> Function($$ReinforcementsTableFilterComposer f) f,
+  ) {
+    final $$ReinforcementsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userGoalID,
+      referencedTable: $db.reinforcements,
+      getReferencedColumn: (t) => t.userGoalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReinforcementsTableFilterComposer(
+            $db: $db,
+            $table: $db.reinforcements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$UserGoalProgressTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserGoalProgressTable> {
+  $$UserGoalProgressTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get userGoalID => $composableBuilder(
+    column: $table.userGoalID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateCreated => $composableBuilder(
+    column: $table.dateCreated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isMain => $composableBuilder(
+    column: $table.isMain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userID {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserGoalProgressTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserGoalProgressTable> {
+  $$UserGoalProgressTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get userGoalID => $composableBuilder(
+    column: $table.userGoalID,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dateCreated => $composableBuilder(
+    column: $table.dateCreated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isMain =>
+      $composableBuilder(column: $table.isMain, builder: (column) => column);
+
+  GeneratedColumn<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
+    builder: (column) => column,
+  );
+
+  $$UsersTableAnnotationComposer get userID {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userID,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.userID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> reinforcementsRefs<T extends Object>(
+    Expression<T> Function($$ReinforcementsTableAnnotationComposer a) f,
+  ) {
+    final $$ReinforcementsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userGoalID,
+      referencedTable: $db.reinforcements,
+      getReferencedColumn: (t) => t.userGoalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReinforcementsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reinforcements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$UserGoalProgressTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserGoalProgressTable,
+          UserGoalProgressData,
+          $$UserGoalProgressTableFilterComposer,
+          $$UserGoalProgressTableOrderingComposer,
+          $$UserGoalProgressTableAnnotationComposer,
+          $$UserGoalProgressTableCreateCompanionBuilder,
+          $$UserGoalProgressTableUpdateCompanionBuilder,
+          (UserGoalProgressData, $$UserGoalProgressTableReferences),
+          UserGoalProgressData,
+          PrefetchHooks Function({
+            bool userID,
+            bool goalID,
+            bool reinforcementsRefs,
+          })
+        > {
+  $$UserGoalProgressTableTableManager(
+    _$AppDatabase db,
+    $UserGoalProgressTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserGoalProgressTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserGoalProgressTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserGoalProgressTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> userGoalID = const Value.absent(),
+                Value<int> userID = const Value.absent(),
+                Value<int> goalID = const Value.absent(),
+                Value<DateTime> dateCreated = const Value.absent(),
+                Value<bool> isMain = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<double> progressValue = const Value.absent(),
+              }) => UserGoalProgressCompanion(
+                userGoalID: userGoalID,
+                userID: userID,
+                goalID: goalID,
+                dateCreated: dateCreated,
+                isMain: isMain,
+                isComplete: isComplete,
+                progressValue: progressValue,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> userGoalID = const Value.absent(),
+                required int userID,
+                required int goalID,
+                Value<DateTime> dateCreated = const Value.absent(),
+                Value<bool> isMain = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<double> progressValue = const Value.absent(),
+              }) => UserGoalProgressCompanion.insert(
+                userGoalID: userGoalID,
+                userID: userID,
+                goalID: goalID,
+                dateCreated: dateCreated,
+                isMain: isMain,
+                isComplete: isComplete,
+                progressValue: progressValue,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UserGoalProgressTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({userID = false, goalID = false, reinforcementsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (reinforcementsRefs) db.reinforcements,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (userID) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.userID,
+                                    referencedTable:
+                                        $$UserGoalProgressTableReferences
+                                            ._userIDTable(db),
+                                    referencedColumn:
+                                        $$UserGoalProgressTableReferences
+                                            ._userIDTable(db)
+                                            .userID,
+                                  )
+                                  as T;
+                        }
+                        if (goalID) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.goalID,
+                                    referencedTable:
+                                        $$UserGoalProgressTableReferences
+                                            ._goalIDTable(db),
+                                    referencedColumn:
+                                        $$UserGoalProgressTableReferences
+                                            ._goalIDTable(db)
+                                            .goalID,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (reinforcementsRefs)
+                        await $_getPrefetchedData<
+                          UserGoalProgressData,
+                          $UserGoalProgressTable,
+                          Reinforcement
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserGoalProgressTableReferences
+                              ._reinforcementsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserGoalProgressTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).reinforcementsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userGoalID == item.userGoalID,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$UserGoalProgressTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserGoalProgressTable,
+      UserGoalProgressData,
+      $$UserGoalProgressTableFilterComposer,
+      $$UserGoalProgressTableOrderingComposer,
+      $$UserGoalProgressTableAnnotationComposer,
+      $$UserGoalProgressTableCreateCompanionBuilder,
+      $$UserGoalProgressTableUpdateCompanionBuilder,
+      (UserGoalProgressData, $$UserGoalProgressTableReferences),
+      UserGoalProgressData,
+      PrefetchHooks Function({
+        bool userID,
+        bool goalID,
+        bool reinforcementsRefs,
+      })
+    >;
+typedef $$AchievementsTableCreateCompanionBuilder =
+    AchievementsCompanion Function({
+      Value<int> achID,
+      required String name,
+      required String description,
+      required AchievementType type,
+      required UnlockType unlockType,
+    });
+typedef $$AchievementsTableUpdateCompanionBuilder =
+    AchievementsCompanion Function({
+      Value<int> achID,
+      Value<String> name,
+      Value<String> description,
+      Value<AchievementType> type,
+      Value<UnlockType> unlockType,
+    });
+
+final class $$AchievementsTableReferences
+    extends BaseReferences<_$AppDatabase, $AchievementsTable, Achievement> {
+  $$AchievementsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ReinforcementsTable, List<Reinforcement>>
+  _reinforcementsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reinforcements,
+    aliasName: 'achievements__ach_i_d__reinforcements__ach_i_d',
+  );
+
+  $$ReinforcementsTableProcessedTableManager get reinforcementsRefs {
+    final manager = $$ReinforcementsTableTableManager(
+      $_db,
+      $_db.reinforcements,
+    ).filter((f) => f.achID.achID.sqlEquals($_itemColumn<int>('ach_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_reinforcementsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$AchievementsTableFilterComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get achID => $composableBuilder(
+    column: $table.achID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AchievementType, AchievementType, String>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<UnlockType, UnlockType, String>
+  get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  Expression<bool> reinforcementsRefs(
+    Expression<bool> Function($$ReinforcementsTableFilterComposer f) f,
+  ) {
+    final $$ReinforcementsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.achID,
+      referencedTable: $db.reinforcements,
+      getReferencedColumn: (t) => t.achID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReinforcementsTableFilterComposer(
+            $db: $db,
+            $table: $db.reinforcements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$AchievementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get achID => $composableBuilder(
+    column: $table.achID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AchievementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get achID =>
+      $composableBuilder(column: $table.achID, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<AchievementType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<UnlockType, String> get unlockType =>
+      $composableBuilder(
+        column: $table.unlockType,
+        builder: (column) => column,
+      );
+
+  Expression<T> reinforcementsRefs<T extends Object>(
+    Expression<T> Function($$ReinforcementsTableAnnotationComposer a) f,
+  ) {
+    final $$ReinforcementsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.achID,
+      referencedTable: $db.reinforcements,
+      getReferencedColumn: (t) => t.achID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReinforcementsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reinforcements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$AchievementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AchievementsTable,
+          Achievement,
+          $$AchievementsTableFilterComposer,
+          $$AchievementsTableOrderingComposer,
+          $$AchievementsTableAnnotationComposer,
+          $$AchievementsTableCreateCompanionBuilder,
+          $$AchievementsTableUpdateCompanionBuilder,
+          (Achievement, $$AchievementsTableReferences),
+          Achievement,
+          PrefetchHooks Function({bool reinforcementsRefs})
+        > {
+  $$AchievementsTableTableManager(_$AppDatabase db, $AchievementsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AchievementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AchievementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AchievementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> achID = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<AchievementType> type = const Value.absent(),
+                Value<UnlockType> unlockType = const Value.absent(),
+              }) => AchievementsCompanion(
+                achID: achID,
+                name: name,
+                description: description,
+                type: type,
+                unlockType: unlockType,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> achID = const Value.absent(),
+                required String name,
+                required String description,
+                required AchievementType type,
+                required UnlockType unlockType,
+              }) => AchievementsCompanion.insert(
+                achID: achID,
+                name: name,
+                description: description,
+                type: type,
+                unlockType: unlockType,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$AchievementsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({reinforcementsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (reinforcementsRefs) db.reinforcements,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (reinforcementsRefs)
+                    await $_getPrefetchedData<
+                      Achievement,
+                      $AchievementsTable,
+                      Reinforcement
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AchievementsTableReferences
+                          ._reinforcementsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$AchievementsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).reinforcementsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.achID == item.achID),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$AchievementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AchievementsTable,
+      Achievement,
+      $$AchievementsTableFilterComposer,
+      $$AchievementsTableOrderingComposer,
+      $$AchievementsTableAnnotationComposer,
+      $$AchievementsTableCreateCompanionBuilder,
+      $$AchievementsTableUpdateCompanionBuilder,
+      (Achievement, $$AchievementsTableReferences),
+      Achievement,
+      PrefetchHooks Function({bool reinforcementsRefs})
+    >;
+typedef $$ReinforcementsTableCreateCompanionBuilder =
+    ReinforcementsCompanion Function({
+      Value<int> reinID,
+      required int userGoalID,
+      Value<int?> achID,
+      required ReinforcementType reinType,
+      Value<String> displayContext,
+      Value<int> priority,
+    });
+typedef $$ReinforcementsTableUpdateCompanionBuilder =
+    ReinforcementsCompanion Function({
+      Value<int> reinID,
+      Value<int> userGoalID,
+      Value<int?> achID,
+      Value<ReinforcementType> reinType,
+      Value<String> displayContext,
+      Value<int> priority,
+    });
+
+final class $$ReinforcementsTableReferences
+    extends BaseReferences<_$AppDatabase, $ReinforcementsTable, Reinforcement> {
+  $$ReinforcementsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UserGoalProgressTable _userGoalIDTable(_$AppDatabase db) =>
+      db.userGoalProgress.createAlias(
+        'reinforcements__user_goal_i_d__user_goal_progress__user_goal_i_d',
+      );
+
+  $$UserGoalProgressTableProcessedTableManager get userGoalID {
+    final $_column = $_itemColumn<int>('user_goal_i_d')!;
+
+    final manager = $$UserGoalProgressTableTableManager(
+      $_db,
+      $_db.userGoalProgress,
+    ).filter((f) => f.userGoalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userGoalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $AchievementsTable _achIDTable(_$AppDatabase db) => db.achievements
+      .createAlias('reinforcements__ach_i_d__achievements__ach_i_d');
+
+  $$AchievementsTableProcessedTableManager? get achID {
+    final $_column = $_itemColumn<int>('ach_i_d');
+    if ($_column == null) return null;
+    final manager = $$AchievementsTableTableManager(
+      $_db,
+      $_db.achievements,
+    ).filter((f) => f.achID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_achIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ReinforcementsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get reinID => $composableBuilder(
+    column: $table.reinID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ReinforcementType, ReinforcementType, String>
+  get reinType => $composableBuilder(
+    column: $table.reinType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UserGoalProgressTableFilterComposer get userGoalID {
+    final $$UserGoalProgressTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userGoalID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.userGoalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableFilterComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AchievementsTableFilterComposer get achID {
+    final $$AchievementsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.achID,
+      referencedTable: $db.achievements,
+      getReferencedColumn: (t) => t.achID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AchievementsTableFilterComposer(
+            $db: $db,
+            $table: $db.achievements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReinforcementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get reinID => $composableBuilder(
+    column: $table.reinID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reinType => $composableBuilder(
+    column: $table.reinType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UserGoalProgressTableOrderingComposer get userGoalID {
+    final $$UserGoalProgressTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userGoalID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.userGoalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableOrderingComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AchievementsTableOrderingComposer get achID {
+    final $$AchievementsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.achID,
+      referencedTable: $db.achievements,
+      getReferencedColumn: (t) => t.achID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AchievementsTableOrderingComposer(
+            $db: $db,
+            $table: $db.achievements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReinforcementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get reinID =>
+      $composableBuilder(column: $table.reinID, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ReinforcementType, String> get reinType =>
+      $composableBuilder(column: $table.reinType, builder: (column) => column);
+
+  GeneratedColumn<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  $$UserGoalProgressTableAnnotationComposer get userGoalID {
+    final $$UserGoalProgressTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userGoalID,
+      referencedTable: $db.userGoalProgress,
+      getReferencedColumn: (t) => t.userGoalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGoalProgressTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userGoalProgress,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AchievementsTableAnnotationComposer get achID {
+    final $$AchievementsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.achID,
+      referencedTable: $db.achievements,
+      getReferencedColumn: (t) => t.achID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AchievementsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.achievements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReinforcementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReinforcementsTable,
+          Reinforcement,
+          $$ReinforcementsTableFilterComposer,
+          $$ReinforcementsTableOrderingComposer,
+          $$ReinforcementsTableAnnotationComposer,
+          $$ReinforcementsTableCreateCompanionBuilder,
+          $$ReinforcementsTableUpdateCompanionBuilder,
+          (Reinforcement, $$ReinforcementsTableReferences),
+          Reinforcement,
+          PrefetchHooks Function({bool userGoalID, bool achID})
+        > {
+  $$ReinforcementsTableTableManager(
+    _$AppDatabase db,
+    $ReinforcementsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReinforcementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReinforcementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReinforcementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> reinID = const Value.absent(),
+                Value<int> userGoalID = const Value.absent(),
+                Value<int?> achID = const Value.absent(),
+                Value<ReinforcementType> reinType = const Value.absent(),
+                Value<String> displayContext = const Value.absent(),
+                Value<int> priority = const Value.absent(),
+              }) => ReinforcementsCompanion(
+                reinID: reinID,
+                userGoalID: userGoalID,
+                achID: achID,
+                reinType: reinType,
+                displayContext: displayContext,
+                priority: priority,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> reinID = const Value.absent(),
+                required int userGoalID,
+                Value<int?> achID = const Value.absent(),
+                required ReinforcementType reinType,
+                Value<String> displayContext = const Value.absent(),
+                Value<int> priority = const Value.absent(),
+              }) => ReinforcementsCompanion.insert(
+                reinID: reinID,
+                userGoalID: userGoalID,
+                achID: achID,
+                reinType: reinType,
+                displayContext: displayContext,
+                priority: priority,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReinforcementsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userGoalID = false, achID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userGoalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userGoalID,
+                                referencedTable: $$ReinforcementsTableReferences
+                                    ._userGoalIDTable(db),
+                                referencedColumn:
+                                    $$ReinforcementsTableReferences
+                                        ._userGoalIDTable(db)
+                                        .userGoalID,
+                              )
+                              as T;
+                    }
+                    if (achID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.achID,
+                                referencedTable: $$ReinforcementsTableReferences
+                                    ._achIDTable(db),
+                                referencedColumn:
+                                    $$ReinforcementsTableReferences
+                                        ._achIDTable(db)
+                                        .achID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ReinforcementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReinforcementsTable,
+      Reinforcement,
+      $$ReinforcementsTableFilterComposer,
+      $$ReinforcementsTableOrderingComposer,
+      $$ReinforcementsTableAnnotationComposer,
+      $$ReinforcementsTableCreateCompanionBuilder,
+      $$ReinforcementsTableUpdateCompanionBuilder,
+      (Reinforcement, $$ReinforcementsTableReferences),
+      Reinforcement,
+      PrefetchHooks Function({bool userGoalID, bool achID})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8920,4 +15907,22 @@ class $AppDatabaseManager {
       $$MealRecipeContentTableTableManager(_db, _db.mealRecipeContent);
   $$MealFoodContentTableTableManager get mealFoodContent =>
       $$MealFoodContentTableTableManager(_db, _db.mealFoodContent);
+  $$StreaksTableTableManager get streaks =>
+      $$StreaksTableTableManager(_db, _db.streaks);
+  $$GoalsTableTableManager get goals =>
+      $$GoalsTableTableManager(_db, _db.goals);
+  $$FastingGoalsTableTableManager get fastingGoals =>
+      $$FastingGoalsTableTableManager(_db, _db.fastingGoals);
+  $$WeightGoalsTableTableManager get weightGoals =>
+      $$WeightGoalsTableTableManager(_db, _db.weightGoals);
+  $$HydrationGoalsTableTableManager get hydrationGoals =>
+      $$HydrationGoalsTableTableManager(_db, _db.hydrationGoals);
+  $$NutritionGoalsTableTableManager get nutritionGoals =>
+      $$NutritionGoalsTableTableManager(_db, _db.nutritionGoals);
+  $$UserGoalProgressTableTableManager get userGoalProgress =>
+      $$UserGoalProgressTableTableManager(_db, _db.userGoalProgress);
+  $$AchievementsTableTableManager get achievements =>
+      $$AchievementsTableTableManager(_db, _db.achievements);
+  $$ReinforcementsTableTableManager get reinforcements =>
+      $$ReinforcementsTableTableManager(_db, _db.reinforcements);
 }

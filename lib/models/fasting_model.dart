@@ -77,13 +77,13 @@ FastingStatus determineFastingStatus({
 }) {
   final today = DateTime(now.year, now.month, now.day);
   final calculator = calculatorFor(FastingFormConverter().fromSql(user.formIF));
-  final expectedStart = calculator.expectedStartFor(today, user);
+  final expectedStart = calculator.expectedStartFor(now, user);
 
   if (expectedStart == null) return FastingStatus.notFastingDay;
 
-  final expectedEnd = calculator.expectedEndFor(today, user, activeLog?.startDateTime);
+  final expectedEnd = calculator.expectedEndFor(now, user, activeLog?.startDateTime);
 
-  debugPrint('Status: ${DateFormat('HH:mm a').format(today)} start at ${DateFormat('HH:mm a').format(expectedStart)} end at ${DateFormat('HH:mm a').format(expectedEnd!)}');
+  debugPrint('Status: ${DateFormat('HH:mm a').format(now)} start at ${DateFormat('HH:mm a').format(expectedEnd!)} end at ${DateFormat('HH:mm a').format(expectedStart!)}');
 
   if (activeLog != null) {
     if (expectedEnd != null && expectedEnd.difference(now).inMinutes <= 30) {

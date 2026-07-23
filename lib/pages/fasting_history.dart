@@ -103,7 +103,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
         ),
         actions: [
           Tooltip(
-            message: 'Test',
+            message: '',
             triggerMode: TooltipTriggerMode.tap,
             child: IconButton(
               onPressed: () => Dialogs.getFastResultHelp(context),
@@ -172,8 +172,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
           StreamBuilder<List<FastLogData>>(
             stream: data,
             builder: (context, asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.waiting)
-                return const CircularProgressIndicator();
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
               final fasts = asyncSnapshot.data!;
 
               // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');

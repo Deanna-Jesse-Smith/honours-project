@@ -81,6 +81,47 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return content;
   }
 
+  Future<void> insertFoodNutritionLog(
+    int userID,
+    int foodID,
+    double amount,
+    DateTime date,
+  ) async {
+    final lastLog =
+        await (select(nutritionLog)
+              ..orderBy([(l) => OrderingTerm.desc(l.logDateTime)])
+              ..limit(1))
+            .getSingleOrNull();
+
+    final curFood = await (select(
+      food,
+    )..where((f) => f.foodID.equals(foodID))).getSingle();
+
+    if (lastLog != null) {
+      DateTime lastDate = lastLog.logDateTime;
+
+      if (isSameDate(lastDate, date)) {
+        int nutID = lastLog.nutritionLogID;
+        double prevCarbs = lastLog.carbs;
+        double prevFat = lastLog.fat;
+        double prevProtein = lastLog.protien;
+        double prevFibre = lastLog.fibre;
+        int prevCalories = lastLog.calories;
+
+        (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
+            .write(NutritionLogCompanion(carbs: Value(prevCarbs + (curFood.carbs * amount)), fat: Value(prevFat + (curFood.fat * amount)), protien: Value(prevProtein + (curFood.protein * amount)), fibre: Value(prevFibre + (curFood.fibre * amount)), calories: Value(prevCalories + (curFood.calories.toInt() * amount.toInt()))));
+      } else {
+        final insertLog = await into(nutritionLog).insert(NutritionLogCompanion.insert(userID: userID, logDateTime: Value(date), carbs: Value(curFood.carbs * amount), fat: Value(curFood.fat * amount), protien: Value(curFood.protein * amount), fibre: Value(curFood.fibre * amount), calories: Value(curFood.calories.toInt() * amount.toInt())));
+      }
+    }
+  }
+
+  bool isSameDate(DateTime one, DateTime other) {
+    return one.year == other.year &&
+        one.month == other.month &&
+        one.day == other.day;
+  }
+
   Future<int> insertMeal(int userID, DateTime date, LogMethod logMethod) async {
     final meal = await into(meals).insert(
       MealsCompanion.insert(
@@ -189,9 +230,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
 
   Future<List<FoodData>> getFoodForSearch(String searchValue) async {
     if (searchValue.isEmpty) {
-      final results = await (select(
-        food,
-      )).get();
+      final results = await (select(food)).get();
       if (results.isEmpty) return List.empty();
       return results;
     }

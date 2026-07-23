@@ -25,18 +25,34 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return db;
 });
 
-final uDaoProvider = Provider<UserDao>((ref) => UserDao(ref.watch(databaseProvider)));
-final fDaoProvider = Provider<FastingDao>((ref) => FastingDao(ref.watch(databaseProvider)));
-final hDaoProvider = Provider<HydrationDao>((ref) => HydrationDao(ref.watch(databaseProvider)));
-final wDaoProvider = Provider<WeightDao>((ref) => WeightDao(ref.watch(databaseProvider)));
-final nDaoProvider = Provider<NutritionDao>((ref) => NutritionDao(ref.watch(databaseProvider)));
-final mealRangeProvider = FutureProvider.family<List<MealItem>, List<DateTime>>((ref, days) {
-  final repo = ref.watch(nDaoProvider);
-  return repo.getMealsInRange(days);
-});
+final uDaoProvider = Provider<UserDao>(
+  (ref) => UserDao(ref.watch(databaseProvider)),
+);
+final fDaoProvider = Provider<FastingDao>(
+  (ref) => FastingDao(ref.watch(databaseProvider)),
+);
+final hDaoProvider = Provider<HydrationDao>(
+  (ref) => HydrationDao(ref.watch(databaseProvider)),
+);
+final wDaoProvider = Provider<WeightDao>(
+  (ref) => WeightDao(ref.watch(databaseProvider)),
+);
+final nDaoProvider = Provider<NutritionDao>(
+  (ref) => NutritionDao(ref.watch(databaseProvider)),
+);
+final mealRangeProvider = FutureProvider.family<List<MealItem>, List<DateTime>>(
+  (ref, days) {
+    final repo = ref.watch(nDaoProvider);
+    return repo.getMealsInRange(days);
+  },
+);
 final isFastingProvider = Provider<bool>((ref) {
   final curUser = ref.watch(userSessionProvider);
-  return curUser.when(data: (u) => u!.isFasting, error: (a, b) => false, loading: () => false);
+  return curUser.when(
+    data: (u) => u!.isFasting,
+    error: (a, b) => false,
+    loading: () => false,
+  );
 });
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,12 +60,23 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-  void insert(WidgetRef ref) {
-    DateTime start = DateTime(2026, 1, 1, 12, 30);
-    DateTime end = DateTime(2026, 1, 1, 18);
+void insert(WidgetRef ref) {
+  DateTime start = DateTime(2026, 1, 1, 12, 30);
+  DateTime end = DateTime(2026, 1, 1, 18);
 
-    ref.watch(uDaoProvider).addUser('Deanna', true, FastingForm.tre, 'Beginner', start, end, '1,3,5', '2,4,6');
-  }
+  ref
+      .watch(uDaoProvider)
+      .addUser(
+        'Deanna',
+        true,
+        FastingForm.tre,
+        'Beginner',
+        start,
+        end,
+        '1,3,5',
+        '2,4,6',
+      );
+}
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -59,8 +86,8 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // insert(ref);
     // ref.read(fDaoProvider).dummyData();
-      final session = ref.watch(userSessionProvider);
-    
+    final session = ref.watch(userSessionProvider);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
@@ -70,13 +97,13 @@ class MyApp extends ConsumerWidget {
         '/SetupUser': (context) => SetupUser(),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
-        '/FinalSetup':(context) => FinalSetup(),
+        '/FinalSetup': (context) => FinalSetup(),
       },
       home: session.when(
         data: (data) => data == null ? const SetupUser() : HomePage(),
         loading: () => const SetupUser(),
         error: (e, st) => SetupUser(),
-        ),
+      ),
       theme: ThemeData(
         // colorScheme: ColorScheme(brightness: Brightness.light,
         // primary: primary,

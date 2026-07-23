@@ -4,12 +4,10 @@ import 'package:testrun/database/tables/user_table.dart';
 class Goals extends Table {
   IntColumn get goalID => integer().autoIncrement()();
   TextColumn get type => textEnum<GoalType>()();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))();
   RealColumn get thresholdValue => real().nullable()();
   TextColumn get metricType => text().nullable()();
-  TextColumn get operator => text().nullable()();
-  IntColumn get streakID =>
-      integer().nullable().references(Streaks, #streakID)();
+  TextColumn get op => text().nullable()();
+  IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
 }
 
 class FastingGoals extends Table {
@@ -64,3 +62,13 @@ class Streaks extends Table {
 enum StreakType { fasting, hydration, nutrition, weight }
 
 enum UnlockType { badge, achievement, feature }
+
+class UserGoalProgress extends Table {
+  IntColumn get userGoalID => integer().autoIncrement()();
+  IntColumn get userID => integer().references(Users, #userID)();
+  IntColumn get goalID => integer().references(Goals, #goalID)();
+  DateTimeColumn get dateCreated =>  dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isMain => boolean().withDefault(const Constant(false))();
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))();
+  RealColumn get progressValue => real().withDefault(const Constant(0))();
+}
