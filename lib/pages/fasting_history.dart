@@ -231,7 +231,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                     'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)}',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  Text('Longest Fast: ${sm.getLongest().inMinutes}'),
+                  Text('Longest Fast: ${sm.getLongest().inMinutes / 60} hours'),
                 ],
               );
             },

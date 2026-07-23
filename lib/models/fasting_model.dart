@@ -11,14 +11,22 @@ abstract class FastingScheduleCalculator {
 class TRECalculator implements FastingScheduleCalculator {
   @override
   DateTime? expectedStartFor(DateTime date, User user) {
-    final start = DateTime(date.year, date.month, date.day).add(dateTimeToDuration(user.typicalEatingEnd!));
+    final start = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).add(dateTimeToDuration(user.typicalEatingEnd!));
     return start;
   }
 
   @override
   DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart) {
-    var end = DateTime(date.year, date.month, date.day).add(dateTimeToDuration(user.typicalEatingStart!));
-    
+    var end = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).add(dateTimeToDuration(user.typicalEatingStart!));
+
     //! Add something to account for if the window goes over midnight
     if (end.isBefore(expectedStartFor(date, user)!)) {
       end = end.add(const Duration(days: 1));
@@ -44,10 +52,7 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
   WeekdayBasedCalculator({required this.fastDurationHours});
 
   List<int> parseFastingDays(String raw) {
-    return raw
-        .split(',')
-        .map((s) => int.parse(s.trim()))
-        .toList();
+    return raw.split(',').map((s) => int.parse(s.trim())).toList();
   }
 
   bool isFastingDay(DateTime date, User user) {
@@ -58,14 +63,18 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
   @override
   DateTime? expectedStartFor(DateTime date, User user) {
     if (!isFastingDay(date, user)) return null;
-    return DateTime(date.year, date.month, date.day).add(dateTimeToDuration(user.typicalEatingStart!));
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).add(dateTimeToDuration(user.typicalEatingStart!));
   }
 
   @override
   DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart) {
     final start = actualStart ?? expectedStartFor(date, user);
     if (start == null) return null;
-    
+
     return start.add(Duration(hours: fastDurationHours));
   }
 }
@@ -81,9 +90,15 @@ FastingStatus determineFastingStatus({
 
   if (expectedStart == null) return FastingStatus.notFastingDay;
 
-  final expectedEnd = calculator.expectedEndFor(now, user, activeLog?.startDateTime);
+  final expectedEnd = calculator.expectedEndFor(
+    now,
+    user,
+    activeLog?.startDateTime,
+  );
 
-  debugPrint('Status: ${DateFormat('HH:mm a').format(now)} start at ${DateFormat('HH:mm a').format(expectedEnd!)} end at ${DateFormat('HH:mm a').format(expectedStart!)}');
+  debugPrint(
+    'Status: ${DateFormat('HH:mm a').format(now)} start at ${DateFormat('HH:mm a').format(expectedEnd!)} end at ${DateFormat('HH:mm a').format(expectedStart!)}',
+  );
 
   if (activeLog != null) {
     if (expectedEnd != null && expectedEnd.difference(now).inMinutes <= 30) {
@@ -95,13 +110,13 @@ FastingStatus determineFastingStatus({
   final diff = expectedStart.difference(now);
 
   if (diff.inMinutes <= 30 && diff.inMinutes > 0) {
-      return FastingStatus.startingSoon;
+    return FastingStatus.startingSoon;
   }
 
   if (diff.inHours < 4 && diff.inHours > 0) {
     return FastingStatus.upcoming;
   }
-  
+
   return FastingStatus.overdue;
 }
 
@@ -115,9 +130,11 @@ enum FastingStatus {
   completed,
 }
 
-Duration timeOfDayToDuration(TimeOfDay t) => Duration(hours: t.hour, minutes: t.minute);
+Duration timeOfDayToDuration(TimeOfDay t) =>
+    Duration(hours: t.hour, minutes: t.minute);
 
-Duration dateTimeToDuration(DateTime dt) => Duration(hours: dt.hour, minutes: dt.minute);
+Duration dateTimeToDuration(DateTime dt) =>
+    Duration(hours: dt.hour, minutes: dt.minute);
 
 extension FastingStatusAppearance on FastingStatus {
   String get homeReminder => switch (this) {
@@ -131,15 +148,16 @@ extension FastingStatusAppearance on FastingStatus {
   };
 }
 
-enum FastResult { //? I can have multiple of these stored maybe? Then I can show more icons in the fasting history calendar?
+enum FastResult {
+  //? I can have multiple of these stored maybe? Then I can show more icons in the fasting history calendar?
   asPlanned,
   lateStart,
   earlyStart,
   lateEnd,
   earlyEnd,
   skipped,
-  interrupted,  // half fast in some way?
-  overate,  // 5:2 specific
+  interrupted, // half fast in some way?
+  overate, // 5:2 specific
   underate, // 5:2 specific
 }
 
@@ -158,10 +176,16 @@ extension FastResultHistory on FastResult {
 
   Icon get resultIcon => switch (this) {
     FastResult.asPlanned => Icon(Icons.check),
-    FastResult.lateStart => Icon(Icons.watch_later, color: Colors.deepPurple,),
-    FastResult.earlyStart => Icon(Icons.watch_later, color: const Color.fromARGB(255, 233, 30, 220)),
-    FastResult.lateEnd => Icon(Icons.stop_rounded, color: Colors.deepPurple,),
-    FastResult.earlyEnd => Icon(Icons.stop_rounded, color: const Color.fromARGB(255, 233, 30, 220)),
+    FastResult.lateStart => Icon(Icons.watch_later, color: Colors.deepPurple),
+    FastResult.earlyStart => Icon(
+      Icons.watch_later,
+      color: const Color.fromARGB(255, 233, 30, 220),
+    ),
+    FastResult.lateEnd => Icon(Icons.stop_rounded, color: Colors.deepPurple),
+    FastResult.earlyEnd => Icon(
+      Icons.stop_rounded,
+      color: const Color.fromARGB(255, 233, 30, 220),
+    ),
     FastResult.skipped => Icon(Icons.cancel),
     FastResult.interrupted => Icon(Icons.emergency),
     FastResult.overate => Icon(Icons.filter_alt),
@@ -175,12 +199,17 @@ extension FastResultHistory on FastResult {
     FastResult.lateEnd => 'You ended this fast over half an hour late',
     FastResult.earlyEnd => 'You ended this fast over half an hour early',
     FastResult.skipped => 'You didn\'t fast on this day',
-    FastResult.interrupted => 'This fast was interrupted part way through', //? Or maybe the user changed fasting methods in the middle of a fast?
-    FastResult.overate => 'You ate more than was recommended on a restrictive day',
+    FastResult.interrupted =>
+      'This fast was interrupted part way through', //? Or maybe the user changed fasting methods in the middle of a fast?
+    FastResult.overate =>
+      'You ate more than was recommended on a restrictive day',
     FastResult.underate => 'You ate less than was recommended',
   };
 
-  Row get forToolTip => .new(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [resultIcon, Text(description)]);
+  Row get forToolTip => .new(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [resultIcon, Text(description)],
+  );
 }
 
 class Fast {
@@ -188,7 +217,12 @@ class Fast {
   final FastingForm form;
   final Set<FastResult> results;
 
-  Fast({required this.start, required this.end, required this.form, required this.results});
+  Fast({
+    required this.start,
+    required this.end,
+    required this.form,
+    required this.results,
+  });
 
   // static makeSense(List<FastLogData> list) {
 
@@ -199,5 +233,30 @@ extension FastLogDataHelper on FastLogData {
   Duration? get duration {
     if (endDateTime == null) return Duration();
     return endDateTime?.difference(startDateTime);
+  }
+
+  Set<FastResult> get results {
+    List<String> strList = fastResult.split(',');
+    Set<FastResult> frList = {};
+    final converter = FastResultConverter();
+
+    for (String res in strList) {
+      frList.add(converter.fromSql(res));
     }
+    return frList;
+  }
+
+  bool get asPlanned => results.length == 1 && results.contains(FastResult.asPlanned);
+}
+
+extension FastListHelper on List<FastLogData> {
+  double get plannedRate => isEmpty ? 0 : where((f) => f.asPlanned).length / length;
+  int get earlyStartCount => where((f) => f.results.contains(FastResult.earlyStart)).length;
+  int get lateStartCount => where((f) => f.results.contains(FastResult.lateStart)).length;
+  int get earlyEndCount => where((f) => f.results.contains(FastResult.earlyEnd)).length;
+  int get lateEndCount => where((f) => f.results.contains(FastResult.lateEnd)).length;
+
+  // 5:2 specific
+  int get skippedCount => where((f) => f.results.contains(FastResult.skipped)).length;
+  int get interruptedCount => where((f) => f.results.contains(FastResult.interrupted)).length;
 }

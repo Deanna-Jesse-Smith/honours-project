@@ -84,8 +84,8 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // insert(ref);
-    // ref.read(fDaoProvider).dummyData();
+    insert(ref);
+    ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
 
     return MaterialApp(
@@ -94,15 +94,15 @@ class MyApp extends ConsumerWidget {
         '/FastingPlan': (context) => FastingPlan(),
         '/MealTracking': (context) => MealTracking(),
         '/StepCount': (context) => StepCounts(),
-        '/SetupUser': (context) => SetupUser(),
+        '/SetupUser': (context) => SetupUser(name: 'Deanna', experience: 'Beginner'),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
         '/FinalSetup': (context) => FinalSetup(),
       },
       home: session.when(
-        data: (data) => data == null ? const SetupUser() : HomePage(),
-        loading: () => const SetupUser(),
-        error: (e, st) => SetupUser(),
+        data: (data) => data == null ? const SetupUser(name: 'Deanna', experience: 'Beginner') : HomePage(),
+        loading: () => const SetupUser(name: 'Deanna', experience: 'Beginner'),
+        error: (e, st) => SetupUser(name: 'Deanna', experience: 'Beginner'),
       ),
       theme: ThemeData(
         // colorScheme: ColorScheme(brightness: Brightness.light,
