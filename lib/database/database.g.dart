@@ -4769,12 +4769,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _operatorMeta = const VerificationMeta(
-    'operator',
-  );
+  static const VerificationMeta _opMeta = const VerificationMeta('op');
   @override
-  late final GeneratedColumn<String> operator = GeneratedColumn<String>(
-    'operator',
+  late final GeneratedColumn<String> op = GeneratedColumn<String>(
+    'op',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -4800,7 +4798,7 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type,
     thresholdValue,
     metricType,
-    operator,
+    op,
     streakID,
   ];
   @override
@@ -4836,11 +4834,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         metricType.isAcceptableOrUnknown(data['metric_type']!, _metricTypeMeta),
       );
     }
-    if (data.containsKey('operator')) {
-      context.handle(
-        _operatorMeta,
-        operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta),
-      );
+    if (data.containsKey('op')) {
+      context.handle(_opMeta, op.isAcceptableOrUnknown(data['op']!, _opMeta));
     }
     if (data.containsKey('streak_i_d')) {
       context.handle(
@@ -4875,9 +4870,9 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}metric_type'],
       ),
-      operator: attachedDatabase.typeMapping.read(
+      op: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}operator'],
+        data['${effectivePrefix}op'],
       ),
       streakID: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -4900,14 +4895,14 @@ class Goal extends DataClass implements Insertable<Goal> {
   final GoalType type;
   final double? thresholdValue;
   final String? metricType;
-  final String? operator;
+  final String? op;
   final int? streakID;
   const Goal({
     required this.goalID,
     required this.type,
     this.thresholdValue,
     this.metricType,
-    this.operator,
+    this.op,
     this.streakID,
   });
   @override
@@ -4923,8 +4918,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     if (!nullToAbsent || metricType != null) {
       map['metric_type'] = Variable<String>(metricType);
     }
-    if (!nullToAbsent || operator != null) {
-      map['operator'] = Variable<String>(operator);
+    if (!nullToAbsent || op != null) {
+      map['op'] = Variable<String>(op);
     }
     if (!nullToAbsent || streakID != null) {
       map['streak_i_d'] = Variable<int>(streakID);
@@ -4942,9 +4937,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       metricType: metricType == null && nullToAbsent
           ? const Value.absent()
           : Value(metricType),
-      operator: operator == null && nullToAbsent
-          ? const Value.absent()
-          : Value(operator),
+      op: op == null && nullToAbsent ? const Value.absent() : Value(op),
       streakID: streakID == null && nullToAbsent
           ? const Value.absent()
           : Value(streakID),
@@ -4963,7 +4956,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       ),
       thresholdValue: serializer.fromJson<double?>(json['thresholdValue']),
       metricType: serializer.fromJson<String?>(json['metricType']),
-      operator: serializer.fromJson<String?>(json['operator']),
+      op: serializer.fromJson<String?>(json['op']),
       streakID: serializer.fromJson<int?>(json['streakID']),
     );
   }
@@ -4977,7 +4970,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       ),
       'thresholdValue': serializer.toJson<double?>(thresholdValue),
       'metricType': serializer.toJson<String?>(metricType),
-      'operator': serializer.toJson<String?>(operator),
+      'op': serializer.toJson<String?>(op),
       'streakID': serializer.toJson<int?>(streakID),
     };
   }
@@ -4987,7 +4980,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     GoalType? type,
     Value<double?> thresholdValue = const Value.absent(),
     Value<String?> metricType = const Value.absent(),
-    Value<String?> operator = const Value.absent(),
+    Value<String?> op = const Value.absent(),
     Value<int?> streakID = const Value.absent(),
   }) => Goal(
     goalID: goalID ?? this.goalID,
@@ -4996,7 +4989,7 @@ class Goal extends DataClass implements Insertable<Goal> {
         ? thresholdValue.value
         : this.thresholdValue,
     metricType: metricType.present ? metricType.value : this.metricType,
-    operator: operator.present ? operator.value : this.operator,
+    op: op.present ? op.value : this.op,
     streakID: streakID.present ? streakID.value : this.streakID,
   );
   Goal copyWithCompanion(GoalsCompanion data) {
@@ -5009,7 +5002,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       metricType: data.metricType.present
           ? data.metricType.value
           : this.metricType,
-      operator: data.operator.present ? data.operator.value : this.operator,
+      op: data.op.present ? data.op.value : this.op,
       streakID: data.streakID.present ? data.streakID.value : this.streakID,
     );
   }
@@ -5021,7 +5014,7 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('type: $type, ')
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
-          ..write('operator: $operator, ')
+          ..write('op: $op, ')
           ..write('streakID: $streakID')
           ..write(')'))
         .toString();
@@ -5029,7 +5022,7 @@ class Goal extends DataClass implements Insertable<Goal> {
 
   @override
   int get hashCode =>
-      Object.hash(goalID, type, thresholdValue, metricType, operator, streakID);
+      Object.hash(goalID, type, thresholdValue, metricType, op, streakID);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5038,7 +5031,7 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.type == this.type &&
           other.thresholdValue == this.thresholdValue &&
           other.metricType == this.metricType &&
-          other.operator == this.operator &&
+          other.op == this.op &&
           other.streakID == this.streakID);
 }
 
@@ -5047,14 +5040,14 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<GoalType> type;
   final Value<double?> thresholdValue;
   final Value<String?> metricType;
-  final Value<String?> operator;
+  final Value<String?> op;
   final Value<int?> streakID;
   const GoalsCompanion({
     this.goalID = const Value.absent(),
     this.type = const Value.absent(),
     this.thresholdValue = const Value.absent(),
     this.metricType = const Value.absent(),
-    this.operator = const Value.absent(),
+    this.op = const Value.absent(),
     this.streakID = const Value.absent(),
   });
   GoalsCompanion.insert({
@@ -5062,7 +5055,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required GoalType type,
     this.thresholdValue = const Value.absent(),
     this.metricType = const Value.absent(),
-    this.operator = const Value.absent(),
+    this.op = const Value.absent(),
     this.streakID = const Value.absent(),
   }) : type = Value(type);
   static Insertable<Goal> custom({
@@ -5070,7 +5063,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<String>? type,
     Expression<double>? thresholdValue,
     Expression<String>? metricType,
-    Expression<String>? operator,
+    Expression<String>? op,
     Expression<int>? streakID,
   }) {
     return RawValuesInsertable({
@@ -5078,7 +5071,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (type != null) 'type': type,
       if (thresholdValue != null) 'threshold_value': thresholdValue,
       if (metricType != null) 'metric_type': metricType,
-      if (operator != null) 'operator': operator,
+      if (op != null) 'op': op,
       if (streakID != null) 'streak_i_d': streakID,
     });
   }
@@ -5088,7 +5081,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<GoalType>? type,
     Value<double?>? thresholdValue,
     Value<String?>? metricType,
-    Value<String?>? operator,
+    Value<String?>? op,
     Value<int?>? streakID,
   }) {
     return GoalsCompanion(
@@ -5096,7 +5089,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       type: type ?? this.type,
       thresholdValue: thresholdValue ?? this.thresholdValue,
       metricType: metricType ?? this.metricType,
-      operator: operator ?? this.operator,
+      op: op ?? this.op,
       streakID: streakID ?? this.streakID,
     );
   }
@@ -5118,8 +5111,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (metricType.present) {
       map['metric_type'] = Variable<String>(metricType.value);
     }
-    if (operator.present) {
-      map['operator'] = Variable<String>(operator.value);
+    if (op.present) {
+      map['op'] = Variable<String>(op.value);
     }
     if (streakID.present) {
       map['streak_i_d'] = Variable<int>(streakID.value);
@@ -5134,7 +5127,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('type: $type, ')
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
-          ..write('operator: $operator, ')
+          ..write('op: $op, ')
           ..write('streakID: $streakID')
           ..write(')'))
         .toString();
@@ -7565,6 +7558,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReinforcementsTable reinforcements = $ReinforcementsTable(this);
+  late final UserDao userDao = UserDao(this as AppDatabase);
+  late final FastingDao fastingDao = FastingDao(this as AppDatabase);
+  late final HydrationDao hydrationDao = HydrationDao(this as AppDatabase);
+  late final NutritionDao nutritionDao = NutritionDao(this as AppDatabase);
+  late final GoalsDao goalsDao = GoalsDao(this as AppDatabase);
+  late final ReinforcementDao reinforcementDao = ReinforcementDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12646,7 +12647,7 @@ typedef $$GoalsTableCreateCompanionBuilder =
       required GoalType type,
       Value<double?> thresholdValue,
       Value<String?> metricType,
-      Value<String?> operator,
+      Value<String?> op,
       Value<int?> streakID,
     });
 typedef $$GoalsTableUpdateCompanionBuilder =
@@ -12655,7 +12656,7 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<GoalType> type,
       Value<double?> thresholdValue,
       Value<String?> metricType,
-      Value<String?> operator,
+      Value<String?> op,
       Value<int?> streakID,
     });
 
@@ -12802,8 +12803,8 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get operator => $composableBuilder(
-    column: $table.operator,
+  ColumnFilters<String> get op => $composableBuilder(
+    column: $table.op,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12985,8 +12986,8 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get operator => $composableBuilder(
-    column: $table.operator,
+  ColumnOrderings<String> get op => $composableBuilder(
+    column: $table.op,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13039,8 +13040,8 @@ class $$GoalsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get operator =>
-      $composableBuilder(column: $table.operator, builder: (column) => column);
+  GeneratedColumn<String> get op =>
+      $composableBuilder(column: $table.op, builder: (column) => column);
 
   $$StreaksTableAnnotationComposer get streakID {
     final $$StreaksTableAnnotationComposer composer = $composerBuilder(
@@ -13230,14 +13231,14 @@ class $$GoalsTableTableManager
                 Value<GoalType> type = const Value.absent(),
                 Value<double?> thresholdValue = const Value.absent(),
                 Value<String?> metricType = const Value.absent(),
-                Value<String?> operator = const Value.absent(),
+                Value<String?> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
               }) => GoalsCompanion(
                 goalID: goalID,
                 type: type,
                 thresholdValue: thresholdValue,
                 metricType: metricType,
-                operator: operator,
+                op: op,
                 streakID: streakID,
               ),
           createCompanionCallback:
@@ -13246,14 +13247,14 @@ class $$GoalsTableTableManager
                 required GoalType type,
                 Value<double?> thresholdValue = const Value.absent(),
                 Value<String?> metricType = const Value.absent(),
-                Value<String?> operator = const Value.absent(),
+                Value<String?> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
               }) => GoalsCompanion.insert(
                 goalID: goalID,
                 type: type,
                 thresholdValue: thresholdValue,
                 metricType: metricType,
-                operator: operator,
+                op: op,
                 streakID: streakID,
               ),
           withReferenceMapper: (p0) => p0

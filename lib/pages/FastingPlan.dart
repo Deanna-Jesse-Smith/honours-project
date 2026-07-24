@@ -333,26 +333,4 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     ],
   );
-
-  //   Row chooseFastingPlan(UserSessionData session) => .new(
-  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //   children: [
-  //     const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-  //     DropdownMenu<FastingForm>(
-  //       initialSelection: dropDownValue,
-  //       // side
-  //       // menuStyle: MenuStyle(),
-  //       onSelected: (FastingForm? value) {
-  //         setState(() {
-  //           dropDownValue = value!;
-  //           debugPrint('The user selected: $value');
-  //           //! Figure out when/how to update the fasting form in the table
-  //           // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-  //         });
-  //       },
-  //       dropdownMenuEntries: entries,
-  //       textStyle: TextStyle(fontSize: TextSizing.large),
-  //     ),
-  //   ],
-  // );
 }

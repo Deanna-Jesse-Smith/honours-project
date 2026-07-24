@@ -36,23 +36,23 @@ part 'database.g.dart';
     NutritionLog,
     MealRecipeContent,
     MealFoodContent,
-    // Goals,
-    // FastingGoals,
-    // WeightGoals, 
-    // HydrationGoals, 
-    // NutritionGoals, 
-    // Streaks, 
-    // UserGoalProgress,
-    // Reinforcements, 
-    // Achievements
+    Goals,
+    FastingGoals,
+    WeightGoals, 
+    HydrationGoals, 
+    NutritionGoals, 
+    Streaks, 
+    UserGoalProgress,
+    Reinforcements, 
+    Achievements
   ],
   daos: [
     UserDao,
     FastingDao,
     HydrationDao,
     NutritionDao,
-    // GoalsDao,
-    // ReinforcementDao
+    GoalsDao,
+    ReinforcementDao
     ]
 )
 

@@ -14,6 +14,7 @@ import 'package:testrun/pages/final_setup.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
+import 'package:testrun/pages/start_page.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
@@ -100,8 +101,8 @@ class MyApp extends ConsumerWidget {
         '/FinalSetup': (context) => FinalSetup(),
       },
       home: session.when(
-        data: (data) => data == null ? const SetupUser(name: 'Deanna', experience: 'Beginner') : HomePage(),
-        loading: () => const SetupUser(name: 'Deanna', experience: 'Beginner'),
+        data: (data) => data == null ? const StartPage() : HomePage(),
+        loading: () => const StartPage(),
         error: (e, st) => SetupUser(name: 'Deanna', experience: 'Beginner'),
       ),
       theme: ThemeData(
