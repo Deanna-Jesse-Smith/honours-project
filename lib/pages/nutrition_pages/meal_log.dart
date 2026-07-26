@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/database/daos/nutrition_dao.dart';
+import 'package:testrun/main.dart';
+import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/nutrition_pages/food_search.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -16,13 +19,28 @@ class MealLog extends ConsumerStatefulWidget {
 }
 
 class _MealLogState extends ConsumerState<MealLog> {
+  late NutritionDao nDao;
+  late int mealID;
+  @override
+  void initState() {
+    super.initState();
+
+    nDao = ref.watch(nDaoProvider);
+    makeMeal();
+  }
+
+  void makeMeal() async {
+    mealID = await nDao.insertMeal(0, DateTime.now(), LogMethod.full);
+  }
+
+
   @override
   Widget build(BuildContext context) {
        final session = ref.watch(userSessionProvider).value;
     CustomWidgets customWidgets = CustomWidgets();
     
     return Scaffold(
-            appBar: AppBar(
+        appBar: AppBar(
         title: Text(
           'Log a Meal',
           style: TextStyle(
