@@ -25,6 +25,7 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
   final TextEditingController controller = TextEditingController();
   String curFood = '';
   late Future<List<FoodData>> foods;
+  late Future<List<RecipeData>> recipes;
   double initialVal = 0, maxVal = 10;
   Map<int, double> selectedFoods = {};
     Map<int, double> selectedRecipes = {};

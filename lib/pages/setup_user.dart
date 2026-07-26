@@ -2,14 +2,15 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
+import 'package:testrun/pages/final_setup.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
-import 'package:testrun/models/fasting_model.dart';
 
 class SetupUser extends ConsumerStatefulWidget {
   final String name;
@@ -132,7 +133,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             ),
             if (obligationVisibility) getWeek(),
             ElevatedButton(
-              onPressed: isSaving ? null : _handleFinished,
+              onPressed: isSaving ? null : handleFinished,
               child: isSaving
                   ? const SizedBox(
                       width: 16,
@@ -147,7 +148,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     );
   }
 
-  Future<void> _handleFinished() async {
+  Future<void> handleFinished() async {
     setState(() => isSaving = true);
     try {
       final isMetric = measurement == Measurement.metric;
@@ -170,7 +171,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           );
 
       if (!mounted) return;
-      Navigator.pushNamed(context, '/FinalSetup');
+
+      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValue, adfDaysSelected: '', fiveTwoDaysSelected: '');
+      // Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser)));
+      // Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

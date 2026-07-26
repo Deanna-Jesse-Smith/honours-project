@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/pages/nutrition_pages/food_search.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -41,7 +42,12 @@ class _MealLogState extends ConsumerState<MealLog> {
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
-        child: Text('Works'),
+        child: Column(
+          children: [
+            Text('Works'),
+            IconButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodSearch(mealID: 0))), icon: Icon(Icons.add)),
+          ],
+        ),
       ),
     );
   }

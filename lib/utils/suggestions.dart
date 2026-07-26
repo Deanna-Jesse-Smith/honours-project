@@ -46,31 +46,66 @@ class DayConstraints {
   }
 }
 
+class Suggestion {
+  static Map<FastingForm, List> group = {};
+  late List<List<int>> adfList, fiveTwoList;
+  late List<List<TimeOfDay>> treList;
+  final String suggestions;
+
+  final bool isTRE, isFiveTwo, isADF;
+
+  Suggestion.tre(this.treList, this.suggestions, {this.isTRE = true, this.isADF = false, this.isFiveTwo = false}) {
+    group.putIfAbsent(FastingForm.tre, () => treList);
+  }
+
+  Suggestion.adf(this.adfList, this.suggestions, {this.isTRE = false, this.isADF = true, this.isFiveTwo = false}) {
+    group.putIfAbsent(FastingForm.adf, () => adfList);
+  }
+
+  Suggestion.fiveTwo(this.fiveTwoList, this.suggestions, {this.isTRE = false, this.isADF = false, this.isFiveTwo = true}) {
+    group.putIfAbsent(FastingForm.fiveTwo, () => fiveTwoList);
+  }
+}
+
+extension ChoiceInfo on List<Suggestion> {
+  List<List<TimeOfDay>> get findTRE => where((s) => s.isTRE).first.treList;
+
+  Iterator<List<int>> get findADF => where((s) => s.isADF).first.adfList.iterator;
+
+  Iterator<List<int>> get findFiveTwo => where((s) => s.isFiveTwo).first.fiveTwoList.iterator;
+}
+
 class RecommendFast {
   final FastingForm form;
-  final Map<String, dynamic> params;
-  final String reasoning;
-  final int conflicts;
-  final List<String> rules;
+  late String? reasoning;
+  late List<List<int>>? adfList, fiveTwoList;
+  late List<List<TimeOfDay>> treList;
+  final Experience exp;
+  late ObligationMeals meals;
 
   RecommendFast(
     this.form,
-    this.params,
-    this.reasoning,
-    this.conflicts,
-    this.rules,
-  );
+    this.reasoning, {
+    required this.adfList,
+    required this.fiveTwoList,
+    required this.treList, required this.exp,
+  });
 
-  List<RecommendFast> makePlan({
-    required ObligationMeals meals,
-    required Experience exp,
-    required FastingForm form,
-  }) {
+  RecommendFast.o(this.form, this.meals, this.exp);
+
+  List<Suggestion> makePlan() {
     final constraints = DayConstraints.extract(meals.times);
-    final considerations = <RecommendFast>[];
+    final considerations = <Suggestion>[];
+    considerations.add(treEvaluation(constraints, exp));
+    considerations.add(fiveTwoEvaluation(meals, exp));
+    if (exp == Experience.experienced) {
+      considerations.add(adfEvaluation(meals, exp));
+    }
+
+    return considerations;
   }
 
-  RecommendFast treEvaluation(DayConstraints constraints, Experience exp) {
+  Suggestion treEvaluation(DayConstraints constraints, Experience exp) {
     late int maxHours;
     if (exp == Experience.beginner) {
       maxHours = 8;
@@ -79,25 +114,40 @@ class RecommendFast {
     }
 
     if (constraints.eatingWindow.inHours > maxHours) {}
+
+    return Suggestion.tre(
+      [],
+      '',
+    );
   }
 
-  RecommendFast adfEvaluation(DayConstraints constraints, Experience exp) {
-    if (exp == Experience.beginner) {
-      return null;
-    } else {
-      String selectionDays = 'It is then recommended you pick from the following combinations for your fasting days:';
-    }
+  Suggestion adfEvaluation(ObligationMeals meals, Experience exp) {
+    final getAvailable = findAvailableDays(meals, true);
+
+    List<List<int>> combinations = validCombos(3, getAvailable);
+
+    adfList = combinations;
+
+    return Suggestion.adf(
+      combinations,
+      'Experienced and timetable'
+    );
   }
 
-  RecommendFast fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
-    if (exp == Experience.beginner) {
-    } else {
-      final getAvailable = findAvailableDays(meals, true);
+  Suggestion fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
+    final getAvailable = findAvailableDays(meals, true);
 
-      List<List<int>> pairs;
+    List<List<int>> pairs = validCombos(2, getAvailable);
 
-      String selectionDays = 'It is then recommended you pick from the following combinations for your fasting days:';
-    }
+    String selectionDays =
+        'It is then recommended you pick from the following combinations for your fasting days:';
+
+    fiveTwoList = pairs;
+
+    return Suggestion.fiveTwo(
+      pairs,
+      selectionDays,
+    );
   }
 
   List<int> findAvailableDays(ObligationMeals meals, bool isFiveTwo) {
@@ -115,7 +165,9 @@ class RecommendFast {
       return fullWeek;
     } else if (days.length < 2) {
       // All but zero or one days available, no more computation needed
-      return [...fullWeek]..retainWhere((d) => !days.contains(d)); // Retain only the items of fullWeek which are not in days
+      return [...fullWeek]..retainWhere(
+        (d) => !days.contains(d),
+      ); // Retain only the items of fullWeek which are not in days
     } else if (days.length == 7) {
       return [];
     }
@@ -125,7 +177,8 @@ class RecommendFast {
     // e.g. 0,2,4,5,6 are availible
 
     for (int loop = 0; loop < availability.length - 1; loop++) {
-      if (availability[loop + 1] > availability[loop] + 1) { // e.g. 2 > 1 then 4 > 3 then 5 !> 5
+      if (availability[loop + 1] > availability[loop] + 1) {
+        // e.g. 2 > 1 then 4 > 3 then 5 !> 5
         availableDays.add(availability[loop]);
       }
     }
@@ -165,6 +218,10 @@ class RecommendFast {
   bool checkConsecutive(int small, int large) {
     return large > small + 1;
   }
+}
+
+extension FastingDaysCombo on List<int> {
+
 }
 
 sealed class FastBase {

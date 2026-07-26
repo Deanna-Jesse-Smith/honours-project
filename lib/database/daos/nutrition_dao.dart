@@ -55,6 +55,24 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         quantity: Value(amount),
       ),
     );
+
+    final recipeContents = await (select(recipeQuantities)..where((q) => q.recipeID.equals(recipeID))).get();
+
+    for (RecipeQuantity rq in recipeContents) {
+      final ingredient = await(select(food)..where((f) => f.foodID.equals(rq.foodID))).getSingle();
+
+      insertFoodNutritionLog(userID, ingredient.foodID, amount, date);
+        // double prevCarbs = ingredient.carbs;
+        // double prevFat = ingredient.fat;
+        // double prevProtein = ingredient.protein;
+        // double prevFibre = ingredient.fibre;
+        // double prevCalories = ingredient.calories;
+
+        // (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
+        //     .write(NutritionLogCompanion(carbs: Value(prevCarbs + (ingredient.carbs * amount)), fat: Value(prevFat + (ingredient.fat * amount)), protien: Value(prevProtein + (ingredient.protein * amount)), fibre: Value(prevFibre + (ingredient.fibre * amount)), calories: Value(prevCalories.toInt() + (ingredient.calories.toInt() * amount.toInt()))));
+    }
+
+
     return content;
   }
 
@@ -78,6 +96,8 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         quantity: Value(amount),
       ),
     );
+
+    insertFoodNutritionLog(userID, foodID, amount, date);
     return content;
   }
 
@@ -111,7 +131,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
             .write(NutritionLogCompanion(carbs: Value(prevCarbs + (curFood.carbs * amount)), fat: Value(prevFat + (curFood.fat * amount)), protien: Value(prevProtein + (curFood.protein * amount)), fibre: Value(prevFibre + (curFood.fibre * amount)), calories: Value(prevCalories + (curFood.calories.toInt() * amount.toInt()))));
       } else {
-        final insertLog = await into(nutritionLog).insert(NutritionLogCompanion.insert(userID: userID, logDateTime: Value(date), carbs: Value(curFood.carbs * amount), fat: Value(curFood.fat * amount), protien: Value(curFood.protein * amount), fibre: Value(curFood.fibre * amount), calories: Value(curFood.calories.toInt() * amount.toInt())));
+        await into(nutritionLog).insert(NutritionLogCompanion.insert(userID: userID, logDateTime: Value(date), carbs: Value(curFood.carbs * amount), fat: Value(curFood.fat * amount), protien: Value(curFood.protein * amount), fibre: Value(curFood.fibre * amount), calories: Value(curFood.calories.toInt() * amount.toInt())));
       }
     }
   }

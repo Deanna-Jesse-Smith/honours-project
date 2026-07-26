@@ -98,7 +98,6 @@ class MyApp extends ConsumerWidget {
         '/SetupUser': (context) => SetupUser(name: 'Deanna', experience: 'Beginner'),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
-        '/FinalSetup': (context) => FinalSetup(),
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),
