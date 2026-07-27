@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -16,11 +17,12 @@ class MealTracking extends ConsumerWidget {
     final session = ref.watch(userSessionProvider).value;
     DateTime temp = DateTime.now();
     List<DateTime> threeDays = [
-      temp,
-      temp.subtract(const Duration(days: 1)),
-      temp.subtract(const Duration(days: 2)),
+      DateUtils.dateOnly(temp),
+      DateUtils.dateOnly(temp.subtract(const Duration(days: 1))),
+      DateUtils.dateOnly(temp.subtract(const Duration(days: 2))),
     ];
-    final threeDaysMeals = ref.watch(mealRangeProvider(threeDays));
+    final threeDaysMeals = ref.watch(mealRangeProvider(threeDays)).value;
+    final viewMeals = ref.watch(nDaoProvider).getMealsInRange(threeDays);
 
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
@@ -28,6 +30,22 @@ class MealTracking extends ConsumerWidget {
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: customWidgets.getFAB(ref, context, 3),
+      body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);
+        }
+
+        final daysMeals = snapshot.data;
+
+        
+
+        return ListView.builder(itemCount: daysMeals!.length, itemBuilder: (context, index) {
+          if (daysMeals.isNotEmpty) {
+            return DaySection(dayMeal: daysMeals[threeDays[index]]!);
+          }
+          return SizedBox(height: 10,);
+        },);
+      }),
       // body: ListView.builder(
       //   itemBuilder: (context, index) {
       //     return Column(
@@ -38,12 +56,12 @@ class MealTracking extends ConsumerWidget {
       //   },
       // ),
 
-       body: threeDaysMeals.when(
-        data: (meals) =>
-            ListView(children: meals.map((m) => MealCard(meal: m)).toList()),
-        error: (e, st) => Text('Error: $e'),
-        loading: () => const CircularProgressIndicator(),
-      ),
+      //  body: threeDaysMeals.when(
+      //   data: (meals) =>
+      //       ListView(children: meals.map((m) => MealCard(meal: m)).toList()),
+      //   error: (e, st) => Text('Error: $e'),
+      //   loading: () => const CircularProgressIndicator(),
+      // ),
       // body: Column(
       //   mainAxisAlignment: MainAxisAlignment.spaceAround,
       //   children: [

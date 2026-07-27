@@ -6,12 +6,14 @@ import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/meals_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_table.dart';
 
+@TableIndex(name: 'mealRecipeKey', columns: {#mealID, #recipeID})
 class MealRecipeContent extends Table {
   IntColumn get mealID => integer().references(Meals, #mealID)();
   IntColumn get recipeID => integer().references(Recipe, #recipeID)();
   RealColumn get quantity => real().withDefault(const Constant(0))();
 }
 
+@TableIndex(name: 'mealFoodKey', columns: {#mealID, #foodID})
 class MealFoodContent extends Table {
   IntColumn get mealID => integer().references(Meals, #mealID)();
   IntColumn get foodID => integer().references(Food, #foodID)();

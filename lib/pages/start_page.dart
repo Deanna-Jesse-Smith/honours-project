@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/utils/suggestions.dart';
+import 'package:testrun/widgets/dialogs.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -40,9 +41,11 @@ class _StartPageState extends State<StartPage> {
                 Radio<Experience>(value: Experience.experienced),
             ],
           )),),
-          ElevatedButton(onPressed: () {
+          ElevatedButton(onPressed: () async {
             if (controller.text.isNotEmpty) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => SetupUser(name: controller.text, experience: exp!.name)));
+            } else {
+              await Dialogs.dangerDialog(context, title: 'WARNING', message: 'You need to input your name to proceed');
             }
           }, child: const Text('Sign Up'))
         ],

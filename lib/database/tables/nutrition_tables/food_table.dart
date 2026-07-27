@@ -2,6 +2,7 @@
 
 import 'package:drift/drift.dart';
 
+@TableIndex(name: 'foodName', columns: {#name})
 class Food extends Table {
   IntColumn get foodID => integer().autoIncrement()();
   TextColumn get name => text()();
@@ -12,5 +13,4 @@ class Food extends Table {
   RealColumn get protein => real().withDefault(const Constant(0))();
   RealColumn get fibre => real().withDefault(const Constant(0))();
   RealColumn get calories => real().withDefault(const Constant(0))();
-
 }

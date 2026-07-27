@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:testrun/database/tables/user_table.dart';
 
+@TableIndex(name: 'goal_type', columns: {#type})
 class Goals extends Table {
   IntColumn get goalID => integer().autoIncrement()();
   TextColumn get type => textEnum<GoalType>()();
@@ -49,6 +50,16 @@ class NutritionGoals extends Table {
 
 enum GoalType { fasting, weight, hydration, nutrition }
 
+extension Display on GoalType {
+  String get forDisplay => switch (this) {
+    GoalType.fasting => 'Fasting Goals',
+    GoalType.weight => 'Weight Goals',
+    GoalType.hydration => 'Hydration Goals',
+    GoalType.nutrition => 'Nutrition Goals',
+  };
+}
+
+@TableIndex(name: 'streak_type', columns: {#streakType})
 class Streaks extends Table {
   IntColumn get streakID => integer().autoIncrement()();
   IntColumn get streakProgress => integer().withDefault(const Constant(0))();

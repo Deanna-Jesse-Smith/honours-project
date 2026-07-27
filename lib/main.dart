@@ -41,7 +41,7 @@ final wDaoProvider = Provider<WeightDao>(
 final nDaoProvider = Provider<NutritionDao>(
   (ref) => NutritionDao(ref.watch(databaseProvider)),
 );
-final mealRangeProvider = FutureProvider.family<List<MealItem>, List<DateTime>>(
+final mealRangeProvider = FutureProvider.family<Map<DateTime, DayMeals>, List<DateTime>>(
   (ref, days) {
     final repo = ref.watch(nDaoProvider);
     return repo.getMealsInRange(days);

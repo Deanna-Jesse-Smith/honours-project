@@ -8,6 +8,7 @@ import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/final_setup.dart';
+import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -172,8 +173,11 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       if (!mounted) return;
 
+      List<int> tempDays = boolsToInts(obligationDays);
+
       User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValue, adfDaysSelected: '', fiveTwoDaysSelected: '');
-      // Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser)));
+      ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
+      // Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
       // Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
@@ -184,6 +188,12 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       if (mounted) setState(() => isSaving = false);
     }
   }
+
+  
+  List<int> boolsToInts(List<bool> days) => [
+    for (int loop = 0; loop < days.length; loop++)
+      if (days[loop]) loop,
+  ];
 
   Column getWeek() {
     return Column(
@@ -204,13 +214,13 @@ class _SetupUserState extends ConsumerState<SetupUser> {
         ),
         const Text('Which meals are reserved for these obligations?'),
         for (int loop = 0; loop < obligationTimes.length; loop++) getObligationMeal(loop),
-        if (obligationTimes.length < mealCap) TextButton(onPressed: () => setState(() => obligationTimes.add(null)), child: const Text('+')),
+        if (obligationTimes.length < mealCap) TextButton(onPressed: () => setState(() => obligationTimes.add(TimeOfDay.now())), child: const Text('+')),
       ],
     );
   }
 
   static const int mealCap = 3;
-  List<TimeOfDay?> obligationTimes = [];
+  List<TimeOfDay> obligationTimes = [TimeOfDay(hour: 6, minute: 0), TimeOfDay(hour: 21, minute: 0)];
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
   Row getObligationMeal(int index) {

@@ -6,4 +6,5 @@ class Recipe extends Table {
   IntColumn get recipeID => integer().autoIncrement()();
   TextColumn get recipeName => text()();
   BoolColumn get isFavourite => boolean().withDefault(const Constant(false))();
+  RealColumn get servingSizeGrams => real().withDefault(const Constant(0))();
 }

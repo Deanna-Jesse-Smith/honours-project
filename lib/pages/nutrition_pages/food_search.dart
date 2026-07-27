@@ -2,6 +2,7 @@ import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/main.dart';
@@ -9,6 +10,7 @@ import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
+import 'package:testrun/widgets/meal_card.dart';
 
 class FoodSearch extends ConsumerStatefulWidget {
   final int mealID;
@@ -17,6 +19,9 @@ class FoodSearch extends ConsumerStatefulWidget {
   @override
   ConsumerState<FoodSearch> createState() => _FoodSearchState();
 }
+
+  final seelctedFoodsProvider = StateProvider<Map<int, double>>((ref) => {});
+  final seelctedRecipeProvider = StateProvider<Map<int, double>>((ref) => {});
 
 class _FoodSearchState extends ConsumerState<FoodSearch> {
   // final foodSearchProvider = FutureProvider.family<List<Food>, String>((ref, query) {
@@ -28,7 +33,14 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
   late Future<List<RecipeData>> recipes;
   double initialVal = 0, maxVal = 10;
   Map<int, double> selectedFoods = {};
-    Map<int, double> selectedRecipes = {};
+  Map<int, double> selectedRecipes = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,19 +85,40 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
           FutureBuilder(
             future: foods,
             builder: (context, asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.waiting)
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
+              }
               if (!asyncSnapshot.hasData) {
                 return const Text('Sorry, nothing matches your search');
               }
               final searchResults = asyncSnapshot.data;
-              if (searchResults!.isEmpty)
+              if (searchResults!.isEmpty) {
                 return const Text('Sorry, nothing matches your search');
+              }
 
               return ListView.builder(
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return Text(searchResults[index].name);
+                  final curItem = searchResults[index];
+                  return FoodRow(item: curItem, increment: (val) {
+                    setState(() {
+                      selectedFoods.update(
+                        curItem.foodID,
+                        (cur) => val,
+                        ifAbsent: () => val,
+                      );
+                    });
+                  },
+                  decrement: (val) {
+                    setState(() {
+                      if (val == 0) {
+                        selectedFoods.remove(curItem.foodID);
+                      } else {
+                        selectedFoods.update(curItem.foodID, (cur) => val);
+                      }
+                    });
+                  }, curVal: selectedFoods[searchResults[index].foodID] ?? 0,);
+                  // return displayFood(searchResults[index]);
                 },
               );
             },
@@ -133,9 +166,11 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
                   ? () => setState(() {
                       val--;
 
-                      if (val == 0) selectedFoods.remove(item.foodID);
-
-                      selectedFoods.update(item.foodID, (cur) => val);
+                      if (val == 0) {
+                        selectedFoods.remove(item.foodID);
+                      } else {
+                        selectedFoods.update(item.foodID, (cur) => val);
+                      }
                     })
                   : null,
               icon: Icon(Icons.remove_circle_outline),

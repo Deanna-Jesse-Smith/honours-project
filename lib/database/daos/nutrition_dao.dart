@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/meal_content_table.dart';
@@ -187,14 +188,14 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
-  Future<List<MealItem>> getMealsInRange(List<DateTime> days) async {
+  Future<Map<DateTime, DayMeals>> getMealsInRange(List<DateTime> days) async {
     final allMeals =
         await (select(meals)
               ..where((m) => m.date.isIn(days))
               ..orderBy([(d) => OrderingTerm.desc(d.date)]))
             .get();
 
-    List<MealItem> mealLogs = List.empty();
+    List<MealItem> mealLogs = <MealItem>[];
 
     final mealIDs = allMeals.map((m) => m.mealID).toList();
 
@@ -213,6 +214,11 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         foodItem.name,
         foodContent.quantity,
         IngredientType.food,
+        foodItem.calories,
+        foodItem.fibre,
+        foodItem.fat,
+        foodItem.protein,
+        foodItem.carbs,
       );
       mealFoods.putIfAbsent(foodContent.mealID, () => []).add(ingredient);
     }
@@ -225,40 +231,148 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       final recipeContent = row.readTable(mealRecipeContent);
       final recipeItem = row.readTable(recipe);
 
+      final recipeNutrition = await (select(recipeQuantities).join([innerJoin(food, food.foodID.equalsExp(recipeQuantities.foodID))])..where(recipeQuantities.recipeID.equals(recipeItem.recipeID))).get();
+      double calories = 0, fibre = 0, fat = 0, protein = 0, carbs = 0;
+      for (final row in recipeNutrition) {
+        final ingr = row.readTable(food);
+        
+        final multiplier = recipeContent.quantity / 100;
+
+        calories += ingr.calories * multiplier;
+        fibre += ingr.fibre * multiplier;
+        fat += ingr.fat * multiplier;
+        protein += ingr.protein * multiplier;
+        carbs += ingr.carbs * multiplier;
+      }
       final ingredient = Ingredient(
         recipeItem.recipeID,
         recipeItem.recipeName,
         recipeContent.quantity,
         IngredientType.recipe,
+        calories,
+        fibre,
+        fat,
+        protein,
+        carbs
       );
       mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
     }
 
+    Map<DateTime, DayMeals> output = {};
+
     for (final meal in allMeals) {
+      final dateKey = DateUtils.dateOnly(meal.date);
       MealItem temp = MealItem(
         meal.mealID,
-        mealFoods[meal.mealID],
+        mealFoods[meal.mealID] ?? const [],
         meal.date,
         meal.inEatingWindow,
         LogMethodConverter().fromSql(meal.logMethod),
       );
       mealLogs.add(temp);
+      output.update(dateKey, (day) {
+        day.meals.add(temp);
+        return day;
+      }, ifAbsent: () => DayMeals([temp], dateKey));
     }
 
-    return mealLogs;
+    return output;
+
+    // return mealLogs;
+  }
+
+  Future<List<Ingredient>> tempGetSearchFood(String searchValue) async {
+    final results = select(food);
+    // Want id, name, serving description
+
+    if (searchValue.isNotEmpty) {
+      results.where((f) => f.name.like('$searchValue%'));
+    }
+
+    final foods = await results.get();
+
+    final foodIDs = foods.map((f) => f.foodID).toList();
+    final foodContentRows = await (select(food)..where((f) => f.foodID.isIn(foodIDs))).get();
+    List<Ingredient> output = [];
+
+    for (final foodItem in foodContentRows) {
+        output.add(Ingredient(
+        foodItem.foodID,
+        foodItem.name,
+        0,
+        IngredientType.food,
+        foodItem.calories,
+        foodItem.fibre,
+        foodItem.fat,
+        foodItem.protein,
+        foodItem.carbs,
+      ));
+    }
+
+    return output;
+  }
+
+  // Future<List<Ingredient>> getTempRecipesForSearch(String searchValue) {
+  //   final results = select(recipe);
+
+  //   if (searchValue.isNotEmpty) {
+  //     results.where((r) => r.recipeName.like('$searchValue%'));
+  //   }
+
+  //   final recipes = results.get();
+
+
+  //   return results.get();
+  // }
+
+  Future<List<Ingredient>> getFoodAsIngredient(List<FoodData> foods) async {
+    List<Ingredient> output = [];
+    final foodIDs = foods.map((f) => f.foodID).toList();
+    final foodContentRows = await (select(food)..where((f) => f.foodID.isIn(foodIDs))).get();
+
+    for (final foodItem in foodContentRows) {
+        output.add(Ingredient(
+        foodItem.foodID,
+        foodItem.name,
+        0,
+        IngredientType.food,
+        foodItem.calories,
+        foodItem.fibre,
+        foodItem.fat,
+        foodItem.protein,
+        foodItem.carbs,
+      ));
+    }
+
+    return output;
   }
 
   Future<List<FoodData>> getFoodForSearch(String searchValue) async {
-    if (searchValue.isEmpty) {
-      final results = await (select(food)).get();
-      if (results.isEmpty) return List.empty();
-      return results;
+    final results = select(food);
+    // Want id, name, serving description
+
+    if (searchValue.isNotEmpty) {
+      results.where((f) => f.name.like('$searchValue%'));
     }
-    final results = await (select(
-      food,
-    )..where((f) => f.name.like('%$searchValue%'))).get();
-    if (results.isEmpty) return List.empty();
-    return results;
+    // if (searchValue.isEmpty) {
+    //   final results = await (select(food)).get();
+    //   if (results.isEmpty) return List.empty();
+    //   return results;
+    // }
+    // final results = await (select(
+    //   food,
+    // )..where((f) => f.name.like('%$searchValue%'))).get();
+    // if (results.isEmpty) return List.empty();
+    return results.get();
+  }
+
+  Future<List<RecipeData>> getRecipesForSearch(String searchValue) {
+    final results = select(recipe);
+
+    if (searchValue.isNotEmpty) {
+      results.where((r) => r.recipeName.like('$searchValue%'));
+    }
+    return results.get();
   }
 
   Future<void> dummyDataInsertion() async {

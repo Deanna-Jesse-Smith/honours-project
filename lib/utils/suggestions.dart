@@ -46,6 +46,25 @@ class DayConstraints {
   }
 }
 
+class Suggest {
+  final FastingForm form;
+  final String reasoning;
+  final List<List<TimeOfDay>>? trePlans;
+  final List<List<int>>? dayPlans;
+
+    Suggest.tre(this.trePlans, this.reasoning)
+      : form = FastingForm.tre,
+        dayPlans = null;
+
+  Suggest.adf(this.dayPlans, this.reasoning)
+      : form = FastingForm.adf,
+        trePlans = null;
+
+  Suggest.fiveTwo(this.dayPlans, this.reasoning)
+      : form = FastingForm.fiveTwo,
+        trePlans = null;
+}
+
 class Suggestion {
   static Map<FastingForm, List> group = {};
   late List<List<int>> adfList, fiveTwoList;
@@ -82,6 +101,7 @@ class RecommendFast {
   late List<List<TimeOfDay>> treList;
   final Experience exp;
   late ObligationMeals meals;
+  final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30), latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
 
   RecommendFast(
     this.form,

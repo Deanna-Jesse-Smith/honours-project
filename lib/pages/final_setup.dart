@@ -66,60 +66,32 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
 
 
   RadioGroup suggestionGroup(Suggestion sug) {
+    final bool isFiveTwo = sug.isFiveTwo;
+    final List<List<int>> days = isFiveTwo ? sug.fiveTwoList : sug.adfList;
+    final int len = days.length;
+
     return RadioGroup<int>(
       onChanged: (int? value) {
         setState(() {
-          selectedForm = FastingForm.tre;
+          selectedForm = isFiveTwo ? FastingForm.fiveTwo : FastingForm.adf;
         });
       },
       child: Column(
         children: List.generate(
-          sug.treList.length,
-          (t) => buildTRERow(t, sug.treList[t], context),
+          len,
+          (t) => buildDaySuggestion(t, days[t]),
         ),
       ),
     );
   }
 
-  RadioListTile<int> buildFiveTwoSuggestion(int index, List<int> viableDays) {
+  RadioListTile<int> buildDaySuggestion(int index, List<int> viableDays) {
     final test = viableDays.map((day) => daysOfWeek[day]);
     String theseDays = test.join(', ');
     return RadioListTile<int>(value: index, title: Text(theseDays));
-  }
-
-  RadioListTile<int> buildADFSuggestion(int index, List<int> viableDays) {
-    final test = viableDays.map((day) => daysOfWeek[day]);
-    String theseDays = test.join(', ');
-    return RadioListTile<int>(value: index, title: Text(theseDays));
-  }
-
-  Row buildADFRow(int index, List<int> viableDays) {
-    final test = viableDays.map((day) => daysOfWeek[day]);
-    String theseDays = test.join(', ');
-    return .new(
-      children: [
-        Text(theseDays),
-        Radio<int>(value: index),
-      ],
-    );
   }
 
   RadioListTile<int> buildTRESuggetsion(int index, List<TimeOfDay> vialbeTimes) {
     return .new(value: index, title: Text('Start at: ${vialbeTimes[0].format(context)}, end at: ${vialbeTimes[1].format(context)}'));
-  }
-
-  Row buildTRERow(int index, List<TimeOfDay> times, BuildContext context) {
-    return .new(
-      children: [
-        Column(
-          children: [
-            Text(
-              'Start at: ${times[0].format(context)}, end at: ${times[1].format(context)}',
-            ),
-          ],
-        ),
-        Radio<int>(value: index),
-      ],
-    );
   }
 }

@@ -5,7 +5,9 @@ class Ingredient {
   final double quantity;
   final IngredientType type;
 
-  Ingredient(this.id, this.name, this.quantity, this.type);
+  final double calories, fibre, fat, protein, carbs;
+
+  Ingredient(this.id, this.name, this.quantity, this.type, this.calories, this.fibre, this.fat, this.protein, this.carbs);
 }
 
 enum IngredientType {
@@ -21,6 +23,26 @@ class MealItem {
   final LogMethod log;
 
   MealItem(this.id, this.ingredients, this.date, this.isInEatingWindow, this.log);
+
+  double getTotalCalories() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.calories);
+  }
+
+  double getTotalFibre() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.fibre);
+  }
+
+  double getTotalFat() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.fat);
+  }
+
+  double getTotalProtein() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.protein);
+  }
+
+  double getTotalCarbs() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.carbs);
+  }
 }
 
 enum LogMethod {
@@ -28,4 +50,17 @@ enum LogMethod {
   full,
   repeat,
   none
+}
+
+class DayMeals {
+  final List<MealItem> meals;
+  final DateTime day;
+
+  DayMeals(this.meals, this.day);
+
+  void updateMeals(MealItem item) => meals.add(item);
+}
+
+extension GroupMeals on List<DayMeals> {
+
 }
