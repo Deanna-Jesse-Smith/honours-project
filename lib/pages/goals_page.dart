@@ -39,7 +39,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
 
   Row findStreakFastingGoal() {
-
     return .new(children: [
       
     ]);

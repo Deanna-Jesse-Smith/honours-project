@@ -2264,8 +2264,25 @@ class $RecipeTable extends Recipe with TableInfo<$RecipeTable, RecipeData> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _servingSizeGramsMeta = const VerificationMeta(
+    'servingSizeGrams',
+  );
   @override
-  List<GeneratedColumn> get $columns => [recipeID, recipeName, isFavourite];
+  late final GeneratedColumn<double> servingSizeGrams = GeneratedColumn<double>(
+    'serving_size_grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    recipeID,
+    recipeName,
+    isFavourite,
+    servingSizeGrams,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2301,6 +2318,15 @@ class $RecipeTable extends Recipe with TableInfo<$RecipeTable, RecipeData> {
         ),
       );
     }
+    if (data.containsKey('serving_size_grams')) {
+      context.handle(
+        _servingSizeGramsMeta,
+        servingSizeGrams.isAcceptableOrUnknown(
+          data['serving_size_grams']!,
+          _servingSizeGramsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2322,6 +2348,10 @@ class $RecipeTable extends Recipe with TableInfo<$RecipeTable, RecipeData> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_favourite'],
       )!,
+      servingSizeGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}serving_size_grams'],
+      )!,
     );
   }
 
@@ -2335,10 +2365,12 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
   final int recipeID;
   final String recipeName;
   final bool isFavourite;
+  final double servingSizeGrams;
   const RecipeData({
     required this.recipeID,
     required this.recipeName,
     required this.isFavourite,
+    required this.servingSizeGrams,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2346,6 +2378,7 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
     map['recipe_i_d'] = Variable<int>(recipeID);
     map['recipe_name'] = Variable<String>(recipeName);
     map['is_favourite'] = Variable<bool>(isFavourite);
+    map['serving_size_grams'] = Variable<double>(servingSizeGrams);
     return map;
   }
 
@@ -2354,6 +2387,7 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
       recipeID: Value(recipeID),
       recipeName: Value(recipeName),
       isFavourite: Value(isFavourite),
+      servingSizeGrams: Value(servingSizeGrams),
     );
   }
 
@@ -2366,6 +2400,7 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
       recipeID: serializer.fromJson<int>(json['recipeID']),
       recipeName: serializer.fromJson<String>(json['recipeName']),
       isFavourite: serializer.fromJson<bool>(json['isFavourite']),
+      servingSizeGrams: serializer.fromJson<double>(json['servingSizeGrams']),
     );
   }
   @override
@@ -2375,15 +2410,21 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
       'recipeID': serializer.toJson<int>(recipeID),
       'recipeName': serializer.toJson<String>(recipeName),
       'isFavourite': serializer.toJson<bool>(isFavourite),
+      'servingSizeGrams': serializer.toJson<double>(servingSizeGrams),
     };
   }
 
-  RecipeData copyWith({int? recipeID, String? recipeName, bool? isFavourite}) =>
-      RecipeData(
-        recipeID: recipeID ?? this.recipeID,
-        recipeName: recipeName ?? this.recipeName,
-        isFavourite: isFavourite ?? this.isFavourite,
-      );
+  RecipeData copyWith({
+    int? recipeID,
+    String? recipeName,
+    bool? isFavourite,
+    double? servingSizeGrams,
+  }) => RecipeData(
+    recipeID: recipeID ?? this.recipeID,
+    recipeName: recipeName ?? this.recipeName,
+    isFavourite: isFavourite ?? this.isFavourite,
+    servingSizeGrams: servingSizeGrams ?? this.servingSizeGrams,
+  );
   RecipeData copyWithCompanion(RecipeCompanion data) {
     return RecipeData(
       recipeID: data.recipeID.present ? data.recipeID.value : this.recipeID,
@@ -2393,6 +2434,9 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
       isFavourite: data.isFavourite.present
           ? data.isFavourite.value
           : this.isFavourite,
+      servingSizeGrams: data.servingSizeGrams.present
+          ? data.servingSizeGrams.value
+          : this.servingSizeGrams,
     );
   }
 
@@ -2401,45 +2445,53 @@ class RecipeData extends DataClass implements Insertable<RecipeData> {
     return (StringBuffer('RecipeData(')
           ..write('recipeID: $recipeID, ')
           ..write('recipeName: $recipeName, ')
-          ..write('isFavourite: $isFavourite')
+          ..write('isFavourite: $isFavourite, ')
+          ..write('servingSizeGrams: $servingSizeGrams')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(recipeID, recipeName, isFavourite);
+  int get hashCode =>
+      Object.hash(recipeID, recipeName, isFavourite, servingSizeGrams);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RecipeData &&
           other.recipeID == this.recipeID &&
           other.recipeName == this.recipeName &&
-          other.isFavourite == this.isFavourite);
+          other.isFavourite == this.isFavourite &&
+          other.servingSizeGrams == this.servingSizeGrams);
 }
 
 class RecipeCompanion extends UpdateCompanion<RecipeData> {
   final Value<int> recipeID;
   final Value<String> recipeName;
   final Value<bool> isFavourite;
+  final Value<double> servingSizeGrams;
   const RecipeCompanion({
     this.recipeID = const Value.absent(),
     this.recipeName = const Value.absent(),
     this.isFavourite = const Value.absent(),
+    this.servingSizeGrams = const Value.absent(),
   });
   RecipeCompanion.insert({
     this.recipeID = const Value.absent(),
     required String recipeName,
     this.isFavourite = const Value.absent(),
+    this.servingSizeGrams = const Value.absent(),
   }) : recipeName = Value(recipeName);
   static Insertable<RecipeData> custom({
     Expression<int>? recipeID,
     Expression<String>? recipeName,
     Expression<bool>? isFavourite,
+    Expression<double>? servingSizeGrams,
   }) {
     return RawValuesInsertable({
       if (recipeID != null) 'recipe_i_d': recipeID,
       if (recipeName != null) 'recipe_name': recipeName,
       if (isFavourite != null) 'is_favourite': isFavourite,
+      if (servingSizeGrams != null) 'serving_size_grams': servingSizeGrams,
     });
   }
 
@@ -2447,11 +2499,13 @@ class RecipeCompanion extends UpdateCompanion<RecipeData> {
     Value<int>? recipeID,
     Value<String>? recipeName,
     Value<bool>? isFavourite,
+    Value<double>? servingSizeGrams,
   }) {
     return RecipeCompanion(
       recipeID: recipeID ?? this.recipeID,
       recipeName: recipeName ?? this.recipeName,
       isFavourite: isFavourite ?? this.isFavourite,
+      servingSizeGrams: servingSizeGrams ?? this.servingSizeGrams,
     );
   }
 
@@ -2467,6 +2521,9 @@ class RecipeCompanion extends UpdateCompanion<RecipeData> {
     if (isFavourite.present) {
       map['is_favourite'] = Variable<bool>(isFavourite.value);
     }
+    if (servingSizeGrams.present) {
+      map['serving_size_grams'] = Variable<double>(servingSizeGrams.value);
+    }
     return map;
   }
 
@@ -2475,7 +2532,8 @@ class RecipeCompanion extends UpdateCompanion<RecipeData> {
     return (StringBuffer('RecipeCompanion(')
           ..write('recipeID: $recipeID, ')
           ..write('recipeName: $recipeName, ')
-          ..write('isFavourite: $isFavourite')
+          ..write('isFavourite: $isFavourite, ')
+          ..write('servingSizeGrams: $servingSizeGrams')
           ..write(')'))
         .toString();
   }
@@ -4308,15 +4366,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<StreakType, String> streakType =
-      GeneratedColumn<String>(
-        'streak_type',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<StreakType>($StreaksTable.$converterstreakType);
-  @override
   late final GeneratedColumnWithTypeConverter<UnlockType?, String> unlockType =
       GeneratedColumn<String>(
         'unlock_type',
@@ -4332,7 +4381,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     bestStreak,
     startDate,
     endDate,
-    streakType,
     unlockType,
   ];
   @override
@@ -4409,12 +4457,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}end_date'],
       ),
-      streakType: $StreaksTable.$converterstreakType.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}streak_type'],
-        )!,
-      ),
       unlockType: $StreaksTable.$converterunlockTypen.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -4429,8 +4471,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     return $StreaksTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<StreakType, String, String> $converterstreakType =
-      const EnumNameConverter<StreakType>(StreakType.values);
   static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
       const EnumNameConverter<UnlockType>(UnlockType.values);
   static JsonTypeConverter2<UnlockType?, String?, String?>
@@ -4443,7 +4483,6 @@ class Streak extends DataClass implements Insertable<Streak> {
   final int bestStreak;
   final DateTime? startDate;
   final DateTime? endDate;
-  final StreakType streakType;
   final UnlockType? unlockType;
   const Streak({
     required this.streakID,
@@ -4451,7 +4490,6 @@ class Streak extends DataClass implements Insertable<Streak> {
     required this.bestStreak,
     this.startDate,
     this.endDate,
-    required this.streakType,
     this.unlockType,
   });
   @override
@@ -4465,11 +4503,6 @@ class Streak extends DataClass implements Insertable<Streak> {
     }
     if (!nullToAbsent || endDate != null) {
       map['end_date'] = Variable<DateTime>(endDate);
-    }
-    {
-      map['streak_type'] = Variable<String>(
-        $StreaksTable.$converterstreakType.toSql(streakType),
-      );
     }
     if (!nullToAbsent || unlockType != null) {
       map['unlock_type'] = Variable<String>(
@@ -4490,7 +4523,6 @@ class Streak extends DataClass implements Insertable<Streak> {
       endDate: endDate == null && nullToAbsent
           ? const Value.absent()
           : Value(endDate),
-      streakType: Value(streakType),
       unlockType: unlockType == null && nullToAbsent
           ? const Value.absent()
           : Value(unlockType),
@@ -4508,9 +4540,6 @@ class Streak extends DataClass implements Insertable<Streak> {
       bestStreak: serializer.fromJson<int>(json['bestStreak']),
       startDate: serializer.fromJson<DateTime?>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
-      streakType: $StreaksTable.$converterstreakType.fromJson(
-        serializer.fromJson<String>(json['streakType']),
-      ),
       unlockType: $StreaksTable.$converterunlockTypen.fromJson(
         serializer.fromJson<String?>(json['unlockType']),
       ),
@@ -4525,9 +4554,6 @@ class Streak extends DataClass implements Insertable<Streak> {
       'bestStreak': serializer.toJson<int>(bestStreak),
       'startDate': serializer.toJson<DateTime?>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
-      'streakType': serializer.toJson<String>(
-        $StreaksTable.$converterstreakType.toJson(streakType),
-      ),
       'unlockType': serializer.toJson<String?>(
         $StreaksTable.$converterunlockTypen.toJson(unlockType),
       ),
@@ -4540,7 +4566,6 @@ class Streak extends DataClass implements Insertable<Streak> {
     int? bestStreak,
     Value<DateTime?> startDate = const Value.absent(),
     Value<DateTime?> endDate = const Value.absent(),
-    StreakType? streakType,
     Value<UnlockType?> unlockType = const Value.absent(),
   }) => Streak(
     streakID: streakID ?? this.streakID,
@@ -4548,7 +4573,6 @@ class Streak extends DataClass implements Insertable<Streak> {
     bestStreak: bestStreak ?? this.bestStreak,
     startDate: startDate.present ? startDate.value : this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
-    streakType: streakType ?? this.streakType,
     unlockType: unlockType.present ? unlockType.value : this.unlockType,
   );
   Streak copyWithCompanion(StreaksCompanion data) {
@@ -4562,9 +4586,6 @@ class Streak extends DataClass implements Insertable<Streak> {
           : this.bestStreak,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
-      streakType: data.streakType.present
-          ? data.streakType.value
-          : this.streakType,
       unlockType: data.unlockType.present
           ? data.unlockType.value
           : this.unlockType,
@@ -4579,7 +4600,6 @@ class Streak extends DataClass implements Insertable<Streak> {
           ..write('bestStreak: $bestStreak, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('streakType: $streakType, ')
           ..write('unlockType: $unlockType')
           ..write(')'))
         .toString();
@@ -4592,7 +4612,6 @@ class Streak extends DataClass implements Insertable<Streak> {
     bestStreak,
     startDate,
     endDate,
-    streakType,
     unlockType,
   );
   @override
@@ -4604,7 +4623,6 @@ class Streak extends DataClass implements Insertable<Streak> {
           other.bestStreak == this.bestStreak &&
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
-          other.streakType == this.streakType &&
           other.unlockType == this.unlockType);
 }
 
@@ -4614,7 +4632,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
   final Value<int> bestStreak;
   final Value<DateTime?> startDate;
   final Value<DateTime?> endDate;
-  final Value<StreakType> streakType;
   final Value<UnlockType?> unlockType;
   const StreaksCompanion({
     this.streakID = const Value.absent(),
@@ -4622,7 +4639,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     this.bestStreak = const Value.absent(),
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
-    this.streakType = const Value.absent(),
     this.unlockType = const Value.absent(),
   });
   StreaksCompanion.insert({
@@ -4631,16 +4647,14 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     this.bestStreak = const Value.absent(),
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
-    required StreakType streakType,
     this.unlockType = const Value.absent(),
-  }) : streakType = Value(streakType);
+  });
   static Insertable<Streak> custom({
     Expression<int>? streakID,
     Expression<int>? streakProgress,
     Expression<int>? bestStreak,
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
-    Expression<String>? streakType,
     Expression<String>? unlockType,
   }) {
     return RawValuesInsertable({
@@ -4649,7 +4663,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
       if (bestStreak != null) 'best_streak': bestStreak,
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
-      if (streakType != null) 'streak_type': streakType,
       if (unlockType != null) 'unlock_type': unlockType,
     });
   }
@@ -4660,7 +4673,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     Value<int>? bestStreak,
     Value<DateTime?>? startDate,
     Value<DateTime?>? endDate,
-    Value<StreakType>? streakType,
     Value<UnlockType?>? unlockType,
   }) {
     return StreaksCompanion(
@@ -4669,7 +4681,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
       bestStreak: bestStreak ?? this.bestStreak,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      streakType: streakType ?? this.streakType,
       unlockType: unlockType ?? this.unlockType,
     );
   }
@@ -4692,11 +4703,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     if (endDate.present) {
       map['end_date'] = Variable<DateTime>(endDate.value);
     }
-    if (streakType.present) {
-      map['streak_type'] = Variable<String>(
-        $StreaksTable.$converterstreakType.toSql(streakType.value),
-      );
-    }
     if (unlockType.present) {
       map['unlock_type'] = Variable<String>(
         $StreaksTable.$converterunlockTypen.toSql(unlockType.value),
@@ -4713,7 +4719,6 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
           ..write('bestStreak: $bestStreak, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('streakType: $streakType, ')
           ..write('unlockType: $unlockType')
           ..write(')'))
         .toString();
@@ -4792,6 +4797,33 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       'REFERENCES streaks (streak_i_d)',
     ),
   );
+  static const VerificationMeta _isCompleteMeta = const VerificationMeta(
+    'isComplete',
+  );
+  @override
+  late final GeneratedColumn<bool> isComplete = GeneratedColumn<bool>(
+    'is_complete',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_complete" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _progressValueMeta = const VerificationMeta(
+    'progressValue',
+  );
+  @override
+  late final GeneratedColumn<double> progressValue = GeneratedColumn<double>(
+    'progress_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     goalID,
@@ -4800,6 +4832,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     metricType,
     op,
     streakID,
+    isComplete,
+    progressValue,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4843,6 +4877,21 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
       );
     }
+    if (data.containsKey('is_complete')) {
+      context.handle(
+        _isCompleteMeta,
+        isComplete.isAcceptableOrUnknown(data['is_complete']!, _isCompleteMeta),
+      );
+    }
+    if (data.containsKey('progress_value')) {
+      context.handle(
+        _progressValueMeta,
+        progressValue.isAcceptableOrUnknown(
+          data['progress_value']!,
+          _progressValueMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4878,6 +4927,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.int,
         data['${effectivePrefix}streak_i_d'],
       ),
+      isComplete: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_complete'],
+      )!,
+      progressValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}progress_value'],
+      )!,
     );
   }
 
@@ -4897,6 +4954,8 @@ class Goal extends DataClass implements Insertable<Goal> {
   final String? metricType;
   final String? op;
   final int? streakID;
+  final bool isComplete;
+  final double progressValue;
   const Goal({
     required this.goalID,
     required this.type,
@@ -4904,6 +4963,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     this.metricType,
     this.op,
     this.streakID,
+    required this.isComplete,
+    required this.progressValue,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4924,6 +4985,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     if (!nullToAbsent || streakID != null) {
       map['streak_i_d'] = Variable<int>(streakID);
     }
+    map['is_complete'] = Variable<bool>(isComplete);
+    map['progress_value'] = Variable<double>(progressValue);
     return map;
   }
 
@@ -4941,6 +5004,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       streakID: streakID == null && nullToAbsent
           ? const Value.absent()
           : Value(streakID),
+      isComplete: Value(isComplete),
+      progressValue: Value(progressValue),
     );
   }
 
@@ -4958,6 +5023,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       metricType: serializer.fromJson<String?>(json['metricType']),
       op: serializer.fromJson<String?>(json['op']),
       streakID: serializer.fromJson<int?>(json['streakID']),
+      isComplete: serializer.fromJson<bool>(json['isComplete']),
+      progressValue: serializer.fromJson<double>(json['progressValue']),
     );
   }
   @override
@@ -4972,6 +5039,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       'metricType': serializer.toJson<String?>(metricType),
       'op': serializer.toJson<String?>(op),
       'streakID': serializer.toJson<int?>(streakID),
+      'isComplete': serializer.toJson<bool>(isComplete),
+      'progressValue': serializer.toJson<double>(progressValue),
     };
   }
 
@@ -4982,6 +5051,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     Value<String?> metricType = const Value.absent(),
     Value<String?> op = const Value.absent(),
     Value<int?> streakID = const Value.absent(),
+    bool? isComplete,
+    double? progressValue,
   }) => Goal(
     goalID: goalID ?? this.goalID,
     type: type ?? this.type,
@@ -4991,6 +5062,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     metricType: metricType.present ? metricType.value : this.metricType,
     op: op.present ? op.value : this.op,
     streakID: streakID.present ? streakID.value : this.streakID,
+    isComplete: isComplete ?? this.isComplete,
+    progressValue: progressValue ?? this.progressValue,
   );
   Goal copyWithCompanion(GoalsCompanion data) {
     return Goal(
@@ -5004,6 +5077,12 @@ class Goal extends DataClass implements Insertable<Goal> {
           : this.metricType,
       op: data.op.present ? data.op.value : this.op,
       streakID: data.streakID.present ? data.streakID.value : this.streakID,
+      isComplete: data.isComplete.present
+          ? data.isComplete.value
+          : this.isComplete,
+      progressValue: data.progressValue.present
+          ? data.progressValue.value
+          : this.progressValue,
     );
   }
 
@@ -5015,14 +5094,24 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
-          ..write('streakID: $streakID')
+          ..write('streakID: $streakID, ')
+          ..write('isComplete: $isComplete, ')
+          ..write('progressValue: $progressValue')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(goalID, type, thresholdValue, metricType, op, streakID);
+  int get hashCode => Object.hash(
+    goalID,
+    type,
+    thresholdValue,
+    metricType,
+    op,
+    streakID,
+    isComplete,
+    progressValue,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5032,7 +5121,9 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.thresholdValue == this.thresholdValue &&
           other.metricType == this.metricType &&
           other.op == this.op &&
-          other.streakID == this.streakID);
+          other.streakID == this.streakID &&
+          other.isComplete == this.isComplete &&
+          other.progressValue == this.progressValue);
 }
 
 class GoalsCompanion extends UpdateCompanion<Goal> {
@@ -5042,6 +5133,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<String?> metricType;
   final Value<String?> op;
   final Value<int?> streakID;
+  final Value<bool> isComplete;
+  final Value<double> progressValue;
   const GoalsCompanion({
     this.goalID = const Value.absent(),
     this.type = const Value.absent(),
@@ -5049,6 +5142,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.metricType = const Value.absent(),
     this.op = const Value.absent(),
     this.streakID = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.progressValue = const Value.absent(),
   });
   GoalsCompanion.insert({
     this.goalID = const Value.absent(),
@@ -5057,6 +5152,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.metricType = const Value.absent(),
     this.op = const Value.absent(),
     this.streakID = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.progressValue = const Value.absent(),
   }) : type = Value(type);
   static Insertable<Goal> custom({
     Expression<int>? goalID,
@@ -5065,6 +5162,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<String>? metricType,
     Expression<String>? op,
     Expression<int>? streakID,
+    Expression<bool>? isComplete,
+    Expression<double>? progressValue,
   }) {
     return RawValuesInsertable({
       if (goalID != null) 'goal_i_d': goalID,
@@ -5073,6 +5172,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (metricType != null) 'metric_type': metricType,
       if (op != null) 'op': op,
       if (streakID != null) 'streak_i_d': streakID,
+      if (isComplete != null) 'is_complete': isComplete,
+      if (progressValue != null) 'progress_value': progressValue,
     });
   }
 
@@ -5083,6 +5184,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<String?>? metricType,
     Value<String?>? op,
     Value<int?>? streakID,
+    Value<bool>? isComplete,
+    Value<double>? progressValue,
   }) {
     return GoalsCompanion(
       goalID: goalID ?? this.goalID,
@@ -5091,6 +5194,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       metricType: metricType ?? this.metricType,
       op: op ?? this.op,
       streakID: streakID ?? this.streakID,
+      isComplete: isComplete ?? this.isComplete,
+      progressValue: progressValue ?? this.progressValue,
     );
   }
 
@@ -5117,6 +5222,12 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (streakID.present) {
       map['streak_i_d'] = Variable<int>(streakID.value);
     }
+    if (isComplete.present) {
+      map['is_complete'] = Variable<bool>(isComplete.value);
+    }
+    if (progressValue.present) {
+      map['progress_value'] = Variable<double>(progressValue.value);
+    }
     return map;
   }
 
@@ -5128,7 +5239,9 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
-          ..write('streakID: $streakID')
+          ..write('streakID: $streakID, ')
+          ..write('isComplete: $isComplete, ')
+          ..write('progressValue: $progressValue')
           ..write(')'))
         .toString();
   }
@@ -5998,17 +6111,15 @@ class $NutritionGoalsTable extends NutritionGoals
       'REFERENCES goals (goal_i_d)',
     ),
   );
-  static const VerificationMeta _nutrientTypeMeta = const VerificationMeta(
-    'nutrientType',
-  );
   @override
-  late final GeneratedColumn<String> nutrientType = GeneratedColumn<String>(
+  late final GeneratedColumnWithTypeConverter<NutrientType, String>
+  nutrientType = GeneratedColumn<String>(
     'nutrient_type',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+    requiredDuringInsert: true,
+  ).withConverter<NutrientType>($NutritionGoalsTable.$converternutrientType);
   static const VerificationMeta _nutritionDailyTargetMeta =
       const VerificationMeta('nutritionDailyTarget');
   @override
@@ -6043,15 +6154,6 @@ class $NutritionGoalsTable extends NutritionGoals
         goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
       );
     }
-    if (data.containsKey('nutrient_type')) {
-      context.handle(
-        _nutrientTypeMeta,
-        nutrientType.isAcceptableOrUnknown(
-          data['nutrient_type']!,
-          _nutrientTypeMeta,
-        ),
-      );
-    }
     if (data.containsKey('nutrition_daily_target')) {
       context.handle(
         _nutritionDailyTargetMeta,
@@ -6074,9 +6176,11 @@ class $NutritionGoalsTable extends NutritionGoals
         DriftSqlType.int,
         data['${effectivePrefix}goal_i_d'],
       )!,
-      nutrientType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}nutrient_type'],
+      nutrientType: $NutritionGoalsTable.$converternutrientType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}nutrient_type'],
+        )!,
       ),
       nutritionDailyTarget: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -6089,23 +6193,30 @@ class $NutritionGoalsTable extends NutritionGoals
   $NutritionGoalsTable createAlias(String alias) {
     return $NutritionGoalsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<NutrientType, String, String>
+  $converternutrientType = const EnumNameConverter<NutrientType>(
+    NutrientType.values,
+  );
 }
 
 class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
   final int goalID;
-  final String? nutrientType;
+  final NutrientType nutrientType;
   final int? nutritionDailyTarget;
   const NutritionGoal({
     required this.goalID,
-    this.nutrientType,
+    required this.nutrientType,
     this.nutritionDailyTarget,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['goal_i_d'] = Variable<int>(goalID);
-    if (!nullToAbsent || nutrientType != null) {
-      map['nutrient_type'] = Variable<String>(nutrientType);
+    {
+      map['nutrient_type'] = Variable<String>(
+        $NutritionGoalsTable.$converternutrientType.toSql(nutrientType),
+      );
     }
     if (!nullToAbsent || nutritionDailyTarget != null) {
       map['nutrition_daily_target'] = Variable<int>(nutritionDailyTarget);
@@ -6116,9 +6227,7 @@ class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
   NutritionGoalsCompanion toCompanion(bool nullToAbsent) {
     return NutritionGoalsCompanion(
       goalID: Value(goalID),
-      nutrientType: nutrientType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(nutrientType),
+      nutrientType: Value(nutrientType),
       nutritionDailyTarget: nutritionDailyTarget == null && nullToAbsent
           ? const Value.absent()
           : Value(nutritionDailyTarget),
@@ -6132,7 +6241,9 @@ class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return NutritionGoal(
       goalID: serializer.fromJson<int>(json['goalID']),
-      nutrientType: serializer.fromJson<String?>(json['nutrientType']),
+      nutrientType: $NutritionGoalsTable.$converternutrientType.fromJson(
+        serializer.fromJson<String>(json['nutrientType']),
+      ),
       nutritionDailyTarget: serializer.fromJson<int?>(
         json['nutritionDailyTarget'],
       ),
@@ -6143,18 +6254,20 @@ class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'goalID': serializer.toJson<int>(goalID),
-      'nutrientType': serializer.toJson<String?>(nutrientType),
+      'nutrientType': serializer.toJson<String>(
+        $NutritionGoalsTable.$converternutrientType.toJson(nutrientType),
+      ),
       'nutritionDailyTarget': serializer.toJson<int?>(nutritionDailyTarget),
     };
   }
 
   NutritionGoal copyWith({
     int? goalID,
-    Value<String?> nutrientType = const Value.absent(),
+    NutrientType? nutrientType,
     Value<int?> nutritionDailyTarget = const Value.absent(),
   }) => NutritionGoal(
     goalID: goalID ?? this.goalID,
-    nutrientType: nutrientType.present ? nutrientType.value : this.nutrientType,
+    nutrientType: nutrientType ?? this.nutrientType,
     nutritionDailyTarget: nutritionDailyTarget.present
         ? nutritionDailyTarget.value
         : this.nutritionDailyTarget,
@@ -6194,7 +6307,7 @@ class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
 
 class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
   final Value<int> goalID;
-  final Value<String?> nutrientType;
+  final Value<NutrientType> nutrientType;
   final Value<int?> nutritionDailyTarget;
   const NutritionGoalsCompanion({
     this.goalID = const Value.absent(),
@@ -6203,9 +6316,9 @@ class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
   });
   NutritionGoalsCompanion.insert({
     this.goalID = const Value.absent(),
-    this.nutrientType = const Value.absent(),
+    required NutrientType nutrientType,
     this.nutritionDailyTarget = const Value.absent(),
-  });
+  }) : nutrientType = Value(nutrientType);
   static Insertable<NutritionGoal> custom({
     Expression<int>? goalID,
     Expression<String>? nutrientType,
@@ -6221,7 +6334,7 @@ class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
 
   NutritionGoalsCompanion copyWith({
     Value<int>? goalID,
-    Value<String?>? nutrientType,
+    Value<NutrientType>? nutrientType,
     Value<int?>? nutritionDailyTarget,
   }) {
     return NutritionGoalsCompanion(
@@ -6238,7 +6351,9 @@ class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
       map['goal_i_d'] = Variable<int>(goalID.value);
     }
     if (nutrientType.present) {
-      map['nutrient_type'] = Variable<String>(nutrientType.value);
+      map['nutrient_type'] = Variable<String>(
+        $NutritionGoalsTable.$converternutrientType.toSql(nutrientType.value),
+      );
     }
     if (nutritionDailyTarget.present) {
       map['nutrition_daily_target'] = Variable<int>(nutritionDailyTarget.value);
@@ -6327,33 +6442,6 @@ class $UserGoalProgressTable extends UserGoalProgress
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _isCompleteMeta = const VerificationMeta(
-    'isComplete',
-  );
-  @override
-  late final GeneratedColumn<bool> isComplete = GeneratedColumn<bool>(
-    'is_complete',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_complete" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _progressValueMeta = const VerificationMeta(
-    'progressValue',
-  );
-  @override
-  late final GeneratedColumn<double> progressValue = GeneratedColumn<double>(
-    'progress_value',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
   @override
   List<GeneratedColumn> get $columns => [
     userGoalID,
@@ -6361,8 +6449,6 @@ class $UserGoalProgressTable extends UserGoalProgress
     goalID,
     dateCreated,
     isMain,
-    isComplete,
-    progressValue,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6416,21 +6502,6 @@ class $UserGoalProgressTable extends UserGoalProgress
         isMain.isAcceptableOrUnknown(data['is_main']!, _isMainMeta),
       );
     }
-    if (data.containsKey('is_complete')) {
-      context.handle(
-        _isCompleteMeta,
-        isComplete.isAcceptableOrUnknown(data['is_complete']!, _isCompleteMeta),
-      );
-    }
-    if (data.containsKey('progress_value')) {
-      context.handle(
-        _progressValueMeta,
-        progressValue.isAcceptableOrUnknown(
-          data['progress_value']!,
-          _progressValueMeta,
-        ),
-      );
-    }
     return context;
   }
 
@@ -6460,14 +6531,6 @@ class $UserGoalProgressTable extends UserGoalProgress
         DriftSqlType.bool,
         data['${effectivePrefix}is_main'],
       )!,
-      isComplete: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_complete'],
-      )!,
-      progressValue: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}progress_value'],
-      )!,
     );
   }
 
@@ -6484,16 +6547,12 @@ class UserGoalProgressData extends DataClass
   final int goalID;
   final DateTime dateCreated;
   final bool isMain;
-  final bool isComplete;
-  final double progressValue;
   const UserGoalProgressData({
     required this.userGoalID,
     required this.userID,
     required this.goalID,
     required this.dateCreated,
     required this.isMain,
-    required this.isComplete,
-    required this.progressValue,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6503,8 +6562,6 @@ class UserGoalProgressData extends DataClass
     map['goal_i_d'] = Variable<int>(goalID);
     map['date_created'] = Variable<DateTime>(dateCreated);
     map['is_main'] = Variable<bool>(isMain);
-    map['is_complete'] = Variable<bool>(isComplete);
-    map['progress_value'] = Variable<double>(progressValue);
     return map;
   }
 
@@ -6515,8 +6572,6 @@ class UserGoalProgressData extends DataClass
       goalID: Value(goalID),
       dateCreated: Value(dateCreated),
       isMain: Value(isMain),
-      isComplete: Value(isComplete),
-      progressValue: Value(progressValue),
     );
   }
 
@@ -6531,8 +6586,6 @@ class UserGoalProgressData extends DataClass
       goalID: serializer.fromJson<int>(json['goalID']),
       dateCreated: serializer.fromJson<DateTime>(json['dateCreated']),
       isMain: serializer.fromJson<bool>(json['isMain']),
-      isComplete: serializer.fromJson<bool>(json['isComplete']),
-      progressValue: serializer.fromJson<double>(json['progressValue']),
     );
   }
   @override
@@ -6544,8 +6597,6 @@ class UserGoalProgressData extends DataClass
       'goalID': serializer.toJson<int>(goalID),
       'dateCreated': serializer.toJson<DateTime>(dateCreated),
       'isMain': serializer.toJson<bool>(isMain),
-      'isComplete': serializer.toJson<bool>(isComplete),
-      'progressValue': serializer.toJson<double>(progressValue),
     };
   }
 
@@ -6555,16 +6606,12 @@ class UserGoalProgressData extends DataClass
     int? goalID,
     DateTime? dateCreated,
     bool? isMain,
-    bool? isComplete,
-    double? progressValue,
   }) => UserGoalProgressData(
     userGoalID: userGoalID ?? this.userGoalID,
     userID: userID ?? this.userID,
     goalID: goalID ?? this.goalID,
     dateCreated: dateCreated ?? this.dateCreated,
     isMain: isMain ?? this.isMain,
-    isComplete: isComplete ?? this.isComplete,
-    progressValue: progressValue ?? this.progressValue,
   );
   UserGoalProgressData copyWithCompanion(UserGoalProgressCompanion data) {
     return UserGoalProgressData(
@@ -6577,12 +6624,6 @@ class UserGoalProgressData extends DataClass
           ? data.dateCreated.value
           : this.dateCreated,
       isMain: data.isMain.present ? data.isMain.value : this.isMain,
-      isComplete: data.isComplete.present
-          ? data.isComplete.value
-          : this.isComplete,
-      progressValue: data.progressValue.present
-          ? data.progressValue.value
-          : this.progressValue,
     );
   }
 
@@ -6593,23 +6634,14 @@ class UserGoalProgressData extends DataClass
           ..write('userID: $userID, ')
           ..write('goalID: $goalID, ')
           ..write('dateCreated: $dateCreated, ')
-          ..write('isMain: $isMain, ')
-          ..write('isComplete: $isComplete, ')
-          ..write('progressValue: $progressValue')
+          ..write('isMain: $isMain')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    userGoalID,
-    userID,
-    goalID,
-    dateCreated,
-    isMain,
-    isComplete,
-    progressValue,
-  );
+  int get hashCode =>
+      Object.hash(userGoalID, userID, goalID, dateCreated, isMain);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6618,9 +6650,7 @@ class UserGoalProgressData extends DataClass
           other.userID == this.userID &&
           other.goalID == this.goalID &&
           other.dateCreated == this.dateCreated &&
-          other.isMain == this.isMain &&
-          other.isComplete == this.isComplete &&
-          other.progressValue == this.progressValue);
+          other.isMain == this.isMain);
 }
 
 class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
@@ -6629,16 +6659,12 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
   final Value<int> goalID;
   final Value<DateTime> dateCreated;
   final Value<bool> isMain;
-  final Value<bool> isComplete;
-  final Value<double> progressValue;
   const UserGoalProgressCompanion({
     this.userGoalID = const Value.absent(),
     this.userID = const Value.absent(),
     this.goalID = const Value.absent(),
     this.dateCreated = const Value.absent(),
     this.isMain = const Value.absent(),
-    this.isComplete = const Value.absent(),
-    this.progressValue = const Value.absent(),
   });
   UserGoalProgressCompanion.insert({
     this.userGoalID = const Value.absent(),
@@ -6646,8 +6672,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
     required int goalID,
     this.dateCreated = const Value.absent(),
     this.isMain = const Value.absent(),
-    this.isComplete = const Value.absent(),
-    this.progressValue = const Value.absent(),
   }) : userID = Value(userID),
        goalID = Value(goalID);
   static Insertable<UserGoalProgressData> custom({
@@ -6656,8 +6680,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
     Expression<int>? goalID,
     Expression<DateTime>? dateCreated,
     Expression<bool>? isMain,
-    Expression<bool>? isComplete,
-    Expression<double>? progressValue,
   }) {
     return RawValuesInsertable({
       if (userGoalID != null) 'user_goal_i_d': userGoalID,
@@ -6665,8 +6687,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
       if (goalID != null) 'goal_i_d': goalID,
       if (dateCreated != null) 'date_created': dateCreated,
       if (isMain != null) 'is_main': isMain,
-      if (isComplete != null) 'is_complete': isComplete,
-      if (progressValue != null) 'progress_value': progressValue,
     });
   }
 
@@ -6676,8 +6696,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
     Value<int>? goalID,
     Value<DateTime>? dateCreated,
     Value<bool>? isMain,
-    Value<bool>? isComplete,
-    Value<double>? progressValue,
   }) {
     return UserGoalProgressCompanion(
       userGoalID: userGoalID ?? this.userGoalID,
@@ -6685,8 +6703,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
       goalID: goalID ?? this.goalID,
       dateCreated: dateCreated ?? this.dateCreated,
       isMain: isMain ?? this.isMain,
-      isComplete: isComplete ?? this.isComplete,
-      progressValue: progressValue ?? this.progressValue,
     );
   }
 
@@ -6708,12 +6724,6 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
     if (isMain.present) {
       map['is_main'] = Variable<bool>(isMain.value);
     }
-    if (isComplete.present) {
-      map['is_complete'] = Variable<bool>(isComplete.value);
-    }
-    if (progressValue.present) {
-      map['progress_value'] = Variable<double>(progressValue.value);
-    }
     return map;
   }
 
@@ -6724,9 +6734,7 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
           ..write('userID: $userID, ')
           ..write('goalID: $goalID, ')
           ..write('dateCreated: $dateCreated, ')
-          ..write('isMain: $isMain, ')
-          ..write('isComplete: $isComplete, ')
-          ..write('progressValue: $progressValue')
+          ..write('isMain: $isMain')
           ..write(')'))
         .toString();
   }
@@ -7558,6 +7566,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReinforcementsTable reinforcements = $ReinforcementsTable(this);
+  late final Index foodName = Index(
+    'foodName',
+    'CREATE INDEX foodName ON food (name)',
+  );
+  late final Index mealRecipeKey = Index(
+    'mealRecipeKey',
+    'CREATE INDEX mealRecipeKey ON meal_recipe_content (meal_i_d, recipe_i_d)',
+  );
+  late final Index mealFoodKey = Index(
+    'mealFoodKey',
+    'CREATE INDEX mealFoodKey ON meal_food_content (meal_i_d, food_i_d)',
+  );
+  late final Index goalType = Index(
+    'goal_type',
+    'CREATE INDEX goal_type ON goals (type)',
+  );
+  late final Index streakType = Index(
+    'streak_type',
+    'CREATE INDEX streak_type ON streaks ()',
+  );
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final FastingDao fastingDao = FastingDao(this as AppDatabase);
   late final HydrationDao hydrationDao = HydrationDao(this as AppDatabase);
@@ -7591,6 +7619,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userGoalProgress,
     achievements,
     reinforcements,
+    foodName,
+    mealRecipeKey,
+    mealFoodKey,
+    goalType,
+    streakType,
   ];
 }
 
@@ -9866,12 +9899,14 @@ typedef $$RecipeTableCreateCompanionBuilder =
       Value<int> recipeID,
       required String recipeName,
       Value<bool> isFavourite,
+      Value<double> servingSizeGrams,
     });
 typedef $$RecipeTableUpdateCompanionBuilder =
     RecipeCompanion Function({
       Value<int> recipeID,
       Value<String> recipeName,
       Value<bool> isFavourite,
+      Value<double> servingSizeGrams,
     });
 
 final class $$RecipeTableReferences
@@ -9952,6 +9987,11 @@ class $$RecipeTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get servingSizeGrams => $composableBuilder(
+    column: $table.servingSizeGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> recipeQuantitiesRefs(
     Expression<bool> Function($$RecipeQuantitiesTableFilterComposer f) f,
   ) {
@@ -10026,6 +10066,11 @@ class $$RecipeTableOrderingComposer
     column: $table.isFavourite,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get servingSizeGrams => $composableBuilder(
+    column: $table.servingSizeGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RecipeTableAnnotationComposer
@@ -10047,6 +10092,11 @@ class $$RecipeTableAnnotationComposer
 
   GeneratedColumn<bool> get isFavourite => $composableBuilder(
     column: $table.isFavourite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get servingSizeGrams => $composableBuilder(
+    column: $table.servingSizeGrams,
     builder: (column) => column,
   );
 
@@ -10136,20 +10186,24 @@ class $$RecipeTableTableManager
                 Value<int> recipeID = const Value.absent(),
                 Value<String> recipeName = const Value.absent(),
                 Value<bool> isFavourite = const Value.absent(),
+                Value<double> servingSizeGrams = const Value.absent(),
               }) => RecipeCompanion(
                 recipeID: recipeID,
                 recipeName: recipeName,
                 isFavourite: isFavourite,
+                servingSizeGrams: servingSizeGrams,
               ),
           createCompanionCallback:
               ({
                 Value<int> recipeID = const Value.absent(),
                 required String recipeName,
                 Value<bool> isFavourite = const Value.absent(),
+                Value<double> servingSizeGrams = const Value.absent(),
               }) => RecipeCompanion.insert(
                 recipeID: recipeID,
                 recipeName: recipeName,
                 isFavourite: isFavourite,
+                servingSizeGrams: servingSizeGrams,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -12308,7 +12362,6 @@ typedef $$StreaksTableCreateCompanionBuilder =
       Value<int> bestStreak,
       Value<DateTime?> startDate,
       Value<DateTime?> endDate,
-      required StreakType streakType,
       Value<UnlockType?> unlockType,
     });
 typedef $$StreaksTableUpdateCompanionBuilder =
@@ -12318,7 +12371,6 @@ typedef $$StreaksTableUpdateCompanionBuilder =
       Value<int> bestStreak,
       Value<DateTime?> startDate,
       Value<DateTime?> endDate,
-      Value<StreakType> streakType,
       Value<UnlockType?> unlockType,
     });
 
@@ -12377,12 +12429,6 @@ class $$StreaksTableFilterComposer
   ColumnFilters<DateTime> get endDate => $composableBuilder(
     column: $table.endDate,
     builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<StreakType, StreakType, String>
-  get streakType => $composableBuilder(
-    column: $table.streakType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<UnlockType?, UnlockType, String>
@@ -12451,11 +12497,6 @@ class $$StreaksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get streakType => $composableBuilder(
-    column: $table.streakType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get unlockType => $composableBuilder(
     column: $table.unlockType,
     builder: (column) => ColumnOrderings(column),
@@ -12489,12 +12530,6 @@ class $$StreaksTableAnnotationComposer
 
   GeneratedColumn<DateTime> get endDate =>
       $composableBuilder(column: $table.endDate, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<StreakType, String> get streakType =>
-      $composableBuilder(
-        column: $table.streakType,
-        builder: (column) => column,
-      );
 
   GeneratedColumnWithTypeConverter<UnlockType?, String> get unlockType =>
       $composableBuilder(
@@ -12561,7 +12596,6 @@ class $$StreaksTableTableManager
                 Value<int> bestStreak = const Value.absent(),
                 Value<DateTime?> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
-                Value<StreakType> streakType = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion(
                 streakID: streakID,
@@ -12569,7 +12603,6 @@ class $$StreaksTableTableManager
                 bestStreak: bestStreak,
                 startDate: startDate,
                 endDate: endDate,
-                streakType: streakType,
                 unlockType: unlockType,
               ),
           createCompanionCallback:
@@ -12579,7 +12612,6 @@ class $$StreaksTableTableManager
                 Value<int> bestStreak = const Value.absent(),
                 Value<DateTime?> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
-                required StreakType streakType,
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion.insert(
                 streakID: streakID,
@@ -12587,7 +12619,6 @@ class $$StreaksTableTableManager
                 bestStreak: bestStreak,
                 startDate: startDate,
                 endDate: endDate,
-                streakType: streakType,
                 unlockType: unlockType,
               ),
           withReferenceMapper: (p0) => p0
@@ -12649,6 +12680,8 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<String?> metricType,
       Value<String?> op,
       Value<int?> streakID,
+      Value<bool> isComplete,
+      Value<double> progressValue,
     });
 typedef $$GoalsTableUpdateCompanionBuilder =
     GoalsCompanion Function({
@@ -12658,6 +12691,8 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<String?> metricType,
       Value<String?> op,
       Value<int?> streakID,
+      Value<bool> isComplete,
+      Value<double> progressValue,
     });
 
 final class $$GoalsTableReferences
@@ -12805,6 +12840,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get op => $composableBuilder(
     column: $table.op,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12991,6 +13036,16 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$StreaksTableOrderingComposer get streakID {
     final $$StreaksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -13042,6 +13097,16 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<String> get op =>
       $composableBuilder(column: $table.op, builder: (column) => column);
+
+  GeneratedColumn<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get progressValue => $composableBuilder(
+    column: $table.progressValue,
+    builder: (column) => column,
+  );
 
   $$StreaksTableAnnotationComposer get streakID {
     final $$StreaksTableAnnotationComposer composer = $composerBuilder(
@@ -13233,6 +13298,8 @@ class $$GoalsTableTableManager
                 Value<String?> metricType = const Value.absent(),
                 Value<String?> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<double> progressValue = const Value.absent(),
               }) => GoalsCompanion(
                 goalID: goalID,
                 type: type,
@@ -13240,6 +13307,8 @@ class $$GoalsTableTableManager
                 metricType: metricType,
                 op: op,
                 streakID: streakID,
+                isComplete: isComplete,
+                progressValue: progressValue,
               ),
           createCompanionCallback:
               ({
@@ -13249,6 +13318,8 @@ class $$GoalsTableTableManager
                 Value<String?> metricType = const Value.absent(),
                 Value<String?> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<double> progressValue = const Value.absent(),
               }) => GoalsCompanion.insert(
                 goalID: goalID,
                 type: type,
@@ -13256,6 +13327,8 @@ class $$GoalsTableTableManager
                 metricType: metricType,
                 op: op,
                 streakID: streakID,
+                isComplete: isComplete,
+                progressValue: progressValue,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -14307,13 +14380,13 @@ typedef $$HydrationGoalsTableProcessedTableManager =
 typedef $$NutritionGoalsTableCreateCompanionBuilder =
     NutritionGoalsCompanion Function({
       Value<int> goalID,
-      Value<String?> nutrientType,
+      required NutrientType nutrientType,
       Value<int?> nutritionDailyTarget,
     });
 typedef $$NutritionGoalsTableUpdateCompanionBuilder =
     NutritionGoalsCompanion Function({
       Value<int> goalID,
-      Value<String?> nutrientType,
+      Value<NutrientType> nutrientType,
       Value<int?> nutritionDailyTarget,
     });
 
@@ -14352,9 +14425,10 @@ class $$NutritionGoalsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get nutrientType => $composableBuilder(
+  ColumnWithTypeConverterFilters<NutrientType, NutrientType, String>
+  get nutrientType => $composableBuilder(
     column: $table.nutrientType,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<int> get nutritionDailyTarget => $composableBuilder(
@@ -14438,10 +14512,11 @@ class $$NutritionGoalsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get nutrientType => $composableBuilder(
-    column: $table.nutrientType,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<NutrientType, String> get nutrientType =>
+      $composableBuilder(
+        column: $table.nutrientType,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<int> get nutritionDailyTarget => $composableBuilder(
     column: $table.nutritionDailyTarget,
@@ -14503,7 +14578,7 @@ class $$NutritionGoalsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> goalID = const Value.absent(),
-                Value<String?> nutrientType = const Value.absent(),
+                Value<NutrientType> nutrientType = const Value.absent(),
                 Value<int?> nutritionDailyTarget = const Value.absent(),
               }) => NutritionGoalsCompanion(
                 goalID: goalID,
@@ -14513,7 +14588,7 @@ class $$NutritionGoalsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> goalID = const Value.absent(),
-                Value<String?> nutrientType = const Value.absent(),
+                required NutrientType nutrientType,
                 Value<int?> nutritionDailyTarget = const Value.absent(),
               }) => NutritionGoalsCompanion.insert(
                 goalID: goalID,
@@ -14595,8 +14670,6 @@ typedef $$UserGoalProgressTableCreateCompanionBuilder =
       required int goalID,
       Value<DateTime> dateCreated,
       Value<bool> isMain,
-      Value<bool> isComplete,
-      Value<double> progressValue,
     });
 typedef $$UserGoalProgressTableUpdateCompanionBuilder =
     UserGoalProgressCompanion Function({
@@ -14605,8 +14678,6 @@ typedef $$UserGoalProgressTableUpdateCompanionBuilder =
       Value<int> goalID,
       Value<DateTime> dateCreated,
       Value<bool> isMain,
-      Value<bool> isComplete,
-      Value<double> progressValue,
     });
 
 final class $$UserGoalProgressTableReferences
@@ -14699,16 +14770,6 @@ class $$UserGoalProgressTableFilterComposer
 
   ColumnFilters<bool> get isMain => $composableBuilder(
     column: $table.isMain,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isComplete => $composableBuilder(
-    column: $table.isComplete,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get progressValue => $composableBuilder(
-    column: $table.progressValue,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14808,16 +14869,6 @@ class $$UserGoalProgressTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get isComplete => $composableBuilder(
-    column: $table.isComplete,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get progressValue => $composableBuilder(
-    column: $table.progressValue,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   $$UsersTableOrderingComposer get userID {
     final $$UsersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -14886,16 +14937,6 @@ class $$UserGoalProgressTableAnnotationComposer
 
   GeneratedColumn<bool> get isMain =>
       $composableBuilder(column: $table.isMain, builder: (column) => column);
-
-  GeneratedColumn<bool> get isComplete => $composableBuilder(
-    column: $table.isComplete,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get progressValue => $composableBuilder(
-    column: $table.progressValue,
-    builder: (column) => column,
-  );
 
   $$UsersTableAnnotationComposer get userID {
     final $$UsersTableAnnotationComposer composer = $composerBuilder(
@@ -15008,16 +15049,12 @@ class $$UserGoalProgressTableTableManager
                 Value<int> goalID = const Value.absent(),
                 Value<DateTime> dateCreated = const Value.absent(),
                 Value<bool> isMain = const Value.absent(),
-                Value<bool> isComplete = const Value.absent(),
-                Value<double> progressValue = const Value.absent(),
               }) => UserGoalProgressCompanion(
                 userGoalID: userGoalID,
                 userID: userID,
                 goalID: goalID,
                 dateCreated: dateCreated,
                 isMain: isMain,
-                isComplete: isComplete,
-                progressValue: progressValue,
               ),
           createCompanionCallback:
               ({
@@ -15026,16 +15063,12 @@ class $$UserGoalProgressTableTableManager
                 required int goalID,
                 Value<DateTime> dateCreated = const Value.absent(),
                 Value<bool> isMain = const Value.absent(),
-                Value<bool> isComplete = const Value.absent(),
-                Value<double> progressValue = const Value.absent(),
               }) => UserGoalProgressCompanion.insert(
                 userGoalID: userGoalID,
                 userID: userID,
                 goalID: goalID,
                 dateCreated: dateCreated,
                 isMain: isMain,
-                isComplete: isComplete,
-                progressValue: progressValue,
               ),
           withReferenceMapper: (p0) => p0
               .map(

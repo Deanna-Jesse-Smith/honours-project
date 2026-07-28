@@ -9,6 +9,8 @@ class Goals extends Table {
   TextColumn get metricType => text().nullable()();
   TextColumn get op => text().nullable()();
   IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); //? Is this necessary?
+  RealColumn get progressValue => real().withDefault(const Constant(0))();
 }
 
 class FastingGoals extends Table {
@@ -41,12 +43,14 @@ class HydrationGoals extends Table {
 
 class NutritionGoals extends Table {
   IntColumn get goalID => integer().references(Goals, #goalID)();
-  TextColumn get nutrientType => text().nullable()();
+  TextColumn get nutrientType => textEnum<NutrientType>()();
   IntColumn get nutritionDailyTarget => integer().nullable()();
 
   @override
   Set<Column<Object>>? get primaryKey => {goalID};
 }
+
+enum NutrientType { caloreis, fibre, fat, protein, carbs }
 
 enum GoalType { fasting, weight, hydration, nutrition }
 
@@ -66,11 +70,9 @@ class Streaks extends Table {
   IntColumn get bestStreak => integer().withDefault(const Constant(0))();
   DateTimeColumn get startDate => dateTime().nullable()();
   DateTimeColumn get endDate => dateTime().nullable()();
-  TextColumn get streakType => textEnum<StreakType>()();
+  // TextColumn get streakType => textEnum<StreakType>()(); //! This doesn't really make sense to have I don't think
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();
 }
-
-enum StreakType { fasting, hydration, nutrition, weight }
 
 enum UnlockType { badge, achievement, feature }
 
@@ -80,6 +82,4 @@ class UserGoalProgress extends Table {
   IntColumn get goalID => integer().references(Goals, #goalID)();
   DateTimeColumn get dateCreated =>  dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isMain => boolean().withDefault(const Constant(false))();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))();
-  RealColumn get progressValue => real().withDefault(const Constant(0))();
 }
