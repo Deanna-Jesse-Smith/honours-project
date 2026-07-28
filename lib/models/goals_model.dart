@@ -1,19 +1,74 @@
 import 'package:testrun/database/tables/goal_tables.dart';
 
-class StreakModel {
-  final int goalID, streakID;
-  final GoalType type;
-  final double threshold, progress;
-  final String op;
-  final double? targetHours, targetWeight, startWeight;
-  final int? targetDays, targetCalories, dailyNutritionTarget, hdrAmount;
+sealed class BasicGoal {
+   final int goalID;
+   final double threshold, progress;
+   final String op;
+
+  BasicGoal(this.goalID, this.threshold, this.progress, this.op);
+}
+
+mixin BasicStreak on BasicGoal {
+  late final int bestStreak, streakID;
+  late final DateTime? start;
+  late final DateTime? end;
+  late final UnlockType unlockType;
+
+  void setStreakData(int streakID, int bestStreak, UnlockType type, DateTime start, DateTime? end) {
+    this.streakID = streakID;
+    this.bestStreak = bestStreak;
+    unlockType = type;
+    this.start = start;
+    this.end = end;
+  }
+}
+
+class FastingGoal extends BasicGoal {
+  final double? targetHours;
+  final int? targetDays, targetCalories;
+
+  FastingGoal(super.goalID, super.threshold, super.progress, super.op, {required this.targetHours, required this.targetDays, required this.targetCalories});
+}
+
+class FastingStreak extends FastingGoal with BasicStreak {
+  FastingStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetHours, required super.targetDays, required super.targetCalories, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime end}) {
+    setStreakData(streakID, bestStreak, type, start, end);
+  }
+}
+
+class WeightGoal extends BasicGoal {
+  final double? targetWeight, startWeight;
+
+  WeightGoal(super.goalID, super.threshold, super.progress, super.op, {required this.targetWeight, required this.startWeight});
+}
+
+class WeightStreak extends WeightGoal with BasicStreak {
+  WeightStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetWeight, required super.startWeight, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime end}) {
+    setStreakData(streakID, bestStreak, type, start, end);
+  }
+}
+
+class HydrationGoal extends BasicGoal {
+  final int? hdrAmount;
+
+  HydrationGoal(super.goalID, super.threshold, super.progress, super.op, {required this.hdrAmount});
+}
+
+class HydrationStreak extends HydrationGoal with BasicStreak {
+  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, {required super.hdrAmount, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime end}) {
+    setStreakData(streakID, bestStreak, type, start, end);
+  }
+}
+
+class NutritionGoal extends BasicGoal {
+  final int? dailyNutritionTarget;
   final NutrientType? nType;
 
-  StreakModel.fasting(this.goalID, this.streakID, this.threshold, this.progress, this.op, this.targetHours, this.targetDays, this.targetCalories) : type = GoalType.fasting, startWeight = null, targetWeight = null, dailyNutritionTarget = null, hdrAmount = null, nType = null;
+  NutritionGoal(super.goalID, super.threshold, super.progress, super.op, {required this.nType, required this.dailyNutritionTarget});
+}
 
-  StreakModel.weight(this.goalID, this.streakID, this.threshold, this.progress, this.op, this.targetWeight, this.startWeight) : type = GoalType.weight, targetDays = null, targetHours = null, targetCalories = null, dailyNutritionTarget = null, hdrAmount = null, nType = null;
-
-  StreakModel.hydration(this.goalID, this.streakID, this.threshold, this.progress, this.op, this.hdrAmount) : type = GoalType.hydration, startWeight = null, targetWeight = null, dailyNutritionTarget = null, targetDays = null, targetHours = null, targetCalories = null, nType = null;
-
-  StreakModel.nutrition(this.goalID, this.streakID, this.threshold, this.progress, this.op, this.nType, this.dailyNutritionTarget) : type = GoalType.nutrition, startWeight = null, targetWeight = null, targetDays = null, targetHours = null, targetCalories = null, hdrAmount = null;
+class NutritionStreak extends NutritionGoal with BasicStreak {
+  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, {required super.nType, required super.dailyNutritionTarget, required int streakID, required int bestStreak, required UnlockType type, required DateTime? start, required DateTime? end}) {
+    setStreakData(streakID, bestStreak, type, start, end);
+  }
 }

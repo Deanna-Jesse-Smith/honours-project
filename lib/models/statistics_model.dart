@@ -50,4 +50,10 @@ class StatisticsModel {
     if (curTREDurations.isEmpty) return Duration();
     return curTREDurations.reduce((a, b) => a > b ? a : b);
   }
+
+  double getAsPlannedRate() => curFasts.plannedRate;
+
+  //! For below: - is early, + is late overall
+  int curStartDeviation() => curFasts.lateStartCount - curFasts.earlyStartCount;
+  int curEndDeviation() => curFasts.lateEndCount - curFasts.earlyEndCount;
 }

@@ -9,7 +9,7 @@ class Goals extends Table {
   TextColumn get metricType => text().nullable()();
   TextColumn get op => text().nullable()();
   IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); //? Is this necessary?
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); //? Is this necessary? Could just use progressValue instead?
   RealColumn get progressValue => real().withDefault(const Constant(0))();
 }
 
@@ -70,7 +70,7 @@ class Streaks extends Table {
   IntColumn get bestStreak => integer().withDefault(const Constant(0))();
   DateTimeColumn get startDate => dateTime().nullable()();
   DateTimeColumn get endDate => dateTime().nullable()();
-  // TextColumn get streakType => textEnum<StreakType>()(); //! This doesn't really make sense to have I don't think
+  // TextColumn get streakType => textEnum<StreakType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();
 }
 
