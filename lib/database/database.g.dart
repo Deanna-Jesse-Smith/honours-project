@@ -4350,9 +4350,9 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
   late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
     'start_date',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _endDateMeta = const VerificationMeta(
     'endDate',
@@ -4421,6 +4421,8 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         _startDateMeta,
         startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
       );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
     }
     if (data.containsKey('end_date')) {
       context.handle(
@@ -4452,7 +4454,7 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
       startDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date'],
-      ),
+      )!,
       endDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}end_date'],
@@ -4481,14 +4483,14 @@ class Streak extends DataClass implements Insertable<Streak> {
   final int streakID;
   final int streakProgress;
   final int bestStreak;
-  final DateTime? startDate;
+  final DateTime startDate;
   final DateTime? endDate;
   final UnlockType? unlockType;
   const Streak({
     required this.streakID,
     required this.streakProgress,
     required this.bestStreak,
-    this.startDate,
+    required this.startDate,
     this.endDate,
     this.unlockType,
   });
@@ -4498,9 +4500,7 @@ class Streak extends DataClass implements Insertable<Streak> {
     map['streak_i_d'] = Variable<int>(streakID);
     map['streak_progress'] = Variable<int>(streakProgress);
     map['best_streak'] = Variable<int>(bestStreak);
-    if (!nullToAbsent || startDate != null) {
-      map['start_date'] = Variable<DateTime>(startDate);
-    }
+    map['start_date'] = Variable<DateTime>(startDate);
     if (!nullToAbsent || endDate != null) {
       map['end_date'] = Variable<DateTime>(endDate);
     }
@@ -4517,9 +4517,7 @@ class Streak extends DataClass implements Insertable<Streak> {
       streakID: Value(streakID),
       streakProgress: Value(streakProgress),
       bestStreak: Value(bestStreak),
-      startDate: startDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startDate),
+      startDate: Value(startDate),
       endDate: endDate == null && nullToAbsent
           ? const Value.absent()
           : Value(endDate),
@@ -4538,7 +4536,7 @@ class Streak extends DataClass implements Insertable<Streak> {
       streakID: serializer.fromJson<int>(json['streakID']),
       streakProgress: serializer.fromJson<int>(json['streakProgress']),
       bestStreak: serializer.fromJson<int>(json['bestStreak']),
-      startDate: serializer.fromJson<DateTime?>(json['startDate']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
       unlockType: $StreaksTable.$converterunlockTypen.fromJson(
         serializer.fromJson<String?>(json['unlockType']),
@@ -4552,7 +4550,7 @@ class Streak extends DataClass implements Insertable<Streak> {
       'streakID': serializer.toJson<int>(streakID),
       'streakProgress': serializer.toJson<int>(streakProgress),
       'bestStreak': serializer.toJson<int>(bestStreak),
-      'startDate': serializer.toJson<DateTime?>(startDate),
+      'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
       'unlockType': serializer.toJson<String?>(
         $StreaksTable.$converterunlockTypen.toJson(unlockType),
@@ -4564,14 +4562,14 @@ class Streak extends DataClass implements Insertable<Streak> {
     int? streakID,
     int? streakProgress,
     int? bestStreak,
-    Value<DateTime?> startDate = const Value.absent(),
+    DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
     Value<UnlockType?> unlockType = const Value.absent(),
   }) => Streak(
     streakID: streakID ?? this.streakID,
     streakProgress: streakProgress ?? this.streakProgress,
     bestStreak: bestStreak ?? this.bestStreak,
-    startDate: startDate.present ? startDate.value : this.startDate,
+    startDate: startDate ?? this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
     unlockType: unlockType.present ? unlockType.value : this.unlockType,
   );
@@ -4630,7 +4628,7 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
   final Value<int> streakID;
   final Value<int> streakProgress;
   final Value<int> bestStreak;
-  final Value<DateTime?> startDate;
+  final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
   final Value<UnlockType?> unlockType;
   const StreaksCompanion({
@@ -4645,10 +4643,10 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     this.streakID = const Value.absent(),
     this.streakProgress = const Value.absent(),
     this.bestStreak = const Value.absent(),
-    this.startDate = const Value.absent(),
+    required DateTime startDate,
     this.endDate = const Value.absent(),
     this.unlockType = const Value.absent(),
-  });
+  }) : startDate = Value(startDate);
   static Insertable<Streak> custom({
     Expression<int>? streakID,
     Expression<int>? streakProgress,
@@ -4671,7 +4669,7 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     Value<int>? streakID,
     Value<int>? streakProgress,
     Value<int>? bestStreak,
-    Value<DateTime?>? startDate,
+    Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
     Value<UnlockType?>? unlockType,
   }) {
@@ -12360,7 +12358,7 @@ typedef $$StreaksTableCreateCompanionBuilder =
       Value<int> streakID,
       Value<int> streakProgress,
       Value<int> bestStreak,
-      Value<DateTime?> startDate,
+      required DateTime startDate,
       Value<DateTime?> endDate,
       Value<UnlockType?> unlockType,
     });
@@ -12369,7 +12367,7 @@ typedef $$StreaksTableUpdateCompanionBuilder =
       Value<int> streakID,
       Value<int> streakProgress,
       Value<int> bestStreak,
-      Value<DateTime?> startDate,
+      Value<DateTime> startDate,
       Value<DateTime?> endDate,
       Value<UnlockType?> unlockType,
     });
@@ -12594,7 +12592,7 @@ class $$StreaksTableTableManager
                 Value<int> streakID = const Value.absent(),
                 Value<int> streakProgress = const Value.absent(),
                 Value<int> bestStreak = const Value.absent(),
-                Value<DateTime?> startDate = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion(
@@ -12610,7 +12608,7 @@ class $$StreaksTableTableManager
                 Value<int> streakID = const Value.absent(),
                 Value<int> streakProgress = const Value.absent(),
                 Value<int> bestStreak = const Value.absent(),
-                Value<DateTime?> startDate = const Value.absent(),
+                required DateTime startDate,
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion.insert(

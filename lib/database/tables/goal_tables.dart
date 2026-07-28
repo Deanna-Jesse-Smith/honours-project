@@ -9,7 +9,7 @@ class Goals extends Table {
   TextColumn get metricType => text().nullable()();
   TextColumn get op => text().nullable()();
   IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); //? Is this necessary? Could just use progressValue instead?
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); //? This is the completeness check for non-streak goals, that is the point of this I think
   RealColumn get progressValue => real().withDefault(const Constant(0))();
 }
 
@@ -68,7 +68,7 @@ class Streaks extends Table {
   IntColumn get streakID => integer().autoIncrement()();
   IntColumn get streakProgress => integer().withDefault(const Constant(0))();
   IntColumn get bestStreak => integer().withDefault(const Constant(0))();
-  DateTimeColumn get startDate => dateTime().nullable()();
+  DateTimeColumn get startDate => dateTime()();
   DateTimeColumn get endDate => dateTime().nullable()();
   // TextColumn get streakType => textEnum<StreakType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();

@@ -91,47 +91,128 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     });
   }
 
-  Future<Goal?> checkActiveStreak(GoalType type) async {
-    final streakGoals =
-        await (select(goals)
-              ..where(
-                (g) =>
-                    g.type.equalsValue(type) &
-                    g.streakID.isNotNull() &
-                    g.isComplete.isValue(false),
-              )
-              ..orderBy([
-                (o) =>
-                    OrderingTerm(expression: o.goalID, mode: OrderingMode.desc),
-              ]))
-            .get();
+  Future<FastingStreak?> checkActiveFastingStreak() async {
+    final streakRows =
+        await (select(goals).join([
+                innerJoin(
+                  fastingGoals,
+                  fastingGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.fasting)))
+            .getSingleOrNull();
 
-    final streakIDs = streakGoals.map((s) => s.goalID).toList();
-
-    //TODO Have a check against the Streak endDate field as well
-    // final streakss = select(streaks)..where((s) => s.streakID.equals(streakID) & s.streakType.equalsValue(type) & s.streakProgress.isSmallerThanValue(1) & s.endDate.isSmallerThanValue(DateTime.now()));
-    //TODO use and return a StreakModel here instead
-    switch (type) {
-      case GoalType.fasting:
-        final fastingGoalRows = await (select(fastingGoals).join([
-          innerJoin(goals, nutritionGoals.goalID.equalsExp(goals.goalID)),
-        ])..where(fastingGoals.goalID.isIn(streakIDs))).get();
-
-      case GoalType.weight:
-      case GoalType.hydration:
-      case GoalType.nutrition:
+    if (streakRows == null) {
+      return null;
     }
 
-    return streakGoals.getSingleOrNull();
+    final goalRow = streakRows.readTable(goals);
+    final fastingRow = streakRows.readTable(fastingGoals);
+    final streakRow = streakRows.readTable(streaks);
+
+    return FastingStreak(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op ?? '',
+      targetHours: fastingRow.targetHours,
+      targetDays: fastingRow.targetDays,
+      targetCalories: fastingRow.targetCalories,
+      streakID: streakRow.streakID,
+      bestStreak: streakRow.bestStreak,
+      type: streakRow.unlockType ?? UnlockType.badge,
+      start: streakRow.startDate,
+      end: streakRow.endDate,
+    );
+  }
+
+  Future<HydrationStreak?> checkActiveHydrationStreak() async {
+    final streakRows =
+        await (select(goals).join([
+                innerJoin(
+                  hydrationGoals,
+                  hydrationGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.hydration)))
+            .getSingleOrNull();
+
+    if (streakRows == null) {
+      return null;
+    }
+
+    final goalRow = streakRows.readTable(goals);
+    final hydrationRow = streakRows.readTable(hydrationGoals);
+    final streakRow = streakRows.readTable(streaks);
+
+    return HydrationStreak(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op ?? '',
+      hdrAmount: hydrationRow.hdrAmount,
+      streakID: streakRow.streakID,
+      bestStreak: streakRow.bestStreak,
+      type: streakRow.unlockType ?? UnlockType.badge,
+      start: streakRow.startDate,
+      end: streakRow.endDate,
+    );
+  }
+
+  Future<WeightStreak?> checkActiveWeightStreak() async {
+    final streakRows =
+        await (select(goals).join([
+                innerJoin(
+                  weightGoals,
+                  weightGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.weight)))
+            .getSingleOrNull();
+
+    if (streakRows == null) {
+      return null;
+    }
+
+    final goalRow = streakRows.readTable(goals);
+    final weightRow = streakRows.readTable(weightGoals);
+    final streakRow = streakRows.readTable(streaks);
+
+    return WeightStreak(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op ?? '',
+      startWeight: weightRow.startWeight,
+      targetWeight: weightRow.targetWeight,
+      streakID: streakRow.streakID,
+      bestStreak: streakRow.bestStreak,
+      type: streakRow.unlockType ?? UnlockType.badge,
+      start: streakRow.startDate,
+      end: streakRow.endDate,
+    );
   }
 
   Future<List<NutritionStreak?>> checkActiveNutrientStreaks(
     NutrientType type,
   ) async {
-    final streakRows = await (select(goals).join([
-      innerJoin(nutritionGoals, nutritionGoals.goalID.equalsExp(goals.goalID)),
-      innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
-    ])).get();
+    final streakRows =
+        await (select(goals).join([
+                innerJoin(
+                  nutritionGoals,
+                  nutritionGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.nutrition)))
+            .get();
 
     List<NutritionStreak> nutritionStreaks = [];
 
@@ -151,24 +232,58 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         bestStreak: streakRow.bestStreak,
         type: streakRow.unlockType ?? UnlockType.badge,
         start: streakRow.startDate,
-        end: streakRow.endDate
+        end: streakRow.endDate,
       );
       nutritionStreaks.add(temp);
     }
     return nutritionStreaks;
   }
 
-  Future<BasicGoal> findActiveGoal(GoalType type) async {
-    final results = select(goals)
-      ..where(
-        (g) =>
-            g.type.equalsValue(type) &
-            g.streakID.isNull() &
-            g.isComplete.isValue(false),
-      )
-      ..orderBy([
-        (o) => OrderingTerm(expression: o.goalID, mode: OrderingMode.desc),
-      ]);
-    return results.getSingle();
+  Future<FastingGoalModel?> findActiveFastingGoal() async {
+    final goalRows = await (select(goals).join([
+      innerJoin(fastingGoals, fastingGoals.goalID.equalsExp(goals.goalID)),
+    ])..where(goals.isComplete.isValue(false))
+              ..where(goals.type.equalsValue(GoalType.fasting))).getSingleOrNull();
+    
+    
+    if (goalRows == null) {
+      return null;
+    }
+
+    final goalRow = goalRows.readTable(goals);
+    final fastingRow = goalRows.readTable(fastingGoals);
+
+    return FastingGoalModel(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op ?? '',
+      targetHours: fastingRow.targetHours,
+      targetDays: fastingRow.targetDays,
+      targetCalories: fastingRow.targetCalories,
+    );
+  }
+
+    Future<HydrationGoalModel?> findActiveHydrationGoal() async {
+    final goalRows = await (select(goals).join([
+      innerJoin(hydrationGoals, hydrationGoals.goalID.equalsExp(goals.goalID)),
+    ])..where(goals.isComplete.isValue(false))
+              ..where(goals.type.equalsValue(GoalType.hydration))).getSingleOrNull();
+    
+    
+    if (goalRows == null) {
+      return null;
+    }
+
+    final goalRow = goalRows.readTable(goals);
+    final hydrationRow = goalRows.readTable(hydrationGoals);
+
+    return HydrationGoalModel(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op ?? '',
+      hdrAmount: hydrationRow.hdrAmount
+    );
   }
 }

@@ -14,7 +14,7 @@ mixin BasicStreak on BasicGoal {
   late final DateTime? end;
   late final UnlockType unlockType;
 
-  void setStreakData(int streakID, int bestStreak, UnlockType type, DateTime start, DateTime? end) {
+  void setStreakData(int streakID, int bestStreak, UnlockType type, DateTime? start, DateTime? end) {
     this.streakID = streakID;
     this.bestStreak = bestStreak;
     unlockType = type;
@@ -43,7 +43,7 @@ class WeightGoal extends BasicGoal {
 }
 
 class WeightStreak extends WeightGoal with BasicStreak {
-  WeightStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetWeight, required super.startWeight, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime end}) {
+  WeightStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetWeight, required super.startWeight, required int streakID, required int bestStreak, required UnlockType type, required DateTime? start, required DateTime? end}) {
     setStreakData(streakID, bestStreak, type, start, end);
   }
 }
