@@ -262,6 +262,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       targetDays: fastingRow.targetDays,
       targetCalories: fastingRow.targetCalories,
     );
+    
   }
 
     Future<HydrationGoalModel?> findActiveHydrationGoal() async {
