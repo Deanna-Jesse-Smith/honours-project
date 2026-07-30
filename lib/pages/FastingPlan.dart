@@ -5,7 +5,9 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -31,6 +33,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late String dropDownValue;
+  late Future<FastingGoalModel?> curGoal;
 
   //   static final List<DropdownMenuEntry<FastingForm>> entries =
   //     UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
@@ -53,6 +56,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       fiveTwoDaysSelected,
     );
     adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
+
+    curGoal = ref.watch(gDaoProvider).findActiveFastingGoal();
     super.initState();
   }
 

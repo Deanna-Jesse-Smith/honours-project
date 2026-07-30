@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
@@ -40,7 +41,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         NutritionGoalsCompanion.insert(
           goalID: Value(goalID),
           nutrientType: type,
-          nutritionDailyTarget: Value(amount),
+          nutritionDailyTarget: amount,
         ),
       );
     });
@@ -84,11 +85,24 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       await into(weightGoals).insert(
         WeightGoalsCompanion.insert(
           goalID: Value(goalID),
-          targetWeight: Value(target),
-          startWeight: Value(start),
+          targetWeight: target,
+          startWeight: start,
         ),
       );
     });
+  }
+
+  Future<BasicStreak?> checkActiveStreak(GoalType type) {
+    switch (type) {
+      case GoalType.fasting:
+        return checkActiveFastingStreak();
+      case GoalType.weight:
+        return checkActiveWeightStreak();
+      case GoalType.hydration:
+        return checkActiveHydrationStreak();
+      case GoalType.nutrition:
+        throw UnimplementedError();
+    }
   }
 
   Future<FastingStreak?> checkActiveFastingStreak() async {
@@ -199,9 +213,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
-  Future<List<NutritionStreak?>> checkActiveNutrientStreaks(
-    NutrientType type,
-  ) async {
+  Future<List<NutritionStreak?>> checkActiveNutrientStreaks() async {
     final streakRows =
         await (select(goals).join([
                 innerJoin(
@@ -239,6 +251,21 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     return nutritionStreaks;
   }
 
+  Future<BasicGoal?> findActiveGoal(GoalType type) {
+    switch (type) {
+      case GoalType.fasting:
+        return findActiveFastingGoal();
+      case GoalType.weight:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case GoalType.hydration:
+        return findActiveHydrationGoal();
+      case GoalType.nutrition:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+    }
+  }
+
   Future<FastingGoalModel?> findActiveFastingGoal() async {
     final goalRows = await (select(goals).join([
       innerJoin(fastingGoals, fastingGoals.goalID.equalsExp(goals.goalID)),
@@ -265,7 +292,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     
   }
 
-    Future<HydrationGoalModel?> findActiveHydrationGoal() async {
+  Future<HydrationGoalModel?> findActiveHydrationGoal() async {
     final goalRows = await (select(goals).join([
       innerJoin(hydrationGoals, hydrationGoals.goalID.equalsExp(goals.goalID)),
     ])..where(goals.isComplete.isValue(false))

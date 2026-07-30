@@ -25,8 +25,8 @@ class FastingGoals extends Table {
 
 class WeightGoals extends Table {
   IntColumn get goalID => integer().references(Goals, #goalID)();
-  RealColumn get targetWeight => real().nullable()();
-  RealColumn get startWeight => real().nullable()();
+  RealColumn get targetWeight => real()();
+  RealColumn get startWeight => real()();
 
   @override
   Set<Column<Object>>? get primaryKey => {goalID};
@@ -34,8 +34,8 @@ class WeightGoals extends Table {
 
 class HydrationGoals extends Table {
   IntColumn get goalID => integer().references(Goals, #goalID)();
-  IntColumn get hdrAmount => integer().nullable()();
-  DateTimeColumn get hdrDate => dateTime().nullable()();
+  IntColumn get hdrAmount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get hdrDate => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column<Object>>? get primaryKey => {goalID};
@@ -44,7 +44,7 @@ class HydrationGoals extends Table {
 class NutritionGoals extends Table {
   IntColumn get goalID => integer().references(Goals, #goalID)();
   TextColumn get nutrientType => textEnum<NutrientType>()();
-  IntColumn get nutritionDailyTarget => integer().nullable()();
+  IntColumn get nutritionDailyTarget => integer()();
 
   @override
   Set<Column<Object>>? get primaryKey => {goalID};
@@ -70,7 +70,7 @@ class Streaks extends Table {
   IntColumn get bestStreak => integer().withDefault(const Constant(0))();
   DateTimeColumn get startDate => dateTime()();
   DateTimeColumn get endDate => dateTime().nullable()();
-  // TextColumn get streakType => textEnum<StreakType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
+  TextColumn get streakType => textEnum<GoalType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();
 }
 
