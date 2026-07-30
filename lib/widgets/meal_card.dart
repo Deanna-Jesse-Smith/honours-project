@@ -94,3 +94,38 @@ class FoodRow extends StatelessWidget {
   }
 }
 
+class IngredientRow extends StatelessWidget {
+  final Ingredient item;
+  final double initialVal = 0, maxVal = 10;
+  double curVal;
+  final ValueChanged<double> increment, decrement;
+
+  IngredientRow({super.key, required this.item, required this.increment, required this.decrement, required this.curVal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('${item.name})'),  //? Maybe add serving description later?
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () => decrement((curVal - 1) >= initialVal ? curVal - 1 : initialVal),
+              icon: Icon(Icons.remove_circle_outline),
+            ),
+            Text(
+              '${curVal.toInt()}',
+              style: const TextStyle(fontSize: TextSizing.medium),
+            ),
+            IconButton(
+              onPressed: () => increment((curVal + 1) <= maxVal ? curVal + 1 : maxVal),
+              icon: Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+

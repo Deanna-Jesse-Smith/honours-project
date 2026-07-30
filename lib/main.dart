@@ -59,6 +59,7 @@ final isFastingProvider = Provider<bool>((ref) {
     loading: () => false,
   );
 });
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   debugPrint('opening');

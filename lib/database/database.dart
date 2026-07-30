@@ -18,6 +18,8 @@ import 'package:testrun/database/tables/nutrition_tables/recipe_quantities_table
 import 'package:testrun/database/tables/nutrition_tables/recipe_table.dart';
 import 'package:testrun/database/tables/reinforcement_tables.dart';
 import 'package:testrun/database/tables/weight_tables.dart';
+import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/goals_model.dart';
 
 import 'tables/user_table.dart';
 

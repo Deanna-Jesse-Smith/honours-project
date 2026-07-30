@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/nutrition_pages/food_search.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
 class MealLog extends ConsumerStatefulWidget {
@@ -21,6 +23,9 @@ class MealLog extends ConsumerStatefulWidget {
 class _MealLogState extends ConsumerState<MealLog> {
   late NutritionDao nDao;
   late int mealID;
+  late MealItem curMeal;
+  DateTime mealTime = DateTime.now();
+  String strMealTime = '';
   @override
   void initState() {
     super.initState();
@@ -31,16 +36,16 @@ class _MealLogState extends ConsumerState<MealLog> {
 
   void makeMeal() async {
     mealID = await nDao.insertMeal(0, DateTime.now(), LogMethod.full);
+    curMeal = MealItem(mealID, [], mealTime, false, LogMethod.full);
   }
-
 
   @override
   Widget build(BuildContext context) {
-       final session = ref.watch(userSessionProvider).value;
+    final session = ref.watch(userSessionProvider).value;
     CustomWidgets customWidgets = CustomWidgets();
-    
+
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text(
           'Log a Meal',
           style: TextStyle(
@@ -62,11 +67,28 @@ class _MealLogState extends ConsumerState<MealLog> {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Text('Works'),
-            IconButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodSearch(mealID: 0))), icon: Icon(Icons.add)),
+            Row(children: [Text('Time of Meal: '), ElevatedButton(onPressed: selectMealTime, child: Text(strMealTime))]),
+            IconButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => FoodSearch(mealID: 0)),
+              ),
+              icon: Icon(Icons.add),
+            ),
+            
           ],
         ),
       ),
     );
+  }
+
+  Future<void> selectMealTime() async {
+    final time = await Dialogs.showTimeInput(context);
+    if (time != null) {
+      setState(() {
+        mealTime = DateUtils.dateOnly(DateTime.now());
+        mealTime.add(timeOfDayToDuration(time));
+        strMealTime = time.format(context);
+      });
+    }
   }
 }

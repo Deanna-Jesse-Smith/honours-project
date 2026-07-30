@@ -3,23 +3,23 @@ import 'package:testrun/database/tables/goal_tables.dart';
 sealed class BasicGoal {
    final int goalID;
    final double threshold, progress;
-   final String op;
+   final GoalOperator op;
 
   BasicGoal(this.goalID, this.threshold, this.progress, this.op);
 }
 
 mixin BasicStreak on BasicGoal {
-  late final int bestStreak, streakID;
-  late final DateTime? start;
+  late final int streakID, daysProgress;
+  late final DateTime start;
   late final DateTime? end;
   late final UnlockType unlockType;
 
-  void setStreakData(int streakID, int bestStreak, UnlockType type, DateTime? start, DateTime? end) {
+  void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress) {
     this.streakID = streakID;
-    this.bestStreak = bestStreak;
     unlockType = type;
     this.start = start;
     this.end = end;
+    this.daysProgress = daysProgress;
   }
 }
 
@@ -31,8 +31,8 @@ class FastingGoalModel extends BasicGoal {
 }
 
 class FastingStreak extends FastingGoalModel with BasicStreak {
-  FastingStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetHours, required super.targetDays, required super.targetCalories, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime? end}) {
-    setStreakData(streakID, bestStreak, type, start, end);
+  FastingStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetHours, required super.targetDays, required super.targetCalories, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+    setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
@@ -43,8 +43,8 @@ class WeightGoalModel extends BasicGoal {
 }
 
 class WeightStreak extends WeightGoalModel with BasicStreak {
-  WeightStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetWeight, required super.startWeight, required int streakID, required int bestStreak, required UnlockType type, required DateTime? start, required DateTime? end}) {
-    setStreakData(streakID, bestStreak, type, start, end);
+  WeightStreak(super.goalID, super.threshold, super.progress, super.op, {required super.targetWeight, required super.startWeight, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+    setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
@@ -55,8 +55,8 @@ class HydrationGoalModel extends BasicGoal {
 }
 
 class HydrationStreak extends HydrationGoalModel with BasicStreak {
-  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, {required super.hdrAmount, required int streakID, required int bestStreak, required UnlockType type, required DateTime start, required DateTime? end}) {
-    setStreakData(streakID, bestStreak, type, start, end);
+  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, {required super.hdrAmount, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+    setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
@@ -68,12 +68,12 @@ class NutritionGoalModel extends BasicGoal {
 }
 
 class NutritionStreak extends NutritionGoalModel with BasicStreak {
-  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, {required super.nType, required super.dailyNutritionTarget, required int streakID, required int bestStreak, required UnlockType type, required DateTime? start, required DateTime? end}) {
-    setStreakData(streakID, bestStreak, type, start, end);
+  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, {required super.nType, required super.dailyNutritionTarget, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+    setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
-enum GoalOperator {greaterThan, lesserThan, equalTo, greaterEqual, lesserEqual }
+enum GoalOperator {greaterThan, lesserThan, equalTo, greaterEqual, lesserEqual, logOnly }
 
 extension GoalOperatorHelper on GoalOperator {
   String get symbol => switch (this) {
@@ -82,5 +82,6 @@ extension GoalOperatorHelper on GoalOperator {
     GoalOperator.equalTo => '=',
     GoalOperator.greaterEqual => '>=',
     GoalOperator.lesserEqual => '<=',
+    GoalOperator.logOnly => 'log',
   };
 }

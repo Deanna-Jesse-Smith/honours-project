@@ -89,7 +89,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       userName: user.name,
       startTime: user.typicalEatingStart!,
       endTime: user.typicalEatingEnd!,
-      fastingForm: FastingFormConverter().fromSql(user.formIF),
+      fastingForm: user.formIF,
       adfDaysSelected: DayOfWeekConverter().fromSQL(user.adfDaysSelected),
       fiveTwoDaysSelected: DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected),
       status: status,
@@ -119,7 +119,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     createdDate: DateTime.now(),
     adfDaysSelected: '',
     fiveTwoDaysSelected: '',
-    formIF: FastingFormConverter().toSql(curUser.fastingForm)
+    formIF: curUser.fastingForm
   );
 
     FastingStatus updatedStatus = determineFastingStatus(now: DateTime.now(), user: userSnapshot, activeLog: cur);
@@ -184,7 +184,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     createdDate: DateTime.now(),
     adfDaysSelected: '',
     fiveTwoDaysSelected: '',
-    formIF: FastingFormConverter().toSql(cur.fastingForm)
+    formIF: cur.fastingForm
   );
 
       final newStatus = determineFastingStatus(now: now, user: userSnapshot, activeLog: updated);

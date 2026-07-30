@@ -45,16 +45,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     ),
     defaultValue: const Constant(true),
   );
-  static const VerificationMeta _formIFMeta = const VerificationMeta('formIF');
   @override
-  late final GeneratedColumn<String> formIF = GeneratedColumn<String>(
-    'form_i_f',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('TRE'),
-  );
+  late final GeneratedColumnWithTypeConverter<FastingForm, String> formIF =
+      GeneratedColumn<String>(
+        'form_i_f',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<FastingForm>($UsersTable.$converterformIF);
   static const VerificationMeta _experienceMeta = const VerificationMeta(
     'experience',
   );
@@ -171,12 +170,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         isMetric.isAcceptableOrUnknown(data['is_metric']!, _isMetricMeta),
       );
     }
-    if (data.containsKey('form_i_f')) {
-      context.handle(
-        _formIFMeta,
-        formIF.isAcceptableOrUnknown(data['form_i_f']!, _formIFMeta),
-      );
-    }
     if (data.containsKey('experience')) {
       context.handle(
         _experienceMeta,
@@ -249,10 +242,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_metric'],
       )!,
-      formIF: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}form_i_f'],
-      )!,
+      formIF: $UsersTable.$converterformIF.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}form_i_f'],
+        )!,
+      ),
       experience: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}experience'],
@@ -284,13 +279,16 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   $UsersTable createAlias(String alias) {
     return $UsersTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<FastingForm, String, String> $converterformIF =
+      const EnumNameConverter<FastingForm>(FastingForm.values);
 }
 
 class User extends DataClass implements Insertable<User> {
   final int userID;
   final String name;
   final bool isMetric;
-  final String formIF;
+  final FastingForm formIF;
   final String experience;
   final DateTime? typicalEatingStart;
   final DateTime? typicalEatingEnd;
@@ -315,7 +313,11 @@ class User extends DataClass implements Insertable<User> {
     map['user_i_d'] = Variable<int>(userID);
     map['name'] = Variable<String>(name);
     map['is_metric'] = Variable<bool>(isMetric);
-    map['form_i_f'] = Variable<String>(formIF);
+    {
+      map['form_i_f'] = Variable<String>(
+        $UsersTable.$converterformIF.toSql(formIF),
+      );
+    }
     map['experience'] = Variable<String>(experience);
     if (!nullToAbsent || typicalEatingStart != null) {
       map['typical_eating_start'] = Variable<DateTime>(typicalEatingStart);
@@ -357,7 +359,9 @@ class User extends DataClass implements Insertable<User> {
       userID: serializer.fromJson<int>(json['userID']),
       name: serializer.fromJson<String>(json['name']),
       isMetric: serializer.fromJson<bool>(json['isMetric']),
-      formIF: serializer.fromJson<String>(json['formIF']),
+      formIF: $UsersTable.$converterformIF.fromJson(
+        serializer.fromJson<String>(json['formIF']),
+      ),
       experience: serializer.fromJson<String>(json['experience']),
       typicalEatingStart: serializer.fromJson<DateTime?>(
         json['typicalEatingStart'],
@@ -379,7 +383,9 @@ class User extends DataClass implements Insertable<User> {
       'userID': serializer.toJson<int>(userID),
       'name': serializer.toJson<String>(name),
       'isMetric': serializer.toJson<bool>(isMetric),
-      'formIF': serializer.toJson<String>(formIF),
+      'formIF': serializer.toJson<String>(
+        $UsersTable.$converterformIF.toJson(formIF),
+      ),
       'experience': serializer.toJson<String>(experience),
       'typicalEatingStart': serializer.toJson<DateTime?>(typicalEatingStart),
       'typicalEatingEnd': serializer.toJson<DateTime?>(typicalEatingEnd),
@@ -393,7 +399,7 @@ class User extends DataClass implements Insertable<User> {
     int? userID,
     String? name,
     bool? isMetric,
-    String? formIF,
+    FastingForm? formIF,
     String? experience,
     Value<DateTime?> typicalEatingStart = const Value.absent(),
     Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -493,7 +499,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> userID;
   final Value<String> name;
   final Value<bool> isMetric;
-  final Value<String> formIF;
+  final Value<FastingForm> formIF;
   final Value<String> experience;
   final Value<DateTime?> typicalEatingStart;
   final Value<DateTime?> typicalEatingEnd;
@@ -516,14 +522,15 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.userID = const Value.absent(),
     required String name,
     this.isMetric = const Value.absent(),
-    this.formIF = const Value.absent(),
+    required FastingForm formIF,
     this.experience = const Value.absent(),
     this.typicalEatingStart = const Value.absent(),
     this.typicalEatingEnd = const Value.absent(),
     this.createdDate = const Value.absent(),
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
-  }) : name = Value(name);
+  }) : name = Value(name),
+       formIF = Value(formIF);
   static Insertable<User> custom({
     Expression<int>? userID,
     Expression<String>? name,
@@ -556,7 +563,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<int>? userID,
     Value<String>? name,
     Value<bool>? isMetric,
-    Value<String>? formIF,
+    Value<FastingForm>? formIF,
     Value<String>? experience,
     Value<DateTime?>? typicalEatingStart,
     Value<DateTime?>? typicalEatingEnd,
@@ -591,7 +598,9 @@ class UsersCompanion extends UpdateCompanion<User> {
       map['is_metric'] = Variable<bool>(isMetric.value);
     }
     if (formIF.present) {
-      map['form_i_f'] = Variable<String>(formIF.value);
+      map['form_i_f'] = Variable<String>(
+        $UsersTable.$converterformIF.toSql(formIF.value),
+      );
     }
     if (experience.present) {
       map['experience'] = Variable<String>(experience.value);
@@ -668,16 +677,15 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
       'REFERENCES users (user_i_d)',
     ),
   );
-  static const VerificationMeta _formIFMeta = const VerificationMeta('formIF');
   @override
-  late final GeneratedColumn<String> formIF = GeneratedColumn<String>(
-    'form_i_f',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('TRE'),
-  );
+  late final GeneratedColumnWithTypeConverter<FastingForm, String> formIF =
+      GeneratedColumn<String>(
+        'form_i_f',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<FastingForm>($FastLogTable.$converterformIF);
   static const VerificationMeta _fastResultMeta = const VerificationMeta(
     'fastResult',
   );
@@ -749,12 +757,6 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     } else if (isInserting) {
       context.missing(_userIDMeta);
     }
-    if (data.containsKey('form_i_f')) {
-      context.handle(
-        _formIFMeta,
-        formIF.isAcceptableOrUnknown(data['form_i_f']!, _formIFMeta),
-      );
-    }
     if (data.containsKey('fast_result')) {
       context.handle(
         _fastResultMeta,
@@ -796,10 +798,12 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
         DriftSqlType.int,
         data['${effectivePrefix}user_i_d'],
       )!,
-      formIF: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}form_i_f'],
-      )!,
+      formIF: $FastLogTable.$converterformIF.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}form_i_f'],
+        )!,
+      ),
       fastResult: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}fast_result'],
@@ -819,12 +823,15 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
   $FastLogTable createAlias(String alias) {
     return $FastLogTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<FastingForm, String, String> $converterformIF =
+      const EnumNameConverter<FastingForm>(FastingForm.values);
 }
 
 class FastLogData extends DataClass implements Insertable<FastLogData> {
   final int fastLogID;
   final int userID;
-  final String formIF;
+  final FastingForm formIF;
   final String fastResult;
   final DateTime startDateTime;
   final DateTime? endDateTime;
@@ -841,7 +848,11 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     final map = <String, Expression>{};
     map['fast_log_i_d'] = Variable<int>(fastLogID);
     map['user_i_d'] = Variable<int>(userID);
-    map['form_i_f'] = Variable<String>(formIF);
+    {
+      map['form_i_f'] = Variable<String>(
+        $FastLogTable.$converterformIF.toSql(formIF),
+      );
+    }
     map['fast_result'] = Variable<String>(fastResult);
     map['start_date_time'] = Variable<DateTime>(startDateTime);
     if (!nullToAbsent || endDateTime != null) {
@@ -871,7 +882,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     return FastLogData(
       fastLogID: serializer.fromJson<int>(json['fastLogID']),
       userID: serializer.fromJson<int>(json['userID']),
-      formIF: serializer.fromJson<String>(json['formIF']),
+      formIF: $FastLogTable.$converterformIF.fromJson(
+        serializer.fromJson<String>(json['formIF']),
+      ),
       fastResult: serializer.fromJson<String>(json['fastResult']),
       startDateTime: serializer.fromJson<DateTime>(json['startDateTime']),
       endDateTime: serializer.fromJson<DateTime?>(json['endDateTime']),
@@ -883,7 +896,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     return <String, dynamic>{
       'fastLogID': serializer.toJson<int>(fastLogID),
       'userID': serializer.toJson<int>(userID),
-      'formIF': serializer.toJson<String>(formIF),
+      'formIF': serializer.toJson<String>(
+        $FastLogTable.$converterformIF.toJson(formIF),
+      ),
       'fastResult': serializer.toJson<String>(fastResult),
       'startDateTime': serializer.toJson<DateTime>(startDateTime),
       'endDateTime': serializer.toJson<DateTime?>(endDateTime),
@@ -893,7 +908,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
   FastLogData copyWith({
     int? fastLogID,
     int? userID,
-    String? formIF,
+    FastingForm? formIF,
     String? fastResult,
     DateTime? startDateTime,
     Value<DateTime?> endDateTime = const Value.absent(),
@@ -959,7 +974,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
 class FastLogCompanion extends UpdateCompanion<FastLogData> {
   final Value<int> fastLogID;
   final Value<int> userID;
-  final Value<String> formIF;
+  final Value<FastingForm> formIF;
   final Value<String> fastResult;
   final Value<DateTime> startDateTime;
   final Value<DateTime?> endDateTime;
@@ -974,11 +989,12 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   FastLogCompanion.insert({
     this.fastLogID = const Value.absent(),
     required int userID,
-    this.formIF = const Value.absent(),
+    required FastingForm formIF,
     this.fastResult = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
-  }) : userID = Value(userID);
+  }) : userID = Value(userID),
+       formIF = Value(formIF);
   static Insertable<FastLogData> custom({
     Expression<int>? fastLogID,
     Expression<int>? userID,
@@ -1000,7 +1016,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   FastLogCompanion copyWith({
     Value<int>? fastLogID,
     Value<int>? userID,
-    Value<String>? formIF,
+    Value<FastingForm>? formIF,
     Value<String>? fastResult,
     Value<DateTime>? startDateTime,
     Value<DateTime?>? endDateTime,
@@ -1025,7 +1041,9 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       map['user_i_d'] = Variable<int>(userID.value);
     }
     if (formIF.present) {
-      map['form_i_f'] = Variable<String>(formIF.value);
+      map['form_i_f'] = Variable<String>(
+        $FastLogTable.$converterformIF.toSql(formIF.value),
+      );
     }
     if (fastResult.present) {
       map['fast_result'] = Variable<String>(fastResult.value);
@@ -4331,18 +4349,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _bestStreakMeta = const VerificationMeta(
-    'bestStreak',
-  );
-  @override
-  late final GeneratedColumn<int> bestStreak = GeneratedColumn<int>(
-    'best_streak',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
   static const VerificationMeta _startDateMeta = const VerificationMeta(
     'startDate',
   );
@@ -4352,7 +4358,8 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _endDateMeta = const VerificationMeta(
     'endDate',
@@ -4366,15 +4373,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<GoalType, String> streakType =
-      GeneratedColumn<String>(
-        'streak_type',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<GoalType>($StreaksTable.$converterstreakType);
-  @override
   late final GeneratedColumnWithTypeConverter<UnlockType?, String> unlockType =
       GeneratedColumn<String>(
         'unlock_type',
@@ -4387,10 +4385,8 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
   List<GeneratedColumn> get $columns => [
     streakID,
     streakProgress,
-    bestStreak,
     startDate,
     endDate,
-    streakType,
     unlockType,
   ];
   @override
@@ -4420,19 +4416,11 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         ),
       );
     }
-    if (data.containsKey('best_streak')) {
-      context.handle(
-        _bestStreakMeta,
-        bestStreak.isAcceptableOrUnknown(data['best_streak']!, _bestStreakMeta),
-      );
-    }
     if (data.containsKey('start_date')) {
       context.handle(
         _startDateMeta,
         startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
       );
-    } else if (isInserting) {
-      context.missing(_startDateMeta);
     }
     if (data.containsKey('end_date')) {
       context.handle(
@@ -4457,10 +4445,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         DriftSqlType.int,
         data['${effectivePrefix}streak_progress'],
       )!,
-      bestStreak: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}best_streak'],
-      )!,
       startDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date'],
@@ -4468,12 +4452,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
       endDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}end_date'],
-      ),
-      streakType: $StreaksTable.$converterstreakType.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}streak_type'],
-        )!,
       ),
       unlockType: $StreaksTable.$converterunlockTypen.fromSql(
         attachedDatabase.typeMapping.read(
@@ -4489,8 +4467,6 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     return $StreaksTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<GoalType, String, String> $converterstreakType =
-      const EnumNameConverter<GoalType>(GoalType.values);
   static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
       const EnumNameConverter<UnlockType>(UnlockType.values);
   static JsonTypeConverter2<UnlockType?, String?, String?>
@@ -4500,18 +4476,14 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
 class Streak extends DataClass implements Insertable<Streak> {
   final int streakID;
   final int streakProgress;
-  final int bestStreak;
   final DateTime startDate;
   final DateTime? endDate;
-  final GoalType streakType;
   final UnlockType? unlockType;
   const Streak({
     required this.streakID,
     required this.streakProgress,
-    required this.bestStreak,
     required this.startDate,
     this.endDate,
-    required this.streakType,
     this.unlockType,
   });
   @override
@@ -4519,15 +4491,9 @@ class Streak extends DataClass implements Insertable<Streak> {
     final map = <String, Expression>{};
     map['streak_i_d'] = Variable<int>(streakID);
     map['streak_progress'] = Variable<int>(streakProgress);
-    map['best_streak'] = Variable<int>(bestStreak);
     map['start_date'] = Variable<DateTime>(startDate);
     if (!nullToAbsent || endDate != null) {
       map['end_date'] = Variable<DateTime>(endDate);
-    }
-    {
-      map['streak_type'] = Variable<String>(
-        $StreaksTable.$converterstreakType.toSql(streakType),
-      );
     }
     if (!nullToAbsent || unlockType != null) {
       map['unlock_type'] = Variable<String>(
@@ -4541,12 +4507,10 @@ class Streak extends DataClass implements Insertable<Streak> {
     return StreaksCompanion(
       streakID: Value(streakID),
       streakProgress: Value(streakProgress),
-      bestStreak: Value(bestStreak),
       startDate: Value(startDate),
       endDate: endDate == null && nullToAbsent
           ? const Value.absent()
           : Value(endDate),
-      streakType: Value(streakType),
       unlockType: unlockType == null && nullToAbsent
           ? const Value.absent()
           : Value(unlockType),
@@ -4561,12 +4525,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     return Streak(
       streakID: serializer.fromJson<int>(json['streakID']),
       streakProgress: serializer.fromJson<int>(json['streakProgress']),
-      bestStreak: serializer.fromJson<int>(json['bestStreak']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
-      streakType: $StreaksTable.$converterstreakType.fromJson(
-        serializer.fromJson<String>(json['streakType']),
-      ),
       unlockType: $StreaksTable.$converterunlockTypen.fromJson(
         serializer.fromJson<String?>(json['unlockType']),
       ),
@@ -4578,12 +4538,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     return <String, dynamic>{
       'streakID': serializer.toJson<int>(streakID),
       'streakProgress': serializer.toJson<int>(streakProgress),
-      'bestStreak': serializer.toJson<int>(bestStreak),
       'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
-      'streakType': serializer.toJson<String>(
-        $StreaksTable.$converterstreakType.toJson(streakType),
-      ),
       'unlockType': serializer.toJson<String?>(
         $StreaksTable.$converterunlockTypen.toJson(unlockType),
       ),
@@ -4593,18 +4549,14 @@ class Streak extends DataClass implements Insertable<Streak> {
   Streak copyWith({
     int? streakID,
     int? streakProgress,
-    int? bestStreak,
     DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
-    GoalType? streakType,
     Value<UnlockType?> unlockType = const Value.absent(),
   }) => Streak(
     streakID: streakID ?? this.streakID,
     streakProgress: streakProgress ?? this.streakProgress,
-    bestStreak: bestStreak ?? this.bestStreak,
     startDate: startDate ?? this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
-    streakType: streakType ?? this.streakType,
     unlockType: unlockType.present ? unlockType.value : this.unlockType,
   );
   Streak copyWithCompanion(StreaksCompanion data) {
@@ -4613,14 +4565,8 @@ class Streak extends DataClass implements Insertable<Streak> {
       streakProgress: data.streakProgress.present
           ? data.streakProgress.value
           : this.streakProgress,
-      bestStreak: data.bestStreak.present
-          ? data.bestStreak.value
-          : this.bestStreak,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
-      streakType: data.streakType.present
-          ? data.streakType.value
-          : this.streakType,
       unlockType: data.unlockType.present
           ? data.unlockType.value
           : this.unlockType,
@@ -4632,81 +4578,59 @@ class Streak extends DataClass implements Insertable<Streak> {
     return (StringBuffer('Streak(')
           ..write('streakID: $streakID, ')
           ..write('streakProgress: $streakProgress, ')
-          ..write('bestStreak: $bestStreak, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('streakType: $streakType, ')
           ..write('unlockType: $unlockType')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    streakID,
-    streakProgress,
-    bestStreak,
-    startDate,
-    endDate,
-    streakType,
-    unlockType,
-  );
+  int get hashCode =>
+      Object.hash(streakID, streakProgress, startDate, endDate, unlockType);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Streak &&
           other.streakID == this.streakID &&
           other.streakProgress == this.streakProgress &&
-          other.bestStreak == this.bestStreak &&
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
-          other.streakType == this.streakType &&
           other.unlockType == this.unlockType);
 }
 
 class StreaksCompanion extends UpdateCompanion<Streak> {
   final Value<int> streakID;
   final Value<int> streakProgress;
-  final Value<int> bestStreak;
   final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
-  final Value<GoalType> streakType;
   final Value<UnlockType?> unlockType;
   const StreaksCompanion({
     this.streakID = const Value.absent(),
     this.streakProgress = const Value.absent(),
-    this.bestStreak = const Value.absent(),
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
-    this.streakType = const Value.absent(),
     this.unlockType = const Value.absent(),
   });
   StreaksCompanion.insert({
     this.streakID = const Value.absent(),
     this.streakProgress = const Value.absent(),
-    this.bestStreak = const Value.absent(),
-    required DateTime startDate,
+    this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
-    required GoalType streakType,
     this.unlockType = const Value.absent(),
-  }) : startDate = Value(startDate),
-       streakType = Value(streakType);
+  });
   static Insertable<Streak> custom({
     Expression<int>? streakID,
     Expression<int>? streakProgress,
-    Expression<int>? bestStreak,
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
-    Expression<String>? streakType,
     Expression<String>? unlockType,
   }) {
     return RawValuesInsertable({
       if (streakID != null) 'streak_i_d': streakID,
       if (streakProgress != null) 'streak_progress': streakProgress,
-      if (bestStreak != null) 'best_streak': bestStreak,
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
-      if (streakType != null) 'streak_type': streakType,
       if (unlockType != null) 'unlock_type': unlockType,
     });
   }
@@ -4714,19 +4638,15 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
   StreaksCompanion copyWith({
     Value<int>? streakID,
     Value<int>? streakProgress,
-    Value<int>? bestStreak,
     Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
-    Value<GoalType>? streakType,
     Value<UnlockType?>? unlockType,
   }) {
     return StreaksCompanion(
       streakID: streakID ?? this.streakID,
       streakProgress: streakProgress ?? this.streakProgress,
-      bestStreak: bestStreak ?? this.bestStreak,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      streakType: streakType ?? this.streakType,
       unlockType: unlockType ?? this.unlockType,
     );
   }
@@ -4740,19 +4660,11 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     if (streakProgress.present) {
       map['streak_progress'] = Variable<int>(streakProgress.value);
     }
-    if (bestStreak.present) {
-      map['best_streak'] = Variable<int>(bestStreak.value);
-    }
     if (startDate.present) {
       map['start_date'] = Variable<DateTime>(startDate.value);
     }
     if (endDate.present) {
       map['end_date'] = Variable<DateTime>(endDate.value);
-    }
-    if (streakType.present) {
-      map['streak_type'] = Variable<String>(
-        $StreaksTable.$converterstreakType.toSql(streakType.value),
-      );
     }
     if (unlockType.present) {
       map['unlock_type'] = Variable<String>(
@@ -4767,10 +4679,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     return (StringBuffer('StreaksCompanion(')
           ..write('streakID: $streakID, ')
           ..write('streakProgress: $streakProgress, ')
-          ..write('bestStreak: $bestStreak, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('streakType: $streakType, ')
           ..write('unlockType: $unlockType')
           ..write(')'))
         .toString();
@@ -4826,15 +4736,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _opMeta = const VerificationMeta('op');
   @override
-  late final GeneratedColumn<String> op = GeneratedColumn<String>(
-    'op',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<GoalOperator, String> op =
+      GeneratedColumn<String>(
+        'op',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<GoalOperator>($GoalsTable.$converterop);
   static const VerificationMeta _streakIDMeta = const VerificationMeta(
     'streakID',
   );
@@ -4920,9 +4830,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         metricType.isAcceptableOrUnknown(data['metric_type']!, _metricTypeMeta),
       );
     }
-    if (data.containsKey('op')) {
-      context.handle(_opMeta, op.isAcceptableOrUnknown(data['op']!, _opMeta));
-    }
     if (data.containsKey('streak_i_d')) {
       context.handle(
         _streakIDMeta,
@@ -4971,9 +4878,11 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}metric_type'],
       ),
-      op: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}op'],
+      op: $GoalsTable.$converterop.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}op'],
+        )!,
       ),
       streakID: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -4997,6 +4906,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
 
   static JsonTypeConverter2<GoalType, String, String> $convertertype =
       const EnumNameConverter<GoalType>(GoalType.values);
+  static JsonTypeConverter2<GoalOperator, String, String> $converterop =
+      const EnumNameConverter<GoalOperator>(GoalOperator.values);
 }
 
 class Goal extends DataClass implements Insertable<Goal> {
@@ -5004,7 +4915,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   final GoalType type;
   final double? thresholdValue;
   final String? metricType;
-  final String? op;
+  final GoalOperator op;
   final int? streakID;
   final bool isComplete;
   final double progressValue;
@@ -5013,7 +4924,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.type,
     this.thresholdValue,
     this.metricType,
-    this.op,
+    required this.op,
     this.streakID,
     required this.isComplete,
     required this.progressValue,
@@ -5031,8 +4942,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     if (!nullToAbsent || metricType != null) {
       map['metric_type'] = Variable<String>(metricType);
     }
-    if (!nullToAbsent || op != null) {
-      map['op'] = Variable<String>(op);
+    {
+      map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op));
     }
     if (!nullToAbsent || streakID != null) {
       map['streak_i_d'] = Variable<int>(streakID);
@@ -5052,7 +4963,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       metricType: metricType == null && nullToAbsent
           ? const Value.absent()
           : Value(metricType),
-      op: op == null && nullToAbsent ? const Value.absent() : Value(op),
+      op: Value(op),
       streakID: streakID == null && nullToAbsent
           ? const Value.absent()
           : Value(streakID),
@@ -5073,7 +4984,9 @@ class Goal extends DataClass implements Insertable<Goal> {
       ),
       thresholdValue: serializer.fromJson<double?>(json['thresholdValue']),
       metricType: serializer.fromJson<String?>(json['metricType']),
-      op: serializer.fromJson<String?>(json['op']),
+      op: $GoalsTable.$converterop.fromJson(
+        serializer.fromJson<String>(json['op']),
+      ),
       streakID: serializer.fromJson<int?>(json['streakID']),
       isComplete: serializer.fromJson<bool>(json['isComplete']),
       progressValue: serializer.fromJson<double>(json['progressValue']),
@@ -5089,7 +5002,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       ),
       'thresholdValue': serializer.toJson<double?>(thresholdValue),
       'metricType': serializer.toJson<String?>(metricType),
-      'op': serializer.toJson<String?>(op),
+      'op': serializer.toJson<String>($GoalsTable.$converterop.toJson(op)),
       'streakID': serializer.toJson<int?>(streakID),
       'isComplete': serializer.toJson<bool>(isComplete),
       'progressValue': serializer.toJson<double>(progressValue),
@@ -5101,7 +5014,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     GoalType? type,
     Value<double?> thresholdValue = const Value.absent(),
     Value<String?> metricType = const Value.absent(),
-    Value<String?> op = const Value.absent(),
+    GoalOperator? op,
     Value<int?> streakID = const Value.absent(),
     bool? isComplete,
     double? progressValue,
@@ -5112,7 +5025,7 @@ class Goal extends DataClass implements Insertable<Goal> {
         ? thresholdValue.value
         : this.thresholdValue,
     metricType: metricType.present ? metricType.value : this.metricType,
-    op: op.present ? op.value : this.op,
+    op: op ?? this.op,
     streakID: streakID.present ? streakID.value : this.streakID,
     isComplete: isComplete ?? this.isComplete,
     progressValue: progressValue ?? this.progressValue,
@@ -5183,7 +5096,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<GoalType> type;
   final Value<double?> thresholdValue;
   final Value<String?> metricType;
-  final Value<String?> op;
+  final Value<GoalOperator> op;
   final Value<int?> streakID;
   final Value<bool> isComplete;
   final Value<double> progressValue;
@@ -5202,11 +5115,12 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required GoalType type,
     this.thresholdValue = const Value.absent(),
     this.metricType = const Value.absent(),
-    this.op = const Value.absent(),
+    required GoalOperator op,
     this.streakID = const Value.absent(),
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
-  }) : type = Value(type);
+  }) : type = Value(type),
+       op = Value(op);
   static Insertable<Goal> custom({
     Expression<int>? goalID,
     Expression<String>? type,
@@ -5234,7 +5148,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<GoalType>? type,
     Value<double?>? thresholdValue,
     Value<String?>? metricType,
-    Value<String?>? op,
+    Value<GoalOperator>? op,
     Value<int?>? streakID,
     Value<bool>? isComplete,
     Value<double>? progressValue,
@@ -5269,7 +5183,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       map['metric_type'] = Variable<String>(metricType.value);
     }
     if (op.present) {
-      map['op'] = Variable<String>(op.value);
+      map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op.value));
     }
     if (streakID.present) {
       map['streak_i_d'] = Variable<int>(streakID.value);
@@ -7627,10 +7541,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'goal_type',
     'CREATE INDEX goal_type ON goals (type)',
   );
-  late final Index streakType = Index(
-    'streak_type',
-    'CREATE INDEX streak_type ON streaks (streak_type)',
-  );
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final FastingDao fastingDao = FastingDao(this as AppDatabase);
   late final HydrationDao hydrationDao = HydrationDao(this as AppDatabase);
@@ -7668,7 +7578,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     mealRecipeKey,
     mealFoodKey,
     goalType,
-    streakType,
   ];
 }
 
@@ -7677,7 +7586,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<int> userID,
       required String name,
       Value<bool> isMetric,
-      Value<String> formIF,
+      required FastingForm formIF,
       Value<String> experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
@@ -7690,7 +7599,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<int> userID,
       Value<String> name,
       Value<bool> isMetric,
-      Value<String> formIF,
+      Value<FastingForm> formIF,
       Value<String> experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
@@ -7838,10 +7747,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get formIF => $composableBuilder(
-    column: $table.formIF,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<FastingForm, FastingForm, String> get formIF =>
+      $composableBuilder(
+        column: $table.formIF,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get experience => $composableBuilder(
     column: $table.experience,
@@ -8102,7 +8012,7 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<bool> get isMetric =>
       $composableBuilder(column: $table.isMetric, builder: (column) => column);
 
-  GeneratedColumn<String> get formIF =>
+  GeneratedColumnWithTypeConverter<FastingForm, String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
 
   GeneratedColumn<String> get experience => $composableBuilder(
@@ -8324,7 +8234,7 @@ class $$UsersTableTableManager
                 Value<int> userID = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<bool> isMetric = const Value.absent(),
-                Value<String> formIF = const Value.absent(),
+                Value<FastingForm> formIF = const Value.absent(),
                 Value<String> experience = const Value.absent(),
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -8348,7 +8258,7 @@ class $$UsersTableTableManager
                 Value<int> userID = const Value.absent(),
                 required String name,
                 Value<bool> isMetric = const Value.absent(),
-                Value<String> formIF = const Value.absent(),
+                required FastingForm formIF,
                 Value<String> experience = const Value.absent(),
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
@@ -8542,7 +8452,7 @@ typedef $$FastLogTableCreateCompanionBuilder =
     FastLogCompanion Function({
       Value<int> fastLogID,
       required int userID,
-      Value<String> formIF,
+      required FastingForm formIF,
       Value<String> fastResult,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
@@ -8551,7 +8461,7 @@ typedef $$FastLogTableUpdateCompanionBuilder =
     FastLogCompanion Function({
       Value<int> fastLogID,
       Value<int> userID,
-      Value<String> formIF,
+      Value<FastingForm> formIF,
       Value<String> fastResult,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
@@ -8593,10 +8503,11 @@ class $$FastLogTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get formIF => $composableBuilder(
-    column: $table.formIF,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<FastingForm, FastingForm, String> get formIF =>
+      $composableBuilder(
+        column: $table.formIF,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get fastResult => $composableBuilder(
     column: $table.fastResult,
@@ -8707,7 +8618,7 @@ class $$FastLogTableAnnotationComposer
   GeneratedColumn<int> get fastLogID =>
       $composableBuilder(column: $table.fastLogID, builder: (column) => column);
 
-  GeneratedColumn<String> get formIF =>
+  GeneratedColumnWithTypeConverter<FastingForm, String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
 
   GeneratedColumn<String> get fastResult => $composableBuilder(
@@ -8779,7 +8690,7 @@ class $$FastLogTableTableManager
               ({
                 Value<int> fastLogID = const Value.absent(),
                 Value<int> userID = const Value.absent(),
-                Value<String> formIF = const Value.absent(),
+                Value<FastingForm> formIF = const Value.absent(),
                 Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
@@ -8795,7 +8706,7 @@ class $$FastLogTableTableManager
               ({
                 Value<int> fastLogID = const Value.absent(),
                 required int userID,
-                Value<String> formIF = const Value.absent(),
+                required FastingForm formIF,
                 Value<String> fastResult = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
@@ -12404,20 +12315,16 @@ typedef $$StreaksTableCreateCompanionBuilder =
     StreaksCompanion Function({
       Value<int> streakID,
       Value<int> streakProgress,
-      Value<int> bestStreak,
-      required DateTime startDate,
+      Value<DateTime> startDate,
       Value<DateTime?> endDate,
-      required GoalType streakType,
       Value<UnlockType?> unlockType,
     });
 typedef $$StreaksTableUpdateCompanionBuilder =
     StreaksCompanion Function({
       Value<int> streakID,
       Value<int> streakProgress,
-      Value<int> bestStreak,
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
-      Value<GoalType> streakType,
       Value<UnlockType?> unlockType,
     });
 
@@ -12463,11 +12370,6 @@ class $$StreaksTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get bestStreak => $composableBuilder(
-    column: $table.bestStreak,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<DateTime> get startDate => $composableBuilder(
     column: $table.startDate,
     builder: (column) => ColumnFilters(column),
@@ -12477,12 +12379,6 @@ class $$StreaksTableFilterComposer
     column: $table.endDate,
     builder: (column) => ColumnFilters(column),
   );
-
-  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get streakType =>
-      $composableBuilder(
-        column: $table.streakType,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
 
   ColumnWithTypeConverterFilters<UnlockType?, UnlockType, String>
   get unlockType => $composableBuilder(
@@ -12535,11 +12431,6 @@ class $$StreaksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get bestStreak => $composableBuilder(
-    column: $table.bestStreak,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get startDate => $composableBuilder(
     column: $table.startDate,
     builder: (column) => ColumnOrderings(column),
@@ -12547,11 +12438,6 @@ class $$StreaksTableOrderingComposer
 
   ColumnOrderings<DateTime> get endDate => $composableBuilder(
     column: $table.endDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get streakType => $composableBuilder(
-    column: $table.streakType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -12578,22 +12464,11 @@ class $$StreaksTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get bestStreak => $composableBuilder(
-    column: $table.bestStreak,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<DateTime> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
 
   GeneratedColumn<DateTime> get endDate =>
       $composableBuilder(column: $table.endDate, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<GoalType, String> get streakType =>
-      $composableBuilder(
-        column: $table.streakType,
-        builder: (column) => column,
-      );
 
   GeneratedColumnWithTypeConverter<UnlockType?, String> get unlockType =>
       $composableBuilder(
@@ -12657,36 +12532,28 @@ class $$StreaksTableTableManager
               ({
                 Value<int> streakID = const Value.absent(),
                 Value<int> streakProgress = const Value.absent(),
-                Value<int> bestStreak = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
-                Value<GoalType> streakType = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion(
                 streakID: streakID,
                 streakProgress: streakProgress,
-                bestStreak: bestStreak,
                 startDate: startDate,
                 endDate: endDate,
-                streakType: streakType,
                 unlockType: unlockType,
               ),
           createCompanionCallback:
               ({
                 Value<int> streakID = const Value.absent(),
                 Value<int> streakProgress = const Value.absent(),
-                Value<int> bestStreak = const Value.absent(),
-                required DateTime startDate,
+                Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
-                required GoalType streakType,
                 Value<UnlockType?> unlockType = const Value.absent(),
               }) => StreaksCompanion.insert(
                 streakID: streakID,
                 streakProgress: streakProgress,
-                bestStreak: bestStreak,
                 startDate: startDate,
                 endDate: endDate,
-                streakType: streakType,
                 unlockType: unlockType,
               ),
           withReferenceMapper: (p0) => p0
@@ -12746,7 +12613,7 @@ typedef $$GoalsTableCreateCompanionBuilder =
       required GoalType type,
       Value<double?> thresholdValue,
       Value<String?> metricType,
-      Value<String?> op,
+      required GoalOperator op,
       Value<int?> streakID,
       Value<bool> isComplete,
       Value<double> progressValue,
@@ -12757,7 +12624,7 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<GoalType> type,
       Value<double?> thresholdValue,
       Value<String?> metricType,
-      Value<String?> op,
+      Value<GoalOperator> op,
       Value<int?> streakID,
       Value<bool> isComplete,
       Value<double> progressValue,
@@ -12906,10 +12773,11 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get op => $composableBuilder(
-    column: $table.op,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<GoalOperator, GoalOperator, String> get op =>
+      $composableBuilder(
+        column: $table.op,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<bool> get isComplete => $composableBuilder(
     column: $table.isComplete,
@@ -13163,7 +13031,7 @@ class $$GoalsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get op =>
+  GeneratedColumnWithTypeConverter<GoalOperator, String> get op =>
       $composableBuilder(column: $table.op, builder: (column) => column);
 
   GeneratedColumn<bool> get isComplete => $composableBuilder(
@@ -13364,7 +13232,7 @@ class $$GoalsTableTableManager
                 Value<GoalType> type = const Value.absent(),
                 Value<double?> thresholdValue = const Value.absent(),
                 Value<String?> metricType = const Value.absent(),
-                Value<String?> op = const Value.absent(),
+                Value<GoalOperator> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),
@@ -13384,7 +13252,7 @@ class $$GoalsTableTableManager
                 required GoalType type,
                 Value<double?> thresholdValue = const Value.absent(),
                 Value<String?> metricType = const Value.absent(),
-                Value<String?> op = const Value.absent(),
+                required GoalOperator op,
                 Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),

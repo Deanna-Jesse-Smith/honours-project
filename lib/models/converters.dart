@@ -19,6 +19,12 @@ extension FastingFormExt on FastingForm {
     FastingForm.fiveTwo => Icon(Icons.date_range),
     FastingForm.adf => Icon(Icons.sync_alt),
   };
+
+  String get label => switch (this) {
+    FastingForm.tre => 'TRE',
+    FastingForm.fiveTwo => '5:2/Modified Fasting',
+    FastingForm.adf => 'ADF',
+  };
 }
 
 class FastingFormConverter extends TypeConverter<FastingForm, String> {

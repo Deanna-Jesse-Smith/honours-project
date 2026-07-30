@@ -33,7 +33,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           type: GoalType.nutrition,
           thresholdValue: Value(amount.toDouble()),
           metricType: const Value('g'),
-          op: const Value('>='),
+          op: GoalOperator.greaterEqual,
         ),
       ));
       //? Put something here in case they should be below a threshold? Use the operator field?
@@ -58,7 +58,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           type: GoalType.hydration,
           thresholdValue: Value(amount.toDouble()),
           metricType: const Value('ml'),
-          op: const Value('>='),
+          op: GoalOperator.greaterThan,
         ),
       ));
 
@@ -79,7 +79,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           type: GoalType.nutrition,
           thresholdValue: Value(target.toDouble()),
           metricType: const Value('g'),
-          op: const Value('>='),
+          op: GoalOperator.lesserEqual,
         ),
       ));
       await into(weightGoals).insert(
@@ -130,15 +130,15 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.goalID,
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
-      goalRow.op ?? '',
+      goalRow.op,
       targetHours: fastingRow.targetHours,
       targetDays: fastingRow.targetDays,
       targetCalories: fastingRow.targetCalories,
       streakID: streakRow.streakID,
-      bestStreak: streakRow.bestStreak,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
       end: streakRow.endDate,
+      daysProgress: streakRow.streakProgress
     );
   }
 
@@ -167,13 +167,13 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.goalID,
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
-      goalRow.op ?? '',
+      goalRow.op,
       hdrAmount: hydrationRow.hdrAmount,
       streakID: streakRow.streakID,
-      bestStreak: streakRow.bestStreak,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
       end: streakRow.endDate,
+      daysProgress: streakRow.streakProgress
     );
   }
 
@@ -202,14 +202,14 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.goalID,
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
-      goalRow.op ?? '',
+      goalRow.op,
       startWeight: weightRow.startWeight,
       targetWeight: weightRow.targetWeight,
       streakID: streakRow.streakID,
-      bestStreak: streakRow.bestStreak,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
       end: streakRow.endDate,
+      daysProgress: streakRow.streakProgress
     );
   }
 
@@ -237,14 +237,14 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         goalRow.goalID,
         goalRow.thresholdValue ?? 0,
         goalRow.progressValue,
-        goalRow.op ?? '',
+        goalRow.op,
         nType: nutritionRow.nutrientType,
         dailyNutritionTarget: nutritionRow.nutritionDailyTarget,
         streakID: streakRow.streakID,
-        bestStreak: streakRow.bestStreak,
         type: streakRow.unlockType ?? UnlockType.badge,
         start: streakRow.startDate,
         end: streakRow.endDate,
+      daysProgress: streakRow.streakProgress
       );
       nutritionStreaks.add(temp);
     }
@@ -269,8 +269,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   Future<FastingGoalModel?> findActiveFastingGoal() async {
     final goalRows = await (select(goals).join([
       innerJoin(fastingGoals, fastingGoals.goalID.equalsExp(goals.goalID)),
-    ])..where(goals.isComplete.isValue(false))
-              ..where(goals.type.equalsValue(GoalType.fasting))).getSingleOrNull();
+    ])..where(goals.type.equalsValue(GoalType.fasting))..where(goals.isComplete.isValue(false))..where(goals.streakID.isNull())).getSingleOrNull();
     
     
     if (goalRows == null) {
@@ -284,7 +283,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.goalID,
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
-      goalRow.op ?? '',
+      goalRow.op,
       targetHours: fastingRow.targetHours,
       targetDays: fastingRow.targetDays,
       targetCalories: fastingRow.targetCalories,
@@ -295,8 +294,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   Future<HydrationGoalModel?> findActiveHydrationGoal() async {
     final goalRows = await (select(goals).join([
       innerJoin(hydrationGoals, hydrationGoals.goalID.equalsExp(goals.goalID)),
-    ])..where(goals.isComplete.isValue(false))
-              ..where(goals.type.equalsValue(GoalType.hydration))).getSingleOrNull();
+    ])..where(goals.type.equalsValue(GoalType.hydration))..where(goals.isComplete.isValue(false))..where(goals.streakID.isNull())).getSingleOrNull();
     
     
     if (goalRows == null) {
@@ -310,7 +308,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.goalID,
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
-      goalRow.op ?? '',
+      goalRow.op,
       hdrAmount: hydrationRow.hdrAmount
     );
   }

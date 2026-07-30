@@ -33,22 +33,23 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late String dropDownValue;
-  late Future<FastingGoalModel?> curGoal;
+  late FastingGoalModel? curGoal;
 
-  //   static final List<DropdownMenuEntry<FastingForm>> entries =
-  //     UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
-  //       FastingForm.values.map<DropdownMenuEntry<FastingForm>>(
-  //         (FastingForm form) => DropdownMenuEntry(value: form, label: form.name.toUpperCase()),
-  //       ),
-  //     );
-  // late FastingForm dropDownValue;
-  TimeOfDay? start, end;
+  static final List<DropdownMenuEntry<FastingForm>> entriess =
+      UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
+        FastingForm.values.map<DropdownMenuEntry<FastingForm>>(
+          (FastingForm form) =>
+              DropdownMenuEntry(value: form, label: form.label),
+        ),
+      );
+  late FastingForm dropDownValuee;
+  TimeOfDay start = TimeOfDay(hour: 0, minute: 0), end = TimeOfDay(hour: 0, minute: 0);
 
   @override
-  void initState() {
+  void initState() async {
     final session = ref.watch(userSessionProvider).value;
     dropDownValue = session!.fastingForm.name;
-    // dropDownValue = session!.fastingForm;
+    dropDownValuee = session.fastingForm;
     debugPrint('The value is: $dropDownValue');
 
     fiveTwoDaysSelected = intsToBools(
@@ -57,7 +58,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
     adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
 
-    curGoal = ref.watch(gDaoProvider).findActiveFastingGoal();
+    curGoal = await ref.watch(gDaoProvider).findActiveFastingGoal();
     super.initState();
   }
 
@@ -102,9 +103,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   }
 
   Column getCorrectLayout(UserSessionData session) {
-    // if (dropDownValue == FastingForm.adf) {
+    // if (dropDownValuee == FastingForm.adf) {
     //   return createADF(session);
-    // } else if (dropDownValue == FastingForm.tre) {
+    // } else if (dropDownValuee == FastingForm.tre) {
     //   return createTRE(session);
     // } else {
     //   return create52(session);
@@ -321,21 +322,47 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-      DropdownMenu<String>(
-        initialSelection: dropDownValue,
+      DropdownMenu<FastingForm>(
+        initialSelection: dropDownValuee,
         // side
         // menuStyle: MenuStyle(),
-        onSelected: (String? value) {
-          setState(() {
-            dropDownValue = value!;
-            debugPrint('The user selected: $value');
+        onSelected: (FastingForm? value) {
+          setState(() async {
+            bool decision = true;
+
+            if (value! != session.fastingForm && curGoal != null) {
+              decision = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'Changing your fasting form will wipe your current fasting goal and/or streak.');
+            }
             //! Figure out when/how to update the fasting form in the table
+            if (decision) {
+              dropDownValuee = value!;
+              debugPrint('The user selected: $value');
+              DateTime temp = DateTime.now();
+              DateTime startDate = DateTime(temp.year, temp.month, temp.day, start.hour, start.minute);
+              DateTime endDate = DateTime(temp.year, temp.month, temp.day, end.hour, end.minute);
+              ref.read(uDaoProvider).changeFormIF(session.userId, dropDownValuee, startDate, endDate, days);
+            }
             // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
           });
         },
-        dropdownMenuEntries: entries,
+        dropdownMenuEntries: entriess,
         textStyle: TextStyle(fontSize: TextSizing.large),
       ),
+      // DropdownMenu<String>(
+      //   initialSelection: dropDownValue,
+      //   // side
+      //   // menuStyle: MenuStyle(),
+      //   onSelected: (String? value) {
+      //     setState(() {
+      //       dropDownValue = value!;
+      //       debugPrint('The user selected: $value');
+      //       //! Figure out when/how to update the fasting form in the table
+      //       // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+      //     });
+      //   },
+      //   dropdownMenuEntries: entries,
+      //   textStyle: TextStyle(fontSize: TextSizing.large),
+      // ),
     ],
   );
 }
