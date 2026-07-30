@@ -335,12 +335,18 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             }
             //! Figure out when/how to update the fasting form in the table
             if (decision) {
-              dropDownValuee = value!;
+              dropDownValuee = value;
               debugPrint('The user selected: $value');
               DateTime temp = DateTime.now();
-              DateTime startDate = DateTime(temp.year, temp.month, temp.day, start.hour, start.minute);
-              DateTime endDate = DateTime(temp.year, temp.month, temp.day, end.hour, end.minute);
-              ref.read(uDaoProvider).changeFormIF(session.userId, dropDownValuee, startDate, endDate, days);
+
+              switch (dropDownValuee) {
+                case FastingForm.tre:
+                  ref.read(uDaoProvider).changeToTRE(session.userId, start.convertToDateTime(temp), end.convertToDateTime(temp));
+                case FastingForm.fiveTwo:
+                  ref.read(uDaoProvider).changeTo52(session.userId, boolsToInts(fiveTwoDaysSelected));
+                case FastingForm.adf:
+                  ref.read(uDaoProvider).changeToADF(session.userId, boolsToInts(adfDaysSelected));
+              }
             }
             // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
           });
@@ -365,4 +371,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       // ),
     ],
   );
+}
+
+extension TimeOfDayToDateTime on TimeOfDay {
+  DateTime convertToDateTime(DateTime date) {
+    return DateTime(date.year, date.month, date.day, hour, minute);
+  }
 }
