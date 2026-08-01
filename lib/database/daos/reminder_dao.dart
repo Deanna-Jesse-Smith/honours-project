@@ -1,28 +1,34 @@
-// import 'package:drift/drift.dart';
-// import 'package:flutter/cupertino.dart';
-// import 'package:testrun/database/tables/reminder_table.dart';
-// import 'package:testrun/database/tables/weight_tables.dart';
-// import '../database.dart';
+import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
+import 'package:testrun/database/tables/reminder_table.dart';
+import '../database.dart';
 
-// part 'reminder_dao.g.dart';
+part 'reminder_dao.g.dart';
 
-// @DriftAccessor(tables: [Reminder])
-// class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin {
-//   ReminderDao(super.db);
+@DriftAccessor(tables: [Reminder])
+class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin {
+  ReminderDao(super.db);
 
-//   Future<int> logWeight(
-//     int userID,
-//     DateTime date,
-//     double amount,
-//   ) {
-//     return into(Reminder).insert(WeightLogCompanion(userID: Value(userID), date: Value(date), amount: Value(amount))
-//     );
-//   }
+  Future<int> insertReminder(int userID, DateTime time, String days, String text) async {
+    final newReminder = into(reminder).insert(ReminderCompanion.insert(userID: userID, time: Value(time), days: Value(days)));
 
-//   Future<int> insertWeight(int userID, double newWeight, DateTime today) async {
-//     final insert = await into(weightLog).insert(WeightLogCompanion(userID: Value(userID), date: Value(today), amount: Value(newWeight)));
-//     return insert;
-//   }
+    return newReminder;
+  }
 
-  
-// }
+  Future<void> changeReminder(int reminderID, DateTime time, String days, String text) {
+    return (update(reminder)..where((r) => r.reminderID.equals(reminderID))).write(ReminderCompanion(time: Value(time), days: Value(days)));
+  }
+
+  // void deleteReminder(int reminderID) {
+  //   delete(reminder).where((r) => r.reminderID.equals(reminderID));
+  // }
+
+  Future<void> changeEnabled(int reminderID, bool isEnabled) {
+    return (update(reminder)..where((r) => r.reminderID.equals(reminderID))).write(ReminderCompanion(isEnabled: Value(isEnabled)));
+  }
+
+  Future<List<ReminderData>> getReminders() {
+    final reminders = (select(reminder)).get();
+    return reminders;
+  }
+}

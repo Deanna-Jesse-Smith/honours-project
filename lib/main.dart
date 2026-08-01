@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:testrun/database/daos/goals_dao.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
+import 'package:testrun/database/daos/reminder_dao.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/hydration_dao.dart';
@@ -44,6 +45,9 @@ final nDaoProvider = Provider<NutritionDao>(
 );
 final gDaoProvider = Provider<GoalsDao>(
   (ref) => GoalsDao(ref.watch(databaseProvider)),
+);
+final rDaoProvider = Provider<ReminderDao>(
+  (ref) => ReminderDao(ref.watch(databaseProvider)),
 );
 final mealRangeProvider = FutureProvider.family<Map<DateTime, DayMeals>, List<DateTime>>(
   (ref, days) {

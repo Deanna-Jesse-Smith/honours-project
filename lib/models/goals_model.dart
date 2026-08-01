@@ -2,7 +2,7 @@ import 'package:testrun/database/tables/goal_tables.dart';
 
 sealed class BasicGoal {
    final int goalID;
-   final double threshold, progress;
+   double threshold, progress;
    final GoalOperator op;
 
   BasicGoal(this.goalID, this.threshold, this.progress, this.op);
@@ -13,6 +13,7 @@ mixin BasicStreak on BasicGoal {
   late final DateTime start;
   late final DateTime? end;
   late final UnlockType unlockType;
+  late bool isComplete;
 
   void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress) {
     this.streakID = streakID;
@@ -20,6 +21,27 @@ mixin BasicStreak on BasicGoal {
     this.start = start;
     this.end = end;
     this.daysProgress = daysProgress;
+  }
+
+  void calculateProgress(double curState) {
+    switch (op) {
+      case GoalOperator.greaterThan:
+         isComplete = curState > threshold;
+      case GoalOperator.lesserThan:
+        isComplete = curState < threshold;
+      case GoalOperator.equalTo:
+        isComplete = curState == threshold;
+      case GoalOperator.greaterEqual:
+        isComplete = curState >= threshold;
+      case GoalOperator.lesserEqual:
+        isComplete = curState <= threshold;
+      case GoalOperator.logOnly:
+        isComplete = true;
+    }
+
+    if (isComplete) {
+      daysProgress++;
+    }
   }
 }
 
@@ -38,8 +60,28 @@ class FastingStreak extends FastingGoalModel with BasicStreak {
 
 class WeightGoalModel extends BasicGoal {
   final double targetWeight, startWeight;
-
+  late bool isComplete;
+  //? Isn't threshold the target weight here?
   WeightGoalModel(super.goalID, super.threshold, super.progress, super.op, {required this.targetWeight, required this.startWeight});
+
+  bool calculateComplete(double curWeight) {
+    switch (op) {
+      case GoalOperator.greaterThan:
+         isComplete = curWeight > targetWeight;
+      case GoalOperator.lesserThan:
+        isComplete = curWeight < targetWeight;
+      case GoalOperator.equalTo:
+        isComplete = curWeight == targetWeight;
+      case GoalOperator.greaterEqual:
+        isComplete = curWeight >= targetWeight;
+      case GoalOperator.lesserEqual:
+        isComplete = curWeight <= targetWeight;
+      case GoalOperator.logOnly:
+        isComplete = true;
+    }
+    progress = curWeight / targetWeight;
+    return isComplete;
+  }
 }
 
 class WeightStreak extends WeightGoalModel with BasicStreak {
@@ -68,6 +110,7 @@ class NutritionGoalModel extends BasicGoal {
 }
 
 class NutritionStreak extends NutritionGoalModel with BasicStreak {
+  List<NutritionStreak> streaks = [];
   NutritionStreak(super.goalID, super.threshold, super.progress, super.op, {required super.nType, required super.dailyNutritionTarget, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }

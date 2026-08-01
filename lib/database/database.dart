@@ -6,6 +6,7 @@ import 'package:testrun/database/daos/goals_dao.dart';
 import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/database/daos/reinforcement_dao.dart';
+import 'package:testrun/database/daos/reminder_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/tables/fasting_tables.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
@@ -17,6 +18,7 @@ import 'package:testrun/database/tables/nutrition_tables/nutrition_log_table.dar
 import 'package:testrun/database/tables/nutrition_tables/recipe_quantities_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_table.dart';
 import 'package:testrun/database/tables/reinforcement_tables.dart';
+import 'package:testrun/database/tables/reminder_table.dart';
 import 'package:testrun/database/tables/weight_tables.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
@@ -46,7 +48,8 @@ part 'database.g.dart';
     Streaks, 
     UserGoalProgress,
     Reinforcements, 
-    Achievements
+    Achievements,
+    Reminder
   ],
   daos: [
     UserDao,
@@ -54,7 +57,8 @@ part 'database.g.dart';
     HydrationDao,
     NutritionDao,
     GoalsDao,
-    ReinforcementDao
+    ReinforcementDao,
+    ReminderDao
     ]
 )
 

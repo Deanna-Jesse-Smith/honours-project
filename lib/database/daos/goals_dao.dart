@@ -92,7 +92,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     });
   }
 
-  Future<BasicStreak?> checkActiveStreak(GoalType type) {
+  Future checkActiveStreak(GoalType type) {
     switch (type) {
       case GoalType.fasting:
         return checkActiveFastingStreak();
@@ -101,7 +101,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       case GoalType.hydration:
         return checkActiveHydrationStreak();
       case GoalType.nutrition:
-        throw UnimplementedError();
+        return checkActiveNutrientStreaks();
     }
   }
 
@@ -244,14 +244,14 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         type: streakRow.unlockType ?? UnlockType.badge,
         start: streakRow.startDate,
         end: streakRow.endDate,
-      daysProgress: streakRow.streakProgress
+        daysProgress: streakRow.streakProgress
       );
       nutritionStreaks.add(temp);
     }
     return nutritionStreaks;
   }
 
-  Future<BasicGoal?> findActiveGoal(GoalType type) {
+  Future findActiveGoal(GoalType type) {
     switch (type) {
       case GoalType.fasting:
         return findActiveFastingGoal();
@@ -311,5 +311,47 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.op,
       hdrAmount: hydrationRow.hdrAmount
     );
+  }
+
+    Future<WeightGoalModel?> findActiveWeightGoal() async {
+    final goalRows = await (select(goals).join([
+      innerJoin(weightGoals, weightGoals.goalID.equalsExp(goals.goalID)),
+    ])..where(goals.type.equalsValue(GoalType.weight))..where(goals.isComplete.isValue(false))..where(goals.streakID.isNull())).getSingleOrNull();
+    
+    
+    if (goalRows == null) {
+      return null;
+    }
+
+    final goalRow = goalRows.readTable(goals);
+    final weightRow = goalRows.readTable(weightGoals);
+
+    return WeightGoalModel(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op,
+      targetWeight: weightRow.targetWeight,
+      startWeight: weightRow.startWeight,
+    );
+  }
+
+  Future<void> finishGoal(int goalID, {int streakID = -1}) async {
+    (update(goals)..where((g) => g.goalID.equals(goalID))).write(GoalsCompanion(isComplete: Value(true)));
+
+    if (streakID > 0) {
+      DateTime today = DateTime.now();
+      (update(streaks)..where((s) => s.streakID.equals(streakID))).write(StreaksCompanion(endDate: Value(today)));
+    }
+  }
+
+  void updateGoal(BasicGoal model) {
+    (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(GoalsCompanion(thresholdValue: Value(model.threshold), progressValue: Value(model.progress), op: Value(model.op)));
+  }
+
+  void updateStreak(BasicStreak model) {
+    (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(GoalsCompanion(thresholdValue: Value(model.threshold), progressValue: Value(model.progress), op: Value(model.op)));
+
+    (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(StreaksCompanion(streakProgress: Value(model.daysProgress),));
   }
 }

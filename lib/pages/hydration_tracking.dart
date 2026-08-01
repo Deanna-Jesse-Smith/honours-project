@@ -5,6 +5,7 @@ import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -12,12 +13,16 @@ import 'package:testrun/widgets/main_app_bar.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 class HydrationTracking extends ConsumerWidget {
-  const HydrationTracking({super.key});
+  HydrationTracking({super.key});
 
+  double amount = 0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
-    double amount = 0;
+
+    Future<HydrationStreak?> curStreak = ref
+        .watch(gDaoProvider)
+        .checkActiveHydrationStreak();
 
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
@@ -33,27 +38,42 @@ class HydrationTracking extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(15),
-              child: LinearPercentIndicator(
-                percent: 0.7,
-                lineHeight: 10,
-                width: MediaQuery.of(context).size.width - 80,
-                animation: true,
-                animationDuration: 2000,
-                progressColor: Colors.amber,
-                backgroundColor: Colors.black,
+              child: FutureBuilder(
+                future: curStreak,
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return Text('No ongoing goal');
+                  }
+
+                  HydrationStreak? model = asyncSnapshot.data;
+
+                  if (model == null) {
+                    return Text('No ongoing goal');
+                  }
+                  model.calculateProgress(amount);
+
+                  if (model.isComplete) {
+                    ref.read(gDaoProvider).finishGoal(model.goalID, streakID: model.streakID);
+
+                    //! whatever happens when a goal is completed
+                  }
+
+                  return LinearPercentIndicator(
+                    percent: model.progress,
+                    lineHeight: 10,
+                    width: MediaQuery.of(context).size.width - 80,
+                    animation: true,
+                    animationDuration: 2000,
+                    progressColor: Colors.amber,
+                    backgroundColor: Colors.black,
+                  );
+                }
               ),
             ),
             SizedBox(
               width: 100,
               height: 100,
-              child: FutureBuilder<double>(future: getTodayHydration(ref, session.userId), builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  debugPrint('No hydr data');
-                }
-                if (snapshot.hasData) {
-                  amount = snapshot.data!;
-                }
-                return LiquidCircularProgressIndicator(
+              child: LiquidCircularProgressIndicator(
                 value: amount,
                 valueColor: AlwaysStoppedAnimation( Colors.pink),
                 backgroundColor: Colors.white,
@@ -62,7 +82,7 @@ class HydrationTracking extends ConsumerWidget {
                 direction: Axis.vertical,
                 center: Text("Get drinking!"),
                 // shapePath: buildBottlePath(const Size(100, 180)),
-              );}),
+              ),
               // child: LiquidCircularProgressIndicator(
               //   value: amount, // Defaults to 0.5.
               //   valueColor: AlwaysStoppedAnimation(
@@ -89,7 +109,7 @@ class HydrationTracking extends ConsumerWidget {
     );
   }
 
-  Future<double> getTodayHydration(WidgetRef ref, int userID) async {
+  void getTodayHydration(WidgetRef ref, int userID) async {
     // final todays = await getIt<HydrationDao>().getTodayHydration(userState.userID, DateTime.now());
     debugPrint('getTodayHydration');
     final curHydr = await ref.watch(hDaoProvider).getTodayHydration(userID, DateTime.now());
@@ -100,8 +120,7 @@ class HydrationTracking extends ConsumerWidget {
       sum += log.amount;
     }
 
-    return sum;
-
+    amount = sum;
     // return todays.fold(0, (sum, log) => sum + log.amount);
   }
 }

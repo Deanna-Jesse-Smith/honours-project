@@ -5,6 +5,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -12,11 +13,10 @@ import 'package:testrun/widgets/main_app_bar.dart';
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  // var state;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
+    Future<FastingStreak?> curStreak = ref.watch(gDaoProvider).checkActiveFastingStreak();
 
     // ref.read(fDaoProvider).dummyData();
 
@@ -47,7 +47,23 @@ class HomePage extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.all(15),
-              child: customWidgets.streakIndicator('Streak underway', 0.6, Colors.orange, Colors.amberAccent, context)
+              child: FutureBuilder(
+                future: curStreak,
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return const Text('No ongoing Fasting streak');
+                  }
+
+                  FastingStreak? model = asyncSnapshot.data;
+
+                  if (model == null) {
+                    return const Text('No ongoing Fasting streak');
+                  }
+                  //! Calculate the progress here somehow
+
+                  return customWidgets.streakIndicator('Streak underway', model.progress, Colors.orange, Colors.amberAccent, context);
+                }
+              )
             ),
             Padding(
               padding: EdgeInsets.all(35),

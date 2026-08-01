@@ -85,7 +85,7 @@ FastingStatus determineFastingStatus({
   required FastLogData? activeLog,
 }) {
   final today = DateTime(now.year, now.month, now.day);
-  final calculator = calculatorFor(FastingFormConverter().fromSql(user.formIF));
+  final calculator = calculatorFor(user.formIF);
   final expectedStart = calculator.expectedStartFor(now, user);
 
   if (expectedStart == null) return FastingStatus.notFastingDay;

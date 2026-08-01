@@ -9,12 +9,11 @@ class StatisticsModel {
   FastingForm curForm;
 
   StatisticsModel({required this.curFasts, required this.curForm}) {
-    FastingFormConverter ffc = FastingFormConverter();
-    treFasts = curFasts.where((f) => ffc.fromSql(f.formIF) == FastingForm.tre).toList();
+    treFasts = curFasts.where((f) => f.formIF == FastingForm.tre).toList();
     curTREDurations = treFasts.map((f) => f.duration as Duration).toList();
-    adfFasts = curFasts.where((f) => f.formIF == FastingForm.adf.name).toList();
+    adfFasts = curFasts.where((f) => f.formIF == FastingForm.adf).toList();
     curADFDurations = adfFasts.map((f) => f.duration as Duration).toList();
-    fiveTwoFasts = curFasts.where((f) => f.formIF == FastingForm.fiveTwo.name).toList();
+    fiveTwoFasts = curFasts.where((f) => f.formIF == FastingForm.fiveTwo).toList();
   }
 
   Duration getLength() {

@@ -33,7 +33,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late String dropDownValue;
-  late FastingGoalModel? curGoal;
+  late Future<FastingStreak?> curStreak;
+  late FastingStreak? gottenStreak;
 
   static final List<DropdownMenuEntry<FastingForm>> entriess =
       UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
@@ -46,7 +47,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   TimeOfDay start = TimeOfDay(hour: 0, minute: 0), end = TimeOfDay(hour: 0, minute: 0);
 
   @override
-  void initState() async {
+  void initState() {
     final session = ref.watch(userSessionProvider).value;
     dropDownValue = session!.fastingForm.name;
     dropDownValuee = session.fastingForm;
@@ -58,7 +59,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
     adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
 
-    curGoal = await ref.watch(gDaoProvider).findActiveFastingGoal();
+    curStreak = ref.watch(gDaoProvider).checkActiveFastingStreak();
     super.initState();
   }
 
@@ -318,7 +319,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     ],
   );
 
-  Row chooseFastingPlan(UserSessionData session) => .new(
+  Row chooseFastingPlan(UserSessionData session) {
+    return .new(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
@@ -330,7 +332,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           setState(() async {
             bool decision = true;
 
-            if (value! != session.fastingForm && curGoal != null) {
+            if (value! != session.fastingForm) {
               decision = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'Changing your fasting form will wipe your current fasting goal and/or streak.');
             }
             //! Figure out when/how to update the fasting form in the table
@@ -346,6 +348,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
                   ref.read(uDaoProvider).changeTo52(session.userId, boolsToInts(fiveTwoDaysSelected));
                 case FastingForm.adf:
                   ref.read(uDaoProvider).changeToADF(session.userId, boolsToInts(adfDaysSelected));
+              }
+
+              if (gottenStreak != null) {
+                ref.read(gDaoProvider).finishGoal(gottenStreak!.goalID, streakID: gottenStreak!.streakID);
               }
             }
             // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
@@ -371,6 +377,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       // ),
     ],
   );
+}
 }
 
 extension TimeOfDayToDateTime on TimeOfDay {

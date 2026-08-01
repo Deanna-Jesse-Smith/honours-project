@@ -7,6 +7,7 @@ import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -14,16 +15,19 @@ import 'package:testrun/widgets/main_app_bar.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 class WeightTracking extends ConsumerWidget {
-  const WeightTracking({super.key});
+  WeightTracking({super.key});
+  late double? curWeight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    double amount = 0;
     final session = ref.watch(userSessionProvider).value;
-
+    Future<WeightGoalModel?> curGoal = ref
+        .watch(gDaoProvider)
+        .findActiveWeightGoal();
+    findWeight(ref, session!.userId);
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
-      appBar: MainAppBar.appBar('Weight Tracking', session!.userName),
+      appBar: MainAppBar.appBar('Weight Tracking', session.userName),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -35,26 +39,57 @@ class WeightTracking extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(15),
-              child: LinearPercentIndicator(
-                percent: 0.7,
-                lineHeight: 10,
-                width: MediaQuery.of(context).size.width - 80,
-                animation: true,
-                animationDuration: 2000,
-                progressColor: Colors.amber,
-                backgroundColor: Colors.black,
+              child: FutureBuilder(
+                future: curGoal,
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return Text('No ongoing goal');
+                  }
+
+                  WeightGoalModel? model = asyncSnapshot.data;
+
+                  if (model == null || curWeight == null) {
+                    return Text('No ongoing goal');
+                  }
+                  model.calculateComplete(curWeight!);
+
+                  if (model.isComplete) {
+                    ref.read(gDaoProvider).finishGoal(model.goalID);
+
+                    //! whatever happens when a goal is completed
+                  }
+                  return LinearPercentIndicator(
+                    percent: model.progress,
+                    lineHeight: 10,
+                    width: MediaQuery.of(context).size.width - 80,
+                    animation: true,
+                    animationDuration: 2000,
+                    progressColor: Colors.amber,
+                    backgroundColor: Colors.black,
+                  );
+                },
               ),
             ),
-            SizedBox(
-              width: 100,
-              height: 100,
+            SizedBox(width: 100, height: 100),
+            ElevatedButton(
+              onPressed: () async {
+                final newAmount = await Dialogs.getNewInput(
+                  context,
+                  initialVal: curWeight,
+                  title: 'Log Weight',
+                );
+                if (newAmount != null) {
+                  ref
+                      .read(wDaoProvider)
+                      .insertWeight(
+                        session.userId,
+                        newAmount.toDouble(),
+                        DateTime.now(),
+                      );
+                }
+              },
+              child: Text('Log Weight'),
             ),
-            ElevatedButton(onPressed: () async {
-              double? curWeight = await ref.read(wDaoProvider).latestWeight(session.userId);
-
-              final newAmount = await Dialogs.getNewInput(context, initialVal: curWeight, title: 'Log Weight');
-              if (newAmount != null) ref.read(wDaoProvider).insertWeight(session.userId, newAmount.toDouble(), DateTime.now());
-            }, child: Text('Log Weight'))
           ],
         ),
       ),
@@ -62,6 +97,10 @@ class WeightTracking extends ConsumerWidget {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
+  }
+
+  void findWeight(WidgetRef ref, int userID) async {
+    curWeight = await ref.read(wDaoProvider).latestWeight(userID);
   }
 
   // Future<double> getLatestWeight() async {
