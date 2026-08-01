@@ -345,6 +345,25 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
+  void deleteGoal(int goalID, GoalType type, {int streakID = -1}) {
+    (delete(goals)..where((g) => g.goalID.equals(goalID))).go();
+
+    switch (type) {
+      case GoalType.fasting:
+        (delete(fastingGoals)..where((g) => g.goalID.equals(goalID))).go();
+      case GoalType.weight:
+        (delete(weightGoals)..where((g) => g.goalID.equals(goalID))).go();
+      case GoalType.hydration:
+        (delete(hydrationGoals)..where((g) => g.goalID.equals(goalID))).go();
+      case GoalType.nutrition:
+        (delete(nutritionGoals)..where((g) => g.goalID.equals(goalID))).go();
+    }
+
+    if (streakID > 0) {
+      (delete(streaks)..where((s) => s.streakID.equals(streakID))).go();
+    }
+  }
+
   void updateGoal(BasicGoal model) {
     (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(GoalsCompanion(thresholdValue: Value(model.threshold), progressValue: Value(model.progress), op: Value(model.op)));
   }
