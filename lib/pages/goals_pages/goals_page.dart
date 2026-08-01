@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
@@ -26,6 +27,22 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   final TextEditingController intInputController = TextEditingController(
     text: '1',
   );
+  final TextEditingController calorieController = TextEditingController(
+    text: '1',
+  );
+  final TextEditingController carbController = TextEditingController(
+    text: '1',
+  );
+  final TextEditingController proteinController = TextEditingController(
+    text: '1',
+  );
+  final TextEditingController fatController = TextEditingController(
+    text: '1',
+  );
+  final TextEditingController fibreController = TextEditingController(
+    text: '1',
+  );
+  bool isLogOnly = true;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =
       UnmodifiableListView<DropdownMenuEntry<GoalOperator>>(
@@ -130,8 +147,35 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           case FastingGoalModel model:
           final session = ref.watch(userSessionProvider).value;
 
-
-            return Card();
+             return Card(
+              child: Column(
+                children: [
+                  //* Progress bar
+                  Text('I will reach my fasting goal of:'),
+                  Table(
+                    children: [
+                      TableRow(
+                        children: [Text('Comparison: '), goalOperatorMenu()],
+                      ),
+                      TableRow(
+                        children: [
+                          if (model.targetCalories != null) Text('${model.targetCalories}'),
+                          if (model.targetDays != null) Text('${model.targetDays}'),
+                          if (model.targetHours != null) Text('${model.targetHours}'),
+                          TextField(
+                            controller: intInputController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (model.targetCalories != null) Text('Calories per fasting day.'),
+                  if (model.targetDays != null) Text('Days of fasting a week.'),
+                  if (model.targetHours != null) Text('Hours of fasting per day.'),
+                ],
+              ),
+            );
           case WeightGoalModel model:
             // TODO: Handle this case.
             throw UnimplementedError();
@@ -163,8 +207,69 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               ),
             );
           case NutritionGoalModel model:
-            // TODO: Handle this case.
-            throw UnimplementedError();
+              return Card(
+              child: Column(
+                children: [
+                  //* Progress bar
+                  Text('I will reach my goal of (per day):'),
+                  Table(
+                    children: [
+                      TableRow(
+                        children: [
+                          Text('Carbohydrate amount (g): '),
+                          goalOperatorMenu(),
+                          TextField(
+                            controller: carbController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Calorie amount: '),
+                          goalOperatorMenu(),
+                          TextField(
+                            controller: calorieController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Fat amount (g): '),
+                          goalOperatorMenu(),
+                          TextField(
+                            controller: fatController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Fibre amount (g): '),
+                          goalOperatorMenu(),
+                          TextField(
+                            controller: carbController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Protein amount (g): '),
+                          goalOperatorMenu(),
+                          TextField(
+                            controller: carbController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Text('litres of water per day'),
+                ],
+              ),
+            );
           case BasicStreak():
             // TODO: Handle this case.
             throw UnimplementedError();
@@ -189,13 +294,25 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         switch (streak) {
           case FastingStreak streak:
             throw UnimplementedError();
-          case WeightGoalModel():
+          case WeightStreak streak:
             // TODO: Handle this case.
             throw UnimplementedError();
-          case HydrationGoalModel streak:
-            // TODO: Handle this case.
-            throw UnimplementedError();
-          case NutritionGoalModel streak:
+          case HydrationStreak streak:
+            return Card(
+              child: Column(
+                children: [
+                  CheckboxListTile(value: isLogOnly, onChanged: (bool? value) {
+                    setState(() {
+                      isLogOnly = value!;
+                    });
+                  },
+                  title: Text('Track Logs only')), //! make this only editable on streak creation
+                  Text('Days on Streak: ${streak.daysProgress}'),
+                  Text('Started on: ${DateFormat.yMEd().format(streak.start)}'),
+                ],
+              )
+            );
+          case NutritionStreak streak:
             // TODO: Handle this case.
             throw UnimplementedError();
           case BasicStreak streak:
