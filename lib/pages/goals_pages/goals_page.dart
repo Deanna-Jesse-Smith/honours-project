@@ -22,7 +22,7 @@ class GoalsPage extends ConsumerStatefulWidget {
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   late GoalType type;
   late String title;
-  late Future curGoal;
+  late Future<BasicGoal> curGoal;
   late Future<BasicStreak?> curStreak;
   final TextEditingController fastingController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -120,6 +120,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ElevatedButton(
           onPressed: () {
             //! Save dialogue and actions here
+            
+
             Navigator.of(context).pop();
           },
           child: const Text('Save Changes'),
@@ -142,7 +144,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         switch (type) {
           case GoalType.fasting:
             FastingGoalModel model = asyncSnapshot.data;
-            final session = ref.watch(userSessionProvider).value;
 
             return Card(
               child: Column(
@@ -421,66 +422,67 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               child: Column(
                 children: [
                   //* Progress bar
-                  Text('I will reach my goal of (per day):'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [
-                          Text('Carbohydrate amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Calorie amount: '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: calorieController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Fat amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: fatController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Fibre amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Protein amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Text('litres of water per day'),
+                  Text('I will reach my goal of logging at least one meal per day'),
+                  
+                  // Text('I will reach my goal of (per day):'),
+                  // Table(
+                  //   children: [
+                  //     TableRow(
+                  //       children: [
+                  //         Text('Carbohydrate amount (g): '),
+                  //         goalOperatorMenu(),
+                  //         TextField(
+                  //           controller: carbController,
+                  //           keyboardType: TextInputType.numberWithOptions(),
+                  //           decoration: InputDecoration(suffixText: 'g'),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     TableRow(
+                  //       children: [
+                  //         Text('Calorie amount: '),
+                  //         goalOperatorMenu(),
+                  //         TextField(
+                  //           controller: calorieController,
+                  //           keyboardType: TextInputType.numberWithOptions(),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     TableRow(
+                  //       children: [
+                  //         Text('Fat amount (g): '),
+                  //         goalOperatorMenu(),
+                  //         TextField(
+                  //           controller: fatController,
+                  //           keyboardType: TextInputType.numberWithOptions(),
+                  //           decoration: InputDecoration(suffixText: 'g'),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     TableRow(
+                  //       children: [
+                  //         Text('Fibre amount (g): '),
+                  //         goalOperatorMenu(),
+                  //         TextField(
+                  //           controller: carbController,
+                  //           keyboardType: TextInputType.numberWithOptions(),
+                  //           decoration: InputDecoration(suffixText: 'g'),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     TableRow(
+                  //       children: [
+                  //         Text('Protein amount (g): '),
+                  //         goalOperatorMenu(),
+                  //         TextField(
+                  //           controller: carbController,
+                  //           keyboardType: TextInputType.numberWithOptions(),
+                  //           decoration: InputDecoration(suffixText: 'g'),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             );

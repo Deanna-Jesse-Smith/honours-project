@@ -14,6 +14,7 @@ mixin _$NutritionDaoMixin on DatabaseAccessor<AppDatabase> {
   $MealRecipeContentTable get mealRecipeContent =>
       attachedDatabase.mealRecipeContent;
   $NutritionLogTable get nutritionLog => attachedDatabase.nutritionLog;
+  $FoodLogTable get foodLog => attachedDatabase.foodLog;
   NutritionDaoManager get managers => NutritionDaoManager(this);
 }
 
@@ -45,4 +46,6 @@ class NutritionDaoManager {
       );
   $$NutritionLogTableTableManager get nutritionLog =>
       $$NutritionLogTableTableManager(_db.attachedDatabase, _db.nutritionLog);
+  $$FoodLogTableTableManager get foodLog =>
+      $$FoodLogTableTableManager(_db.attachedDatabase, _db.foodLog);
 }

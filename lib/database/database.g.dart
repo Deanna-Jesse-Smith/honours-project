@@ -7553,6 +7553,18 @@ class $ReminderTable extends Reminder
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _minutesOffsetMeta = const VerificationMeta(
+    'minutesOffset',
+  );
+  @override
+  late final GeneratedColumn<int> minutesOffset = GeneratedColumn<int>(
+    'minutes_offset',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(15),
+  );
   static const VerificationMeta _daysMeta = const VerificationMeta('days');
   @override
   late final GeneratedColumn<String> days = GeneratedColumn<String>(
@@ -7568,6 +7580,7 @@ class $ReminderTable extends Reminder
     userID,
     isEnabled,
     time,
+    minutesOffset,
     days,
   ];
   @override
@@ -7611,6 +7624,15 @@ class $ReminderTable extends Reminder
         time.isAcceptableOrUnknown(data['time']!, _timeMeta),
       );
     }
+    if (data.containsKey('minutes_offset')) {
+      context.handle(
+        _minutesOffsetMeta,
+        minutesOffset.isAcceptableOrUnknown(
+          data['minutes_offset']!,
+          _minutesOffsetMeta,
+        ),
+      );
+    }
     if (data.containsKey('days')) {
       context.handle(
         _daysMeta,
@@ -7642,6 +7664,10 @@ class $ReminderTable extends Reminder
         DriftSqlType.dateTime,
         data['${effectivePrefix}time'],
       )!,
+      minutesOffset: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}minutes_offset'],
+      )!,
       days: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}days'],
@@ -7660,12 +7686,14 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   final int userID;
   final bool isEnabled;
   final DateTime time;
+  final int minutesOffset;
   final String? days;
   const ReminderData({
     required this.reminderID,
     required this.userID,
     required this.isEnabled,
     required this.time,
+    required this.minutesOffset,
     this.days,
   });
   @override
@@ -7675,6 +7703,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     map['user_i_d'] = Variable<int>(userID);
     map['is_enabled'] = Variable<bool>(isEnabled);
     map['time'] = Variable<DateTime>(time);
+    map['minutes_offset'] = Variable<int>(minutesOffset);
     if (!nullToAbsent || days != null) {
       map['days'] = Variable<String>(days);
     }
@@ -7687,6 +7716,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       userID: Value(userID),
       isEnabled: Value(isEnabled),
       time: Value(time),
+      minutesOffset: Value(minutesOffset),
       days: days == null && nullToAbsent ? const Value.absent() : Value(days),
     );
   }
@@ -7701,6 +7731,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       userID: serializer.fromJson<int>(json['userID']),
       isEnabled: serializer.fromJson<bool>(json['isEnabled']),
       time: serializer.fromJson<DateTime>(json['time']),
+      minutesOffset: serializer.fromJson<int>(json['minutesOffset']),
       days: serializer.fromJson<String?>(json['days']),
     );
   }
@@ -7712,6 +7743,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       'userID': serializer.toJson<int>(userID),
       'isEnabled': serializer.toJson<bool>(isEnabled),
       'time': serializer.toJson<DateTime>(time),
+      'minutesOffset': serializer.toJson<int>(minutesOffset),
       'days': serializer.toJson<String?>(days),
     };
   }
@@ -7721,12 +7753,14 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     int? userID,
     bool? isEnabled,
     DateTime? time,
+    int? minutesOffset,
     Value<String?> days = const Value.absent(),
   }) => ReminderData(
     reminderID: reminderID ?? this.reminderID,
     userID: userID ?? this.userID,
     isEnabled: isEnabled ?? this.isEnabled,
     time: time ?? this.time,
+    minutesOffset: minutesOffset ?? this.minutesOffset,
     days: days.present ? days.value : this.days,
   );
   ReminderData copyWithCompanion(ReminderCompanion data) {
@@ -7737,6 +7771,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       userID: data.userID.present ? data.userID.value : this.userID,
       isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
       time: data.time.present ? data.time.value : this.time,
+      minutesOffset: data.minutesOffset.present
+          ? data.minutesOffset.value
+          : this.minutesOffset,
       days: data.days.present ? data.days.value : this.days,
     );
   }
@@ -7748,13 +7785,15 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
           ..write('userID: $userID, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('time: $time, ')
+          ..write('minutesOffset: $minutesOffset, ')
           ..write('days: $days')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(reminderID, userID, isEnabled, time, days);
+  int get hashCode =>
+      Object.hash(reminderID, userID, isEnabled, time, minutesOffset, days);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7763,6 +7802,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
           other.userID == this.userID &&
           other.isEnabled == this.isEnabled &&
           other.time == this.time &&
+          other.minutesOffset == this.minutesOffset &&
           other.days == this.days);
 }
 
@@ -7771,12 +7811,14 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   final Value<int> userID;
   final Value<bool> isEnabled;
   final Value<DateTime> time;
+  final Value<int> minutesOffset;
   final Value<String?> days;
   const ReminderCompanion({
     this.reminderID = const Value.absent(),
     this.userID = const Value.absent(),
     this.isEnabled = const Value.absent(),
     this.time = const Value.absent(),
+    this.minutesOffset = const Value.absent(),
     this.days = const Value.absent(),
   });
   ReminderCompanion.insert({
@@ -7784,6 +7826,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     required int userID,
     this.isEnabled = const Value.absent(),
     this.time = const Value.absent(),
+    this.minutesOffset = const Value.absent(),
     this.days = const Value.absent(),
   }) : userID = Value(userID);
   static Insertable<ReminderData> custom({
@@ -7791,6 +7834,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     Expression<int>? userID,
     Expression<bool>? isEnabled,
     Expression<DateTime>? time,
+    Expression<int>? minutesOffset,
     Expression<String>? days,
   }) {
     return RawValuesInsertable({
@@ -7798,6 +7842,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
       if (userID != null) 'user_i_d': userID,
       if (isEnabled != null) 'is_enabled': isEnabled,
       if (time != null) 'time': time,
+      if (minutesOffset != null) 'minutes_offset': minutesOffset,
       if (days != null) 'days': days,
     });
   }
@@ -7807,6 +7852,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     Value<int>? userID,
     Value<bool>? isEnabled,
     Value<DateTime>? time,
+    Value<int>? minutesOffset,
     Value<String?>? days,
   }) {
     return ReminderCompanion(
@@ -7814,6 +7860,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
       userID: userID ?? this.userID,
       isEnabled: isEnabled ?? this.isEnabled,
       time: time ?? this.time,
+      minutesOffset: minutesOffset ?? this.minutesOffset,
       days: days ?? this.days,
     );
   }
@@ -7833,6 +7880,9 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     if (time.present) {
       map['time'] = Variable<DateTime>(time.value);
     }
+    if (minutesOffset.present) {
+      map['minutes_offset'] = Variable<int>(minutesOffset.value);
+    }
     if (days.present) {
       map['days'] = Variable<String>(days.value);
     }
@@ -7846,7 +7896,365 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
           ..write('userID: $userID, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('time: $time, ')
+          ..write('minutesOffset: $minutesOffset, ')
           ..write('days: $days')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _foodLogIDMeta = const VerificationMeta(
+    'foodLogID',
+  );
+  @override
+  late final GeneratedColumn<int> foodLogID = GeneratedColumn<int>(
+    'food_log_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<MealCategory, String> category =
+      GeneratedColumn<String>(
+        'category',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<MealCategory>($FoodLogTable.$convertercategory);
+  static const VerificationMeta _logDateMeta = const VerificationMeta(
+    'logDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> logDate = GeneratedColumn<DateTime>(
+    'log_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDate,
+  );
+  static const VerificationMeta _commentMeta = const VerificationMeta(
+    'comment',
+  );
+  @override
+  late final GeneratedColumn<String> comment = GeneratedColumn<String>(
+    'comment',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    foodLogID,
+    category,
+    logDate,
+    comment,
+    path,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('food_log_i_d')) {
+      context.handle(
+        _foodLogIDMeta,
+        foodLogID.isAcceptableOrUnknown(data['food_log_i_d']!, _foodLogIDMeta),
+      );
+    }
+    if (data.containsKey('log_date')) {
+      context.handle(
+        _logDateMeta,
+        logDate.isAcceptableOrUnknown(data['log_date']!, _logDateMeta),
+      );
+    }
+    if (data.containsKey('comment')) {
+      context.handle(
+        _commentMeta,
+        comment.isAcceptableOrUnknown(data['comment']!, _commentMeta),
+      );
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+        _pathMeta,
+        path.isAcceptableOrUnknown(data['path']!, _pathMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {foodLogID};
+  @override
+  FoodLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodLogData(
+      foodLogID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}food_log_i_d'],
+      )!,
+      category: $FoodLogTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
+      logDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}log_date'],
+      )!,
+      comment: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}comment'],
+      ),
+      path: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}path'],
+      ),
+    );
+  }
+
+  @override
+  $FoodLogTable createAlias(String alias) {
+    return $FoodLogTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<MealCategory, String, String> $convertercategory =
+      const EnumNameConverter<MealCategory>(MealCategory.values);
+}
+
+class FoodLogData extends DataClass implements Insertable<FoodLogData> {
+  final int foodLogID;
+  final MealCategory category;
+  final DateTime logDate;
+  final String? comment;
+  final String? path;
+  const FoodLogData({
+    required this.foodLogID,
+    required this.category,
+    required this.logDate,
+    this.comment,
+    this.path,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['food_log_i_d'] = Variable<int>(foodLogID);
+    {
+      map['category'] = Variable<String>(
+        $FoodLogTable.$convertercategory.toSql(category),
+      );
+    }
+    map['log_date'] = Variable<DateTime>(logDate);
+    if (!nullToAbsent || comment != null) {
+      map['comment'] = Variable<String>(comment);
+    }
+    if (!nullToAbsent || path != null) {
+      map['path'] = Variable<String>(path);
+    }
+    return map;
+  }
+
+  FoodLogCompanion toCompanion(bool nullToAbsent) {
+    return FoodLogCompanion(
+      foodLogID: Value(foodLogID),
+      category: Value(category),
+      logDate: Value(logDate),
+      comment: comment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(comment),
+      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+    );
+  }
+
+  factory FoodLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodLogData(
+      foodLogID: serializer.fromJson<int>(json['foodLogID']),
+      category: $FoodLogTable.$convertercategory.fromJson(
+        serializer.fromJson<String>(json['category']),
+      ),
+      logDate: serializer.fromJson<DateTime>(json['logDate']),
+      comment: serializer.fromJson<String?>(json['comment']),
+      path: serializer.fromJson<String?>(json['path']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'foodLogID': serializer.toJson<int>(foodLogID),
+      'category': serializer.toJson<String>(
+        $FoodLogTable.$convertercategory.toJson(category),
+      ),
+      'logDate': serializer.toJson<DateTime>(logDate),
+      'comment': serializer.toJson<String?>(comment),
+      'path': serializer.toJson<String?>(path),
+    };
+  }
+
+  FoodLogData copyWith({
+    int? foodLogID,
+    MealCategory? category,
+    DateTime? logDate,
+    Value<String?> comment = const Value.absent(),
+    Value<String?> path = const Value.absent(),
+  }) => FoodLogData(
+    foodLogID: foodLogID ?? this.foodLogID,
+    category: category ?? this.category,
+    logDate: logDate ?? this.logDate,
+    comment: comment.present ? comment.value : this.comment,
+    path: path.present ? path.value : this.path,
+  );
+  FoodLogData copyWithCompanion(FoodLogCompanion data) {
+    return FoodLogData(
+      foodLogID: data.foodLogID.present ? data.foodLogID.value : this.foodLogID,
+      category: data.category.present ? data.category.value : this.category,
+      logDate: data.logDate.present ? data.logDate.value : this.logDate,
+      comment: data.comment.present ? data.comment.value : this.comment,
+      path: data.path.present ? data.path.value : this.path,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodLogData(')
+          ..write('foodLogID: $foodLogID, ')
+          ..write('category: $category, ')
+          ..write('logDate: $logDate, ')
+          ..write('comment: $comment, ')
+          ..write('path: $path')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(foodLogID, category, logDate, comment, path);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodLogData &&
+          other.foodLogID == this.foodLogID &&
+          other.category == this.category &&
+          other.logDate == this.logDate &&
+          other.comment == this.comment &&
+          other.path == this.path);
+}
+
+class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
+  final Value<int> foodLogID;
+  final Value<MealCategory> category;
+  final Value<DateTime> logDate;
+  final Value<String?> comment;
+  final Value<String?> path;
+  const FoodLogCompanion({
+    this.foodLogID = const Value.absent(),
+    this.category = const Value.absent(),
+    this.logDate = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.path = const Value.absent(),
+  });
+  FoodLogCompanion.insert({
+    this.foodLogID = const Value.absent(),
+    required MealCategory category,
+    this.logDate = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.path = const Value.absent(),
+  }) : category = Value(category);
+  static Insertable<FoodLogData> custom({
+    Expression<int>? foodLogID,
+    Expression<String>? category,
+    Expression<DateTime>? logDate,
+    Expression<String>? comment,
+    Expression<String>? path,
+  }) {
+    return RawValuesInsertable({
+      if (foodLogID != null) 'food_log_i_d': foodLogID,
+      if (category != null) 'category': category,
+      if (logDate != null) 'log_date': logDate,
+      if (comment != null) 'comment': comment,
+      if (path != null) 'path': path,
+    });
+  }
+
+  FoodLogCompanion copyWith({
+    Value<int>? foodLogID,
+    Value<MealCategory>? category,
+    Value<DateTime>? logDate,
+    Value<String?>? comment,
+    Value<String?>? path,
+  }) {
+    return FoodLogCompanion(
+      foodLogID: foodLogID ?? this.foodLogID,
+      category: category ?? this.category,
+      logDate: logDate ?? this.logDate,
+      comment: comment ?? this.comment,
+      path: path ?? this.path,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (foodLogID.present) {
+      map['food_log_i_d'] = Variable<int>(foodLogID.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $FoodLogTable.$convertercategory.toSql(category.value),
+      );
+    }
+    if (logDate.present) {
+      map['log_date'] = Variable<DateTime>(logDate.value);
+    }
+    if (comment.present) {
+      map['comment'] = Variable<String>(comment.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodLogCompanion(')
+          ..write('foodLogID: $foodLogID, ')
+          ..write('category: $category, ')
+          ..write('logDate: $logDate, ')
+          ..write('comment: $comment, ')
+          ..write('path: $path')
           ..write(')'))
         .toString();
   }
@@ -7883,6 +8291,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReinforcementsTable reinforcements = $ReinforcementsTable(this);
   late final $ReminderTable reminder = $ReminderTable(this);
+  late final $FoodLogTable foodLog = $FoodLogTable(this);
   late final Index foodName = Index(
     'foodName',
     'CREATE INDEX foodName ON food (name)',
@@ -7934,6 +8343,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     achievements,
     reinforcements,
     reminder,
+    foodLog,
     foodName,
     mealRecipeKey,
     mealFoodKey,
@@ -16311,6 +16721,7 @@ typedef $$ReminderTableCreateCompanionBuilder =
       required int userID,
       Value<bool> isEnabled,
       Value<DateTime> time,
+      Value<int> minutesOffset,
       Value<String?> days,
     });
 typedef $$ReminderTableUpdateCompanionBuilder =
@@ -16319,6 +16730,7 @@ typedef $$ReminderTableUpdateCompanionBuilder =
       Value<int> userID,
       Value<bool> isEnabled,
       Value<DateTime> time,
+      Value<int> minutesOffset,
       Value<String?> days,
     });
 
@@ -16365,6 +16777,11 @@ class $$ReminderTableFilterComposer
 
   ColumnFilters<DateTime> get time => $composableBuilder(
     column: $table.time,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get minutesOffset => $composableBuilder(
+    column: $table.minutesOffset,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16421,6 +16838,11 @@ class $$ReminderTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get minutesOffset => $composableBuilder(
+    column: $table.minutesOffset,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get days => $composableBuilder(
     column: $table.days,
     builder: (column) => ColumnOrderings(column),
@@ -16469,6 +16891,11 @@ class $$ReminderTableAnnotationComposer
 
   GeneratedColumn<DateTime> get time =>
       $composableBuilder(column: $table.time, builder: (column) => column);
+
+  GeneratedColumn<int> get minutesOffset => $composableBuilder(
+    column: $table.minutesOffset,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get days =>
       $composableBuilder(column: $table.days, builder: (column) => column);
@@ -16529,12 +16956,14 @@ class $$ReminderTableTableManager
                 Value<int> userID = const Value.absent(),
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> time = const Value.absent(),
+                Value<int> minutesOffset = const Value.absent(),
                 Value<String?> days = const Value.absent(),
               }) => ReminderCompanion(
                 reminderID: reminderID,
                 userID: userID,
                 isEnabled: isEnabled,
                 time: time,
+                minutesOffset: minutesOffset,
                 days: days,
               ),
           createCompanionCallback:
@@ -16543,12 +16972,14 @@ class $$ReminderTableTableManager
                 required int userID,
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> time = const Value.absent(),
+                Value<int> minutesOffset = const Value.absent(),
                 Value<String?> days = const Value.absent(),
               }) => ReminderCompanion.insert(
                 reminderID: reminderID,
                 userID: userID,
                 isEnabled: isEnabled,
                 time: time,
+                minutesOffset: minutesOffset,
                 days: days,
               ),
           withReferenceMapper: (p0) => p0
@@ -16618,6 +17049,198 @@ typedef $$ReminderTableProcessedTableManager =
       ReminderData,
       PrefetchHooks Function({bool userID})
     >;
+typedef $$FoodLogTableCreateCompanionBuilder =
+    FoodLogCompanion Function({
+      Value<int> foodLogID,
+      required MealCategory category,
+      Value<DateTime> logDate,
+      Value<String?> comment,
+      Value<String?> path,
+    });
+typedef $$FoodLogTableUpdateCompanionBuilder =
+    FoodLogCompanion Function({
+      Value<int> foodLogID,
+      Value<MealCategory> category,
+      Value<DateTime> logDate,
+      Value<String?> comment,
+      Value<String?> path,
+    });
+
+class $$FoodLogTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodLogTable> {
+  $$FoodLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get foodLogID => $composableBuilder(
+    column: $table.foodLogID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<MealCategory, MealCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get logDate => $composableBuilder(
+    column: $table.logDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodLogTable> {
+  $$FoodLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get foodLogID => $composableBuilder(
+    column: $table.foodLogID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get logDate => $composableBuilder(
+    column: $table.logDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodLogTable> {
+  $$FoodLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get foodLogID =>
+      $composableBuilder(column: $table.foodLogID, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<MealCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get logDate =>
+      $composableBuilder(column: $table.logDate, builder: (column) => column);
+
+  GeneratedColumn<String> get comment =>
+      $composableBuilder(column: $table.comment, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+}
+
+class $$FoodLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodLogTable,
+          FoodLogData,
+          $$FoodLogTableFilterComposer,
+          $$FoodLogTableOrderingComposer,
+          $$FoodLogTableAnnotationComposer,
+          $$FoodLogTableCreateCompanionBuilder,
+          $$FoodLogTableUpdateCompanionBuilder,
+          (
+            FoodLogData,
+            BaseReferences<_$AppDatabase, $FoodLogTable, FoodLogData>,
+          ),
+          FoodLogData,
+          PrefetchHooks Function()
+        > {
+  $$FoodLogTableTableManager(_$AppDatabase db, $FoodLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> foodLogID = const Value.absent(),
+                Value<MealCategory> category = const Value.absent(),
+                Value<DateTime> logDate = const Value.absent(),
+                Value<String?> comment = const Value.absent(),
+                Value<String?> path = const Value.absent(),
+              }) => FoodLogCompanion(
+                foodLogID: foodLogID,
+                category: category,
+                logDate: logDate,
+                comment: comment,
+                path: path,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> foodLogID = const Value.absent(),
+                required MealCategory category,
+                Value<DateTime> logDate = const Value.absent(),
+                Value<String?> comment = const Value.absent(),
+                Value<String?> path = const Value.absent(),
+              }) => FoodLogCompanion.insert(
+                foodLogID: foodLogID,
+                category: category,
+                logDate: logDate,
+                comment: comment,
+                path: path,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodLogTable,
+      FoodLogData,
+      $$FoodLogTableFilterComposer,
+      $$FoodLogTableOrderingComposer,
+      $$FoodLogTableAnnotationComposer,
+      $$FoodLogTableCreateCompanionBuilder,
+      $$FoodLogTableUpdateCompanionBuilder,
+      (FoodLogData, BaseReferences<_$AppDatabase, $FoodLogTable, FoodLogData>),
+      FoodLogData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16663,4 +17286,6 @@ class $AppDatabaseManager {
       $$ReinforcementsTableTableManager(_db, _db.reinforcements);
   $$ReminderTableTableManager get reminder =>
       $$ReminderTableTableManager(_db, _db.reminder);
+  $$FoodLogTableTableManager get foodLog =>
+      $$FoodLogTableTableManager(_db, _db.foodLog);
 }

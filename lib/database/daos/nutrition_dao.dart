@@ -28,13 +28,38 @@ part 'nutrition_dao.g.dart';
     MealFoodContent,
     MealRecipeContent,
     NutritionLog,
+    FoodLog,
   ],
 )
 class NutritionDao extends DatabaseAccessor<AppDatabase>
     with _$NutritionDaoMixin {
   NutritionDao(super.db);
 
-  Future<void> updateFoodLog(DateTime date) async {}
+  Future<int> insertFoodLog(MealCategory cate, String? path, String? comment) async {
+    final insertion = (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path))));
+    return insertion;
+  }
+
+    bool isSameDate(DateTime one, DateTime other) {
+    return one.year == other.year &&
+        one.month == other.month &&
+        one.day == other.day;
+  }
+
+  Future<Map<DateTime, DayFoods>> getFoodInRange(List<DateTime> days) async {
+    final allFood = await (select(foodLog)..where((f) => f.logDate.isIn(days))..orderBy([(d) => OrderingTerm.desc(d.logDate)])).get();
+    Map<DateTime, DayFoods> foodMap = {};
+    for (final foodItem in allFood) {
+      DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
+
+      foodMap.update(foodItem.logDate, (u) {
+        u.foods.add(foodItem);
+        return u;
+        }, ifAbsent: () => temp);
+    }
+
+    return foodMap;
+  }
 
   Future<int> addMealRecipeContent(
     int userID,
@@ -135,12 +160,6 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         await into(nutritionLog).insert(NutritionLogCompanion.insert(userID: userID, logDateTime: Value(date), carbs: Value(curFood.carbs * amount), fat: Value(curFood.fat * amount), protien: Value(curFood.protein * amount), fibre: Value(curFood.fibre * amount), calories: Value(curFood.calories.toInt() * amount.toInt())));
       }
     }
-  }
-
-  bool isSameDate(DateTime one, DateTime other) {
-    return one.year == other.year &&
-        one.month == other.month &&
-        one.day == other.day;
   }
 
   Future<int> insertMeal(int userID, DateTime date, LogMethod logMethod) async {

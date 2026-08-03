@@ -55,6 +55,12 @@ final mealRangeProvider = FutureProvider.family<Map<DateTime, DayMeals>, List<Da
     return repo.getMealsInRange(days);
   },
 );
+final foodRangeProvider = FutureProvider.family<Map<DateTime, DayFoods>, List<DateTime>>(
+  (ref, days) {
+    final repo = ref.watch(nDaoProvider);
+    return repo.getFoodInRange(days);
+  },
+);
 final isFastingProvider = Provider<bool>((ref) {
   final curUser = ref.watch(userSessionProvider);
   return curUser.when(

@@ -69,7 +69,7 @@ class Streaks extends Table {
   IntColumn get streakID => integer().autoIncrement()();
   IntColumn get streakProgress => integer().withDefault(const Constant(0))();  //! Days, not individual metric checking
   // IntColumn get bestStreak => integer().withDefault(const Constant(0))();   //! calculate this in the DAO instead
-  DateTimeColumn get startDate => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get startDate => dateTime().withDefault(currentDate)();
   DateTimeColumn get endDate => dateTime().nullable()();
   // TextColumn get streakType => textEnum<GoalType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();
@@ -81,6 +81,6 @@ class UserGoalProgress extends Table {
   IntColumn get userGoalID => integer().autoIncrement()();
   IntColumn get userID => integer().references(Users, #userID)();
   IntColumn get goalID => integer().references(Goals, #goalID)();
-  DateTimeColumn get dateCreated =>  dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get dateCreated =>  dateTime().withDefault(currentDate)();
   BoolColumn get isMain => boolean().withDefault(const Constant(false))();
 }

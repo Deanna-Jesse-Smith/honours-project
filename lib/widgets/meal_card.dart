@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
@@ -43,8 +46,36 @@ class MealCard extends StatelessWidget {
   }
 }
 
+class FoodCard extends StatelessWidget {
+  final FoodLogData food;
+  const FoodCard({super.key, required this.food});
+  
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(padding: const EdgeInsets.all(8),
+      child: Column(
+        children: [
+          Row(children: [
+            Text(food.category.cardName),
+            Text(DateFormat('HH:mm a').format(food.logDate)),
+          ],),
+          if (food.comment != null) Text(food.comment!),
+          if (food.path != null) getImage(food.path!),
+        ],
+      ),)
+    );
+  }
+
+  Image getImage(String path) {
+    final file = File(path);
+
+    return Image.file(file);
+  }
+}
+
 class DaySection extends StatelessWidget {
-  final DayMeals dayMeal;
+  final DayFoods dayMeal;
   const DaySection({super.key, required this.dayMeal});
 
   @override
@@ -52,12 +83,28 @@ class DaySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(DateFormat('EEE, M/d/y').format(dayMeal.meals.first.date)),
-        ...dayMeal.meals.map((meal) => MealCard(meal: meal)),
+        Text(DateFormat('EEE, M/d/y').format(dayMeal.day)),
+        ...dayMeal.foods.map((meal) => FoodCard(food: meal)),
       ],
     );
   }
 }
+
+// class DaySection extends StatelessWidget {
+//   final DayMeals dayMeal;
+//   const DaySection({super.key, required this.dayMeal});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(DateFormat('EEE, M/d/y').format(dayMeal.meals.first.date)),
+//         ...dayMeal.meals.map((meal) => MealCard(meal: meal)),
+//       ],
+//     );
+//   }
+// }
 
 class FoodRow extends StatelessWidget {
   final FoodData item;

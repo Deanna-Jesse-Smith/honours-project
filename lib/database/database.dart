@@ -49,7 +49,8 @@ part 'database.g.dart';
     UserGoalProgress,
     Reinforcements, 
     Achievements,
-    Reminder
+    Reminder,
+    FoodLog,
   ],
   daos: [
     UserDao,

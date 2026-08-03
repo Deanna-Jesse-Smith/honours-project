@@ -5,7 +5,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
-import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/meal_card.dart';
 
@@ -21,8 +20,10 @@ class MealTracking extends ConsumerWidget {
       DateUtils.dateOnly(temp.subtract(const Duration(days: 1))),
       DateUtils.dateOnly(temp.subtract(const Duration(days: 2))),
     ];
-    final threeDaysMeals = ref.watch(mealRangeProvider(threeDays)).value;
-    final viewMeals = ref.watch(nDaoProvider).getMealsInRange(threeDays);
+    // final threeDaysMeals = ref.watch(mealRangeProvider(threeDays)).value;
+    // final viewMeals = ref.watch(nDaoProvider).getMealsInRange(threeDays);
+    final viewFoods = ref.watch(nDaoProvider).getFoodInRange(threeDays);
+
 
     CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
@@ -30,22 +31,36 @@ class MealTracking extends ConsumerWidget {
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: customWidgets.getFAB(ref, context, 3),
-      body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
+      body: FutureBuilder(future: viewFoods, builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);
         }
+        final dayFoods = snapshot.data;
 
-        final daysMeals = snapshot.data;
+        return ListView.builder(itemCount: dayFoods!.length, itemBuilder: (context, index) {
+          if (dayFoods.isNotEmpty) {
+            return DaySection(dayMeal: dayFoods[threeDays[index]]!);
+          }
+          return SizedBox(height: 10,);
+        });
+      }),
+
+      // body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
+      //   if (!snapshot.hasData) {
+      //     return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);
+      //   }
+
+      //   final daysMeals = snapshot.data;
 
         
 
-        return ListView.builder(itemCount: daysMeals!.length, itemBuilder: (context, index) {
-          if (daysMeals.isNotEmpty) {
-            return DaySection(dayMeal: daysMeals[threeDays[index]]!);
-          }
-          return SizedBox(height: 10,);
-        },);
-      }),
+      //   return ListView.builder(itemCount: daysMeals!.length, itemBuilder: (context, index) {
+      //     if (daysMeals.isNotEmpty) {
+      //       return DaySection(dayMeal: daysMeals[threeDays[index]]!);
+      //     }
+      //     return SizedBox(height: 10,);
+      //   },);
+      // }),
       // body: ListView.builder(
       //   itemBuilder: (context, index) {
       //     return Column(
@@ -87,9 +102,5 @@ class MealTracking extends ConsumerWidget {
       ),
       child: Text('Hello'),
     );
-  }
-
-  Container individualMeal() {
-    return .new();
   }
 }
