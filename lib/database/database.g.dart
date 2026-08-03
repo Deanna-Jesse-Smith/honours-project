@@ -4359,7 +4359,7 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
+    defaultValue: currentDate,
   );
   static const VerificationMeta _endDateMeta = const VerificationMeta(
     'endDate',
@@ -6386,7 +6386,7 @@ class $UserGoalProgressTable extends UserGoalProgress
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
+    defaultValue: currentDate,
   );
   static const VerificationMeta _isMainMeta = const VerificationMeta('isMain');
   @override
@@ -7528,6 +7528,15 @@ class $ReminderTable extends Reminder
       'REFERENCES users (user_i_d)',
     ),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<GoalType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<GoalType>($ReminderTable.$convertertype);
   static const VerificationMeta _isEnabledMeta = const VerificationMeta(
     'isEnabled',
   );
@@ -7578,6 +7587,7 @@ class $ReminderTable extends Reminder
   List<GeneratedColumn> get $columns => [
     reminderID,
     userID,
+    type,
     isEnabled,
     time,
     minutesOffset,
@@ -7656,6 +7666,12 @@ class $ReminderTable extends Reminder
         DriftSqlType.int,
         data['${effectivePrefix}user_i_d'],
       )!,
+      type: $ReminderTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
       isEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_enabled'],
@@ -7679,11 +7695,15 @@ class $ReminderTable extends Reminder
   $ReminderTable createAlias(String alias) {
     return $ReminderTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<GoalType, String, String> $convertertype =
+      const EnumNameConverter<GoalType>(GoalType.values);
 }
 
 class ReminderData extends DataClass implements Insertable<ReminderData> {
   final int reminderID;
   final int userID;
+  final GoalType type;
   final bool isEnabled;
   final DateTime time;
   final int minutesOffset;
@@ -7691,6 +7711,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   const ReminderData({
     required this.reminderID,
     required this.userID,
+    required this.type,
     required this.isEnabled,
     required this.time,
     required this.minutesOffset,
@@ -7701,6 +7722,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     final map = <String, Expression>{};
     map['reminder_i_d'] = Variable<int>(reminderID);
     map['user_i_d'] = Variable<int>(userID);
+    {
+      map['type'] = Variable<String>($ReminderTable.$convertertype.toSql(type));
+    }
     map['is_enabled'] = Variable<bool>(isEnabled);
     map['time'] = Variable<DateTime>(time);
     map['minutes_offset'] = Variable<int>(minutesOffset);
@@ -7714,6 +7738,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     return ReminderCompanion(
       reminderID: Value(reminderID),
       userID: Value(userID),
+      type: Value(type),
       isEnabled: Value(isEnabled),
       time: Value(time),
       minutesOffset: Value(minutesOffset),
@@ -7729,6 +7754,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     return ReminderData(
       reminderID: serializer.fromJson<int>(json['reminderID']),
       userID: serializer.fromJson<int>(json['userID']),
+      type: $ReminderTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
       isEnabled: serializer.fromJson<bool>(json['isEnabled']),
       time: serializer.fromJson<DateTime>(json['time']),
       minutesOffset: serializer.fromJson<int>(json['minutesOffset']),
@@ -7741,6 +7769,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     return <String, dynamic>{
       'reminderID': serializer.toJson<int>(reminderID),
       'userID': serializer.toJson<int>(userID),
+      'type': serializer.toJson<String>(
+        $ReminderTable.$convertertype.toJson(type),
+      ),
       'isEnabled': serializer.toJson<bool>(isEnabled),
       'time': serializer.toJson<DateTime>(time),
       'minutesOffset': serializer.toJson<int>(minutesOffset),
@@ -7751,6 +7782,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   ReminderData copyWith({
     int? reminderID,
     int? userID,
+    GoalType? type,
     bool? isEnabled,
     DateTime? time,
     int? minutesOffset,
@@ -7758,6 +7790,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   }) => ReminderData(
     reminderID: reminderID ?? this.reminderID,
     userID: userID ?? this.userID,
+    type: type ?? this.type,
     isEnabled: isEnabled ?? this.isEnabled,
     time: time ?? this.time,
     minutesOffset: minutesOffset ?? this.minutesOffset,
@@ -7769,6 +7802,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
           ? data.reminderID.value
           : this.reminderID,
       userID: data.userID.present ? data.userID.value : this.userID,
+      type: data.type.present ? data.type.value : this.type,
       isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
       time: data.time.present ? data.time.value : this.time,
       minutesOffset: data.minutesOffset.present
@@ -7783,6 +7817,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     return (StringBuffer('ReminderData(')
           ..write('reminderID: $reminderID, ')
           ..write('userID: $userID, ')
+          ..write('type: $type, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('time: $time, ')
           ..write('minutesOffset: $minutesOffset, ')
@@ -7792,14 +7827,22 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(reminderID, userID, isEnabled, time, minutesOffset, days);
+  int get hashCode => Object.hash(
+    reminderID,
+    userID,
+    type,
+    isEnabled,
+    time,
+    minutesOffset,
+    days,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ReminderData &&
           other.reminderID == this.reminderID &&
           other.userID == this.userID &&
+          other.type == this.type &&
           other.isEnabled == this.isEnabled &&
           other.time == this.time &&
           other.minutesOffset == this.minutesOffset &&
@@ -7809,6 +7852,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
 class ReminderCompanion extends UpdateCompanion<ReminderData> {
   final Value<int> reminderID;
   final Value<int> userID;
+  final Value<GoalType> type;
   final Value<bool> isEnabled;
   final Value<DateTime> time;
   final Value<int> minutesOffset;
@@ -7816,6 +7860,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   const ReminderCompanion({
     this.reminderID = const Value.absent(),
     this.userID = const Value.absent(),
+    this.type = const Value.absent(),
     this.isEnabled = const Value.absent(),
     this.time = const Value.absent(),
     this.minutesOffset = const Value.absent(),
@@ -7824,14 +7869,17 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   ReminderCompanion.insert({
     this.reminderID = const Value.absent(),
     required int userID,
+    required GoalType type,
     this.isEnabled = const Value.absent(),
     this.time = const Value.absent(),
     this.minutesOffset = const Value.absent(),
     this.days = const Value.absent(),
-  }) : userID = Value(userID);
+  }) : userID = Value(userID),
+       type = Value(type);
   static Insertable<ReminderData> custom({
     Expression<int>? reminderID,
     Expression<int>? userID,
+    Expression<String>? type,
     Expression<bool>? isEnabled,
     Expression<DateTime>? time,
     Expression<int>? minutesOffset,
@@ -7840,6 +7888,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     return RawValuesInsertable({
       if (reminderID != null) 'reminder_i_d': reminderID,
       if (userID != null) 'user_i_d': userID,
+      if (type != null) 'type': type,
       if (isEnabled != null) 'is_enabled': isEnabled,
       if (time != null) 'time': time,
       if (minutesOffset != null) 'minutes_offset': minutesOffset,
@@ -7850,6 +7899,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   ReminderCompanion copyWith({
     Value<int>? reminderID,
     Value<int>? userID,
+    Value<GoalType>? type,
     Value<bool>? isEnabled,
     Value<DateTime>? time,
     Value<int>? minutesOffset,
@@ -7858,6 +7908,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     return ReminderCompanion(
       reminderID: reminderID ?? this.reminderID,
       userID: userID ?? this.userID,
+      type: type ?? this.type,
       isEnabled: isEnabled ?? this.isEnabled,
       time: time ?? this.time,
       minutesOffset: minutesOffset ?? this.minutesOffset,
@@ -7873,6 +7924,11 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     }
     if (userID.present) {
       map['user_i_d'] = Variable<int>(userID.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $ReminderTable.$convertertype.toSql(type.value),
+      );
     }
     if (isEnabled.present) {
       map['is_enabled'] = Variable<bool>(isEnabled.value);
@@ -7894,6 +7950,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
     return (StringBuffer('ReminderCompanion(')
           ..write('reminderID: $reminderID, ')
           ..write('userID: $userID, ')
+          ..write('type: $type, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('time: $time, ')
           ..write('minutesOffset: $minutesOffset, ')
@@ -7965,12 +8022,22 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<LogMethod, String> logMethod =
+      GeneratedColumn<String>(
+        'log_method',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LogMethod>($FoodLogTable.$converterlogMethod);
+  @override
   List<GeneratedColumn> get $columns => [
     foodLogID,
     category,
     logDate,
     comment,
     path,
+    logMethod,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8039,6 +8106,12 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
         DriftSqlType.string,
         data['${effectivePrefix}path'],
       ),
+      logMethod: $FoodLogTable.$converterlogMethod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}log_method'],
+        )!,
+      ),
     );
   }
 
@@ -8049,6 +8122,8 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
 
   static JsonTypeConverter2<MealCategory, String, String> $convertercategory =
       const EnumNameConverter<MealCategory>(MealCategory.values);
+  static JsonTypeConverter2<LogMethod, String, String> $converterlogMethod =
+      const EnumNameConverter<LogMethod>(LogMethod.values);
 }
 
 class FoodLogData extends DataClass implements Insertable<FoodLogData> {
@@ -8057,12 +8132,14 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
   final DateTime logDate;
   final String? comment;
   final String? path;
+  final LogMethod logMethod;
   const FoodLogData({
     required this.foodLogID,
     required this.category,
     required this.logDate,
     this.comment,
     this.path,
+    required this.logMethod,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8080,6 +8157,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     if (!nullToAbsent || path != null) {
       map['path'] = Variable<String>(path);
     }
+    {
+      map['log_method'] = Variable<String>(
+        $FoodLogTable.$converterlogMethod.toSql(logMethod),
+      );
+    }
     return map;
   }
 
@@ -8092,6 +8174,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           ? const Value.absent()
           : Value(comment),
       path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+      logMethod: Value(logMethod),
     );
   }
 
@@ -8108,6 +8191,9 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       logDate: serializer.fromJson<DateTime>(json['logDate']),
       comment: serializer.fromJson<String?>(json['comment']),
       path: serializer.fromJson<String?>(json['path']),
+      logMethod: $FoodLogTable.$converterlogMethod.fromJson(
+        serializer.fromJson<String>(json['logMethod']),
+      ),
     );
   }
   @override
@@ -8121,6 +8207,9 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       'logDate': serializer.toJson<DateTime>(logDate),
       'comment': serializer.toJson<String?>(comment),
       'path': serializer.toJson<String?>(path),
+      'logMethod': serializer.toJson<String>(
+        $FoodLogTable.$converterlogMethod.toJson(logMethod),
+      ),
     };
   }
 
@@ -8130,12 +8219,14 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     DateTime? logDate,
     Value<String?> comment = const Value.absent(),
     Value<String?> path = const Value.absent(),
+    LogMethod? logMethod,
   }) => FoodLogData(
     foodLogID: foodLogID ?? this.foodLogID,
     category: category ?? this.category,
     logDate: logDate ?? this.logDate,
     comment: comment.present ? comment.value : this.comment,
     path: path.present ? path.value : this.path,
+    logMethod: logMethod ?? this.logMethod,
   );
   FoodLogData copyWithCompanion(FoodLogCompanion data) {
     return FoodLogData(
@@ -8144,6 +8235,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       logDate: data.logDate.present ? data.logDate.value : this.logDate,
       comment: data.comment.present ? data.comment.value : this.comment,
       path: data.path.present ? data.path.value : this.path,
+      logMethod: data.logMethod.present ? data.logMethod.value : this.logMethod,
     );
   }
 
@@ -8154,13 +8246,15 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           ..write('category: $category, ')
           ..write('logDate: $logDate, ')
           ..write('comment: $comment, ')
-          ..write('path: $path')
+          ..write('path: $path, ')
+          ..write('logMethod: $logMethod')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(foodLogID, category, logDate, comment, path);
+  int get hashCode =>
+      Object.hash(foodLogID, category, logDate, comment, path, logMethod);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8169,7 +8263,8 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           other.category == this.category &&
           other.logDate == this.logDate &&
           other.comment == this.comment &&
-          other.path == this.path);
+          other.path == this.path &&
+          other.logMethod == this.logMethod);
 }
 
 class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
@@ -8178,12 +8273,14 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
   final Value<DateTime> logDate;
   final Value<String?> comment;
   final Value<String?> path;
+  final Value<LogMethod> logMethod;
   const FoodLogCompanion({
     this.foodLogID = const Value.absent(),
     this.category = const Value.absent(),
     this.logDate = const Value.absent(),
     this.comment = const Value.absent(),
     this.path = const Value.absent(),
+    this.logMethod = const Value.absent(),
   });
   FoodLogCompanion.insert({
     this.foodLogID = const Value.absent(),
@@ -8191,13 +8288,16 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     this.logDate = const Value.absent(),
     this.comment = const Value.absent(),
     this.path = const Value.absent(),
-  }) : category = Value(category);
+    required LogMethod logMethod,
+  }) : category = Value(category),
+       logMethod = Value(logMethod);
   static Insertable<FoodLogData> custom({
     Expression<int>? foodLogID,
     Expression<String>? category,
     Expression<DateTime>? logDate,
     Expression<String>? comment,
     Expression<String>? path,
+    Expression<String>? logMethod,
   }) {
     return RawValuesInsertable({
       if (foodLogID != null) 'food_log_i_d': foodLogID,
@@ -8205,6 +8305,7 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
       if (logDate != null) 'log_date': logDate,
       if (comment != null) 'comment': comment,
       if (path != null) 'path': path,
+      if (logMethod != null) 'log_method': logMethod,
     });
   }
 
@@ -8214,6 +8315,7 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     Value<DateTime>? logDate,
     Value<String?>? comment,
     Value<String?>? path,
+    Value<LogMethod>? logMethod,
   }) {
     return FoodLogCompanion(
       foodLogID: foodLogID ?? this.foodLogID,
@@ -8221,6 +8323,7 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
       logDate: logDate ?? this.logDate,
       comment: comment ?? this.comment,
       path: path ?? this.path,
+      logMethod: logMethod ?? this.logMethod,
     );
   }
 
@@ -8244,6 +8347,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     if (path.present) {
       map['path'] = Variable<String>(path.value);
     }
+    if (logMethod.present) {
+      map['log_method'] = Variable<String>(
+        $FoodLogTable.$converterlogMethod.toSql(logMethod.value),
+      );
+    }
     return map;
   }
 
@@ -8254,7 +8362,8 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
           ..write('category: $category, ')
           ..write('logDate: $logDate, ')
           ..write('comment: $comment, ')
-          ..write('path: $path')
+          ..write('path: $path, ')
+          ..write('logMethod: $logMethod')
           ..write(')'))
         .toString();
   }
@@ -16719,6 +16828,7 @@ typedef $$ReminderTableCreateCompanionBuilder =
     ReminderCompanion Function({
       Value<int> reminderID,
       required int userID,
+      required GoalType type,
       Value<bool> isEnabled,
       Value<DateTime> time,
       Value<int> minutesOffset,
@@ -16728,6 +16838,7 @@ typedef $$ReminderTableUpdateCompanionBuilder =
     ReminderCompanion Function({
       Value<int> reminderID,
       Value<int> userID,
+      Value<GoalType> type,
       Value<bool> isEnabled,
       Value<DateTime> time,
       Value<int> minutesOffset,
@@ -16769,6 +16880,12 @@ class $$ReminderTableFilterComposer
     column: $table.reminderID,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get type =>
+      $composableBuilder(
+        column: $table.type,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<bool> get isEnabled => $composableBuilder(
     column: $table.isEnabled,
@@ -16825,6 +16942,11 @@ class $$ReminderTableOrderingComposer
   });
   ColumnOrderings<int> get reminderID => $composableBuilder(
     column: $table.reminderID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -16885,6 +17007,9 @@ class $$ReminderTableAnnotationComposer
     column: $table.reminderID,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<GoalType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<bool> get isEnabled =>
       $composableBuilder(column: $table.isEnabled, builder: (column) => column);
@@ -16954,6 +17079,7 @@ class $$ReminderTableTableManager
               ({
                 Value<int> reminderID = const Value.absent(),
                 Value<int> userID = const Value.absent(),
+                Value<GoalType> type = const Value.absent(),
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> time = const Value.absent(),
                 Value<int> minutesOffset = const Value.absent(),
@@ -16961,6 +17087,7 @@ class $$ReminderTableTableManager
               }) => ReminderCompanion(
                 reminderID: reminderID,
                 userID: userID,
+                type: type,
                 isEnabled: isEnabled,
                 time: time,
                 minutesOffset: minutesOffset,
@@ -16970,6 +17097,7 @@ class $$ReminderTableTableManager
               ({
                 Value<int> reminderID = const Value.absent(),
                 required int userID,
+                required GoalType type,
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> time = const Value.absent(),
                 Value<int> minutesOffset = const Value.absent(),
@@ -16977,6 +17105,7 @@ class $$ReminderTableTableManager
               }) => ReminderCompanion.insert(
                 reminderID: reminderID,
                 userID: userID,
+                type: type,
                 isEnabled: isEnabled,
                 time: time,
                 minutesOffset: minutesOffset,
@@ -17056,6 +17185,7 @@ typedef $$FoodLogTableCreateCompanionBuilder =
       Value<DateTime> logDate,
       Value<String?> comment,
       Value<String?> path,
+      required LogMethod logMethod,
     });
 typedef $$FoodLogTableUpdateCompanionBuilder =
     FoodLogCompanion Function({
@@ -17064,6 +17194,7 @@ typedef $$FoodLogTableUpdateCompanionBuilder =
       Value<DateTime> logDate,
       Value<String?> comment,
       Value<String?> path,
+      Value<LogMethod> logMethod,
     });
 
 class $$FoodLogTableFilterComposer
@@ -17100,6 +17231,12 @@ class $$FoodLogTableFilterComposer
     column: $table.path,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<LogMethod, LogMethod, String> get logMethod =>
+      $composableBuilder(
+        column: $table.logMethod,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 }
 
 class $$FoodLogTableOrderingComposer
@@ -17135,6 +17272,11 @@ class $$FoodLogTableOrderingComposer
     column: $table.path,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get logMethod => $composableBuilder(
+    column: $table.logMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FoodLogTableAnnotationComposer
@@ -17160,6 +17302,9 @@ class $$FoodLogTableAnnotationComposer
 
   GeneratedColumn<String> get path =>
       $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<LogMethod, String> get logMethod =>
+      $composableBuilder(column: $table.logMethod, builder: (column) => column);
 }
 
 class $$FoodLogTableTableManager
@@ -17198,12 +17343,14 @@ class $$FoodLogTableTableManager
                 Value<DateTime> logDate = const Value.absent(),
                 Value<String?> comment = const Value.absent(),
                 Value<String?> path = const Value.absent(),
+                Value<LogMethod> logMethod = const Value.absent(),
               }) => FoodLogCompanion(
                 foodLogID: foodLogID,
                 category: category,
                 logDate: logDate,
                 comment: comment,
                 path: path,
+                logMethod: logMethod,
               ),
           createCompanionCallback:
               ({
@@ -17212,12 +17359,14 @@ class $$FoodLogTableTableManager
                 Value<DateTime> logDate = const Value.absent(),
                 Value<String?> comment = const Value.absent(),
                 Value<String?> path = const Value.absent(),
+                required LogMethod logMethod,
               }) => FoodLogCompanion.insert(
                 foodLogID: foodLogID,
                 category: category,
                 logDate: logDate,
                 comment: comment,
                 path: path,
+                logMethod: logMethod,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/meal_content_table.dart';
@@ -35,9 +36,19 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     with _$NutritionDaoMixin {
   NutritionDao(super.db);
 
-  Future<int> insertFoodLog(MealCategory cate, String? path, String? comment) async {
-    final insertion = (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path))));
+  Future<int> insertFoodLog(MealCategory cate, String? path, String? comment, LogMethod logMethod) async {
+    final insertion = (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path), logMethod: logMethod)));
     return insertion;
+  }
+
+  Future<DayFoods> getYesterdayMeals() async {
+    DateTime yesterday = DateUtils.dateOnly(DateTime.now().subtract(const Duration(days: 1)));
+    final logs = await (select(foodLog)..where((l) => l.logDate.equals(yesterday))).get();
+    return DayFoods(logs, yesterday);
+  }
+
+  void repeatFood(FoodLogData data) {
+    into(foodLog).insert(FoodLogCompanion.insert(category: data.category, comment: Value(data.comment), path: Value(data.path), logMethod: data.logMethod));
   }
 
     bool isSameDate(DateTime one, DateTime other) {

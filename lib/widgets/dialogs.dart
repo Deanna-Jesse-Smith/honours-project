@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -206,7 +205,7 @@ class Dialogs {
       ),
     );
 
-    return method ?? LogMethod.none;
+    return method;
   }
 
   static Future<void> getFastResultHelp(BuildContext context) {

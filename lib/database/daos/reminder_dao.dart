@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/material.dart';
+import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/database/tables/reminder_table.dart';
 import '../database.dart';
 
@@ -9,8 +9,8 @@ part 'reminder_dao.g.dart';
 class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin {
   ReminderDao(super.db);
 
-  Future<int> insertReminder(int userID, DateTime time, String days, String text) async {
-    final newReminder = into(reminder).insert(ReminderCompanion.insert(userID: userID, time: Value(time), days: Value(days)));
+  Future<int> insertReminder(int userID, DateTime time, String days, String text, GoalType type) async {
+    final newReminder = into(reminder).insert(ReminderCompanion.insert(userID: userID, time: Value(time), days: Value(days), type: type));
 
     return newReminder;
   }

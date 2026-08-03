@@ -7,7 +7,6 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
-import 'package:testrun/pages/final_setup.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
@@ -224,7 +223,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
   Row getObligationMeal(int index) {
-    final time = obligationTimes[index];
+    TimeOfDay time = obligationTimes[index];
     return Row(children: [
       ElevatedButton(onPressed: () => selectMealTime(index), child: Text(time == null ? '+' : time.format(context))),
       IconButton(onPressed: () => setState(() => obligationTimes.removeAt(index)), icon: Icon(Icons.cancel))

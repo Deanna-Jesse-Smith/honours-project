@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_logs/flutter_logs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/main.dart';
-import 'package:testrun/models/converters.dart';
-// import 'package:testrun/de/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
-import 'package:testrun/database/database.dart';
 import 'package:testrun/models/category_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -17,7 +13,6 @@ import 'package:testrun/pages/nutrition_pages/meal_log.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
-import 'package:wheel_picker/wheel_picker.dart';
 
 class CustomWidgets {
   late String userName;
@@ -281,13 +276,13 @@ class CustomWidgets {
           if (newLog == LogMethod.quick) {
             ref
               .read(nDaoProvider)
-              .insertMeal(session.userId, DateTime.now(), newLog);
+              .insertFoodLog(MealCategory.quick, null, null, newLog);
           } else if (newLog == LogMethod.full) {
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const MealLog()),
               );
           } else {
-
+            
           }
         } else {
           debugPrint('Log: null');

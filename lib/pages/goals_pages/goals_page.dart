@@ -71,8 +71,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   }
 
   void initFutures() async {
-    //TODO  Figure out how to do the nutrient one later
-
     curGoal = await ref.watch(gDaoProvider).findActiveGoal(type);
     curStreak = await ref.watch(gDaoProvider).checkActiveStreak(type);
   }
@@ -423,7 +421,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 children: [
                   //* Progress bar
                   Text('I will reach my goal of logging at least one meal per day'),
-                  
+                  Text('Attached to streak only'),
                   // Text('I will reach my goal of (per day):'),
                   // Table(
                   //   children: [
@@ -504,6 +502,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         BasicStreak? streak = asyncSnapshot.data;
 
         if (streak == null) {
+          if (widget.type == GoalType.weight) {
+            return Text('You cannot have a weight streak, only a weight goal.');
+          }
           return Text('Add Streak?');
         }
 

@@ -1,10 +1,7 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:testrun/database/database.dart';
-import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';

@@ -72,5 +72,28 @@ class DayFoods {
   DayFoods.range(FoodLogData food, this.day) {
     foods = [];
     foods.add(food);
+    foods.sort(((a, b) => a.category.index.compareTo(b.category.index)));
   }
+
+  List<MealCategory> getCategories() {
+    return foods.map((f) => f.category).toList();
+  }
+}
+
+enum MealCategory {
+  breakfast,
+  lunch,
+  supper,
+  snack,
+  quick,
+}
+
+extension CategoryInfo on MealCategory {
+  String get cardName => switch (this) {
+    MealCategory.breakfast => 'Breakfast',
+    MealCategory.lunch => 'Lunch',
+    MealCategory.supper => 'Supper',
+    MealCategory.snack => 'Snack',
+    _ => 'Other',
+  };
 }

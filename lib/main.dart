@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:testrun/database/daos/goals_dao.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/database/daos/reminder_dao.dart';
@@ -12,7 +11,6 @@ import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
-import 'package:testrun/pages/final_setup.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';

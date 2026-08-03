@@ -1,18 +1,21 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
-import 'package:testrun/pages/nutrition_pages/food_search.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class MealLog extends ConsumerStatefulWidget {
   const MealLog({super.key});
@@ -38,7 +41,7 @@ class _MealLogState extends ConsumerState<MealLog> {
   late MealCategory dropDownValuee;
 
   final TextEditingController controller = TextEditingController(text: '');
-  late XFile? imageFile;
+  late String? imagePath;
 
   @override
   void initState() {
@@ -109,8 +112,22 @@ class _MealLogState extends ConsumerState<MealLog> {
             TableRow(
               children: [
                 Text('Picture (optional):'),
-                IconButton(onPressed: selectImage, icon: Icon(Icons.image)),
+                IconButton(onPressed: () => selectImage(ImageSource.gallery), icon: Icon(Icons.image)),
+                IconButton(onPressed: () => selectImage(ImageSource.camera), icon: Icon(Icons.camera_alt))
               ],
+            ),
+            if (imagePath != null) TableRow(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    File(imagePath!),
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  )
+                )
+              ]
             ),
             TableRow(
               children: [
@@ -138,21 +155,25 @@ class _MealLogState extends ConsumerState<MealLog> {
   }
 
   void save() {
-    String? path;
-    if (imageFile != null) {
-      path = imageFile!.path;
-    }
-    nDao.insertFoodLog(dropDownValuee, path, controller.text);
+    nDao.insertFoodLog(dropDownValuee, imagePath, controller.text, LogMethod.full);
     Navigator.of(context).pop();
   }
 
-  Future<void> selectImage() async {
+  Future<void> selectImage(ImageSource source) async {
     final picture = ImagePicker();
-    final XFile? temp = await picture.pickImage(source: ImageSource.camera);
+    final XFile? temp = await picture.pickImage(source: source);
 
-    if (temp != null) {
-      imageFile = temp;
+    if (temp == null) {
+      return;
     }
+
+    final Directory dir = await getApplicationDocumentsDirectory();
+    final String fileName = '${DateTime.now().millisecondsSinceEpoch}${p.extension(temp.path)}';
+    final String newPath = p.join(dir.path, fileName);
+
+    final File image = await File(temp.path).copy(newPath);
+
+    imagePath = image.path;
     // final getPicture = await picture.retrieveLostData();
     // if (getPicture.isEmpty) {
     //   return;

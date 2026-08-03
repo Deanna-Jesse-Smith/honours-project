@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
-import 'package:testrun/utils/user_state.dart';
 
 class HistoryItem {
   final DateTime date;

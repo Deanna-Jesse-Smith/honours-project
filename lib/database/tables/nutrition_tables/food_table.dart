@@ -1,6 +1,7 @@
 // Food PK foodID name servingDescription servingGrams caloriesPer100g proteinPer100g carbsPer100g fatPer100g fibrePer100g
 
 import 'package:drift/drift.dart';
+import 'package:testrun/models/meals_model.dart';
 
 @TableIndex(name: 'foodName', columns: {#name})
 class Food extends Table {
@@ -21,20 +22,5 @@ class FoodLog extends Table {
   DateTimeColumn get logDate => dateTime().withDefault(currentDate)();
   TextColumn get comment => text().nullable()();
   TextColumn get path => text().nullable()();
-}
-
-enum MealCategory {
-  breakfast,
-  lunch,
-  supper,
-  snack,
-}
-
-extension CategoryInfo on MealCategory {
-  String get cardName => switch (this) {
-    MealCategory.breakfast => 'Breakfast',
-    MealCategory.lunch => 'Lunch',
-    MealCategory.supper => 'Supper',
-    MealCategory.snack => 'Snack',
-  };
+  TextColumn get logMethod => textEnum<LogMethod>()();
 }

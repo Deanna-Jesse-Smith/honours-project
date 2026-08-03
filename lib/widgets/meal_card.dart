@@ -7,44 +7,44 @@ import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
-class MealCard extends StatelessWidget {
-  final MealItem meal;
+// class MealCard extends StatelessWidget {
+//   final MealItem meal;
 
-  const MealCard({super.key, required this.meal});
+//   const MealCard({super.key, required this.meal});
 
-  @override
-  Widget build(BuildContext context) {
-    if (meal.ingredients != null) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              Text(DateFormat('HH:mm a').format(meal.date)),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 20,
-                runSpacing: 15,
-                children: meal.ingredients != null ? meal.ingredients!.map((i) {
-                  return Chip(label: Text(i.name));
-                }).toList() : List.empty(),
-              ),
-              Text('${meal.getTotalCalories()} calories'),
-              Text('${meal.getTotalFibre()}g fibre')
-            ],
-          ),
-        ),
-      );
-    } else {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text(DateFormat('HH:mm a').format(meal.date)),
-        ),
-      );
-    }
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     if (meal.ingredients != null) {
+//       return Card(
+//         child: Padding(
+//           padding: const EdgeInsets.all(8),
+//           child: Column(
+//             children: [
+//               Text(DateFormat('HH:mm a').format(meal.date)),
+//               const SizedBox(height: 10),
+//               Wrap(
+//                 spacing: 20,
+//                 runSpacing: 15,
+//                 children: meal.ingredients != null ? meal.ingredients!.map((i) {
+//                   return Chip(label: Text(i.name));
+//                 }).toList() : List.empty(),
+//               ),
+//               Text('${meal.getTotalCalories()} calories'),
+//               Text('${meal.getTotalFibre()}g fibre')
+//             ],
+//           ),
+//         ),
+//       );
+//     } else {
+//       return Card(
+//         child: Padding(
+//           padding: const EdgeInsets.all(8),
+//           child: Text(DateFormat('HH:mm a').format(meal.date)),
+//         ),
+//       );
+//     }
+//   }
+// }
 
 class FoodCard extends StatelessWidget {
   final FoodLogData food;
@@ -61,16 +61,14 @@ class FoodCard extends StatelessWidget {
             Text(DateFormat('HH:mm a').format(food.logDate)),
           ],),
           if (food.comment != null) Text(food.comment!),
-          if (food.path != null) getImage(food.path!),
+          if (food.path != null) ClipRRect(borderRadius: BorderRadius.circular(10),
+          child: Image.file(File(food.path!),
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover)),
         ],
       ),)
     );
-  }
-
-  Image getImage(String path) {
-    final file = File(path);
-
-    return Image.file(file);
   }
 }
 

@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:testrun/database/tables/weight_tables.dart';
 import '../database.dart';
 

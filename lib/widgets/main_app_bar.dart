@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/utils/text_sizing.dart';
-import 'package:testrun/utils/user_state.dart';
 
 class MainAppBar {
   static AppBar appBar(String title, String name) {

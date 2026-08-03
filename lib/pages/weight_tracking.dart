@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
-import 'package:testrun/database/daos/hydration_dao.dart';
-import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
