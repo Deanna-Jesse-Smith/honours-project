@@ -8,6 +8,7 @@ import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
 class HomePage extends ConsumerWidget {
@@ -73,7 +74,8 @@ class HomePage extends ConsumerWidget {
         ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, context, 1),
+      floatingActionButton: MyExpandableFAB(index: 1),
+      // floatingActionButton: customWidgets.getFAB(ref, context, 1),
       // floatingActionButton: FloatingActionButton(
       //   backgroundColor: Colors.purpleAccent,
       //   onPressed: () {

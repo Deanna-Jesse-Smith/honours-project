@@ -12,7 +12,11 @@ class MyExpandableFAB extends ConsumerWidget {
   final int index;
   final ExpandableFabPos posi;
   late UserSessionData session;
-  MyExpandableFAB({super.key, required this.index, this.posi = ExpandableFabPos.center});
+  MyExpandableFAB({
+    super.key,
+    required this.index,
+    this.posi = ExpandableFabPos.center,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,18 +38,20 @@ class MyExpandableFAB extends ConsumerWidget {
       onMealTapped: () async {
         final newLog = await Dialogs.getCurLogMethod(context, ref, session);
         debugPrint('Log testing');
-        
+
         if (newLog != null) {
           debugPrint('Log: ${newLog.name}');
           if (newLog == LogMethod.quick) {
             ref
-              .read(nDaoProvider)
-              .insertFoodLog(MealCategory.quick, null, null, newLog);
+                .read(nDaoProvider)
+                .insertFoodLog(MealCategory.quick, null, null, newLog);
           } else if (newLog == LogMethod.full) {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const MealLog()),
-              );
+            if (!context.mounted) return;
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (context) => const MealLog()));
           } else {
+            if (!context.mounted) return;
             chooseRepeatMeal(context, ref);
           }
         } else {
@@ -56,6 +62,7 @@ class MyExpandableFAB extends ConsumerWidget {
         double? curWeight = await ref
             .read(wDaoProvider)
             .latestWeight(session.userId);
+        if (!context.mounted) return;
         final newAmount = await Dialogs.getNewInput(
           context,
           initialVal: curWeight,
@@ -90,17 +97,32 @@ class MyExpandableFAB extends ConsumerWidget {
 
   Future<void> chooseRepeatMeal(BuildContext context, WidgetRef ref) async {
     DayFoods? yesterdayMeals = await ref.read(nDaoProvider).getYesterdayMeals();
+    if (!context.mounted) return;
     if (yesterdayMeals == null) {
-      final repeat = await showDialog(context: context, builder: (context) => SimpleDialog(title: Text('You do not have any meals from yesterday to repeat'),));
-      return repeat;
+      await showDialog(
+        context: context,
+        builder: (context) => SimpleDialog(
+          title: Text('You do not have any meals from yesterday to repeat'),
+        ),
+      );
+    } else {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Center(
+            child: Text('Which of yesterday\'s meal would you like to repeat?'),
+          ),
+          actions: yesterdayMeals.foods
+              .map(
+                (c) => TextButton(
+                  onPressed: () => ref.read(nDaoProvider).repeatFood(c),
+                  child: Text(c.category.cardName),
+                ),
+              )
+              .toList(),
+        ),
+      );
     }
-    
-    final repeat = await showDialog(context: context, builder: (context) => AlertDialog(
-      title: const Center(child: Text('Which of yesterday\'s meal would you like to repeat?')),
-      actions: yesterdayMeals.foods.map((c) => TextButton(onPressed: () => ref.read(nDaoProvider).repeatFood(c), child: Text(c.category.cardName))).toList(),
-    ));
-
-    return repeat;
   }
 
   // void handleDialog() async {

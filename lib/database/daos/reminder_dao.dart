@@ -12,6 +12,9 @@ class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin 
   Future<int> insertReminder(int userID, DateTime time, String days, String text, GoalType type) async {
     final newReminder = into(reminder).insert(ReminderCompanion.insert(userID: userID, time: Value(time), days: Value(days), type: type));
 
+    // TRE: ~15 minutes before/after and at the time, plus a halfway one? 5 daily
+    // ADF: Have one at like 6:30 that reminds the person to not eat that day, plus one halfway through. 2 on fasting days
+    // 5:2 A reminder to eat only one meal or one meal plus a snack that day? 1 on fasting days
     return newReminder;
   }
 

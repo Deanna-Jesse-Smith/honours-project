@@ -2,12 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
-import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -174,8 +172,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       List<int> tempDays = boolsToInts(obligationDays);
 
-      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValue, adfDaysSelected: '', fiveTwoDaysSelected: '');
-      ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
+      // User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValue, adfDaysSelected: '', fiveTwoDaysSelected: '');
+      // ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
       // Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
       // Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {

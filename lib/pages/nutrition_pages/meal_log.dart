@@ -7,14 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
-import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 class MealLog extends ConsumerStatefulWidget {
@@ -41,7 +39,7 @@ class _MealLogState extends ConsumerState<MealLog> {
   late MealCategory dropDownValuee;
 
   final TextEditingController controller = TextEditingController(text: '');
-  late String? imagePath;
+  String imagePath = '';
 
   @override
   void initState() {
@@ -112,25 +110,25 @@ class _MealLogState extends ConsumerState<MealLog> {
             TableRow(
               children: [
                 Text('Picture (optional):'),
-                IconButton(onPressed: () => selectImage(ImageSource.gallery), icon: Icon(Icons.image)),
-                IconButton(onPressed: () => selectImage(ImageSource.camera), icon: Icon(Icons.camera_alt))
+                Row(
+                  children: [
+                    IconButton(onPressed: () => selectImage(ImageSource.gallery), icon: Icon(Icons.image)),
+                    IconButton(onPressed: () => selectImage(ImageSource.camera), icon: Icon(Icons.camera_alt))
+                  ],
+                ),
               ],
             ),
-            if (imagePath != null) TableRow(
+            if (imagePath.isNotEmpty) TableRow(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.file(
-                    File(imagePath!),
+                    File(imagePath),
                     width: 120,
                     height: 120,
                     fit: BoxFit.cover,
                   )
-                )
-              ]
-            ),
-            TableRow(
-              children: [
+                ),
                 ElevatedButton(
                   onPressed: () async {
                     bool decision = await Dialogs.dangerDialog(
@@ -146,7 +144,7 @@ class _MealLogState extends ConsumerState<MealLog> {
                   },
                   child: const Text('Save meal'),
                 ),
-              ],
+              ]
             ),
           ],
         ),

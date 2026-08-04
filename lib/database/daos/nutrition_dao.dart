@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/meal_content_table.dart';
@@ -41,9 +40,12 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return insertion;
   }
 
-  Future<DayFoods> getYesterdayMeals() async {
+  Future<DayFoods?> getYesterdayMeals() async {
     DateTime yesterday = DateUtils.dateOnly(DateTime.now().subtract(const Duration(days: 1)));
     final logs = await (select(foodLog)..where((l) => l.logDate.equals(yesterday))).get();
+    if (logs.isEmpty) {
+      return null;
+    }
     return DayFoods(logs, yesterday);
   }
 
@@ -57,7 +59,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         one.day == other.day;
   }
 
-  Future<Map<DateTime, DayFoods>> getFoodInRange(List<DateTime> days) async {
+  Future<Map<DateTime, DayFoods>> getFoodInRange(List<DateTime> days) async { // Make this into a stream
     final allFood = await (select(foodLog)..where((f) => f.logDate.isIn(days))..orderBy([(d) => OrderingTerm.desc(d.logDate)])).get();
     Map<DateTime, DayFoods> foodMap = {};
     for (final foodItem in allFood) {

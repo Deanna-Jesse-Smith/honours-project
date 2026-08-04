@@ -5,14 +5,17 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:testrun/custom_widgets.dart';
+import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
+import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
+import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 
 class FastingPlan extends ConsumerStatefulWidget {
@@ -76,10 +79,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         child: getCorrectLayout(session),
       ),
       persistentFooterButtons: [
-        Container(
-          padding: EdgeInsets.only(left: 20, top: 15, bottom: 20),
-          alignment: Alignment.bottomLeft,
-          child: ElevatedButton(
+        Row(
+          spacing: 30,
+          children: [ElevatedButton(
             onPressed: () => {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const FastingHistory()),
@@ -90,16 +92,22 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               style: Theme.of(context).textTheme.displayMedium,
             ),
           ),
+          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoalsPage(type: GoalType.fasting))), child: Text(
+              'Goals and Streaks',
+              style: Theme.of(context).textTheme.displayMedium,
+            ))
+          ]
         ),
       ],
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(
-        ref,
-        context,
-        1,
-        posi: ExpandableFabPos.right,
-      ),
+      floatingActionButton: MyExpandableFAB(index: 1, posi: ExpandableFabPos.right,),
+      // floatingActionButton: customWidgets.getFAB(
+      //   ref,
+      //   context,
+      //   1,
+      //   posi: ExpandableFabPos.right,
+      // ),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/meal_card.dart';
 
@@ -30,7 +31,8 @@ class MealTracking extends ConsumerWidget {
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, context, 3),
+      floatingActionButton: MyExpandableFAB(index: 3),
+      // floatingActionButton: customWidgets.getFAB(ref, context, 3),
       body: FutureBuilder(future: viewFoods, builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);

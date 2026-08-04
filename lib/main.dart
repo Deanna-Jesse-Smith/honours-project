@@ -70,7 +70,6 @@ final isFastingProvider = Provider<bool>((ref) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint('opening');
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -98,8 +97,8 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    insert(ref);
-    ref.read(fDaoProvider).dummyData();
+    // insert(ref);
+    // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
 
     return MaterialApp(
@@ -115,7 +114,7 @@ class MyApp extends ConsumerWidget {
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),
         loading: () => const StartPage(),
-        error: (e, st) => SetupUser(name: 'Deanna', experience: 'Beginner'),
+        error: (e, st) => const StepCounts(),
       ),
       theme: ThemeData(
         // colorScheme: ColorScheme(brightness: Brightness.light,

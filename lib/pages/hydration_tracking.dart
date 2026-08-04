@@ -9,6 +9,7 @@ import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
+import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
@@ -105,7 +106,8 @@ class HydrationTracking extends ConsumerWidget {
       ),
       drawer: customWidgets.getDrawer(context),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: customWidgets.getFAB(ref, context, 4),
+      floatingActionButton: MyExpandableFAB(index: 4),
+      // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }
 

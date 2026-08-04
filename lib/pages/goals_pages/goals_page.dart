@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
@@ -92,6 +91,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               message:
                   'Leaving without saving will discard any changes you made',
             );
+            if (!context.mounted) return;
             if (decision) {
               Navigator.of(context).pop();
             }

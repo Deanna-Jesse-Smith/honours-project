@@ -30,6 +30,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
       isHydration = false,
       isNutrition = false;
   final String dailyReminder = '0,1,2,3,4,5,6';
+  final String weeklyReminder = '0';
 
   @override
   void initState() {
@@ -141,6 +142,29 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 onChanged: (bool? value) {
                   setState(() {
                     isWeight = value!;
+
+                                        ref
+                        .read(rDaoProvider)
+                        .insertReminder(
+                          session!.userId,
+                          time,
+                          weeklyReminder,
+                          '',
+                          GoalType.weight
+                        );
+                    DateTime temp = DateTime.now();
+                    FlutterLocalNotificationsPlugin().zonedSchedule(
+                      id: reminderKey[GoalType.weight]!,
+                      scheduledDate: tz.TZDateTime.from(temp, tz.local),
+                      notificationDetails: const NotificationDetails(
+                        android: AndroidNotificationDetails(
+                          'channelId',
+                          'channelName',
+                        ),
+                      ),
+                      androidScheduleMode:
+                          AndroidScheduleMode.exactAllowWhileIdle,
+                    );
                   });
                 },
                 title: const Text('Have weekly weight reminder:'),
