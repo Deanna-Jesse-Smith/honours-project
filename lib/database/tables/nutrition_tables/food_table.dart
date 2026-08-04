@@ -19,7 +19,7 @@ class Food extends Table {
 class FoodLog extends Table {
   IntColumn get foodLogID => integer().autoIncrement()();
   TextColumn get category => textEnum<MealCategory>()();
-  DateTimeColumn get logDate => dateTime().withDefault(currentDate)();
+  DateTimeColumn get logDate => dateTime().withDefault(currentDateAndTime)();
   TextColumn get comment => text().nullable()();
   TextColumn get path => text().nullable()();
   TextColumn get logMethod => textEnum<LogMethod>()();

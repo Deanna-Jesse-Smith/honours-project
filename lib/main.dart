@@ -14,6 +14,7 @@ import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
+import 'package:testrun/pages/reminder_page.dart';
 import 'package:testrun/pages/start_page.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
@@ -97,7 +98,7 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // insert(ref);
+    insert(ref);
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
 
@@ -110,6 +111,7 @@ class MyApp extends ConsumerWidget {
         '/SetupUser': (context) => SetupUser(name: 'Deanna', experience: 'Beginner'),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
+        '/Reminder' : (context) => const ReminderPage(),
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),

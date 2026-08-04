@@ -59,7 +59,6 @@ class _MealLogState extends ConsumerState<MealLog> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider).value;
-    CustomWidgets customWidgets = CustomWidgets();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,81 +78,95 @@ class _MealLogState extends ConsumerState<MealLog> {
           onTap: () => {Navigator.of(context).pop()},
         ),
       ),
-      body: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(20),
-        child: Table(
-          children: [
-            TableRow(
-              children: [
-                Text('What meal is this?'),
-                DropdownMenu<MealCategory>(
-                  initialSelection: dropDownValuee,
-                  dropdownMenuEntries: entriess,
-                  onSelected: (MealCategory? value) {
-                    setState(() {
-                      dropDownValuee = value!;
-                    });
-                  },
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Text('Comments on meal (optional):'),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Text('Picture (optional):'),
-                Row(
+      body: Column(
+        spacing: 20.0,
+        children: [
+          Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              TableRow(
+                children: [
+                  Text('What meal is this?'),
+                  DropdownMenu<MealCategory>(
+                    initialSelection: dropDownValuee,
+                    dropdownMenuEntries: entriess,
+                    onSelected: (MealCategory? value) {
+                      setState(() {
+                        dropDownValuee = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Text('Comments on meal (optional):'),
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Text('Picture (optional):'),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => selectImage(ImageSource.gallery),
+                        icon: Icon(Icons.image),
+                      ),
+                      IconButton(
+                        onPressed: () => selectImage(ImageSource.camera),
+                        icon: Icon(Icons.camera_alt),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (imagePath.isNotEmpty)
+                TableRow(
                   children: [
-                    IconButton(onPressed: () => selectImage(ImageSource.gallery), icon: Icon(Icons.image)),
-                    IconButton(onPressed: () => selectImage(ImageSource.camera), icon: Icon(Icons.camera_alt))
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        File(imagePath),
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox.shrink(),
                   ],
                 ),
-              ],
-            ),
-            if (imagePath.isNotEmpty) TableRow(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    File(imagePath),
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  )
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    bool decision = await Dialogs.dangerDialog(
-                      context,
-                      title: 'Done everything you need?',
-                      message:
-                          'You won\'t be able to edit this meal after you leave',
-                    );
-                    if (!decision) {
-                      return;
-                    }
-                    save();
-                  },
-                  child: const Text('Save meal'),
-                ),
-              ]
-            ),
-          ],
-        ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              bool decision = await Dialogs.dangerDialog(
+                context,
+                title: 'Done everything you need?',
+                message: 'You won\'t be able to edit this meal after you leave',
+              );
+              if (!decision) {
+                return;
+              }
+              save();
+            },
+            child: const Text('Save meal'),
+          ),
+        ],
       ),
     );
   }
 
   void save() {
-    nDao.insertFoodLog(dropDownValuee, imagePath, controller.text, LogMethod.full);
+    nDao.insertFoodLog(
+      dropDownValuee,
+      imagePath,
+      controller.text,
+      LogMethod.full,
+    );
     Navigator.of(context).pop();
   }
 
@@ -166,7 +179,8 @@ class _MealLogState extends ConsumerState<MealLog> {
     }
 
     final Directory dir = await getApplicationDocumentsDirectory();
-    final String fileName = '${DateTime.now().millisecondsSinceEpoch}${p.extension(temp.path)}';
+    final String fileName =
+        '${DateTime.now().millisecondsSinceEpoch}${p.extension(temp.path)}';
     final String newPath = p.join(dir.path, fileName);
 
     final File image = await File(temp.path).copy(newPath);

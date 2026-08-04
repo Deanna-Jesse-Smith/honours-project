@@ -1,4 +1,7 @@
+import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
+import 'package:testrun/utils/user_state.dart';
 
 const Map<GoalType, int> reminderKey = {
   GoalType.fasting: 1,
@@ -19,5 +22,16 @@ const Map<String, int> fastingTypeKey = {
 };
 
 class CalculateReminderTimes {
-  
+  CalculateReminderTimes();
+
+  // static TimeOfDay getTREtimes(UserSessionData session) {
+  //   TimeOfDay.fromDateTime(session.startTime);
+  // }
+}
+
+extension TimeOfDayToDateTime on TimeOfDay {
+  DateTime get dateTimeConversion {
+    DateTime today = DateTime.now();
+    return DateTime(today.year, today.month, today.day, hour, minute);
+  }
 }

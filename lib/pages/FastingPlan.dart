@@ -9,6 +9,7 @@ import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -205,32 +206,41 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   String startText = 'Start', endText = 'End';
 
-  Future<void> selectStartTime() async {
-    final time = await Dialogs.showTimeInput(context);
+  Future<void> selectStartTime(int id) async {
+    final time = await Dialogs.showTimeInput(context, initialTime: start);
     if (time != null) {
       setState(() {
         start = time;
         startText = time.format(context);
+
+        ref.read(uDaoProvider).updateTREtimes(id, start.dateTimeConversion, end.dateTimeConversion);
       });
     }
   }
 
-  Future<void> selectEndTime() async {
-    final time = await Dialogs.showTimeInput(context);
+  Future<void> selectEndTime(int id) async {
+    final time = await Dialogs.showTimeInput(context, initialTime: end);
     if (time != null) {
       setState(() {
         end = time;
         endText = time.format(context);
+
+        ref.read(uDaoProvider).updateTREtimes(id, start.dateTimeConversion, end.dateTimeConversion);
       });
     }
   }
 
   Column createTRE(UserSessionData session) {
     final theme = Theme.of(context);
+
+    start = TimeOfDay.fromDateTime(session.startTime);
+    startText = start.format(context);
+    end = TimeOfDay.fromDateTime(session.endTime);
+    endText = end.format(context);
     List<String> headings = ['Starting Time', 'Ending Time'];
     List<ElevatedButton> times = [
-      ElevatedButton(onPressed: selectStartTime, child: Text(startText)),
-      ElevatedButton(onPressed: selectEndTime, child: Text(endText)),
+      ElevatedButton(onPressed: () => selectStartTime(session.userId), child: Text(startText)),
+      ElevatedButton(onPressed: () => selectEndTime(session.userId), child: Text(endText)),
     ];
 
     return Column(

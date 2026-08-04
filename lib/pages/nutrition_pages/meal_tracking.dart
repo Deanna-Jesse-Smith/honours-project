@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/custom_widgets.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/meal_card.dart';
+import 'package:testrun/widgets/navigation_drawer.dart';
 
 class MealTracking extends ConsumerWidget {
   const MealTracking({super.key});
@@ -15,37 +16,79 @@ class MealTracking extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
-    DateTime temp = DateTime.now();
-    List<DateTime> threeDays = [
-      DateUtils.dateOnly(temp),
-      DateUtils.dateOnly(temp.subtract(const Duration(days: 1))),
-      DateUtils.dateOnly(temp.subtract(const Duration(days: 2))),
-    ];
+    DateTime start = DateUtils.dateOnly(DateTime.now());
+    late DateTime end;
+    if (start.day - 3 < 0) {
+      int tempMonth = start.month - 1;
+      int tempYear = start.year;
+      if (tempMonth < 0) {
+        tempYear -= 1;
+        end = DateTime(tempYear, 11, 0);
+      } else {
+        end = DateTime(start.year, tempMonth, 0);
+      }
+
+      int day = (end.day + start.day) - 3;
+      end = DateTime(tempYear, tempMonth, day);
+    } else {
+      end = DateTime(start.year, start.month, start.day - 3);
+    }
+    
     // final threeDaysMeals = ref.watch(mealRangeProvider(threeDays)).value;
     // final viewMeals = ref.watch(nDaoProvider).getMealsInRange(threeDays);
-    final viewFoods = ref.watch(nDaoProvider).getFoodInRange(threeDays);
+    // final viewMeals = ref.read(nDaoProvider).getFoodInRange(threeDays);
 
-
-    CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
-      drawer: customWidgets.getDrawer(context),
+      drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 3),
-      // floatingActionButton: customWidgets.getFAB(ref, context, 3),
-      body: FutureBuilder(future: viewFoods, builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);
-        }
-        final dayFoods = snapshot.data;
-
-        return ListView.builder(itemCount: dayFoods!.length, itemBuilder: (context, index) {
-          if (dayFoods.isNotEmpty) {
-            return DaySection(dayMeal: dayFoods[threeDays[index]]!);
+      body: StreamBuilder(
+        stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            debugPrint('FoodMap: no data');
+            return const Text(
+              'No meals to show',
+              style: TextStyle(fontSize: TextSizing.large),
+            );
           }
-          return SizedBox(height: 10,);
-        });
-      }),
+
+          final dayFoods = snapshot.data;
+          if (dayFoods == null) {
+            debugPrint('FoodMap: null');
+            return const Text(
+              'No meals to show',
+              style: TextStyle(fontSize: TextSizing.large),
+            );
+          }
+
+          Map<DateTime, DayFoods> foodMap = {};
+          for (final foodItem in dayFoods) {
+            DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
+
+            foodMap.update(foodItem.logDate, (u) {
+              u.foods.add(foodItem);
+              return u;
+            }, ifAbsent: () => temp);
+          }
+
+          List<DayFoods> curr = foodMap.values.toList();
+
+          debugPrint('FoodMap: ${curr.length}');
+
+          return ListView.builder(
+            itemCount: curr.length,
+            itemBuilder: (context, index) {
+              if (curr.isNotEmpty) {
+                debugPrint('FoodMap: building $index');
+                return DaySection(dayMeal: curr[index]);
+              }
+              return SizedBox(height: 10);
+            },
+          );
+        },
+      ),
 
       // body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
       //   if (!snapshot.hasData) {
@@ -53,8 +96,6 @@ class MealTracking extends ConsumerWidget {
       //   }
 
       //   final daysMeals = snapshot.data;
-
-        
 
       //   return ListView.builder(itemCount: daysMeals!.length, itemBuilder: (context, index) {
       //     if (daysMeals.isNotEmpty) {

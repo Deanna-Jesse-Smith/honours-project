@@ -37,7 +37,6 @@ class MyExpandableFAB extends ConsumerWidget {
       },
       onMealTapped: () async {
         final newLog = await Dialogs.getCurLogMethod(context, ref, session);
-        debugPrint('Log testing');
 
         if (newLog != null) {
           debugPrint('Log: ${newLog.name}');

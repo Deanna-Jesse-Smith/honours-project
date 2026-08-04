@@ -36,7 +36,8 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   NutritionDao(super.db);
 
   Future<int> insertFoodLog(MealCategory cate, String? path, String? comment, LogMethod logMethod) async {
-    final insertion = (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path), logMethod: logMethod)));
+    final insertion = await (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path), logMethod: logMethod)));
+    debugPrint('Food Insertion: $insertion');
     return insertion;
   }
 
@@ -72,6 +73,30 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
 
     return foodMap;
+  }
+
+  void testing() async {
+    final temp = await (select(foodLog)).get();
+
+    for (final row in temp) {
+      debugPrint(row.toString());
+    }
+  }
+
+  Stream<List<FoodLogData>> findFoodInRange(DateTimeRange range) {
+    final allFood = (select(foodLog)..where((f) => f.logDate.isBiggerOrEqualValue(range.start) & f.logDate.isSmallerOrEqualValue(range.end))..orderBy([(d) => OrderingTerm.desc(d.logDate)])).watch();
+    // Map<DateTime, DayFoods> foodMap = {};
+    // for (final foodItem in allFood) {
+    //   DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
+
+    //   foodMap.update(foodItem.logDate, (u) {
+    //     u.foods.add(foodItem);
+    //     return u;
+    //     }, ifAbsent: () => temp);
+    // }
+    testing();
+
+    return allFood;
   }
 
   Future<int> addMealRecipeContent(

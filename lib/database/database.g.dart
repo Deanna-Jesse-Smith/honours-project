@@ -7999,7 +7999,7 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: currentDate,
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _commentMeta = const VerificationMeta(
     'comment',
