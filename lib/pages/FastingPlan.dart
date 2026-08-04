@@ -94,7 +94,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             ),
           ),
           ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoalsPage(type: GoalType.fasting))), child: Text(
-              'Goals and Streaks',
+              'Goals/Streaks',
               style: Theme.of(context).textTheme.displayMedium,
             ))
           ]

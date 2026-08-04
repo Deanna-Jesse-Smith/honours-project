@@ -35,15 +35,31 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     with _$NutritionDaoMixin {
   NutritionDao(super.db);
 
-  Future<int> insertFoodLog(MealCategory cate, String? path, String? comment, LogMethod logMethod) async {
-    final insertion = await (into(foodLog).insert(FoodLogCompanion.insert(category: cate, comment: Value(comment), path: Value(path), logMethod: logMethod)));
+  Future<int> insertFoodLog(
+    MealCategory cate,
+    String? path,
+    String? comment,
+    LogMethod logMethod,
+  ) async {
+    final insertion = await (into(foodLog).insert(
+      FoodLogCompanion.insert(
+        category: cate,
+        comment: Value(comment),
+        path: Value(path),
+        logMethod: logMethod,
+      ),
+    ));
     debugPrint('Food Insertion: $insertion');
     return insertion;
   }
 
   Future<DayFoods?> getYesterdayMeals() async {
-    DateTime yesterday = DateUtils.dateOnly(DateTime.now().subtract(const Duration(days: 1)));
-    final logs = await (select(foodLog)..where((l) => l.logDate.equals(yesterday))).get();
+    DateTime yesterday = DateUtils.dateOnly(
+      DateTime.now().subtract(const Duration(days: 1)),
+    );
+    final logs = await (select(
+      foodLog,
+    )..where((l) => l.logDate.equals(yesterday))).get();
     if (logs.isEmpty) {
       return null;
     }
@@ -51,17 +67,29 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   void repeatFood(FoodLogData data) {
-    into(foodLog).insert(FoodLogCompanion.insert(category: data.category, comment: Value(data.comment), path: Value(data.path), logMethod: data.logMethod));
+    into(foodLog).insert(
+      FoodLogCompanion.insert(
+        category: data.category,
+        comment: Value(data.comment),
+        path: Value(data.path),
+        logMethod: data.logMethod,
+      ),
+    );
   }
 
-    bool isSameDate(DateTime one, DateTime other) {
+  bool isSameDate(DateTime one, DateTime other) {
     return one.year == other.year &&
         one.month == other.month &&
         one.day == other.day;
   }
 
-  Future<Map<DateTime, DayFoods>> getFoodInRange(List<DateTime> days) async { // Make this into a stream
-    final allFood = await (select(foodLog)..where((f) => f.logDate.isIn(days))..orderBy([(d) => OrderingTerm.desc(d.logDate)])).get();
+  Future<Map<DateTime, DayFoods>> getFoodInRange(List<DateTime> days) async {
+    // Make this into a stream
+    final allFood =
+        await (select(foodLog)
+              ..where((f) => f.logDate.isIn(days))
+              ..orderBy([(d) => OrderingTerm.desc(d.logDate)]))
+            .get();
     Map<DateTime, DayFoods> foodMap = {};
     for (final foodItem in allFood) {
       DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
@@ -69,7 +97,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       foodMap.update(foodItem.logDate, (u) {
         u.foods.add(foodItem);
         return u;
-        }, ifAbsent: () => temp);
+      }, ifAbsent: () => temp);
     }
 
     return foodMap;
@@ -84,7 +112,15 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Stream<List<FoodLogData>> findFoodInRange(DateTimeRange range) {
-    final allFood = (select(foodLog)..where((f) => f.logDate.isBiggerOrEqualValue(range.start) & f.logDate.isSmallerOrEqualValue(range.end))..orderBy([(d) => OrderingTerm.desc(d.logDate)])).watch();
+    final allFood =
+        (select(foodLog)
+              ..where(
+                (f) =>
+                    f.logDate.isBiggerOrEqualValue(range.start) &
+                    f.logDate.isSmallerThanValue(range.end),
+              )
+              ..orderBy([(d) => OrderingTerm.desc(d.logDate)]))
+            .watch();
     // Map<DateTime, DayFoods> foodMap = {};
     // for (final foodItem in allFood) {
     //   DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
@@ -120,22 +156,25 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       ),
     );
 
-    final recipeContents = await (select(recipeQuantities)..where((q) => q.recipeID.equals(recipeID))).get();
+    final recipeContents = await (select(
+      recipeQuantities,
+    )..where((q) => q.recipeID.equals(recipeID))).get();
 
     for (RecipeQuantity rq in recipeContents) {
-      final ingredient = await(select(food)..where((f) => f.foodID.equals(rq.foodID))).getSingle();
+      final ingredient = await (select(
+        food,
+      )..where((f) => f.foodID.equals(rq.foodID))).getSingle();
 
       insertFoodNutritionLog(userID, ingredient.foodID, amount, date);
-        // double prevCarbs = ingredient.carbs;
-        // double prevFat = ingredient.fat;
-        // double prevProtein = ingredient.protein;
-        // double prevFibre = ingredient.fibre;
-        // double prevCalories = ingredient.calories;
+      // double prevCarbs = ingredient.carbs;
+      // double prevFat = ingredient.fat;
+      // double prevProtein = ingredient.protein;
+      // double prevFibre = ingredient.fibre;
+      // double prevCalories = ingredient.calories;
 
-        // (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
-        //     .write(NutritionLogCompanion(carbs: Value(prevCarbs + (ingredient.carbs * amount)), fat: Value(prevFat + (ingredient.fat * amount)), protien: Value(prevProtein + (ingredient.protein * amount)), fibre: Value(prevFibre + (ingredient.fibre * amount)), calories: Value(prevCalories.toInt() + (ingredient.calories.toInt() * amount.toInt()))));
+      // (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
+      //     .write(NutritionLogCompanion(carbs: Value(prevCarbs + (ingredient.carbs * amount)), fat: Value(prevFat + (ingredient.fat * amount)), protien: Value(prevProtein + (ingredient.protein * amount)), fibre: Value(prevFibre + (ingredient.fibre * amount)), calories: Value(prevCalories.toInt() + (ingredient.calories.toInt() * amount.toInt()))));
     }
-
 
     return content;
   }
@@ -192,10 +231,31 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         double prevFibre = lastLog.fibre;
         int prevCalories = lastLog.calories;
 
-        (update(nutritionLog)..where((l) => l.nutritionLogID.equals(nutID)))
-            .write(NutritionLogCompanion(carbs: Value(prevCarbs + (curFood.carbs * amount)), fat: Value(prevFat + (curFood.fat * amount)), protien: Value(prevProtein + (curFood.protein * amount)), fibre: Value(prevFibre + (curFood.fibre * amount)), calories: Value(prevCalories + (curFood.calories.toInt() * amount.toInt()))));
+        (update(
+          nutritionLog,
+        )..where((l) => l.nutritionLogID.equals(nutID))).write(
+          NutritionLogCompanion(
+            carbs: Value(prevCarbs + (curFood.carbs * amount)),
+            fat: Value(prevFat + (curFood.fat * amount)),
+            protien: Value(prevProtein + (curFood.protein * amount)),
+            fibre: Value(prevFibre + (curFood.fibre * amount)),
+            calories: Value(
+              prevCalories + (curFood.calories.toInt() * amount.toInt()),
+            ),
+          ),
+        );
       } else {
-        await into(nutritionLog).insert(NutritionLogCompanion.insert(userID: userID, logDateTime: Value(date), carbs: Value(curFood.carbs * amount), fat: Value(curFood.fat * amount), protien: Value(curFood.protein * amount), fibre: Value(curFood.fibre * amount), calories: Value(curFood.calories.toInt() * amount.toInt())));
+        await into(nutritionLog).insert(
+          NutritionLogCompanion.insert(
+            userID: userID,
+            logDateTime: Value(date),
+            carbs: Value(curFood.carbs * amount),
+            fat: Value(curFood.fat * amount),
+            protien: Value(curFood.protein * amount),
+            fibre: Value(curFood.fibre * amount),
+            calories: Value(curFood.calories.toInt() * amount.toInt()),
+          ),
+        );
       }
     }
   }
@@ -288,11 +348,13 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       final recipeContent = row.readTable(mealRecipeContent);
       final recipeItem = row.readTable(recipe);
 
-      final recipeNutrition = await (select(recipeQuantities).join([innerJoin(food, food.foodID.equalsExp(recipeQuantities.foodID))])..where(recipeQuantities.recipeID.equals(recipeItem.recipeID))).get();
+      final recipeNutrition = await (select(recipeQuantities).join([
+        innerJoin(food, food.foodID.equalsExp(recipeQuantities.foodID)),
+      ])..where(recipeQuantities.recipeID.equals(recipeItem.recipeID))).get();
       double calories = 0, fibre = 0, fat = 0, protein = 0, carbs = 0;
       for (final row in recipeNutrition) {
         final ingr = row.readTable(food);
-        
+
         final multiplier = recipeContent.quantity / 100;
 
         calories += ingr.calories * multiplier;
@@ -310,7 +372,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         fibre,
         fat,
         protein,
-        carbs
+        carbs,
       );
       mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
     }
@@ -349,21 +411,25 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     final foods = await results.get();
 
     final foodIDs = foods.map((f) => f.foodID).toList();
-    final foodContentRows = await (select(food)..where((f) => f.foodID.isIn(foodIDs))).get();
+    final foodContentRows = await (select(
+      food,
+    )..where((f) => f.foodID.isIn(foodIDs))).get();
     List<Ingredient> output = [];
 
     for (final foodItem in foodContentRows) {
-        output.add(Ingredient(
-        foodItem.foodID,
-        foodItem.name,
-        0,
-        IngredientType.food,
-        foodItem.calories,
-        foodItem.fibre,
-        foodItem.fat,
-        foodItem.protein,
-        foodItem.carbs,
-      ));
+      output.add(
+        Ingredient(
+          foodItem.foodID,
+          foodItem.name,
+          0,
+          IngredientType.food,
+          foodItem.calories,
+          foodItem.fibre,
+          foodItem.fat,
+          foodItem.protein,
+          foodItem.carbs,
+        ),
+      );
     }
 
     return output;
@@ -378,27 +444,30 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
 
   //   final recipes = results.get();
 
-
   //   return results.get();
   // }
 
   Future<List<Ingredient>> getFoodAsIngredient(List<FoodData> foods) async {
     List<Ingredient> output = [];
     final foodIDs = foods.map((f) => f.foodID).toList();
-    final foodContentRows = await (select(food)..where((f) => f.foodID.isIn(foodIDs))).get();
+    final foodContentRows = await (select(
+      food,
+    )..where((f) => f.foodID.isIn(foodIDs))).get();
 
     for (final foodItem in foodContentRows) {
-        output.add(Ingredient(
-        foodItem.foodID,
-        foodItem.name,
-        0,
-        IngredientType.food,
-        foodItem.calories,
-        foodItem.fibre,
-        foodItem.fat,
-        foodItem.protein,
-        foodItem.carbs,
-      ));
+      output.add(
+        Ingredient(
+          foodItem.foodID,
+          foodItem.name,
+          0,
+          IngredientType.food,
+          foodItem.calories,
+          foodItem.fibre,
+          foodItem.fat,
+          foodItem.protein,
+          foodItem.carbs,
+        ),
+      );
     }
 
     return output;

@@ -3,6 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -86,6 +88,33 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 onChanged: (bool? value) {
                   setState(() {
                     isFast = value!;
+
+                    switch (session!.fastingForm) {
+                      case FastingForm.tre:
+                        // final times = CalculateReminderTimes.getTREtimes(session);
+
+                    //     for (final time in times) {
+                    //       FlutterLocalNotificationsPlugin().zonedSchedule(
+                    //   id: reminderKey[GoalType.fasting]!,
+                    //   scheduledDate: tz.TZDateTime.from(time, tz.local),
+                    //   notificationDetails: const NotificationDetails(
+                    //     android: AndroidNotificationDetails(
+                    //       'channelId',
+                    //       'channelName',
+                    //     ),
+                    //   ),
+                    //   androidScheduleMode:
+                    //       AndroidScheduleMode.exactAllowWhileIdle,
+                    // );
+                    //     }
+                        throw UnimplementedError();
+                      case FastingForm.fiveTwo:
+                        // TODO: Handle this case.
+                        throw UnimplementedError();
+                      case FastingForm.adf:
+                        // TODO: Handle this case.
+                        throw UnimplementedError();
+                    }
                   });
                 },
                 title: const Text('Have fast reminder:'),

@@ -16,27 +16,24 @@ class MealTracking extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
-    DateTime start = DateUtils.dateOnly(DateTime.now());
-    late DateTime end;
-    if (start.day - 3 < 0) {
-      int tempMonth = start.month - 1;
-      int tempYear = start.year;
-      if (tempMonth < 0) {
-        tempYear -= 1;
-        end = DateTime(tempYear, 11, 0);
-      } else {
-        end = DateTime(start.year, tempMonth, 0);
-      }
+    DateTime end = DateUtils.dateOnly(DateTime.now());
+    DateTime start = end.subtract(const Duration(days: 3));
+    end.add(const Duration(days: 1));
+    // if (start.day - 3 < 0) {
+    //   int tempMonth = start.month - 1;
+    //   int tempYear = start.year;
+    //   if (tempMonth < 0) {
+    //     tempYear -= 1;
+    //     end = DateTime(tempYear, 11, 0);
+    //   } else {
+    //     end = DateTime(start.year, tempMonth, 0);
+    //   }
 
-      int day = (end.day + start.day) - 3;
-      end = DateTime(tempYear, tempMonth, day);
-    } else {
-      end = DateTime(start.year, start.month, start.day - 3);
-    }
-    
-    // final threeDaysMeals = ref.watch(mealRangeProvider(threeDays)).value;
-    // final viewMeals = ref.watch(nDaoProvider).getMealsInRange(threeDays);
-    // final viewMeals = ref.read(nDaoProvider).getFoodInRange(threeDays);
+    //   int day = (end.day + start.day) - 3;
+    //   end = DateTime(tempYear, tempMonth, day);
+    // } else {
+    //   end = DateTime(start.year, start.month, start.day - 3);
+    // }
 
     return Scaffold(
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
