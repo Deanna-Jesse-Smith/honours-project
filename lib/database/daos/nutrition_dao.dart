@@ -45,7 +45,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodLogCompanion.insert(
         category: cate,
         comment: Value(comment),
-        path: Value(path),
+        path: path != null ? Value(path) : Value(''),
         logMethod: logMethod,
       ),
     ));
@@ -103,8 +103,16 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return foodMap;
   }
 
-  void testing() async {
-    final temp = await (select(foodLog)).get();
+  void testing(DateTimeRange range) async {
+    final temp =
+        await (select(foodLog)
+              ..where(
+                (f) =>
+                    f.logDate.isBiggerOrEqualValue(range.start) &
+                    f.logDate.isSmallerThanValue(range.end),
+              )
+              ..orderBy([(d) => OrderingTerm.desc(d.logDate)]))
+            .get();
 
     for (final row in temp) {
       debugPrint(row.toString());
@@ -117,7 +125,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
               ..where(
                 (f) =>
                     f.logDate.isBiggerOrEqualValue(range.start) &
-                    f.logDate.isSmallerThanValue(range.end),
+                    f.logDate.isSmallerOrEqualValue(range.end),
               )
               ..orderBy([(d) => OrderingTerm.desc(d.logDate)]))
             .watch();
@@ -130,9 +138,36 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     //     return u;
     //     }, ifAbsent: () => temp);
     // }
-    testing();
+    testing(range);
 
     return allFood;
+  }
+
+  Future<bool> isFiveTwoDay(List<DateTime> days) async {
+    final countDays = foodLog.category.count(distinct: true);
+    final fasts = (selectOnly(foodLog)
+      ..addColumns([countDays])
+      ..where(foodLog.logDate.isIn(days)));
+    final output = await fasts.getSingle();
+    return output.read(countDays)! <= 2;
+  }
+
+  Future<List<int>> countMealsInRange(DateTime start, DateTime end) async {
+    final countDays = foodLog.category.count(distinct: true);
+    final fasts = (selectOnly(foodLog)
+      ..addColumns([countDays, foodLog.logDate])
+      ..where(
+        foodLog.logDate.isBiggerOrEqualValue(start) &
+            foodLog.logDate.isSmallerOrEqualValue(end),
+      )
+      ..groupBy([foodLog.logDate.date]));
+    final output = await fasts.get();
+    
+    List<int> counts = [];
+    for (final count in output) {
+      counts.add(count.read(countDays)!);
+    }
+    return counts;
   }
 
   Future<int> addMealRecipeContent(

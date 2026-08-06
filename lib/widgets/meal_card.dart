@@ -55,14 +55,15 @@ class FoodCard extends StatelessWidget {
     return Card(
       child: Padding(padding: const EdgeInsets.all(8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
             Text(food.category.cardName),
             Text(DateFormat('HH:mm a').format(food.logDate)),
           ],),
           if (food.comment != null) Text(food.comment!),
-          if (food.path != null) ClipRRect(borderRadius: BorderRadius.circular(10),
-          child: Image.file(File(food.path!),
+          if (food.path.isNotEmpty) ClipRRect(borderRadius: BorderRadius.circular(10),
+          child: Image.file(File(food.path),
           width: 120,
           height: 120,
           fit: BoxFit.cover)),
@@ -80,6 +81,7 @@ class DaySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
       children: [
         Text(DateFormat('EEE, M/d/y').format(dayMeal.day)),
         ...dayMeal.foods.map((meal) => FoodCard(food: meal)),

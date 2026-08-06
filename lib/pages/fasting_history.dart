@@ -36,9 +36,9 @@ const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 final fastsInMonthProvider = StreamProvider.autoDispose
     .family<
       StatisticsModel,
-      ({int userID, FastingForm curForm, DateTimeRange range})
+      ({int userID, FastingForm curForm, DateTime start, DateTime end})
     >((ref, params) {
-      final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.range);
+      final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.start, params.end);
 
       return repo.map(
         (fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm),
@@ -73,7 +73,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     final session = ref.watch(userSessionProvider).value;
     data = ref
         .watch(fDaoProvider)
-        .findFastsInRange(1, DateTimeRange(start: start, end: end));
+        .findFastsInRange(1, start, end);
 
     sms = data.map(
       (convert) =>
@@ -335,7 +335,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
       //     ),
       stream: ref
           .watch(fDaoProvider)
-          .findFastsInRange(1, DateTimeRange(start: start, end: end)),
+          .findFastsInRange(1, start, end),
       builder: (context, asyncSnapshot) {
         if (asyncSnapshot.connectionState == ConnectionState.waiting)
           return const CircularProgressIndicator();

@@ -4725,17 +4725,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _metricTypeMeta = const VerificationMeta(
-    'metricType',
-  );
   @override
-  late final GeneratedColumn<String> metricType = GeneratedColumn<String>(
-    'metric_type',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<MetricType, String> metricType =
+      GeneratedColumn<String>(
+        'metric_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<MetricType>($GoalsTable.$convertermetricType);
   @override
   late final GeneratedColumnWithTypeConverter<GoalOperator, String> op =
       GeneratedColumn<String>(
@@ -4824,12 +4822,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         ),
       );
     }
-    if (data.containsKey('metric_type')) {
-      context.handle(
-        _metricTypeMeta,
-        metricType.isAcceptableOrUnknown(data['metric_type']!, _metricTypeMeta),
-      );
-    }
     if (data.containsKey('streak_i_d')) {
       context.handle(
         _streakIDMeta,
@@ -4874,9 +4866,11 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.double,
         data['${effectivePrefix}threshold_value'],
       ),
-      metricType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}metric_type'],
+      metricType: $GoalsTable.$convertermetricType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}metric_type'],
+        )!,
       ),
       op: $GoalsTable.$converterop.fromSql(
         attachedDatabase.typeMapping.read(
@@ -4906,6 +4900,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
 
   static JsonTypeConverter2<GoalType, String, String> $convertertype =
       const EnumNameConverter<GoalType>(GoalType.values);
+  static JsonTypeConverter2<MetricType, String, String> $convertermetricType =
+      const EnumNameConverter<MetricType>(MetricType.values);
   static JsonTypeConverter2<GoalOperator, String, String> $converterop =
       const EnumNameConverter<GoalOperator>(GoalOperator.values);
 }
@@ -4914,7 +4910,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   final int goalID;
   final GoalType type;
   final double? thresholdValue;
-  final String? metricType;
+  final MetricType metricType;
   final GoalOperator op;
   final int? streakID;
   final bool isComplete;
@@ -4923,7 +4919,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.goalID,
     required this.type,
     this.thresholdValue,
-    this.metricType,
+    required this.metricType,
     required this.op,
     this.streakID,
     required this.isComplete,
@@ -4939,8 +4935,10 @@ class Goal extends DataClass implements Insertable<Goal> {
     if (!nullToAbsent || thresholdValue != null) {
       map['threshold_value'] = Variable<double>(thresholdValue);
     }
-    if (!nullToAbsent || metricType != null) {
-      map['metric_type'] = Variable<String>(metricType);
+    {
+      map['metric_type'] = Variable<String>(
+        $GoalsTable.$convertermetricType.toSql(metricType),
+      );
     }
     {
       map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op));
@@ -4960,9 +4958,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       thresholdValue: thresholdValue == null && nullToAbsent
           ? const Value.absent()
           : Value(thresholdValue),
-      metricType: metricType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(metricType),
+      metricType: Value(metricType),
       op: Value(op),
       streakID: streakID == null && nullToAbsent
           ? const Value.absent()
@@ -4983,7 +4979,9 @@ class Goal extends DataClass implements Insertable<Goal> {
         serializer.fromJson<String>(json['type']),
       ),
       thresholdValue: serializer.fromJson<double?>(json['thresholdValue']),
-      metricType: serializer.fromJson<String?>(json['metricType']),
+      metricType: $GoalsTable.$convertermetricType.fromJson(
+        serializer.fromJson<String>(json['metricType']),
+      ),
       op: $GoalsTable.$converterop.fromJson(
         serializer.fromJson<String>(json['op']),
       ),
@@ -5001,7 +4999,9 @@ class Goal extends DataClass implements Insertable<Goal> {
         $GoalsTable.$convertertype.toJson(type),
       ),
       'thresholdValue': serializer.toJson<double?>(thresholdValue),
-      'metricType': serializer.toJson<String?>(metricType),
+      'metricType': serializer.toJson<String>(
+        $GoalsTable.$convertermetricType.toJson(metricType),
+      ),
       'op': serializer.toJson<String>($GoalsTable.$converterop.toJson(op)),
       'streakID': serializer.toJson<int?>(streakID),
       'isComplete': serializer.toJson<bool>(isComplete),
@@ -5013,7 +5013,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     int? goalID,
     GoalType? type,
     Value<double?> thresholdValue = const Value.absent(),
-    Value<String?> metricType = const Value.absent(),
+    MetricType? metricType,
     GoalOperator? op,
     Value<int?> streakID = const Value.absent(),
     bool? isComplete,
@@ -5024,7 +5024,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     thresholdValue: thresholdValue.present
         ? thresholdValue.value
         : this.thresholdValue,
-    metricType: metricType.present ? metricType.value : this.metricType,
+    metricType: metricType ?? this.metricType,
     op: op ?? this.op,
     streakID: streakID.present ? streakID.value : this.streakID,
     isComplete: isComplete ?? this.isComplete,
@@ -5095,7 +5095,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<int> goalID;
   final Value<GoalType> type;
   final Value<double?> thresholdValue;
-  final Value<String?> metricType;
+  final Value<MetricType> metricType;
   final Value<GoalOperator> op;
   final Value<int?> streakID;
   final Value<bool> isComplete;
@@ -5114,12 +5114,13 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.goalID = const Value.absent(),
     required GoalType type,
     this.thresholdValue = const Value.absent(),
-    this.metricType = const Value.absent(),
+    required MetricType metricType,
     required GoalOperator op,
     this.streakID = const Value.absent(),
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
   }) : type = Value(type),
+       metricType = Value(metricType),
        op = Value(op);
   static Insertable<Goal> custom({
     Expression<int>? goalID,
@@ -5147,7 +5148,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<int>? goalID,
     Value<GoalType>? type,
     Value<double?>? thresholdValue,
-    Value<String?>? metricType,
+    Value<MetricType>? metricType,
     Value<GoalOperator>? op,
     Value<int?>? streakID,
     Value<bool>? isComplete,
@@ -5180,7 +5181,9 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       map['threshold_value'] = Variable<double>(thresholdValue.value);
     }
     if (metricType.present) {
-      map['metric_type'] = Variable<String>(metricType.value);
+      map['metric_type'] = Variable<String>(
+        $GoalsTable.$convertermetricType.toSql(metricType.value),
+      );
     }
     if (op.present) {
       map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op.value));
@@ -8017,9 +8020,10 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
   late final GeneratedColumn<String> path = GeneratedColumn<String>(
     'path',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultValue: const Constant(''),
   );
   @override
   late final GeneratedColumnWithTypeConverter<LogMethod, String> logMethod =
@@ -8105,7 +8109,7 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
       path: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}path'],
-      ),
+      )!,
       logMethod: $FoodLogTable.$converterlogMethod.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -8131,14 +8135,14 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
   final MealCategory category;
   final DateTime logDate;
   final String? comment;
-  final String? path;
+  final String path;
   final LogMethod logMethod;
   const FoodLogData({
     required this.foodLogID,
     required this.category,
     required this.logDate,
     this.comment,
-    this.path,
+    required this.path,
     required this.logMethod,
   });
   @override
@@ -8154,9 +8158,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     if (!nullToAbsent || comment != null) {
       map['comment'] = Variable<String>(comment);
     }
-    if (!nullToAbsent || path != null) {
-      map['path'] = Variable<String>(path);
-    }
+    map['path'] = Variable<String>(path);
     {
       map['log_method'] = Variable<String>(
         $FoodLogTable.$converterlogMethod.toSql(logMethod),
@@ -8173,7 +8175,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       comment: comment == null && nullToAbsent
           ? const Value.absent()
           : Value(comment),
-      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+      path: Value(path),
       logMethod: Value(logMethod),
     );
   }
@@ -8190,7 +8192,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       ),
       logDate: serializer.fromJson<DateTime>(json['logDate']),
       comment: serializer.fromJson<String?>(json['comment']),
-      path: serializer.fromJson<String?>(json['path']),
+      path: serializer.fromJson<String>(json['path']),
       logMethod: $FoodLogTable.$converterlogMethod.fromJson(
         serializer.fromJson<String>(json['logMethod']),
       ),
@@ -8206,7 +8208,7 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       ),
       'logDate': serializer.toJson<DateTime>(logDate),
       'comment': serializer.toJson<String?>(comment),
-      'path': serializer.toJson<String?>(path),
+      'path': serializer.toJson<String>(path),
       'logMethod': serializer.toJson<String>(
         $FoodLogTable.$converterlogMethod.toJson(logMethod),
       ),
@@ -8218,14 +8220,14 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     MealCategory? category,
     DateTime? logDate,
     Value<String?> comment = const Value.absent(),
-    Value<String?> path = const Value.absent(),
+    String? path,
     LogMethod? logMethod,
   }) => FoodLogData(
     foodLogID: foodLogID ?? this.foodLogID,
     category: category ?? this.category,
     logDate: logDate ?? this.logDate,
     comment: comment.present ? comment.value : this.comment,
-    path: path.present ? path.value : this.path,
+    path: path ?? this.path,
     logMethod: logMethod ?? this.logMethod,
   );
   FoodLogData copyWithCompanion(FoodLogCompanion data) {
@@ -8272,7 +8274,7 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
   final Value<MealCategory> category;
   final Value<DateTime> logDate;
   final Value<String?> comment;
-  final Value<String?> path;
+  final Value<String> path;
   final Value<LogMethod> logMethod;
   const FoodLogCompanion({
     this.foodLogID = const Value.absent(),
@@ -8314,7 +8316,7 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     Value<MealCategory>? category,
     Value<DateTime>? logDate,
     Value<String?>? comment,
-    Value<String?>? path,
+    Value<String>? path,
     Value<LogMethod>? logMethod,
   }) {
     return FoodLogCompanion(
@@ -13584,7 +13586,7 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<int> goalID,
       required GoalType type,
       Value<double?> thresholdValue,
-      Value<String?> metricType,
+      required MetricType metricType,
       required GoalOperator op,
       Value<int?> streakID,
       Value<bool> isComplete,
@@ -13595,7 +13597,7 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<int> goalID,
       Value<GoalType> type,
       Value<double?> thresholdValue,
-      Value<String?> metricType,
+      Value<MetricType> metricType,
       Value<GoalOperator> op,
       Value<int?> streakID,
       Value<bool> isComplete,
@@ -13740,9 +13742,10 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get metricType => $composableBuilder(
+  ColumnWithTypeConverterFilters<MetricType, MetricType, String>
+  get metricType => $composableBuilder(
     column: $table.metricType,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<GoalOperator, GoalOperator, String> get op =>
@@ -13998,10 +14001,11 @@ class $$GoalsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get metricType => $composableBuilder(
-    column: $table.metricType,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<MetricType, String> get metricType =>
+      $composableBuilder(
+        column: $table.metricType,
+        builder: (column) => column,
+      );
 
   GeneratedColumnWithTypeConverter<GoalOperator, String> get op =>
       $composableBuilder(column: $table.op, builder: (column) => column);
@@ -14203,7 +14207,7 @@ class $$GoalsTableTableManager
                 Value<int> goalID = const Value.absent(),
                 Value<GoalType> type = const Value.absent(),
                 Value<double?> thresholdValue = const Value.absent(),
-                Value<String?> metricType = const Value.absent(),
+                Value<MetricType> metricType = const Value.absent(),
                 Value<GoalOperator> op = const Value.absent(),
                 Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
@@ -14223,7 +14227,7 @@ class $$GoalsTableTableManager
                 Value<int> goalID = const Value.absent(),
                 required GoalType type,
                 Value<double?> thresholdValue = const Value.absent(),
-                Value<String?> metricType = const Value.absent(),
+                required MetricType metricType,
                 required GoalOperator op,
                 Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
@@ -17184,7 +17188,7 @@ typedef $$FoodLogTableCreateCompanionBuilder =
       required MealCategory category,
       Value<DateTime> logDate,
       Value<String?> comment,
-      Value<String?> path,
+      Value<String> path,
       required LogMethod logMethod,
     });
 typedef $$FoodLogTableUpdateCompanionBuilder =
@@ -17193,7 +17197,7 @@ typedef $$FoodLogTableUpdateCompanionBuilder =
       Value<MealCategory> category,
       Value<DateTime> logDate,
       Value<String?> comment,
-      Value<String?> path,
+      Value<String> path,
       Value<LogMethod> logMethod,
     });
 
@@ -17342,7 +17346,7 @@ class $$FoodLogTableTableManager
                 Value<MealCategory> category = const Value.absent(),
                 Value<DateTime> logDate = const Value.absent(),
                 Value<String?> comment = const Value.absent(),
-                Value<String?> path = const Value.absent(),
+                Value<String> path = const Value.absent(),
                 Value<LogMethod> logMethod = const Value.absent(),
               }) => FoodLogCompanion(
                 foodLogID: foodLogID,
@@ -17358,7 +17362,7 @@ class $$FoodLogTableTableManager
                 required MealCategory category,
                 Value<DateTime> logDate = const Value.absent(),
                 Value<String?> comment = const Value.absent(),
-                Value<String?> path = const Value.absent(),
+                Value<String> path = const Value.absent(),
                 required LogMethod logMethod,
               }) => FoodLogCompanion.insert(
                 foodLogID: foodLogID,

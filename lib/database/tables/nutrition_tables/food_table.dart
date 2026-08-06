@@ -21,6 +21,6 @@ class FoodLog extends Table {
   TextColumn get category => textEnum<MealCategory>()();
   DateTimeColumn get logDate => dateTime().withDefault(currentDateAndTime)();
   TextColumn get comment => text().nullable()();
-  TextColumn get path => text().nullable()();
+  TextColumn get path => text().withDefault(const Constant(''))();
   TextColumn get logMethod => textEnum<LogMethod>()();
 }

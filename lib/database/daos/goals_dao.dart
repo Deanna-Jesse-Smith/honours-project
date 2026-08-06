@@ -31,6 +31,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         GoalsCompanion.insert(
           type: GoalType.nutrition,
           op: GoalOperator.logOnly,
+          metricType: MetricType.meals,
           streakID: Value(streakID),
         ),
       ));
@@ -58,7 +59,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         GoalsCompanion.insert(
           type: GoalType.hydration,
           thresholdValue: Value(amount.toDouble()),
-          metricType: const Value('ml'),
+          metricType: MetricType.litres,
           op: op,
           streakID: Value(streakID),
         ),
@@ -85,7 +86,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         GoalsCompanion.insert(
           type: GoalType.nutrition,
           thresholdValue: Value(target.toDouble()),
-          metricType: const Value('g'),
+          metricType: MetricType.kg,
           op: op,
         ),
       ));
@@ -103,7 +104,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     int userID,
     double target,
     GoalOperator op,
-    String targetMetric,
+    MetricType targetMetric,
   ) async {
     int goalID = -1;
     await transaction(() async {
@@ -112,16 +113,17 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           type: GoalType.fasting,
           thresholdValue: Value(target.toDouble()),
           op: op,
+          metricType: targetMetric
         ),
       ));
       await into(fastingGoals).insert(
         FastingGoalsCompanion.insert(
           goalID: Value(goalID),
-          targetHours: targetMetric == 'hours' ? Value(target) : Value(null),
-          targetDays: targetMetric == 'days'
+          targetHours: targetMetric == MetricType.hours ? Value(target) : Value(null),
+          targetDays: targetMetric == MetricType.days
               ? Value(target.toInt())
               : Value(null),
-          targetCalories: targetMetric == 'calories'
+          targetCalories: targetMetric == MetricType.meals52
               ? Value(target.toInt())
               : Value(null),
         ),
@@ -136,7 +138,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     (update(goals)..where((g) => g.goalID.equals(goalID))).write(GoalsCompanion(streakID: Value(streakID)));
   }
 
-  Future checkActiveStreak(GoalType type) {
+  Future<BasicStreak?> checkActiveStreak(GoalType type) {
     switch (type) {
       case GoalType.fasting:
         return checkActiveFastingStreak();
@@ -175,9 +177,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      targetHours: fastingRow.targetHours,
-      targetDays: fastingRow.targetDays,
-      targetCalories: fastingRow.targetCalories,
+      goalRow.metricType,
       streakID: streakRow.streakID,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
@@ -212,7 +212,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      hdrAmount: hydrationRow.hdrAmount,
+      goalRow.metricType,
+      // hdrAmount: hydrationRow.hdrAmount,
       streakID: streakRow.streakID,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
@@ -247,8 +248,9 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      nType: foodRow.nutrientType,
-      dailyNutritionTarget: foodRow.nutritionDailyTarget,
+      goalRow.metricType,
+      // nType: foodRow.nutrientType,
+      // dailyNutritionTarget: foodRow.nutritionDailyTarget,
       streakID: streakRow.streakID,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
@@ -283,8 +285,9 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
+      goalRow.metricType,
       startWeight: weightRow.startWeight,
-      targetWeight: weightRow.targetWeight,
+      // targetWeight: weightRow.targetWeight,
       streakID: streakRow.streakID,
       type: streakRow.unlockType ?? UnlockType.badge,
       start: streakRow.startDate,
@@ -318,8 +321,9 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         goalRow.thresholdValue ?? 0,
         goalRow.progressValue,
         goalRow.op,
-        nType: nutritionRow.nutrientType,
-        dailyNutritionTarget: nutritionRow.nutritionDailyTarget,
+        goalRow.metricType,
+        // nType: nutritionRow.nutrientType,
+        // dailyNutritionTarget: nutritionRow.nutritionDailyTarget,
         streakID: streakRow.streakID,
         type: streakRow.unlockType ?? UnlockType.badge,
         start: streakRow.startDate,
@@ -331,7 +335,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     return nutritionStreaks;
   }
 
-  Future findActiveGoal(GoalType type) {
+  Future<BasicGoal?> findActiveGoal(GoalType type) {
     switch (type) {
       case GoalType.fasting:
         return findActiveFastingGoal();
@@ -371,9 +375,10 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      targetHours: fastingRow.targetHours,
-      targetDays: fastingRow.targetDays,
-      targetCalories: fastingRow.targetCalories,
+      goalRow.metricType,
+      // targetHours: fastingRow.targetHours,
+      // targetDays: fastingRow.targetDays,
+      // targetCalories: fastingRow.targetCalories,
     );
   }
 
@@ -402,7 +407,38 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      hdrAmount: hydrationRow.hdrAmount,
+      goalRow.metricType,
+      // hdrAmount: hydrationRow.hdrAmount,
+    );
+  }
+
+  Future<NutritionGoalModel?> findActiveFoodGoal() async {
+    final goalRows =
+        await (select(goals).join([
+                innerJoin(
+                  nutritionGoals,
+                  nutritionGoals.goalID.equalsExp(goals.goalID),
+                ),
+              ])
+              ..where(goals.type.equalsValue(GoalType.nutrition))
+              ..where(goals.isComplete.isValue(false))
+              ..where(goals.streakID.isNull()))
+            .getSingleOrNull();
+
+    if (goalRows == null) {
+      return null;
+    }
+
+    final goalRow = goalRows.readTable(goals);
+    final nutritionRow = goalRows.readTable(nutritionGoals);
+
+    return NutritionGoalModel(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op,
+      goalRow.metricType,
+      // hdrAmount: hydrationRow.hdrAmount,
     );
   }
 
@@ -431,7 +467,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.thresholdValue ?? 0,
       goalRow.progressValue,
       goalRow.op,
-      targetWeight: weightRow.targetWeight,
+      goalRow.metricType,
+      // targetWeight: weightRow.targetWeight,
       startWeight: weightRow.startWeight,
     );
   }

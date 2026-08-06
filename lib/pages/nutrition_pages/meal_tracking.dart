@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:intl/intl.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -18,7 +19,8 @@ class MealTracking extends ConsumerWidget {
     final session = ref.watch(userSessionProvider).value;
     DateTime end = DateUtils.dateOnly(DateTime.now());
     DateTime start = end.subtract(const Duration(days: 3));
-    end.add(const Duration(days: 1));
+    end = end.add(const Duration(days: 1));
+
     // if (start.day - 3 < 0) {
     //   int tempMonth = start.month - 1;
     //   int tempYear = start.year;
@@ -63,22 +65,17 @@ class MealTracking extends ConsumerWidget {
           Map<DateTime, DayFoods> foodMap = {};
           for (final foodItem in dayFoods) {
             DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
-
-            foodMap.update(foodItem.logDate, (u) {
+            foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
               u.foods.add(foodItem);
               return u;
             }, ifAbsent: () => temp);
           }
-
           List<DayFoods> curr = foodMap.values.toList();
-
-          debugPrint('FoodMap: ${curr.length}');
-
           return ListView.builder(
+            padding: EdgeInsets.all(16),
             itemCount: curr.length,
             itemBuilder: (context, index) {
               if (curr.isNotEmpty) {
-                debugPrint('FoodMap: building $index');
                 return DaySection(dayMeal: curr[index]);
               }
               return SizedBox(height: 10);

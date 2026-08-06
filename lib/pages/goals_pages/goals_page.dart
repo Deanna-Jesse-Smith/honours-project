@@ -3,8 +3,8 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -21,24 +21,9 @@ class GoalsPage extends ConsumerStatefulWidget {
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   late GoalType type;
   late String title;
-  late Future<BasicGoal> curGoal;
+  late BasicGoal curGoal;
   late Future<BasicStreak?> curStreak;
-  final TextEditingController fastingController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController intInputController = TextEditingController(
-    text: '0',
-  );
-  final TextEditingController calorieController = TextEditingController(
-    text: '0',
-  );
-  final TextEditingController carbController = TextEditingController(text: '0');
-  final TextEditingController proteinController = TextEditingController(
-    text: '0',
-  );
-  final TextEditingController fatController = TextEditingController(text: '0');
-  final TextEditingController fibreController = TextEditingController(
-    text: '0',
-  );
+  final TextEditingController goalController = TextEditingController(text: '0');
   bool isLogOnly = true;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =
@@ -53,32 +38,20 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   void initState() {
     type = widget.type;
 
-    switch (type) {
-      case GoalType.fasting:
-        title = 'Fasting Goals';
-      case GoalType.weight:
-        title = 'Weight Goals';
-      case GoalType.hydration:
-        title = 'Hydration Goals';
-      case GoalType.nutrition:
-        title = 'Nutrition Goals';
-    }
-
     initFutures();
 
     super.initState();
   }
 
   void initFutures() async {
-    curGoal = await ref.watch(gDaoProvider).findActiveGoal(type);
-    curStreak = await ref.watch(gDaoProvider).checkActiveStreak(type);
+    curStreak = ref.watch(gDaoProvider).checkActiveStreak(type);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title, style: TextStyle(fontSize: TextSizing.large)),
+        title: Text(type.forDisplay, style: TextStyle(fontSize: TextSizing.large)),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -87,7 +60,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           onTap: () async {
             final decision = await Dialogs.dangerDialog(
               context,
-              title: title,
+              title: type.forDisplay,
               message:
                   'Leaving without saving will discard any changes you made',
             );
@@ -111,13 +84,17 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [Text('Current Goal: ')],
+          children: [
+            Text('Current Goal: '),
+            goalInfo()
+          ],
         ),
       ),
       persistentFooterButtons: [
         ElevatedButton(
           onPressed: () {
             //! Save dialogue and actions here
+            
             
 
             Navigator.of(context).pop();
@@ -128,189 +105,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     );
   }
 
-  FutureBuilder goalInformation() {
-    return FutureBuilder(
-      future: curGoal,
-      builder: (context, asyncSnapshot) {
-        if (!asyncSnapshot.hasData) {
-          return Text('Add Goal?');
-        }
-        if (asyncSnapshot.data == null) {
-          return Text('Add Goal?');
-        } 
-
-        switch (type) {
-          case GoalType.fasting:
-            FastingGoalModel model = asyncSnapshot.data;
-
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will reach my fasting goal of:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          if (model.targetCalories != null)
-                            Text('${model.targetCalories}'),
-                          if (model.targetDays != null)
-                            Text('${model.targetDays}'),
-                          if (model.targetHours != null)
-                            Text('${model.targetHours}'),
-                          TextField(
-                            controller: fastingController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (model.targetCalories != null)
-                    Text('Calories per fasting day.'),
-                  if (model.targetDays != null) Text('Days of fasting a week.'),
-                  if (model.targetHours != null)
-                    Text('Hours of fasting per day.'),
-                ],
-              ),
-            );
-          case GoalType.weight:
-            WeightGoalModel model = asyncSnapshot.data;
-            weightController.text = model.targetWeight.toString();
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will weigh:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: intInputController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'kg'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          case GoalType.hydration:
-            HydrationGoalModel model = asyncSnapshot.data;
-            intInputController.text = model.hdrAmount.toString();
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will drink:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: intInputController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'litres'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Text('litres of water per day'),
-                ],
-              ),
-            );
-          case GoalType.nutrition:
-            List<NutritionGoalModel> models = asyncSnapshot.data;
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will reach my goal of (per day):'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [
-                          Text('Carbohydrate amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Calorie amount: '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: calorieController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Fat amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: fatController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Fibre amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Protein amount (g): '),
-                          goalOperatorMenu(),
-                          TextField(
-                            controller: carbController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'g'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Text('litres of water per day'),
-                ],
-              ),
-            );
-        }
-      },
-    );
-  }
-
   FutureBuilder goalInfo() {
     return FutureBuilder(
-      future: curGoal,
+      future: ref.watch(gDaoProvider).findActiveGoal(type),
       builder: (context, asyncSnapshot) {
         if (!asyncSnapshot.hasData) {
           return Text('Add Goal?');
@@ -319,177 +116,101 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         BasicGoal? goal = asyncSnapshot.data;
 
         if (goal == null) {
-          return Text('Add Goal?');
+          return Card(
+              child: Column(
+                children: [
+                  //* Progress bar
+                  Text(type.goalText),
+                  Table(
+                    children: [
+                      TableRow(
+                        children: [Text('Comparison: '), goalOperatorMenu()],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Amount: '),
+                          TextField(
+                            controller: goalController,
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
         }
+
+        goalController.text = goal.threshold.toString();
+
 
         switch (goal) {
           case FastingGoalModel model:
-            final session = ref.watch(userSessionProvider).value;
+          curGoal = model;
 
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will reach my fasting goal of:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          if (model.targetCalories != null)
-                            Text('${model.targetCalories}'),
-                          if (model.targetDays != null)
-                            Text('${model.targetDays}'),
-                          if (model.targetHours != null)
-                            Text('${model.targetHours}'),
-                          TextField(
-                            controller: fastingController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (model.targetCalories != null)
-                    Text('Calories per fasting day.'),
-                  if (model.targetDays != null) Text('Days of fasting a week.'),
-                  if (model.targetHours != null)
-                    Text('Hours of fasting per day.'),
-                ],
-              ),
-            );
+          final session = ref.watch(userSessionProvider).value;
+          String goalText = '';
+
+          switch (session!.fastingForm) {
+            case FastingForm.tre:
+              goalText = 'Hours of fasting per day.';
+            case FastingForm.fiveTwo:
+              goalText = 'Meals per fasting day.';
+            case FastingForm.adf:
+              goalText = 'Days of fasting a week.';
+          } 
+
+          return goalCard(TextInputType.numberWithOptions(), goalText);
           case WeightGoalModel model:
-            weightController.text = model.targetWeight.toString();
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will weigh:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: intInputController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'kg'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
+            curGoal = model;
+            return goalCard(TextInputType.numberWithOptions(decimal: true), 'As my goal', suffixText: 'kg');
           case HydrationGoalModel model:
-            intInputController.text = model.hdrAmount.toString();
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will drink:'),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: intInputController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            decoration: InputDecoration(suffixText: 'litres'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Text('litres of water per day'),
-                ],
-              ),
-            );
+            curGoal = model;
+            return goalCard(TextInputType.numberWithOptions(decimal: true), 'litres of water per day', suffixText: 'Litres');
           case NutritionGoalModel model:
-            return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text('I will reach my goal of logging at least one meal per day'),
-                  Text('Attached to streak only'),
-                  // Text('I will reach my goal of (per day):'),
-                  // Table(
-                  //   children: [
-                  //     TableRow(
-                  //       children: [
-                  //         Text('Carbohydrate amount (g): '),
-                  //         goalOperatorMenu(),
-                  //         TextField(
-                  //           controller: carbController,
-                  //           keyboardType: TextInputType.numberWithOptions(),
-                  //           decoration: InputDecoration(suffixText: 'g'),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     TableRow(
-                  //       children: [
-                  //         Text('Calorie amount: '),
-                  //         goalOperatorMenu(),
-                  //         TextField(
-                  //           controller: calorieController,
-                  //           keyboardType: TextInputType.numberWithOptions(),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     TableRow(
-                  //       children: [
-                  //         Text('Fat amount (g): '),
-                  //         goalOperatorMenu(),
-                  //         TextField(
-                  //           controller: fatController,
-                  //           keyboardType: TextInputType.numberWithOptions(),
-                  //           decoration: InputDecoration(suffixText: 'g'),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     TableRow(
-                  //       children: [
-                  //         Text('Fibre amount (g): '),
-                  //         goalOperatorMenu(),
-                  //         TextField(
-                  //           controller: carbController,
-                  //           keyboardType: TextInputType.numberWithOptions(),
-                  //           decoration: InputDecoration(suffixText: 'g'),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     TableRow(
-                  //       children: [
-                  //         Text('Protein amount (g): '),
-                  //         goalOperatorMenu(),
-                  //         TextField(
-                  //           controller: carbController,
-                  //           keyboardType: TextInputType.numberWithOptions(),
-                  //           decoration: InputDecoration(suffixText: 'g'),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ],
-                  // ),
-                ],
-              ),
-            );
+            curGoal = model;
+            return goalCard(TextInputType.numberWithOptions(), 'Meal(s) per day');
           case BasicStreak():
             // TODO: Handle this case.
             throw UnimplementedError();
         }
       },
     );
+  }
+
+  Card goalCard(TextInputType inputType, String goalText, {String suffixText = ''}) {
+    return Card(
+              child: Column(
+                children: [
+                  //* Progress bar
+                  Text(type.goalText),
+                  Table(
+                    children: [
+                      TableRow(
+                        children: [Text('Comparison: '), goalOperatorMenu()],
+                      ),
+                      TableRow(
+                        children: [
+                          Text('Amount: '),
+                          TextField(
+                            controller: goalController,
+                            keyboardType: inputType,
+                            decoration: InputDecoration(suffix: Text(suffixText)),
+                            onChanged: (value) => setState(() {
+                              double? temp = double.tryParse(value);
+
+                              if (temp != null) curGoal.threshold = temp;
+                            }),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Text(goalText),
+                ],
+              ),
+            );
   }
 
   FutureBuilder streakInfo() {

@@ -98,7 +98,7 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    insert(ref);
+    // insert(ref);
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
 

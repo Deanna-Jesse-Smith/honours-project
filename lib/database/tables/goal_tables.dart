@@ -7,7 +7,7 @@ class Goals extends Table {
   IntColumn get goalID => integer().autoIncrement()();
   TextColumn get type => textEnum<GoalType>()();
   RealColumn get thresholdValue => real().nullable()();
-  TextColumn get metricType => text().nullable()();
+  TextColumn get metricType => textEnum<MetricType>()();
   TextColumn get op => textEnum<GoalOperator>()();
   IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
   BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); // This is the completeness check for non-streak goals, that is the point of this I think
@@ -54,6 +54,15 @@ class NutritionGoals extends Table {
 enum NutrientType { caloreis, fibre, fat, protein, carbs }
 
 enum GoalType { fasting, weight, hydration, nutrition }
+
+enum MetricType {
+  meals52,
+  hours,
+  days,
+  litres,
+  kg,
+  meals,
+}
 
 extension Display on GoalType {
   String get forDisplay => switch (this) {
