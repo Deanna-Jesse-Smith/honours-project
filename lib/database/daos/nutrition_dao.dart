@@ -143,11 +143,12 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return allFood;
   }
 
-  Future<bool> isFiveTwoDay(List<DateTime> days) async {
+  Future<bool> isFiveTwoDay(DateTime start, DateTime end) async {
     final countDays = foodLog.category.count(distinct: true);
     final fasts = (selectOnly(foodLog)
       ..addColumns([countDays])
-      ..where(foodLog.logDate.isIn(days)));
+      ..where(foodLog.logDate.isBiggerOrEqualValue(start) &
+            foodLog.logDate.isSmallerOrEqualValue(end),));
     final output = await fasts.getSingle();
     return output.read(countDays)! <= 2;
   }

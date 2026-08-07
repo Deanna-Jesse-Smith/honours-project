@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/database/tables/reminder_table.dart';
+import 'package:testrun/models/goals_model.dart';
 import '../database.dart';
 
 part 'reminder_dao.g.dart';

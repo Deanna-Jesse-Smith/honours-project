@@ -6,6 +6,8 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/user_state.dart';
 
+// final goalLogic = AsyncNotifierProvider<AsyncGoals, BasicGoal>(AsyncGoals.new);
+
 class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   @override
   Future<BasicGoal?> build() {
@@ -13,10 +15,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   }
 
   Future<void> updateGoal(BasicGoal goal) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      ref.read(gDaoProvider).updateGoal(goal);
-    });
+    // state = const AsyncValue.loading();
+    ref.read(gDaoProvider).updateGoal(goal);
+    // state = const AsyncValue.data(value)
   }
 
   Future<BasicGoal?> findGoal(GoalType type) {
@@ -130,7 +131,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
-  Future<void> checkStreak(GoalType type) {
+  // Future<void> checkStreak(GoalType type) {
     
-  }
+  // }
 }

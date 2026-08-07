@@ -207,16 +207,23 @@ class RecommendFast {
   }
 
   static List<List<int>> isValidCombo(List<int> pool) {
-    List<List<int>> temp = List.empty(growable: true);
-    for (int outerDay in pool) {
-      final subLst = pool.sublist(pool.first);
-      for (int innerDay in subLst) {
-        if (innerDay > outerDay + 1) {
-          temp.add([outerDay, innerDay]);
-        }
+    if (pool.isEmpty) {
+      return [];
+    }
+    final testAgainst = pool.first;
+    List<int> options = [];
+    final others = pool.sublist(1);
+    
+    List<List<int>> isValid(List<int> subPool) {
+      if (subPool.isEmpty) return [];
+      if (subPool.first > testAgainst + 1) {
+        List<int> curCombo = [testAgainst, subPool.first];
+        final temp = [...isValid(subPool.sublist(1))].add(curCombo);
+        return [...isValid(subPool.sublist(1))];
+      } else {
+        
       }
     }
-    return temp;
   }
 
   List<List<int>> combos(int cap, List<int> pool) {

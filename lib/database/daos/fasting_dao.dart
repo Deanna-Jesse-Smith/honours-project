@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/converters.dart';
@@ -45,14 +47,14 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return fast;
   }
 
-  Stream<List<FastLogData>> findFastsInRange(int userID, DateTimeRange range) {
+  Stream<List<FastLogData>> findFastsInRange(int userID, DateTime start, DateTime end) {
     final history =
         (select(fastLog)..where(
               (u) =>
                   u.userID.equals(userID) &
-                  u.startDateTime.isSmallerOrEqualValue(range.end) &  // fasts that start before the end of the range
+                  u.startDateTime.isSmallerOrEqualValue(end) &  // fasts that start before the end of the range
                   (u.endDateTime.isNull() | // current fast
-                  u.endDateTime.isBiggerOrEqualValue(range.start))  // fasts that end during the range
+                  u.endDateTime.isBiggerOrEqualValue(start))  // fasts that end during the range
             )
             ..orderBy([(f) => OrderingTerm.asc(f.startDateTime)]))
             .watch();
@@ -70,17 +72,17 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return history;
   }
 
-  Future<Duration> getCurDuration(int userID) async {
+  Future<int> getCurDuration(int userID) async {
     final dur =
         await (select(fastLog)
         ..where((f) => f.userID.equals(userID))
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
               ..limit(1)).getSingleOrNull();
-    if (dur == null) return Duration();
+    if (dur == null) return 0;
 
     DateTime start = dur.startDateTime;
     DateTime end = dur.endDateTime == null ? dur.endDateTime! : DateTime.now();
-    return start.difference(end);
+    return start.difference(end).inMinutes;
   }
 
   Future<List<FastLogData>> getDurations(int userID, String form) async {

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -49,6 +50,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final logic = AsyncGoals();
     return Scaffold(
       appBar: AppBar(
         title: Text(type.forDisplay, style: TextStyle(fontSize: TextSizing.large)),
@@ -94,7 +96,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ElevatedButton(
           onPressed: () {
             //! Save dialogue and actions here
-            
             
 
             Navigator.of(context).pop();
@@ -143,7 +144,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         }
 
         goalController.text = goal.threshold.toString();
-
 
         switch (goal) {
           case FastingGoalModel model:

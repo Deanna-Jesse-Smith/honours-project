@@ -51,27 +51,6 @@ class NutritionGoals extends Table {
   Set<Column<Object>>? get primaryKey => {goalID};
 }
 
-enum NutrientType { caloreis, fibre, fat, protein, carbs }
-
-enum GoalType { fasting, weight, hydration, nutrition }
-
-enum MetricType {
-  meals52,
-  hours,
-  days,
-  litres,
-  kg,
-  meals,
-}
-
-extension Display on GoalType {
-  String get forDisplay => switch (this) {
-    GoalType.fasting => 'Fasting Goals',
-    GoalType.weight => 'Weight Goals',
-    GoalType.hydration => 'Hydration Goals',
-    GoalType.nutrition => 'Nutrition Goals',
-  };
-}
 
 // @TableIndex(name: 'streak_type', columns: {#streakType})
 class Streaks extends Table {

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/timezone.dart' as tz;
 

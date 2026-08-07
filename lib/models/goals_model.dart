@@ -121,14 +121,14 @@ class HydrationStreak extends HydrationGoalModel with BasicStreak {
 }
 
 class NutritionGoalModel extends BasicGoal {
-  final int dailyNutritionTarget;
-  final NutrientType nType;
+  // final int dailyNutritionTarget;
+  // final NutrientType nType;
 
-  NutritionGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, {required this.nType, required this.dailyNutritionTarget});
+  NutritionGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric);
 }
 
 class NutritionStreak extends NutritionGoalModel with BasicStreak {
-  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, {required super.nType, required super.dailyNutritionTarget, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }
 }
