@@ -369,7 +369,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               }
 
               if (gottenStreak != null) {
-                ref.read(gDaoProvider).finishGoal(gottenStreak!.goalID, streakID: gottenStreak!.streakID);
+                ref.read(gDaoProvider).finishGoal(gottenStreak!.goalID, gottenStreak!.streakID);
               }
             }
             // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)

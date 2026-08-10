@@ -54,19 +54,15 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
           ),
           RadioGroup<int>(onChanged: (int? value) {
             setState(() => FastingForm.tre);
-          }, child: Column(children: plans.findTRE.map((plan) => RadioListTile(value: plan, title: Text('Start at: ${plan[0].format(context)}, end at: ${plan[1].format(context)}'),)).toList(),)),
-          if (plans[1] != null) suggestionGroup(plans[1]),
-          if (plans[2] != null) suggestionGroup(plans[2]),
+          }, child: Column(children: Suggestion.treList.map((plan) => RadioListTile(value: plan, title: Text('Start at: ${plan[0].format(context)}, end at: ${plan[1].format(context)}'),)).toList(),)),
+          if (Suggestion.fiveTwoList.isEmpty) suggestionGroup(List<List<int>>.from(Suggestion.fiveTwoList), true),
+          if (Suggestion.adfList.isEmpty) suggestionGroup(List<List<int>>.from(Suggestion.adfList), true),
         ],
       ),
     );
   }
 
-
-
-  RadioGroup suggestionGroup(Suggestion sug) {
-    final bool isFiveTwo = sug.isFiveTwo;
-    final List<List<int>> days = isFiveTwo ? sug.fiveTwoList : sug.adfList;
+  RadioGroup suggestionGroup(List<List<int>> days, bool isFiveTwo) {
     final int len = days.length;
 
     return RadioGroup<int>(

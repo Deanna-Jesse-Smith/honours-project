@@ -2,10 +2,13 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_history.dart';
+import 'package:testrun/pages/final_setup.dart';
+import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -27,14 +30,14 @@ class SetupUser extends ConsumerStatefulWidget {
 enum Measurement { metric, imperial }
 
 class _SetupUserState extends ConsumerState<SetupUser> {
-  static final List<DropdownMenuEntry<String>> entries =
-      UnmodifiableListView<DropdownMenuEntry<String>>(
-        list.map<DropdownMenuEntry<String>>(
-          (String name) => DropdownMenuEntry(value: name, label: name),
+  static final List<DropdownMenuEntry<FastingForm>> entriess =
+      UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
+        FastingForm.values.map<DropdownMenuEntry<FastingForm>>(
+          (FastingForm form) =>
+              DropdownMenuEntry(value: form, label: form.label),
         ),
       );
-
-  String dropDownValue = 'TRE';
+  late FastingForm dropDownValuee;
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
 
@@ -160,7 +163,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       await ref.read(uDaoProvider).addUser(
             widget.name,
             isMetric,
-            FastingFormConverter().fromSql(dropDownValue),
+            dropDownValuee,
             widget.experience,
             DateTime(2000), // start: not collected on this screen yet
             DateTime(2000), // end: not collected on this screen yet
@@ -172,10 +175,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       List<int> tempDays = boolsToInts(obligationDays);
 
-      // User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValue, adfDaysSelected: '', fiveTwoDaysSelected: '');
-      // ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
-      // Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
-      // Navigator.pushNamed(context, '/FinalSetup');
+      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
+      ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
+      Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

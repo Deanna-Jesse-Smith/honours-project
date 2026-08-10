@@ -473,7 +473,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
-  Future<void> finishGoal(int goalID, {int streakID = -1}) async {
+  Future<void> finishGoal(int goalID, int streakID) async {
     (update(goals)..where((g) => g.goalID.equals(goalID))).write(
       GoalsCompanion(isComplete: Value(true)),
     );

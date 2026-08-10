@@ -52,7 +52,7 @@ class WeightTracking extends ConsumerWidget {
                   model.calculateComplete(curWeight!);
 
                   if (model.isComplete) {
-                    ref.read(gDaoProvider).finishGoal(model.goalID);
+                    ref.read(gDaoProvider).finishGoal(model.goalID, -1);
 
                     //! whatever happens when a goal is completed
                   }

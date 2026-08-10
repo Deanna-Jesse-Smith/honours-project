@@ -54,7 +54,7 @@ class HydrationTracking extends ConsumerWidget {
                   model.calculateProgress(amount);
 
                   if (model.isComplete) {
-                    ref.read(gDaoProvider).finishGoal(model.goalID, streakID: model.streakID);
+                    ref.read(gDaoProvider).finishGoal(model.goalID, model.streakID);
 
                     //! whatever happens when a goal is completed
                   }

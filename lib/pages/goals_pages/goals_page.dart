@@ -50,7 +50,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final logic = AsyncGoals();
+    final asyncGoals = ref.watch(asyncGoalsProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(type.forDisplay, style: TextStyle(fontSize: TextSizing.large)),
@@ -83,6 +83,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           ),
         ],
       ),
+      // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -104,6 +105,20 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ),
       ],
     );
+  }
+
+  void saveChanges(AsyncGoals ag) {
+    if (curGoal.goalID < 0) {
+      ag.insertGoal(curGoal);
+    }
+  }
+
+  Widget testing() {
+    final asyncGoals = ref.watch(asyncGoalsProvider.notifier);
+
+    return switch (asyncGoals.findGoal(type)) {
+      Future<BasicGoal?>() => throw UnimplementedError(),
+    };
   }
 
   FutureBuilder goalInfo() {
@@ -143,7 +158,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             );
         }
 
-        goalController.text = goal.threshold.toString();
+        curGoal = goal;
+
+        goalController.text = curGoal.threshold.toString();
 
         switch (goal) {
           case FastingGoalModel model:
@@ -199,7 +216,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                             decoration: InputDecoration(suffix: Text(suffixText)),
                             onChanged: (value) => setState(() {
                               double? temp = double.tryParse(value);
-
                               if (temp != null) curGoal.threshold = temp;
                             }),
                           ),
@@ -281,10 +297,11 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   DropdownMenu<GoalOperator> goalOperatorMenu() {
     return DropdownMenu<GoalOperator>(
+      initialSelection: curGoal.op,
       dropdownMenuEntries: entries,
       onSelected: (GoalOperator? value) {
         setState(() {
-          curGoalOperator = value!;
+          curGoal.op = value!;
         });
       },
       textStyle: TextStyle(fontSize: TextSizing.small),

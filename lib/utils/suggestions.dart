@@ -52,47 +52,64 @@ class Suggest {
   final List<List<TimeOfDay>>? trePlans;
   final List<List<int>>? dayPlans;
 
-    Suggest.tre(this.trePlans, this.reasoning)
-      : form = FastingForm.tre,
-        dayPlans = null;
+  Suggest.tre(this.trePlans, this.reasoning)
+    : form = FastingForm.tre,
+      dayPlans = null;
 
   Suggest.adf(this.dayPlans, this.reasoning)
-      : form = FastingForm.adf,
-        trePlans = null;
+    : form = FastingForm.adf,
+      trePlans = null;
 
   Suggest.fiveTwo(this.dayPlans, this.reasoning)
-      : form = FastingForm.fiveTwo,
-        trePlans = null;
+    : form = FastingForm.fiveTwo,
+      trePlans = null;
 }
 
 class Suggestion {
-  static Map<FastingForm, List> group = {};
-  late List<List<int>> adfList, fiveTwoList;
-  late List<List<TimeOfDay>> treList;
+  static List<List<int>> adfList = [], fiveTwoList = [];
+  static late List<List<TimeOfDay>> treList;
   final String suggestions;
 
   final bool isTRE, isFiveTwo, isADF;
 
-  Suggestion.tre(this.treList, this.suggestions, {this.isTRE = true, this.isADF = false, this.isFiveTwo = false}) {
-    group.putIfAbsent(FastingForm.tre, () => treList);
+  Suggestion.tre(
+    List<List<TimeOfDay>> treListt,
+    this.suggestions, {
+    this.isTRE = true,
+    this.isADF = false,
+    this.isFiveTwo = false,
+  }) {
+    treList = treListt;
   }
 
-  Suggestion.adf(this.adfList, this.suggestions, {this.isTRE = false, this.isADF = true, this.isFiveTwo = false}) {
-    group.putIfAbsent(FastingForm.adf, () => adfList);
+  Suggestion.adf(
+    List<List<int>> adfListt,
+    this.suggestions, {
+    this.isTRE = false,
+    this.isADF = true,
+    this.isFiveTwo = false,
+  }) {
+    adfList = adfListt;
   }
 
-  Suggestion.fiveTwo(this.fiveTwoList, this.suggestions, {this.isTRE = false, this.isADF = false, this.isFiveTwo = true}) {
-    group.putIfAbsent(FastingForm.fiveTwo, () => fiveTwoList);
+  Suggestion.fiveTwo(
+    List<List<int>> fiveTwoListt,
+    this.suggestions, {
+    this.isTRE = false,
+    this.isADF = false,
+    this.isFiveTwo = true,
+  }) {
+    fiveTwoList = fiveTwoListt;
   }
 }
 
-extension ChoiceInfo on List<Suggestion> {
-  List<List<TimeOfDay>> get findTRE => where((s) => s.isTRE).first.treList;
+// extension ChoiceInfo on List<Suggestion> {
+//   List<List<TimeOfDay>> get findTRE => where((s) => s.isTRE).first.treList;
 
-  Iterator<List<int>> get findADF => where((s) => s.isADF).first.adfList.iterator;
+//   Iterator<List<int>> get findADF => where((s) => s.isADF).first.adfList.iterator;
 
-  Iterator<List<int>> get findFiveTwo => where((s) => s.isFiveTwo).first.fiveTwoList.iterator;
-}
+//   Iterator<List<int>> get findFiveTwo => where((s) => s.isFiveTwo).first.fiveTwoList.iterator;
+// }
 
 class RecommendFast {
   final FastingForm form;
@@ -101,25 +118,26 @@ class RecommendFast {
   late List<List<TimeOfDay>> treList;
   final Experience exp;
   late ObligationMeals meals;
-  final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30), latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
+  final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30),
+      latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
 
   RecommendFast(
     this.form,
     this.reasoning, {
     required this.adfList,
     required this.fiveTwoList,
-    required this.treList, required this.exp,
+    required this.treList,
+    required this.exp,
   });
 
   RecommendFast.o(this.form, this.meals, this.exp);
 
-  List<Suggestion> makePlan() {
+  Suggestion makePlan() {
     final constraints = DayConstraints.extract(meals.times);
-    final considerations = <Suggestion>[];
-    considerations.add(treEvaluation(constraints, exp));
-    considerations.add(fiveTwoEvaluation(meals, exp));
+    final considerations = treEvaluation(constraints, exp);
+    fiveTwoEvaluation(meals, exp);
     if (exp == Experience.experienced) {
-      considerations.add(adfEvaluation(meals, exp));
+      adfEvaluation(meals, exp);
     }
 
     return considerations;
@@ -133,12 +151,11 @@ class RecommendFast {
       maxHours = 4;
     }
 
-    if (constraints.eatingWindow.inHours > maxHours) {}
+    if (constraints.eatingWindow.inHours > maxHours) {
+      
+    }
 
-    return Suggestion.tre(
-      [],
-      '',
-    );
+    return Suggestion.tre([], '');
   }
 
   Suggestion adfEvaluation(ObligationMeals meals, Experience exp) {
@@ -148,26 +165,20 @@ class RecommendFast {
 
     adfList = combinations;
 
-    return Suggestion.adf(
-      combinations,
-      'Experienced and timetable'
-    );
+    return Suggestion.adf(combinations, 'Experienced and timetable');
   }
 
   Suggestion fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> pairs = validCombos(2, getAvailable);
+    List<List<int>> pairs = isValidCombo(getAvailable);
 
     String selectionDays =
         'It is then recommended you pick from the following combinations for your fasting days:';
 
     fiveTwoList = pairs;
 
-    return Suggestion.fiveTwo(
-      pairs,
-      selectionDays,
-    );
+    return Suggestion.fiveTwo(pairs, selectionDays);
   }
 
   List<int> findAvailableDays(ObligationMeals meals, bool isFiveTwo) {
@@ -206,24 +217,43 @@ class RecommendFast {
     return availableDays;
   }
 
+  // List<List<int>> isValidADFCombo(List<int> pool) {
+  //   if (pool.isEmpty) return [];
+
+  //   int testAgainst = pool.first;
+
+  //   List<List<int>> isValid(List<int> subPool, List<List<int>> acc) {
+  //     if (subPool.isEmpty) return acc;
+  //     if (subPool.first > testAgainst + 1)
+  //   }
+  // }
+
   static List<List<int>> isValidCombo(List<int> pool) {
     if (pool.isEmpty) {
       return [];
     }
-    final testAgainst = pool.first;
-    List<int> options = [];
-    final others = pool.sublist(1);
-    
-    List<List<int>> isValid(List<int> subPool) {
-      if (subPool.isEmpty) return [];
+    int testAgainst = pool.first;
+    List<List<int>> options = [];
+
+    List<List<int>> isValid(List<int> subPool, List<List<int>> acc) {
+      if (subPool.isEmpty) return acc;
       if (subPool.first > testAgainst + 1) {
         List<int> curCombo = [testAgainst, subPool.first];
-        final temp = [...isValid(subPool.sublist(1))].add(curCombo);
-        return [...isValid(subPool.sublist(1))];
+        final temp = subPool.sublist(1);
+        acc.add(curCombo);
+        return isValid(temp, acc);
       } else {
-        
+        return isValid(subPool.sublist(1), acc);
       }
     }
+
+    for (final day in pool) {
+      testAgainst = day;
+
+      final test = isValid(pool.sublist(pool.indexOf(day)), []);
+      options.addAll(test);
+    }
+    return options;
   }
 
   List<List<int>> combos(int cap, List<int> pool) {
@@ -247,9 +277,7 @@ class RecommendFast {
   }
 }
 
-extension FastingDaysCombo on List<int> {
-
-}
+extension FastingDaysCombo on List<int> {}
 
 sealed class FastBase {
   const FastBase();

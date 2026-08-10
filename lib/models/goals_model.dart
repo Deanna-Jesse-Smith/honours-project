@@ -3,10 +3,12 @@ import 'package:testrun/database/tables/goal_tables.dart';
 sealed class BasicGoal {
    final int goalID;
    double threshold, progress;
-   final GoalOperator op;
+   GoalOperator op;
    final MetricType metric;
 
   BasicGoal(this.goalID, this.threshold, this.progress, this.op, this.metric);
+
+  BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours});
 }
 
 mixin BasicStreak on BasicGoal {
@@ -24,7 +26,7 @@ mixin BasicStreak on BasicGoal {
     this.daysProgress = daysProgress;
   }
 
-  void calculateProgress(double curState) {
+  int calculateProgress(double curState) {
     switch (op) {
       case GoalOperator.greaterThan:
          isComplete = curState > threshold;
@@ -43,6 +45,7 @@ mixin BasicStreak on BasicGoal {
     if (isComplete) {
       daysProgress++;
     }
+    return daysProgress;
   }
 }
 

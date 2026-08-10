@@ -34,7 +34,7 @@ class HistoryItem {
     DateTime end = DateTime(today.year, today.month + 1, 0);
     int daysInMonth = end.day;
 
-    final test =  ref.watch(fDaoProvider).findFastsInRange(userID, DateTimeRange(start: start, end: end));
+    final test =  ref.watch(fDaoProvider).findFastsInRange(userID, start, end);
 
     return StreamBuilder<List>(
       stream: test,

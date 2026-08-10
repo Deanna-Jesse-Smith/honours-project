@@ -2,22 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/user_state.dart';
 
 // final goalLogic = AsyncNotifierProvider<AsyncGoals, BasicGoal>(AsyncGoals.new);
 
+@riverpod
 class AsyncGoals extends AsyncNotifier<BasicGoal?> {
+  late UserSessionData? session;
   @override
   Future<BasicGoal?> build() {
+    session = ref.watch(userSessionProvider).value;
     return ref.read(gDaoProvider).findActiveFastingGoal();
-  }
-
-  Future<void> updateGoal(BasicGoal goal) async {
-    // state = const AsyncValue.loading();
-    ref.read(gDaoProvider).updateGoal(goal);
-    // state = const AsyncValue.data(value)
   }
 
   Future<BasicGoal?> findGoal(GoalType type) {
@@ -131,7 +129,33 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
-  // Future<void> checkStreak(GoalType type) {
-    
-  // }
+  Future<int> checkStreak(GoalType type, double curState) async {
+    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+
+    if (curStreak == null) return -1;
+
+    return curStreak.calculateProgress(curState);
+  }
+
+  Future<void> insertGoal(BasicGoal newGoal) {
+    if (newGoal is FastingGoalModel) {
+      return ref.read(gDaoProvider).insertFastingGoal(session!.userId, newGoal.threshold, newGoal.op, newGoal.metric);
+    } else if (newGoal is HydrationGoalModel) {
+      return ref.read(gDaoProvider).insertHydrationStreak(session!.userId, DateTime.now(), newGoal.threshold.toInt(), newGoal.op);
+    } else if (newGoal is WeightGoalModel) {
+      return ref.read(gDaoProvider).insertWeightGoal(session!.userId, newGoal.threshold, newGoal.startWeight, newGoal.op);
+    } else {
+      return ref.read(gDaoProvider).insertNutritionStreak(session!.userId, NutrientType.caloreis, newGoal.threshold.toInt());
+    }
+  }
+
+  Future<void> changeGoal(BasicGoal changedGoal) async {
+    return ref.read(gDaoProvider).updateGoal(changedGoal);
+  }
+
+  Future<void> finishGoal(int goalID, {int streakID = -1}) {
+    return ref.read(gDaoProvider).finishGoal(goalID, streakID);
+  }
 }
+
+final asyncGoalsProvider = AsyncNotifierProvider<AsyncGoals, BasicGoal?>(AsyncGoals.new);
