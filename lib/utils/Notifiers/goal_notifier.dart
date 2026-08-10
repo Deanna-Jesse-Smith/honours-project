@@ -111,13 +111,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             .read(hDaoProvider)
             .getTodayHydration(0, DateTime.now());
 
-        double sum = 0;
-
-        for (var log in curWater) {
-          sum += log.amount;
-        }
-
-        return goal.calculateComplete(sum);
+        return goal.calculateComplete(curWater);
       case GoalType.nutrition:
         final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
 

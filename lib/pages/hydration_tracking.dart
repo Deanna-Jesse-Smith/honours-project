@@ -51,7 +51,7 @@ class HydrationTracking extends ConsumerWidget {
                   if (model == null) {
                     return Text('No ongoing goal');
                   }
-                  model.calculateProgress(amount);
+                  double percent = model.calculateProgress(amount) / 100;
 
                   if (model.isComplete) {
                     ref.read(gDaoProvider).finishGoal(model.goalID, model.streakID);
@@ -60,7 +60,7 @@ class HydrationTracking extends ConsumerWidget {
                   }
 
                   return LinearPercentIndicator(
-                    percent: model.progress,
+                    percent: percent,
                     lineHeight: 10,
                     width: MediaQuery.of(context).size.width - 80,
                     animation: true,
@@ -116,13 +116,14 @@ class HydrationTracking extends ConsumerWidget {
     debugPrint('getTodayHydration');
     final curHydr = await ref.watch(hDaoProvider).getTodayHydration(userID, DateTime.now());
 
-    double sum = 0;
+    amount = curHydr;
+    // double sum = 0;
 
-    for (var log in curHydr) {
-      sum += log.amount;
-    }
+    // for (var log in curHydr) {
+    //   sum += log.amount;
+    // }
 
-    amount = sum;
+    // amount = sum;
     // return todays.fold(0, (sum, log) => sum + log.amount);
   }
 }

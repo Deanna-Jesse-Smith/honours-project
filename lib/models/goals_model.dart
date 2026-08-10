@@ -9,6 +9,23 @@ sealed class BasicGoal {
   BasicGoal(this.goalID, this.threshold, this.progress, this.op, this.metric);
 
   BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours});
+
+  double getPercent(num curState) {
+    switch (op) {
+      case GoalOperator.greaterThan:
+         isComplete = curState > threshold;
+      case GoalOperator.lesserThan:
+        isComplete = curState < threshold;
+      case GoalOperator.equalTo:
+        isComplete = curState == threshold;
+      case GoalOperator.greaterEqual:
+        isComplete = curState >= threshold;
+      case GoalOperator.lesserEqual:
+        isComplete = curState <= threshold;
+      case GoalOperator.logOnly:
+        isComplete = true;
+    }
+  }
 }
 
 mixin BasicStreak on BasicGoal {

@@ -39,6 +39,10 @@ class Dialogs {
     return decision ?? false;
   }
 
+  // static Dialog celebrationDialog(BuildContext context) {
+  //   return showDialog(context: context, builder: (context) => dialog);
+  // }
+
   static Future<double?> getNewInput(
     BuildContext context, {
     required String title,

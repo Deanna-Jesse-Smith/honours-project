@@ -27,7 +27,7 @@ class MyExpandableFAB extends ConsumerWidget {
       onHydrationTapped: () async {
         final newAmount = await Dialogs.getSpinnerWaterInput(
           context,
-          title: 'How many cups have you drank?',
+          title: 'How many litres have you drank?',
         );
         if (newAmount != null) {
           ref

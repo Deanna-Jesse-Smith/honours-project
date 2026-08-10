@@ -110,6 +110,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   void saveChanges(AsyncGoals ag) {
     if (curGoal.goalID < 0) {
       ag.insertGoal(curGoal);
+    } else {
+      
     }
   }
 

@@ -19,20 +19,21 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  Future<List<HydrationLogData>> getTodayHydration(int userId, DateTime today) {
+  Future<double> getTodayHydration(int userId, DateTime today) async {
     final todayStart = DateTime(
       today.year,
       today.month,
       today.day,
     );
     final todayEnd = todayStart.add(const Duration(days: 1));
+    final sumHydration = hydrationLog.amount.sum();
 
-    return (select(hydrationLog)..where(
-          (u) =>
-              u.userID.equals(userId) &
-              u.logDateTime.isBiggerOrEqualValue(todayStart) &
-              u.logDateTime.isSmallerOrEqualValue(todayEnd),
-        ))
-        .get();
+    final logs = selectOnly(hydrationLog)..addColumns([sumHydration])..where(
+          hydrationLog.userID.equals(userId) &
+              hydrationLog.logDateTime.isBiggerOrEqualValue(todayStart) &
+              hydrationLog.logDateTime.isSmallerOrEqualValue(todayEnd),
+        );
+    final output = await logs.getSingle();
+    return output.read(sumHydration)!;
   }
 }

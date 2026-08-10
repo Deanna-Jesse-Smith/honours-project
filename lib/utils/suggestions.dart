@@ -152,7 +152,7 @@ class RecommendFast {
     }
 
     if (constraints.eatingWindow.inHours > maxHours) {
-      
+
     }
 
     return Suggestion.tre([], '');
@@ -217,16 +217,19 @@ class RecommendFast {
     return availableDays;
   }
 
-  // List<List<int>> isValidADFCombo(List<int> pool) {
-  //   if (pool.isEmpty) return [];
-
-  //   int testAgainst = pool.first;
-
-  //   List<List<int>> isValid(List<int> subPool, List<List<int>> acc) {
-  //     if (subPool.isEmpty) return acc;
-  //     if (subPool.first > testAgainst + 1)
-  //   }
-  // }
+  List<List<int>> isValidADFCombo(List<int> pool) {
+    final twoDayCombos = isValidCombo(pool);
+    if (twoDayCombos.isEmpty) return [];
+    
+    List<List<int>> output = [];
+    for (final initCombo in twoDayCombos) {
+      final remainingDays = pool.sublist(pool.indexOf(initCombo.last));
+      final temp = isValidCombo(remainingDays);
+      output.addAll(temp);
+    }
+    output.addAll(twoDayCombos);
+    return output;
+  }
 
   static List<List<int>> isValidCombo(List<int> pool) {
     if (pool.isEmpty) {

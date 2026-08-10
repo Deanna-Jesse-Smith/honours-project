@@ -178,7 +178,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
       ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
       Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
-      Navigator.pushNamed(context, '/FinalSetup');
+      // Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
