@@ -5,6 +5,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -18,6 +19,7 @@ class WeightTracking extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     final session = ref.watch(userSessionProvider).value;
     Future<WeightGoalModel?> curGoal = ref
         .watch(gDaoProvider)

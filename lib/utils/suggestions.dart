@@ -80,6 +80,14 @@ class Suggest {
       trePlans = null;
 }
 
+class TREoption {
+  final TimeOfDay start, end;
+  final Duration length;
+  final String label, justification;
+
+  TREoption(this.start, this.end, this.length, this.label, this.justification);
+}
+
 class Suggestion {
   static List<List<int>> adfList = [], fiveTwoList = [];
   static late List<List<TimeOfDay>> treList;
@@ -148,7 +156,7 @@ class RecommendFast {
   RecommendFast.o(this.form, this.meals, this.exp);
 
   Suggestion makePlan() {
-    final constraints = DayConstraints.extract(meals.times);
+    final constraints = ObligationSpan(earliest, latest, requiredWindow);
     final considerations = treEvaluation(constraints, exp);
     fiveTwoEvaluation(meals, exp);
     if (exp == Experience.experienced) {
@@ -164,13 +172,33 @@ class RecommendFast {
 
   final dayEarliest = TimeOfDay(hour: 5, minute: 0), dayLatest = TimeOfDay(hour: 22, minute: 0);
 
-  Suggestion treEvaluation(DayConstraints constraints, Experience exp) {
+  Suggestion treEvaluation(ObligationSpan span, Experience exp) {
     final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
+    final earliestStart = toMinutes(span.earliest) - 30;
+    final latestEnd = toMinutes(span.latest) + 30;
+    final biggestLength = latestEnd - earliestStart;
+
+    final length = biggestLength < minMinutes ? minMinutes : biggestLength;
+
+    final dayEarliestMinutes = toMinutes(dayEarliest);
+    final dayLatestMinutes = toMinutes(dayLatest);
     
+    final options = <TREoption>[];
 
+    final eartlyStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - length);
+    final earlyEnd = eartlyStart + length;
+    if (earlyEnd <= dayLatestMinutes) {
+      options.add(TREoption(toTimeOfDay(eartlyStart), toTimeOfDay(earlyEnd), Duration(minutes: length), 'Early TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+    }
 
-    if (constraints.eatingWindow.inHours > maxHours) {
+    final lateEnd = latestEnd.clamp(dayEarliestMinutes + length, dayLatestMinutes);
+    final lateStart = lateEnd - length;
+    if (lateStart >= dayEarliestMinutes && lateStart != eartlyStart) {
+      options.add(TREoption(toTimeOfDay(lateStart), toTimeOfDay(lateEnd), Duration(minutes: length), 'Late TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+    }
 
+    if (length - biggestLength > 0) {
+      
     }
 
     return Suggestion.tre([], '');

@@ -97,7 +97,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
         if (goal == null) return null;
 
-        final curWeight = await ref.read(wDaoProvider).latestWeight(0);
+        final curWeight = await ref.watch(wDaoProvider).latestWeight(0);
 
         if (curWeight == null) return false;
 
@@ -113,11 +113,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
         return goal.calculateComplete(curWater);
       case GoalType.nutrition:
-        final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
+        final goal = await ref.watch(gDaoProvider).findActiveFoodGoal();
 
         if (goal == null) return null;
 
-        final mealCounts = await ref.read(nDaoProvider).countMealsInRange(week.$1, week.$2);
+        final mealCounts = await ref.watch(nDaoProvider).countMealsInRange(week.$1, week.$2);
 
         return mealCounts.every((v) => v > goal.threshold);
     }
