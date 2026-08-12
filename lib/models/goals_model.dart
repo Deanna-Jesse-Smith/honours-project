@@ -11,6 +11,7 @@ sealed class BasicGoal {
   BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours});
 
   double getPercent(num curState) {
+    late double output;
     switch (op) {
       case GoalOperator.greaterThan:
          isComplete = curState > threshold;
@@ -25,6 +26,8 @@ sealed class BasicGoal {
       case GoalOperator.logOnly:
         isComplete = true;
     }
+
+    return output;
   }
 }
 

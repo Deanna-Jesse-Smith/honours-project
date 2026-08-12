@@ -21,6 +21,21 @@ class ObligationMeals {
   ObligationMeals(this.days, this.times);
 }
 
+class ObligationSpan {
+  final TimeOfDay earliest;
+  final TimeOfDay latest;
+  final Duration requiredWindow;
+  ObligationSpan(this.earliest, this.latest, this.requiredWindow);
+
+  static ObligationSpan extractSpan(List<TimeOfDay> mealTimes, {Duration buffer = const Duration(minutes: 30)}) {
+  final sorted = [...mealTimes]..sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+  final earliest = sorted.first;
+  final latest = sorted.last;
+  final span = Duration(minutes: (latest.hour * 60 + latest.minute) - (earliest.hour * 60 + earliest.minute));
+  return ObligationSpan(earliest, latest, span + buffer * 2);
+}
+}
+
 class DayConstraints {
   final TimeOfDay earlyMeal, lateMeal;
   final Duration eatingWindow;
@@ -143,13 +158,16 @@ class RecommendFast {
     return considerations;
   }
 
+  int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
+
+  TimeOfDay toTimeOfDay(int m) => TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
+
+  final dayEarliest = TimeOfDay(hour: 5, minute: 0), dayLatest = TimeOfDay(hour: 22, minute: 0);
+
   Suggestion treEvaluation(DayConstraints constraints, Experience exp) {
-    late int maxHours;
-    if (exp == Experience.beginner) {
-      maxHours = 8;
-    } else {
-      maxHours = 4;
-    }
+    final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
+    
+
 
     if (constraints.eatingWindow.inHours > maxHours) {
 

@@ -6,6 +6,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -19,6 +20,7 @@ class HydrationTracking extends ConsumerWidget {
   double amount = 0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     final session = ref.watch(userSessionProvider).value;
 
     Future<HydrationStreak?> curStreak = ref
@@ -71,6 +73,7 @@ class HydrationTracking extends ConsumerWidget {
                 }
               ),
             ),
+            // FutureBuilder(future: goalsNotifier.checkStreak(GoalType.hydration, amount), builder: builder)
             SizedBox(
               width: 100,
               height: 100,
