@@ -186,6 +186,47 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
+  Stream<int?> getActiveFastingStreak() {
+    final streakRows = (selectOnly(goals).join([
+                innerJoin(
+                  fastingGoals,
+                  fastingGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])..addColumns([streaks.streakProgress])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.fasting)));
+
+    return streakRows.watchSingleOrNull().map((row) => row?.read(streaks.streakProgress));
+  }
+
+  Stream<int?> getActiveHydrationStreak() {
+    final streakRows = (selectOnly(goals).join([
+                innerJoin(
+                  hydrationGoals,
+                  hydrationGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])..addColumns([streaks.streakProgress])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.hydration)));
+
+    return streakRows.watchSingleOrNull().map((row) => row?.read(streaks.streakProgress));
+  }
+  Stream<int?> getActiveFoodStreak() {
+    final streakRows = (selectOnly(goals).join([
+                innerJoin(
+                  nutritionGoals,
+                  nutritionGoals.goalID.equalsExp(goals.goalID),
+                ),
+                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+              ])..addColumns([streaks.streakProgress])
+              ..where(streaks.endDate.isNull())
+              ..where(goals.type.equalsValue(GoalType.fasting)));
+
+    return streakRows.watchSingleOrNull().map((row) => row?.read(streaks.streakProgress));
+  }
+
   Future<HydrationStreak?> checkActiveHydrationStreak() async {
     final streakRows =
         await (select(goals).join([

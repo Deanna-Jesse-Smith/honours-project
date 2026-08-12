@@ -10,25 +10,25 @@ sealed class BasicGoal {
 
   BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours});
 
-  double getPercent(num curState) {
-    late double output;
-    switch (op) {
-      case GoalOperator.greaterThan:
-         isComplete = curState > threshold;
-      case GoalOperator.lesserThan:
-        isComplete = curState < threshold;
-      case GoalOperator.equalTo:
-        isComplete = curState == threshold;
-      case GoalOperator.greaterEqual:
-        isComplete = curState >= threshold;
-      case GoalOperator.lesserEqual:
-        isComplete = curState <= threshold;
-      case GoalOperator.logOnly:
-        isComplete = true;
-    }
+  // double getPercent(num curState) {
+  //   late double output;
+  //   switch (op) {
+  //     case GoalOperator.greaterThan:
+  //        isComplete = curState > threshold;
+  //     case GoalOperator.lesserThan:
+  //       isComplete = curState < threshold;
+  //     case GoalOperator.equalTo:
+  //       isComplete = curState == threshold;
+  //     case GoalOperator.greaterEqual:
+  //       isComplete = curState >= threshold;
+  //     case GoalOperator.lesserEqual:
+  //       isComplete = curState <= threshold;
+  //     case GoalOperator.logOnly:
+  //       isComplete = true;
+  //   }
 
-    return output;
-  }
+  //   return output;
+  // }
 }
 
 mixin BasicStreak on BasicGoal {
@@ -67,6 +67,8 @@ mixin BasicStreak on BasicGoal {
     }
     return daysProgress;
   }
+
+  void increment() => daysProgress++;
 }
 
 class FastingGoalModel extends BasicGoal {

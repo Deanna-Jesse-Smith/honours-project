@@ -56,79 +56,126 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return DateUtils.dateOnly(start);
   }
 
-  Future<bool?> checkGoal(GoalType type) async {
+  Future<double> checkGoal(GoalType type) async {
     final session = ref.read(userSessionProvider).value;
     final week = bookendWeek();
+
+    late bool? result;
+    double percent = -1.0;
     
     switch (type) {
       case GoalType.fasting:
         final goal = await ref.watch(gDaoProvider).findActiveFastingGoal();
 
-        if (goal == null) return null;
+        if (goal == null) {
+          result = null;
+          break;
+        }
 
         if (goal.metric == MetricType.hours) {
           final curDur = await ref.read(fDaoProvider).getCurDuration(0);
 
-          if (curDur >= (goal.threshold * 60)) return true;
-          return false;
+          if (curDur >= (goal.threshold * 60)) {
+            result = true;
+            break;
+          }
+          percent = (goal.threshold * 60) / curDur;
+          result = false;
         } else if (goal.metric == MetricType.days) {
           final weekDays = await ref
               .read(fDaoProvider)
               .findFastsInRange(0, week.$1, week.$2)
               .length;
 
-          if (weekDays >= goal.threshold) return true;
-          return false;
+          if (weekDays >= goal.threshold) {
+            result = true;
+            break;
+          }
+          result = false;
+          percent = goal.threshold / weekDays;
         } else {
           final fiveTwoDays = session!.fiveTwoDaysSelected;
           List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
           daysList.removeWhere((d) => d == null);
 
-          bool result = false;
+          bool resultt = false;
           for (final day in daysList) {
             DateTime temp = day!.add(const Duration(days: 1));
-            result = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
+            resultt = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
           }
           
-          return result;
+          result = resultt;
         }
       case GoalType.weight:
         final goal = await ref.watch(gDaoProvider).findActiveWeightGoal();
 
-        if (goal == null) return null;
+        if (goal == null) {
+          result = null;
+          break;
+        }
 
         final curWeight = await ref.watch(wDaoProvider).latestWeight(0);
 
-        if (curWeight == null) return false;
+        if (curWeight == null) {
+          result = false;
+          break;
+        }
 
-        return goal.calculateComplete(curWeight);
+        result = goal.calculateComplete(curWeight);
+        // percent = 
       case GoalType.hydration:
         final goal = await ref.watch(gDaoProvider).findActiveHydrationGoal();
 
-        if (goal == null) return null;
+        if (goal == null) {
+          result = null;
+          break;
+        }
 
         final curWater = await ref
             .read(hDaoProvider)
             .getTodayHydration(0, DateTime.now());
 
-        return goal.calculateComplete(curWater);
+        result = goal.calculateComplete(curWater);
+        percent = curWater / goal.threshold;
       case GoalType.nutrition:
         final goal = await ref.watch(gDaoProvider).findActiveFoodGoal();
 
-        if (goal == null) return null;
+        if (goal == null) {
+          result = null;
+          break;
+        }
 
         final mealCounts = await ref.watch(nDaoProvider).countMealsInRange(week.$1, week.$2);
 
-        return mealCounts.every((v) => v > goal.threshold);
+        result = mealCounts.every((v) => v > goal.threshold);
+        // percent = mealCounts
+    }
+
+    if (result != null && result) {
+      updateStreak(type);
+      percent = 1;
+    }
+
+    return percent;
+  }
+
+  Future<void> updateStreak(GoalType type) async {
+    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+
+    if (curStreak != null) {
+      curStreak.increment();
+      ref.read(gDaoProvider).updateStreak(curStreak);
     }
   }
 
   Future<int> checkStreak(GoalType type, double curState) async {
-    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+    BasicStreak? curStreak = await ref.watch(gDaoProvider).checkActiveStreak(type);
 
     if (curStreak == null) return -1;
 
-    return curStreak.calculateProgress(curState);
+    final percent = curStreak.calculateProgress(curState);
+
+    return percent;
   }
 
   Future<void> insertGoal(BasicGoal newGoal) {

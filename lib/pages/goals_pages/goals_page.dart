@@ -50,7 +50,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncGoals = ref.watch(asyncGoalsProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(type.forDisplay, style: TextStyle(fontSize: TextSizing.large)),
@@ -107,11 +106,10 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     );
   }
 
-  void saveChanges(AsyncGoals ag) {
+  void saveChanges() {
+    final asyncGoals = ref.watch(asyncGoalsProvider.notifier);
     if (curGoal.goalID < 0) {
-      ag.insertGoal(curGoal);
-    } else {
-      
+      asyncGoals.insertGoal(curGoal);
     }
   }
 

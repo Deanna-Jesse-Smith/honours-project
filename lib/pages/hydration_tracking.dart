@@ -56,7 +56,7 @@ class HydrationTracking extends ConsumerWidget {
                   double percent = model.calculateProgress(amount) / 100;
 
                   if (model.isComplete) {
-                    ref.read(gDaoProvider).finishGoal(model.goalID, model.streakID);
+                    goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
 
                     //! whatever happens when a goal is completed
                   }
@@ -73,7 +73,23 @@ class HydrationTracking extends ConsumerWidget {
                 }
               ),
             ),
-            // FutureBuilder(future: goalsNotifier.checkStreak(GoalType.hydration, amount), builder: builder)
+            StreamBuilder(
+                stream: ref.watch(gDaoProvider).getActiveHydrationStreak(),
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return const Text('No ongoing Fasting streak');
+                  }
+
+                  final days = asyncSnapshot.data;
+
+                  if (days == null) {
+                    return const SizedBox.shrink();
+                  }
+                  //! Calculate the progress here somehow
+
+                  return Text('You\'re on a $days streak!');
+                }
+              ),
             SizedBox(
               width: 100,
               height: 100,

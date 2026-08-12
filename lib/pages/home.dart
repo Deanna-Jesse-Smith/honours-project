@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/fab.dart';
@@ -20,6 +22,8 @@ class HomePage extends ConsumerWidget {
     Future<FastingStreak?> curStreak = ref.watch(gDaoProvider).checkActiveFastingStreak();
 
     // ref.read(fDaoProvider).dummyData();
+
+    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
 
     CustomWidgets customWidgets = CustomWidgets();
     double percent = calculatePercentageTRE(session!);
@@ -49,23 +53,48 @@ class HomePage extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.all(15),
               child: FutureBuilder(
-                future: curStreak,
+                future: goalsNotifier.checkGoal(GoalType.fasting),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return const Text('No ongoing Fasting streak');
                   }
 
-                  FastingStreak? model = asyncSnapshot.data;
+                  final model = asyncSnapshot.data;
 
                   if (model == null) {
                     return const Text('No ongoing Fasting streak');
                   }
                   //! Calculate the progress here somehow
 
-                  return customWidgets.streakIndicator('Streak underway', model.progress, Colors.orange, Colors.amberAccent, context);
+                  return LinearPercentIndicator(
+                    percent: percent,
+                    lineHeight: model,
+                    width: MediaQuery.of(context).size.width - 80,
+                    animation: true,
+                    animationDuration: 2000,
+                    progressColor: Colors.amber,
+                    backgroundColor: Colors.black,
+                  );
                 }
               )
             ),
+            StreamBuilder(
+                stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return const Text('No ongoing Fasting streak');
+                  }
+
+                  final days = asyncSnapshot.data;
+
+                  if (days == null) {
+                    return const SizedBox.shrink();
+                  }
+                  //! Calculate the progress here somehow
+
+                  return Text('You\'re on a $days streak!');
+                }
+              ),
             Padding(
               padding: EdgeInsets.all(35),
               child: circularIndicator(percent, Colors.cyan, Colors.lightBlueAccent, session)

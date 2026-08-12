@@ -198,7 +198,13 @@ class RecommendFast {
     }
 
     if (length - biggestLength > 0) {
-      
+      final otherLength = length + 60;
+      final otherStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - otherLength);
+      final otherEnd = otherStart + otherLength;
+
+      if (otherEnd <= dayLatestMinutes) {
+        options.add(TREoption(toTimeOfDay(otherStart), toTimeOfDay(otherEnd), Duration(minutes: otherLength), 'Other', 'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.'));
+      }
     }
 
     return Suggestion.tre([], '');
@@ -263,13 +269,49 @@ class RecommendFast {
     return availableDays;
   }
 
+  List<List<int>> findCombos(List<int> pool, int cap) {
+    if (pool.isEmpty) return [];
+
+    final List<List<int>> allCombos = [];
+
+    List<List<int>> create(List<int> subpool, int initDay, List<List<int>> acc, List<int> cur) {
+      if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
+      List<List<int>> withDay = [], withoutDay = [];
+      if (initDay + 1 < subpool.first) {
+        withoutDay = create(subpool.sublist(1), initDay, acc, cur);
+        cur = [...cur, subpool.first];
+        withDay = create(subpool.sublist(1), subpool.first, acc, cur);
+      } else {
+        withoutDay = create(subpool.sublist(1), initDay, acc, cur);
+      }
+      return [...withDay, ...withoutDay];
+    }
+
+    for (int loop = 0; loop < pool.length; loop++) {
+      final List<int> curCombo = [];
+
+    }
+  }
+
+  List<int> makeCombo(int day, List<int> subpool) {
+    if (subpool.isEmpty) return [day];
+
+    if (subpool.first > day + 1) {
+      final temp = makeCombo(subpool.first, subpool.sublist(1));
+      temp.add(day);
+      return temp;
+    } else {
+      return makeCombo(day, subpool.sublist(1));
+    }
+  }
+
   List<List<int>> isValidADFCombo(List<int> pool) {
     final twoDayCombos = isValidCombo(pool);
     if (twoDayCombos.isEmpty) return [];
     
     List<List<int>> output = [];
     for (final initCombo in twoDayCombos) {
-      final remainingDays = pool.sublist(pool.indexOf(initCombo.last));
+      final remainingDays = pool.sublist(pool.indexOf(initCombo.last) + 1);
       final temp = isValidCombo(remainingDays);
       output.addAll(temp);
     }
