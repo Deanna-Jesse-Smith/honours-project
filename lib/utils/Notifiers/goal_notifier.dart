@@ -60,32 +60,27 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     final session = ref.read(userSessionProvider).value;
     final week = bookendWeek();
 
-    debugPrint('check Goals start');
-
     late bool? result;
     double percent = -1.0;
+    int goalID = -1;
     
     switch (type) {
       case GoalType.fasting:
-      debugPrint('check Goals fasting');
         final goal = await ref.watch(gDaoProvider).findActiveFastingGoal();
-        debugPrint('check Goals found no goal');
 
         if (goal == null) {
           result = null;
           break;
         }
+        goalID = goal.goalID;
 
-        debugPrint('check Goals metric');
         if (goal.metric == MetricType.hours) {
           final curDur = await ref.read(fDaoProvider).getCurDuration(0);
-          debugPrint('check Goals duration');
           if (curDur >= (goal.threshold * 60)) {
             result = true;
             break;
           }
-          debugPrint('check Goals percent');
-          percent = (goal.threshold * 60) / curDur;
+          percent = curDur == 0 ? 0 : (goal.threshold * 60) / curDur;
           result = false;
         } else if (goal.metric == MetricType.days) {
           final weekDays = await ref
@@ -120,6 +115,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           break;
         }
 
+        goalID = goal.goalID;
         final curWeight = await ref.watch(wDaoProvider).latestWeight(0);
 
         if (curWeight == null) {
@@ -128,7 +124,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         }
 
         result = goal.calculateComplete(curWeight);
-        // percent = 
+        percent = goal.progress;
       case GoalType.hydration:
         final goal = await ref.watch(gDaoProvider).findActiveHydrationGoal();
 
@@ -136,6 +132,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           result = null;
           break;
         }
+        goalID = goal.goalID;
 
         final curWater = await ref
             .read(hDaoProvider)
@@ -150,6 +147,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           result = null;
           break;
         }
+        goalID = goal.goalID;
 
         final mealCounts = await ref.watch(nDaoProvider).countMealsInRange(week.$1, week.$2);
 
@@ -158,8 +156,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
 
     if (result != null && result) {
-      debugPrint('check Goals streak??');
-      updateStreak(type);
+      updateStreak(type, goalID);
       percent = 1;
     }
 
@@ -167,13 +164,21 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
-  Future<void> updateStreak(GoalType type) async {
+  Future<void> updateStreak(GoalType type, int goalID) async {
     BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
 
     if (curStreak != null) {
       curStreak.increment();
       ref.read(gDaoProvider).updateStreak(curStreak);
+    } else if (type != GoalType.weight) {
+      // ref.read(gDaoProvider).in
     }
+  }
+
+  Future<void> breakStreak(GoalType type) async {
+    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+
+    
   }
 
   Future<int> checkStreak(GoalType type, double curState) async {
@@ -190,11 +195,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (newGoal is FastingGoalModel) {
       return ref.read(gDaoProvider).insertFastingGoal(session!.userId, newGoal.threshold, newGoal.op, newGoal.metric);
     } else if (newGoal is HydrationGoalModel) {
-      return ref.read(gDaoProvider).insertHydrationStreak(session!.userId, DateTime.now(), newGoal.threshold.toInt(), newGoal.op);
+      return ref.read(gDaoProvider).insertHydrationGoal(session!.userId, DateTime.now(), newGoal.threshold.toInt(), newGoal.op);
     } else if (newGoal is WeightGoalModel) {
       return ref.read(gDaoProvider).insertWeightGoal(session!.userId, newGoal.threshold, newGoal.startWeight, newGoal.op);
     } else {
-      return ref.read(gDaoProvider).insertNutritionStreak(session!.userId, NutrientType.caloreis, newGoal.threshold.toInt());
+      return ref.read(gDaoProvider).insertNutritionGoal(session!.userId, NutrientType.caloreis, newGoal.threshold.toInt());
     }
   }
 

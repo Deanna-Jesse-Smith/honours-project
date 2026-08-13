@@ -207,153 +207,153 @@ class CustomWidgets {
     );
   }
 
-  Drawer getDrawer(BuildContext context) {
-    // insert();
-    return Drawer(
-      child: ListView(
-        padding: const EdgeInsets.all(10),
-        children: [
-          ListTile(
-            title: const Text('Home'),
-            onTap: () => Navigator.pushNamed(context, '/'),
-          ),
-          ListTile(
-            title: const Text('Fasting Plan'),
-            onTap: () => Navigator.pushNamed(context, '/FastingPlan'),
-          ),
-          ListTile(
-            title: const Text('Track Meals'),
-            onTap: () => Navigator.pushNamed(context, '/MealTracking'),
-          ),
-          ListTile(
-            title: const Text('Step Tracking'),
-            onTap: () => Navigator.pushNamed(context, '/StepCount'),
-          ),
-          ListTile(
-            title: const Text('Hydration Tracking'),
-            onTap: () => Navigator.pushNamed(context, '/HydrationTracking'),
-          ),
-          ListTile(
-            title: const Text('Weight Tracking'),
-            onTap: () => Navigator.pushNamed(context, '/WeightTracking'),
-          ),
-          ListTile(
-            title: const Text('Setup'),
-            onTap: () => Navigator.pushNamed(context, '/SetupUser'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Drawer getDrawer(BuildContext context) {
+  //   // insert();
+  //   return Drawer(
+  //     child: ListView(
+  //       padding: const EdgeInsets.all(10),
+  //       children: [
+  //         ListTile(
+  //           title: const Text('Home'),
+  //           onTap: () => Navigator.pushNamed(context, '/'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Fasting Plan'),
+  //           onTap: () => Navigator.pushNamed(context, '/FastingPlan'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Track Meals'),
+  //           onTap: () => Navigator.pushNamed(context, '/MealTracking'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Step Tracking'),
+  //           onTap: () => Navigator.pushNamed(context, '/StepCount'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Hydration Tracking'),
+  //           onTap: () => Navigator.pushNamed(context, '/HydrationTracking'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Weight Tracking'),
+  //           onTap: () => Navigator.pushNamed(context, '/WeightTracking'),
+  //         ),
+  //         ListTile(
+  //           title: const Text('Setup'),
+  //           onTap: () => Navigator.pushNamed(context, '/SetupUser'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  ExpandableFab getFAB(
-    WidgetRef ref,
-    BuildContext context,
-    int index, {
-    ExpandableFabPos posi = ExpandableFabPos.center,
-  }) {
-    final session = ref.watch(userSessionProvider).value;
-    final actions = BuildFAB.buildFab(
-      ref,
-      index: index,
-      onHydrationTapped: () async {
-        final newAmount = await Dialogs.getSpinnerWaterInput(
-          context,
-          title: 'How many cups have you drank?',
-        );
-        if (newAmount != null) {
-          ref
-              .read(hDaoProvider)
-              .addHydration(session!.userId, DateTime.now(), newAmount);
-        }
-      },
-      onMealTapped: () async {
-        final newLog = await Dialogs.getCurLogMethod(context, ref, session!);
-        debugPrint('Log testing');
+  // ExpandableFab getFAB(
+  //   WidgetRef ref,
+  //   BuildContext context,
+  //   int index, {
+  //   ExpandableFabPos posi = ExpandableFabPos.center,
+  // }) {
+  //   final session = ref.watch(userSessionProvider).value;
+  //   final actions = BuildFAB.buildFab(
+  //     ref,
+  //     index: index,
+  //     onHydrationTapped: () async {
+  //       final newAmount = await Dialogs.getSpinnerWaterInput(
+  //         context,
+  //         title: 'How many cups have you drank?',
+  //       );
+  //       if (newAmount != null) {
+  //         ref
+  //             .read(hDaoProvider)
+  //             .addHydration(session!.userId, DateTime.now(), newAmount);
+  //       }
+  //     },
+  //     onMealTapped: () async {
+  //       final newLog = await Dialogs.getCurLogMethod(context, ref, session!);
+  //       debugPrint('Log testing');
         
-        if (newLog != null) {
-          debugPrint('Log: ${newLog.name}');
-          if (newLog == LogMethod.quick) {
-            ref
-              .read(nDaoProvider)
-              .insertFoodLog(MealCategory.quick, null, null, newLog);
-          } else if (newLog == LogMethod.full) {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const MealLog()),
-              );
-          } else {
+  //       if (newLog != null) {
+  //         debugPrint('Log: ${newLog.name}');
+  //         if (newLog == LogMethod.quick) {
+  //           ref
+  //             .read(nDaoProvider)
+  //             .insertFoodLog(MealCategory.quick, null, null, newLog);
+  //         } else if (newLog == LogMethod.full) {
+  //           Navigator.of(context).push(
+  //               MaterialPageRoute(builder: (context) => const MealLog()),
+  //             );
+  //         } else {
             
-          }
-        } else {
-          debugPrint('Log: null');
-        }
-      },
-      onWeightTapped: () async {
-        double? curWeight = await ref
-            .read(wDaoProvider)
-            .latestWeight(session!.userId);
-        final newAmount = await Dialogs.getNewInput(
-          context,
-          initialVal: curWeight,
-          title: 'Log Weight',
-        );
-        if (newAmount != null) {
-          ref
-              .read(wDaoProvider)
-              .insertWeight(
-                session.userId,
-                newAmount.toDouble(),
-                DateTime.now(),
-              );
-        }
-      },
-    );
+  //         }
+  //       } else {
+  //         debugPrint('Log: null');
+  //       }
+  //     },
+  //     onWeightTapped: () async {
+  //       double? curWeight = await ref
+  //           .read(wDaoProvider)
+  //           .latestWeight(session!.userId);
+  //       final newAmount = await Dialogs.getNewInput(
+  //         context,
+  //         initialVal: curWeight,
+  //         title: 'Log Weight',
+  //       );
+  //       if (newAmount != null) {
+  //         ref
+  //             .read(wDaoProvider)
+  //             .insertWeight(
+  //               session.userId,
+  //               newAmount.toDouble(),
+  //               DateTime.now(),
+  //             );
+  //       }
+  //     },
+  //   );
 
-    return ExpandableFab(
-      type: ExpandableFabType.up,
-      pos: posi,
-      overlayStyle: ExpandableFabOverlayStyle(blur: 20),
-      margin: const EdgeInsets.all(10),
-      children: actions.reversed
-          .map(
-            (button) => ElevatedButton(
-              onPressed: button.onPressed,
-              child: Text(button.title),
-            ),
-          )
-          .toList(),
-    );
+  //   return ExpandableFab(
+  //     type: ExpandableFabType.up,
+  //     pos: posi,
+  //     overlayStyle: ExpandableFabOverlayStyle(blur: 20),
+  //     margin: const EdgeInsets.all(10),
+  //     children: actions.reversed
+  //         .map(
+  //           (button) => ElevatedButton(
+  //             onPressed: button.onPressed,
+  //             child: Text(button.title),
+  //           ),
+  //         )
+  //         .toList(),
+  //   );
 
-    // return ExpandableFab(
-    //   type: ExpandableFabType.up,
-    //   pos: posi,
-    //   overlayStyle: ExpandableFabOverlayStyle(blur: 20),
-    //   margin: const EdgeInsets.all(10),
-    //   children: actions.reversed.map((buttons) {
-    //     return ElevatedButton(
-    //       onPressed: () {
-    //         switch (buttons.title) {
-    //           case 'Break my fast':
-    //           // fDao.breakFast(userState.userID, DateTime.now());
-    //           BuildFAB.isFasting = false;
-    //           case 'Start my fast':
-    //           BuildFAB.isFasting = true;
-    //           case 'Log Weight':
+  //   // return ExpandableFab(
+  //   //   type: ExpandableFabType.up,
+  //   //   pos: posi,
+  //   //   overlayStyle: ExpandableFabOverlayStyle(blur: 20),
+  //   //   margin: const EdgeInsets.all(10),
+  //   //   children: actions.reversed.map((buttons) {
+  //   //     return ElevatedButton(
+  //   //       onPressed: () {
+  //   //         switch (buttons.title) {
+  //   //           case 'Break my fast':
+  //   //           // fDao.breakFast(userState.userID, DateTime.now());
+  //   //           BuildFAB.isFasting = false;
+  //   //           case 'Start my fast':
+  //   //           BuildFAB.isFasting = true;
+  //   //           case 'Log Weight':
 
-    //           case 'Log Meal':
-    //           break;
-    //           case 'Log Hydration':
-    //           break;
-    //         }
-    //       },
-    //       style: ElevatedButton.styleFrom(
-    //         foregroundColor: Colors.black,
-    //         backgroundColor: buttons.colour,
-    //         textStyle: const TextStyle(fontSize: TextSizing.small),
-    //       ),
-    //       child: Text(buttons.title),
-    //     );
-    //   }).toList(),
-    // );
-  }
+  //   //           case 'Log Meal':
+  //   //           break;
+  //   //           case 'Log Hydration':
+  //   //           break;
+  //   //         }
+  //   //       },
+  //   //       style: ElevatedButton.styleFrom(
+  //   //         foregroundColor: Colors.black,
+  //   //         backgroundColor: buttons.colour,
+  //   //         textStyle: const TextStyle(fontSize: TextSizing.small),
+  //   //       ),
+  //   //       child: Text(buttons.title),
+  //   //     );
+  //   //   }).toList(),
+  //   // );
+  // }
 }

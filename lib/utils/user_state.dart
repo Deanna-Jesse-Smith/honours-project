@@ -224,9 +224,13 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       final toggled = copy(newStatus, !prevFasting, data: cur);
       state = AsyncData(toggled);
     } catch (e) {
+      debugPrint('Toggle Fast Failure');
+      debugPrint(e.toString());
       rethrow;
     }
   }
+
+  
 }
 
 final userSessionProvider =

@@ -5,12 +5,14 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
+import 'package:testrun/widgets/navigation_drawer.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 class WeightTracking extends ConsumerWidget {
@@ -93,9 +95,31 @@ class WeightTracking extends ConsumerWidget {
           ],
         ),
       ),
-      drawer: customWidgets.getDrawer(context),
+      drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 4),
+            persistentFooterButtons: [
+        Row(
+          spacing: 30,
+          children: [
+          //   ElevatedButton(
+          //   onPressed: () => {
+          //     Navigator.of(context).push(
+          //       MaterialPageRoute(builder: (context) => const FastingHistory()),
+          //     ),
+          //   },
+          //   child: Text(
+          //     'View Fasting History',
+          //     style: Theme.of(context).textTheme.displayMedium,
+          //   ),
+          // ),
+          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoalsPage(type: GoalType.weight))), child: Text(
+              'Goals/Streaks',
+              style: Theme.of(context).textTheme.displayMedium,
+            ))
+          ]
+        ),
+      ],
       // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }

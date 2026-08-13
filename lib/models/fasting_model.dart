@@ -90,7 +90,7 @@ FastingStatus determineFastingStatus({
 
   if (expectedStart == null) return FastingStatus.notFastingDay;
 
-  final expectedEnd = calculator.expectedEndFor(
+  DateTime? expectedEnd = calculator.expectedEndFor(
     now,
     user,
     activeLog?.startDateTime,
@@ -149,7 +149,6 @@ extension FastingStatusAppearance on FastingStatus {
 }
 
 enum FastResult {
-  //? I can have multiple of these stored maybe? Then I can show more icons in the fasting history calendar?
   asPlanned,
   lateStart,
   earlyStart,

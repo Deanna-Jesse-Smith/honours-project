@@ -18,6 +18,7 @@ import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
+import 'package:testrun/widgets/navigation_drawer.dart';
 
 class FastingPlan extends ConsumerStatefulWidget {
   const FastingPlan({super.key});
@@ -100,7 +101,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           ]
         ),
       ],
-      drawer: customWidgets.getDrawer(context),
+      drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 1, posi: ExpandableFabPos.right,),
       // floatingActionButton: customWidgets.getFAB(

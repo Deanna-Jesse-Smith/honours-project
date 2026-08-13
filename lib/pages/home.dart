@@ -12,6 +12,7 @@ import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
+import 'package:testrun/widgets/navigation_drawer.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -46,11 +47,6 @@ class HomePage extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.all(15),
-              child: const Text('Streak progress text', 
-              style: TextStyle(fontSize: TextSizing.medium),)
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
               child: FutureBuilder(
                 future: goalsNotifier.checkGoal(GoalType.fasting),
                 builder: (context, asyncSnapshot) {
@@ -75,34 +71,53 @@ class HomePage extends ConsumerWidget {
                     animationDuration: 2000,
                     progressColor: Colors.amber,
                     backgroundColor: Colors.black,
+                    progressBorderColor: Colors.black,
                   );
                 }
               )
             ),
-            // StreamBuilder(
-            //     stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
-            //     builder: (context, asyncSnapshot) {
-            //       if (!asyncSnapshot.hasData) {
-            //         return const Text('No ongoing Fasting streak');
-            //       }
+            StreamBuilder(
+                stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
+                builder: (context, asyncSnapshot) {
+                  if (!asyncSnapshot.hasData) {
+                    return const Text('No ongoing Fasting streak');
+                  }
 
-            //       final days = asyncSnapshot.data;
+                  final days = asyncSnapshot.data;
 
-            //       if (days == null) {
-            //         return const SizedBox.shrink();
-            //       }
-            //       //! Calculate the progress here somehow
+                  if (days == null || days < 1) {
+                    return const SizedBox.shrink();
+                  }
+                  //! Calculate the progress here somehow
 
-            //       return Text('You\'re on a $days streak!');
-            //     }
-            //   ),
+                  return Text('You\'re on a $days streak!');
+                }
+              ),
             Padding(
               padding: EdgeInsets.all(30),
-              child: circularIndicator(percent, Colors.cyan, Colors.lightBlueAccent, session)
+              child: CircularPercentIndicator(
+      radius: 100,
+      percent: percent,
+      lineWidth: 40,
+      header: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Text(
+          session.status.homeReminder,
+          // "You're only an hour away from the end",
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: TextSizing.small),
+        ),
+      ),
+      progressColor: Colors.lightBlueAccent,
+      backgroundColor: Colors.cyan,
+      circularStrokeCap: CircularStrokeCap.round,
+      animationDuration: 500,
+    )
             ),
         ],),
         ),
-      drawer: customWidgets.getDrawer(context),
+      drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 1),
       // floatingActionButton: customWidgets.getFAB(ref, context, 1),
@@ -136,8 +151,8 @@ class HomePage extends ConsumerWidget {
           style: TextStyle(fontSize: TextSizing.small),
         ),
       ),
-      progressColor: progress,
-      backgroundColor: backgroundColor,
+      progressColor: Colors.lightBlueAccent,
+      backgroundColor: Colors.cyan,
       circularStrokeCap: CircularStrokeCap.round,
       animationDuration: 500,
     );

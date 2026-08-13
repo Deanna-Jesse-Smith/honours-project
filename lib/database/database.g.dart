@@ -4377,376 +4377,6 @@ class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
   }
 }
 
-class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $StreaksTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _streakIDMeta = const VerificationMeta(
-    'streakID',
-  );
-  @override
-  late final GeneratedColumn<int> streakID = GeneratedColumn<int>(
-    'streak_i_d',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _streakProgressMeta = const VerificationMeta(
-    'streakProgress',
-  );
-  @override
-  late final GeneratedColumn<int> streakProgress = GeneratedColumn<int>(
-    'streak_progress',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _startDateMeta = const VerificationMeta(
-    'startDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
-    'start_date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDate,
-  );
-  static const VerificationMeta _endDateMeta = const VerificationMeta(
-    'endDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
-    'end_date',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<UnlockType?, String> unlockType =
-      GeneratedColumn<String>(
-        'unlock_type',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      ).withConverter<UnlockType?>($StreaksTable.$converterunlockTypen);
-  @override
-  List<GeneratedColumn> get $columns => [
-    streakID,
-    streakProgress,
-    startDate,
-    endDate,
-    unlockType,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'streaks';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Streak> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('streak_i_d')) {
-      context.handle(
-        _streakIDMeta,
-        streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
-      );
-    }
-    if (data.containsKey('streak_progress')) {
-      context.handle(
-        _streakProgressMeta,
-        streakProgress.isAcceptableOrUnknown(
-          data['streak_progress']!,
-          _streakProgressMeta,
-        ),
-      );
-    }
-    if (data.containsKey('start_date')) {
-      context.handle(
-        _startDateMeta,
-        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
-      );
-    }
-    if (data.containsKey('end_date')) {
-      context.handle(
-        _endDateMeta,
-        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {streakID};
-  @override
-  Streak map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Streak(
-      streakID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}streak_i_d'],
-      )!,
-      streakProgress: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}streak_progress'],
-      )!,
-      startDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}start_date'],
-      )!,
-      endDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}end_date'],
-      ),
-      unlockType: $StreaksTable.$converterunlockTypen.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}unlock_type'],
-        ),
-      ),
-    );
-  }
-
-  @override
-  $StreaksTable createAlias(String alias) {
-    return $StreaksTable(attachedDatabase, alias);
-  }
-
-  static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
-      const EnumNameConverter<UnlockType>(UnlockType.values);
-  static JsonTypeConverter2<UnlockType?, String?, String?>
-  $converterunlockTypen = JsonTypeConverter2.asNullable($converterunlockType);
-}
-
-class Streak extends DataClass implements Insertable<Streak> {
-  final int streakID;
-  final int streakProgress;
-  final DateTime startDate;
-  final DateTime? endDate;
-  final UnlockType? unlockType;
-  const Streak({
-    required this.streakID,
-    required this.streakProgress,
-    required this.startDate,
-    this.endDate,
-    this.unlockType,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['streak_i_d'] = Variable<int>(streakID);
-    map['streak_progress'] = Variable<int>(streakProgress);
-    map['start_date'] = Variable<DateTime>(startDate);
-    if (!nullToAbsent || endDate != null) {
-      map['end_date'] = Variable<DateTime>(endDate);
-    }
-    if (!nullToAbsent || unlockType != null) {
-      map['unlock_type'] = Variable<String>(
-        $StreaksTable.$converterunlockTypen.toSql(unlockType),
-      );
-    }
-    return map;
-  }
-
-  StreaksCompanion toCompanion(bool nullToAbsent) {
-    return StreaksCompanion(
-      streakID: Value(streakID),
-      streakProgress: Value(streakProgress),
-      startDate: Value(startDate),
-      endDate: endDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endDate),
-      unlockType: unlockType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(unlockType),
-    );
-  }
-
-  factory Streak.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Streak(
-      streakID: serializer.fromJson<int>(json['streakID']),
-      streakProgress: serializer.fromJson<int>(json['streakProgress']),
-      startDate: serializer.fromJson<DateTime>(json['startDate']),
-      endDate: serializer.fromJson<DateTime?>(json['endDate']),
-      unlockType: $StreaksTable.$converterunlockTypen.fromJson(
-        serializer.fromJson<String?>(json['unlockType']),
-      ),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'streakID': serializer.toJson<int>(streakID),
-      'streakProgress': serializer.toJson<int>(streakProgress),
-      'startDate': serializer.toJson<DateTime>(startDate),
-      'endDate': serializer.toJson<DateTime?>(endDate),
-      'unlockType': serializer.toJson<String?>(
-        $StreaksTable.$converterunlockTypen.toJson(unlockType),
-      ),
-    };
-  }
-
-  Streak copyWith({
-    int? streakID,
-    int? streakProgress,
-    DateTime? startDate,
-    Value<DateTime?> endDate = const Value.absent(),
-    Value<UnlockType?> unlockType = const Value.absent(),
-  }) => Streak(
-    streakID: streakID ?? this.streakID,
-    streakProgress: streakProgress ?? this.streakProgress,
-    startDate: startDate ?? this.startDate,
-    endDate: endDate.present ? endDate.value : this.endDate,
-    unlockType: unlockType.present ? unlockType.value : this.unlockType,
-  );
-  Streak copyWithCompanion(StreaksCompanion data) {
-    return Streak(
-      streakID: data.streakID.present ? data.streakID.value : this.streakID,
-      streakProgress: data.streakProgress.present
-          ? data.streakProgress.value
-          : this.streakProgress,
-      startDate: data.startDate.present ? data.startDate.value : this.startDate,
-      endDate: data.endDate.present ? data.endDate.value : this.endDate,
-      unlockType: data.unlockType.present
-          ? data.unlockType.value
-          : this.unlockType,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Streak(')
-          ..write('streakID: $streakID, ')
-          ..write('streakProgress: $streakProgress, ')
-          ..write('startDate: $startDate, ')
-          ..write('endDate: $endDate, ')
-          ..write('unlockType: $unlockType')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(streakID, streakProgress, startDate, endDate, unlockType);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Streak &&
-          other.streakID == this.streakID &&
-          other.streakProgress == this.streakProgress &&
-          other.startDate == this.startDate &&
-          other.endDate == this.endDate &&
-          other.unlockType == this.unlockType);
-}
-
-class StreaksCompanion extends UpdateCompanion<Streak> {
-  final Value<int> streakID;
-  final Value<int> streakProgress;
-  final Value<DateTime> startDate;
-  final Value<DateTime?> endDate;
-  final Value<UnlockType?> unlockType;
-  const StreaksCompanion({
-    this.streakID = const Value.absent(),
-    this.streakProgress = const Value.absent(),
-    this.startDate = const Value.absent(),
-    this.endDate = const Value.absent(),
-    this.unlockType = const Value.absent(),
-  });
-  StreaksCompanion.insert({
-    this.streakID = const Value.absent(),
-    this.streakProgress = const Value.absent(),
-    this.startDate = const Value.absent(),
-    this.endDate = const Value.absent(),
-    this.unlockType = const Value.absent(),
-  });
-  static Insertable<Streak> custom({
-    Expression<int>? streakID,
-    Expression<int>? streakProgress,
-    Expression<DateTime>? startDate,
-    Expression<DateTime>? endDate,
-    Expression<String>? unlockType,
-  }) {
-    return RawValuesInsertable({
-      if (streakID != null) 'streak_i_d': streakID,
-      if (streakProgress != null) 'streak_progress': streakProgress,
-      if (startDate != null) 'start_date': startDate,
-      if (endDate != null) 'end_date': endDate,
-      if (unlockType != null) 'unlock_type': unlockType,
-    });
-  }
-
-  StreaksCompanion copyWith({
-    Value<int>? streakID,
-    Value<int>? streakProgress,
-    Value<DateTime>? startDate,
-    Value<DateTime?>? endDate,
-    Value<UnlockType?>? unlockType,
-  }) {
-    return StreaksCompanion(
-      streakID: streakID ?? this.streakID,
-      streakProgress: streakProgress ?? this.streakProgress,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
-      unlockType: unlockType ?? this.unlockType,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (streakID.present) {
-      map['streak_i_d'] = Variable<int>(streakID.value);
-    }
-    if (streakProgress.present) {
-      map['streak_progress'] = Variable<int>(streakProgress.value);
-    }
-    if (startDate.present) {
-      map['start_date'] = Variable<DateTime>(startDate.value);
-    }
-    if (endDate.present) {
-      map['end_date'] = Variable<DateTime>(endDate.value);
-    }
-    if (unlockType.present) {
-      map['unlock_type'] = Variable<String>(
-        $StreaksTable.$converterunlockTypen.toSql(unlockType.value),
-      );
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('StreaksCompanion(')
-          ..write('streakID: $streakID, ')
-          ..write('streakProgress: $streakProgress, ')
-          ..write('startDate: $startDate, ')
-          ..write('endDate: $endDate, ')
-          ..write('unlockType: $unlockType')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -4803,20 +4433,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<GoalOperator>($GoalsTable.$converterop);
-  static const VerificationMeta _streakIDMeta = const VerificationMeta(
-    'streakID',
-  );
-  @override
-  late final GeneratedColumn<int> streakID = GeneratedColumn<int>(
-    'streak_i_d',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES streaks (streak_i_d)',
-    ),
-  );
   static const VerificationMeta _isCompleteMeta = const VerificationMeta(
     'isComplete',
   );
@@ -4851,7 +4467,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     thresholdValue,
     metricType,
     op,
-    streakID,
     isComplete,
     progressValue,
   ];
@@ -4880,12 +4495,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           data['threshold_value']!,
           _thresholdValueMeta,
         ),
-      );
-    }
-    if (data.containsKey('streak_i_d')) {
-      context.handle(
-        _streakIDMeta,
-        streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
       );
     }
     if (data.containsKey('is_complete')) {
@@ -4938,10 +4547,6 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           data['${effectivePrefix}op'],
         )!,
       ),
-      streakID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}streak_i_d'],
-      ),
       isComplete: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_complete'],
@@ -4972,7 +4577,6 @@ class Goal extends DataClass implements Insertable<Goal> {
   final double? thresholdValue;
   final MetricType metricType;
   final GoalOperator op;
-  final int? streakID;
   final bool isComplete;
   final double progressValue;
   const Goal({
@@ -4981,7 +4585,6 @@ class Goal extends DataClass implements Insertable<Goal> {
     this.thresholdValue,
     required this.metricType,
     required this.op,
-    this.streakID,
     required this.isComplete,
     required this.progressValue,
   });
@@ -5003,9 +4606,6 @@ class Goal extends DataClass implements Insertable<Goal> {
     {
       map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op));
     }
-    if (!nullToAbsent || streakID != null) {
-      map['streak_i_d'] = Variable<int>(streakID);
-    }
     map['is_complete'] = Variable<bool>(isComplete);
     map['progress_value'] = Variable<double>(progressValue);
     return map;
@@ -5020,9 +4620,6 @@ class Goal extends DataClass implements Insertable<Goal> {
           : Value(thresholdValue),
       metricType: Value(metricType),
       op: Value(op),
-      streakID: streakID == null && nullToAbsent
-          ? const Value.absent()
-          : Value(streakID),
       isComplete: Value(isComplete),
       progressValue: Value(progressValue),
     );
@@ -5045,7 +4642,6 @@ class Goal extends DataClass implements Insertable<Goal> {
       op: $GoalsTable.$converterop.fromJson(
         serializer.fromJson<String>(json['op']),
       ),
-      streakID: serializer.fromJson<int?>(json['streakID']),
       isComplete: serializer.fromJson<bool>(json['isComplete']),
       progressValue: serializer.fromJson<double>(json['progressValue']),
     );
@@ -5063,7 +4659,6 @@ class Goal extends DataClass implements Insertable<Goal> {
         $GoalsTable.$convertermetricType.toJson(metricType),
       ),
       'op': serializer.toJson<String>($GoalsTable.$converterop.toJson(op)),
-      'streakID': serializer.toJson<int?>(streakID),
       'isComplete': serializer.toJson<bool>(isComplete),
       'progressValue': serializer.toJson<double>(progressValue),
     };
@@ -5075,7 +4670,6 @@ class Goal extends DataClass implements Insertable<Goal> {
     Value<double?> thresholdValue = const Value.absent(),
     MetricType? metricType,
     GoalOperator? op,
-    Value<int?> streakID = const Value.absent(),
     bool? isComplete,
     double? progressValue,
   }) => Goal(
@@ -5086,7 +4680,6 @@ class Goal extends DataClass implements Insertable<Goal> {
         : this.thresholdValue,
     metricType: metricType ?? this.metricType,
     op: op ?? this.op,
-    streakID: streakID.present ? streakID.value : this.streakID,
     isComplete: isComplete ?? this.isComplete,
     progressValue: progressValue ?? this.progressValue,
   );
@@ -5101,7 +4694,6 @@ class Goal extends DataClass implements Insertable<Goal> {
           ? data.metricType.value
           : this.metricType,
       op: data.op.present ? data.op.value : this.op,
-      streakID: data.streakID.present ? data.streakID.value : this.streakID,
       isComplete: data.isComplete.present
           ? data.isComplete.value
           : this.isComplete,
@@ -5119,7 +4711,6 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
-          ..write('streakID: $streakID, ')
           ..write('isComplete: $isComplete, ')
           ..write('progressValue: $progressValue')
           ..write(')'))
@@ -5133,7 +4724,6 @@ class Goal extends DataClass implements Insertable<Goal> {
     thresholdValue,
     metricType,
     op,
-    streakID,
     isComplete,
     progressValue,
   );
@@ -5146,7 +4736,6 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.thresholdValue == this.thresholdValue &&
           other.metricType == this.metricType &&
           other.op == this.op &&
-          other.streakID == this.streakID &&
           other.isComplete == this.isComplete &&
           other.progressValue == this.progressValue);
 }
@@ -5157,7 +4746,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<double?> thresholdValue;
   final Value<MetricType> metricType;
   final Value<GoalOperator> op;
-  final Value<int?> streakID;
   final Value<bool> isComplete;
   final Value<double> progressValue;
   const GoalsCompanion({
@@ -5166,7 +4754,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.thresholdValue = const Value.absent(),
     this.metricType = const Value.absent(),
     this.op = const Value.absent(),
-    this.streakID = const Value.absent(),
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
   });
@@ -5176,7 +4763,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.thresholdValue = const Value.absent(),
     required MetricType metricType,
     required GoalOperator op,
-    this.streakID = const Value.absent(),
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
   }) : type = Value(type),
@@ -5188,7 +4774,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<double>? thresholdValue,
     Expression<String>? metricType,
     Expression<String>? op,
-    Expression<int>? streakID,
     Expression<bool>? isComplete,
     Expression<double>? progressValue,
   }) {
@@ -5198,7 +4783,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (thresholdValue != null) 'threshold_value': thresholdValue,
       if (metricType != null) 'metric_type': metricType,
       if (op != null) 'op': op,
-      if (streakID != null) 'streak_i_d': streakID,
       if (isComplete != null) 'is_complete': isComplete,
       if (progressValue != null) 'progress_value': progressValue,
     });
@@ -5210,7 +4794,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<double?>? thresholdValue,
     Value<MetricType>? metricType,
     Value<GoalOperator>? op,
-    Value<int?>? streakID,
     Value<bool>? isComplete,
     Value<double>? progressValue,
   }) {
@@ -5220,7 +4803,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       thresholdValue: thresholdValue ?? this.thresholdValue,
       metricType: metricType ?? this.metricType,
       op: op ?? this.op,
-      streakID: streakID ?? this.streakID,
       isComplete: isComplete ?? this.isComplete,
       progressValue: progressValue ?? this.progressValue,
     );
@@ -5248,9 +4830,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (op.present) {
       map['op'] = Variable<String>($GoalsTable.$converterop.toSql(op.value));
     }
-    if (streakID.present) {
-      map['streak_i_d'] = Variable<int>(streakID.value);
-    }
     if (isComplete.present) {
       map['is_complete'] = Variable<bool>(isComplete.value);
     }
@@ -5268,7 +4847,6 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('thresholdValue: $thresholdValue, ')
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
-          ..write('streakID: $streakID, ')
           ..write('isComplete: $isComplete, ')
           ..write('progressValue: $progressValue')
           ..write(')'))
@@ -6389,6 +5967,429 @@ class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
           ..write('goalID: $goalID, ')
           ..write('nutrientType: $nutrientType, ')
           ..write('nutritionDailyTarget: $nutritionDailyTarget')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StreaksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _streakIDMeta = const VerificationMeta(
+    'streakID',
+  );
+  @override
+  late final GeneratedColumn<int> streakID = GeneratedColumn<int>(
+    'streak_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _goalIDMeta = const VerificationMeta('goalID');
+  @override
+  late final GeneratedColumn<int> goalID = GeneratedColumn<int>(
+    'goal_i_d',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (goal_i_d)',
+    ),
+  );
+  static const VerificationMeta _streakProgressMeta = const VerificationMeta(
+    'streakProgress',
+  );
+  @override
+  late final GeneratedColumn<int> streakProgress = GeneratedColumn<int>(
+    'streak_progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDate,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<UnlockType?, String> unlockType =
+      GeneratedColumn<String>(
+        'unlock_type',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<UnlockType?>($StreaksTable.$converterunlockTypen);
+  @override
+  List<GeneratedColumn> get $columns => [
+    streakID,
+    goalID,
+    streakProgress,
+    startDate,
+    endDate,
+    unlockType,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'streaks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Streak> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('streak_i_d')) {
+      context.handle(
+        _streakIDMeta,
+        streakID.isAcceptableOrUnknown(data['streak_i_d']!, _streakIDMeta),
+      );
+    }
+    if (data.containsKey('goal_i_d')) {
+      context.handle(
+        _goalIDMeta,
+        goalID.isAcceptableOrUnknown(data['goal_i_d']!, _goalIDMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIDMeta);
+    }
+    if (data.containsKey('streak_progress')) {
+      context.handle(
+        _streakProgressMeta,
+        streakProgress.isAcceptableOrUnknown(
+          data['streak_progress']!,
+          _streakProgressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {streakID};
+  @override
+  Streak map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Streak(
+      streakID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}streak_i_d'],
+      )!,
+      goalID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_i_d'],
+      )!,
+      streakProgress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}streak_progress'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_date'],
+      ),
+      unlockType: $StreaksTable.$converterunlockTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}unlock_type'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $StreaksTable createAlias(String alias) {
+    return $StreaksTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<UnlockType, String, String> $converterunlockType =
+      const EnumNameConverter<UnlockType>(UnlockType.values);
+  static JsonTypeConverter2<UnlockType?, String?, String?>
+  $converterunlockTypen = JsonTypeConverter2.asNullable($converterunlockType);
+}
+
+class Streak extends DataClass implements Insertable<Streak> {
+  final int streakID;
+  final int goalID;
+  final int streakProgress;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final UnlockType? unlockType;
+  const Streak({
+    required this.streakID,
+    required this.goalID,
+    required this.streakProgress,
+    required this.startDate,
+    this.endDate,
+    this.unlockType,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['streak_i_d'] = Variable<int>(streakID);
+    map['goal_i_d'] = Variable<int>(goalID);
+    map['streak_progress'] = Variable<int>(streakProgress);
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    if (!nullToAbsent || unlockType != null) {
+      map['unlock_type'] = Variable<String>(
+        $StreaksTable.$converterunlockTypen.toSql(unlockType),
+      );
+    }
+    return map;
+  }
+
+  StreaksCompanion toCompanion(bool nullToAbsent) {
+    return StreaksCompanion(
+      streakID: Value(streakID),
+      goalID: Value(goalID),
+      streakProgress: Value(streakProgress),
+      startDate: Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      unlockType: unlockType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unlockType),
+    );
+  }
+
+  factory Streak.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Streak(
+      streakID: serializer.fromJson<int>(json['streakID']),
+      goalID: serializer.fromJson<int>(json['goalID']),
+      streakProgress: serializer.fromJson<int>(json['streakProgress']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      endDate: serializer.fromJson<DateTime?>(json['endDate']),
+      unlockType: $StreaksTable.$converterunlockTypen.fromJson(
+        serializer.fromJson<String?>(json['unlockType']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'streakID': serializer.toJson<int>(streakID),
+      'goalID': serializer.toJson<int>(goalID),
+      'streakProgress': serializer.toJson<int>(streakProgress),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'endDate': serializer.toJson<DateTime?>(endDate),
+      'unlockType': serializer.toJson<String?>(
+        $StreaksTable.$converterunlockTypen.toJson(unlockType),
+      ),
+    };
+  }
+
+  Streak copyWith({
+    int? streakID,
+    int? goalID,
+    int? streakProgress,
+    DateTime? startDate,
+    Value<DateTime?> endDate = const Value.absent(),
+    Value<UnlockType?> unlockType = const Value.absent(),
+  }) => Streak(
+    streakID: streakID ?? this.streakID,
+    goalID: goalID ?? this.goalID,
+    streakProgress: streakProgress ?? this.streakProgress,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+    unlockType: unlockType.present ? unlockType.value : this.unlockType,
+  );
+  Streak copyWithCompanion(StreaksCompanion data) {
+    return Streak(
+      streakID: data.streakID.present ? data.streakID.value : this.streakID,
+      goalID: data.goalID.present ? data.goalID.value : this.goalID,
+      streakProgress: data.streakProgress.present
+          ? data.streakProgress.value
+          : this.streakProgress,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      unlockType: data.unlockType.present
+          ? data.unlockType.value
+          : this.unlockType,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Streak(')
+          ..write('streakID: $streakID, ')
+          ..write('goalID: $goalID, ')
+          ..write('streakProgress: $streakProgress, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('unlockType: $unlockType')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    streakID,
+    goalID,
+    streakProgress,
+    startDate,
+    endDate,
+    unlockType,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Streak &&
+          other.streakID == this.streakID &&
+          other.goalID == this.goalID &&
+          other.streakProgress == this.streakProgress &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.unlockType == this.unlockType);
+}
+
+class StreaksCompanion extends UpdateCompanion<Streak> {
+  final Value<int> streakID;
+  final Value<int> goalID;
+  final Value<int> streakProgress;
+  final Value<DateTime> startDate;
+  final Value<DateTime?> endDate;
+  final Value<UnlockType?> unlockType;
+  const StreaksCompanion({
+    this.streakID = const Value.absent(),
+    this.goalID = const Value.absent(),
+    this.streakProgress = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.unlockType = const Value.absent(),
+  });
+  StreaksCompanion.insert({
+    this.streakID = const Value.absent(),
+    required int goalID,
+    this.streakProgress = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.unlockType = const Value.absent(),
+  }) : goalID = Value(goalID);
+  static Insertable<Streak> custom({
+    Expression<int>? streakID,
+    Expression<int>? goalID,
+    Expression<int>? streakProgress,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+    Expression<String>? unlockType,
+  }) {
+    return RawValuesInsertable({
+      if (streakID != null) 'streak_i_d': streakID,
+      if (goalID != null) 'goal_i_d': goalID,
+      if (streakProgress != null) 'streak_progress': streakProgress,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (unlockType != null) 'unlock_type': unlockType,
+    });
+  }
+
+  StreaksCompanion copyWith({
+    Value<int>? streakID,
+    Value<int>? goalID,
+    Value<int>? streakProgress,
+    Value<DateTime>? startDate,
+    Value<DateTime?>? endDate,
+    Value<UnlockType?>? unlockType,
+  }) {
+    return StreaksCompanion(
+      streakID: streakID ?? this.streakID,
+      goalID: goalID ?? this.goalID,
+      streakProgress: streakProgress ?? this.streakProgress,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      unlockType: unlockType ?? this.unlockType,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (streakID.present) {
+      map['streak_i_d'] = Variable<int>(streakID.value);
+    }
+    if (goalID.present) {
+      map['goal_i_d'] = Variable<int>(goalID.value);
+    }
+    if (streakProgress.present) {
+      map['streak_progress'] = Variable<int>(streakProgress.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (unlockType.present) {
+      map['unlock_type'] = Variable<String>(
+        $StreaksTable.$converterunlockTypen.toSql(unlockType.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StreaksCompanion(')
+          ..write('streakID: $streakID, ')
+          ..write('goalID: $goalID, ')
+          ..write('streakProgress: $streakProgress, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('unlockType: $unlockType')
           ..write(')'))
         .toString();
   }
@@ -8450,12 +8451,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MealFoodContentTable mealFoodContent = $MealFoodContentTable(
     this,
   );
-  late final $StreaksTable streaks = $StreaksTable(this);
   late final $GoalsTable goals = $GoalsTable(this);
   late final $FastingGoalsTable fastingGoals = $FastingGoalsTable(this);
   late final $WeightGoalsTable weightGoals = $WeightGoalsTable(this);
   late final $HydrationGoalsTable hydrationGoals = $HydrationGoalsTable(this);
   late final $NutritionGoalsTable nutritionGoals = $NutritionGoalsTable(this);
+  late final $StreaksTable streaks = $StreaksTable(this);
   late final $UserGoalProgressTable userGoalProgress = $UserGoalProgressTable(
     this,
   );
@@ -8504,12 +8505,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     nutritionLog,
     mealRecipeContent,
     mealFoodContent,
-    streaks,
     goals,
     fastingGoals,
     weightGoals,
     hydrationGoals,
     nutritionGoals,
+    streaks,
     userGoalProgress,
     achievements,
     reinforcements,
@@ -13368,302 +13369,6 @@ typedef $$MealFoodContentTableProcessedTableManager =
       MealFoodContentData,
       PrefetchHooks Function({bool mealID, bool foodID})
     >;
-typedef $$StreaksTableCreateCompanionBuilder =
-    StreaksCompanion Function({
-      Value<int> streakID,
-      Value<int> streakProgress,
-      Value<DateTime> startDate,
-      Value<DateTime?> endDate,
-      Value<UnlockType?> unlockType,
-    });
-typedef $$StreaksTableUpdateCompanionBuilder =
-    StreaksCompanion Function({
-      Value<int> streakID,
-      Value<int> streakProgress,
-      Value<DateTime> startDate,
-      Value<DateTime?> endDate,
-      Value<UnlockType?> unlockType,
-    });
-
-final class $$StreaksTableReferences
-    extends BaseReferences<_$AppDatabase, $StreaksTable, Streak> {
-  $$StreaksTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$GoalsTable, List<Goal>> _goalsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.goals,
-    aliasName: 'streaks__streak_i_d__goals__streak_i_d',
-  );
-
-  $$GoalsTableProcessedTableManager get goalsRefs {
-    final manager = $$GoalsTableTableManager($_db, $_db.goals).filter(
-      (f) => f.streakID.streakID.sqlEquals($_itemColumn<int>('streak_i_d')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(_goalsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$StreaksTableFilterComposer
-    extends Composer<_$AppDatabase, $StreaksTable> {
-  $$StreaksTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get streakID => $composableBuilder(
-    column: $table.streakID,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get streakProgress => $composableBuilder(
-    column: $table.streakProgress,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get startDate => $composableBuilder(
-    column: $table.startDate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get endDate => $composableBuilder(
-    column: $table.endDate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<UnlockType?, UnlockType, String>
-  get unlockType => $composableBuilder(
-    column: $table.unlockType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  Expression<bool> goalsRefs(
-    Expression<bool> Function($$GoalsTableFilterComposer f) f,
-  ) {
-    final $$GoalsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.streakID,
-      referencedTable: $db.goals,
-      getReferencedColumn: (t) => t.streakID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GoalsTableFilterComposer(
-            $db: $db,
-            $table: $db.goals,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$StreaksTableOrderingComposer
-    extends Composer<_$AppDatabase, $StreaksTable> {
-  $$StreaksTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get streakID => $composableBuilder(
-    column: $table.streakID,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get streakProgress => $composableBuilder(
-    column: $table.streakProgress,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get startDate => $composableBuilder(
-    column: $table.startDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get endDate => $composableBuilder(
-    column: $table.endDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get unlockType => $composableBuilder(
-    column: $table.unlockType,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$StreaksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $StreaksTable> {
-  $$StreaksTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get streakID =>
-      $composableBuilder(column: $table.streakID, builder: (column) => column);
-
-  GeneratedColumn<int> get streakProgress => $composableBuilder(
-    column: $table.streakProgress,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get startDate =>
-      $composableBuilder(column: $table.startDate, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get endDate =>
-      $composableBuilder(column: $table.endDate, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<UnlockType?, String> get unlockType =>
-      $composableBuilder(
-        column: $table.unlockType,
-        builder: (column) => column,
-      );
-
-  Expression<T> goalsRefs<T extends Object>(
-    Expression<T> Function($$GoalsTableAnnotationComposer a) f,
-  ) {
-    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.streakID,
-      referencedTable: $db.goals,
-      getReferencedColumn: (t) => t.streakID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GoalsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.goals,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$StreaksTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $StreaksTable,
-          Streak,
-          $$StreaksTableFilterComposer,
-          $$StreaksTableOrderingComposer,
-          $$StreaksTableAnnotationComposer,
-          $$StreaksTableCreateCompanionBuilder,
-          $$StreaksTableUpdateCompanionBuilder,
-          (Streak, $$StreaksTableReferences),
-          Streak,
-          PrefetchHooks Function({bool goalsRefs})
-        > {
-  $$StreaksTableTableManager(_$AppDatabase db, $StreaksTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$StreaksTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$StreaksTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$StreaksTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> streakID = const Value.absent(),
-                Value<int> streakProgress = const Value.absent(),
-                Value<DateTime> startDate = const Value.absent(),
-                Value<DateTime?> endDate = const Value.absent(),
-                Value<UnlockType?> unlockType = const Value.absent(),
-              }) => StreaksCompanion(
-                streakID: streakID,
-                streakProgress: streakProgress,
-                startDate: startDate,
-                endDate: endDate,
-                unlockType: unlockType,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> streakID = const Value.absent(),
-                Value<int> streakProgress = const Value.absent(),
-                Value<DateTime> startDate = const Value.absent(),
-                Value<DateTime?> endDate = const Value.absent(),
-                Value<UnlockType?> unlockType = const Value.absent(),
-              }) => StreaksCompanion.insert(
-                streakID: streakID,
-                streakProgress: streakProgress,
-                startDate: startDate,
-                endDate: endDate,
-                unlockType: unlockType,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$StreaksTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({goalsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (goalsRefs) db.goals],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (goalsRefs)
-                    await $_getPrefetchedData<Streak, $StreaksTable, Goal>(
-                      currentTable: table,
-                      referencedTable: $$StreaksTableReferences._goalsRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$StreaksTableReferences(db, table, p0).goalsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.streakID == item.streakID,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$StreaksTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $StreaksTable,
-      Streak,
-      $$StreaksTableFilterComposer,
-      $$StreaksTableOrderingComposer,
-      $$StreaksTableAnnotationComposer,
-      $$StreaksTableCreateCompanionBuilder,
-      $$StreaksTableUpdateCompanionBuilder,
-      (Streak, $$StreaksTableReferences),
-      Streak,
-      PrefetchHooks Function({bool goalsRefs})
-    >;
 typedef $$GoalsTableCreateCompanionBuilder =
     GoalsCompanion Function({
       Value<int> goalID,
@@ -13671,7 +13376,6 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<double?> thresholdValue,
       required MetricType metricType,
       required GoalOperator op,
-      Value<int?> streakID,
       Value<bool> isComplete,
       Value<double> progressValue,
     });
@@ -13682,7 +13386,6 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<double?> thresholdValue,
       Value<MetricType> metricType,
       Value<GoalOperator> op,
-      Value<int?> streakID,
       Value<bool> isComplete,
       Value<double> progressValue,
     });
@@ -13690,23 +13393,6 @@ typedef $$GoalsTableUpdateCompanionBuilder =
 final class $$GoalsTableReferences
     extends BaseReferences<_$AppDatabase, $GoalsTable, Goal> {
   $$GoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $StreaksTable _streakIDTable(_$AppDatabase db) =>
-      db.streaks.createAlias('goals__streak_i_d__streaks__streak_i_d');
-
-  $$StreaksTableProcessedTableManager? get streakID {
-    final $_column = $_itemColumn<int>('streak_i_d');
-    if ($_column == null) return null;
-    final manager = $$StreaksTableTableManager(
-      $_db,
-      $_db.streaks,
-    ).filter((f) => f.streakID.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_streakIDTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static MultiTypedResultKey<$FastingGoalsTable, List<FastingGoal>>
   _fastingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -13780,6 +13466,25 @@ final class $$GoalsTableReferences
     );
   }
 
+  static MultiTypedResultKey<$StreaksTable, List<Streak>> _streaksRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.streaks,
+    aliasName: 'goals__goal_i_d__streaks__goal_i_d',
+  );
+
+  $$StreaksTableProcessedTableManager get streaksRefs {
+    final manager = $$StreaksTableTableManager(
+      $_db,
+      $_db.streaks,
+    ).filter((f) => f.goalID.goalID.sqlEquals($_itemColumn<int>('goal_i_d')!));
+
+    final cache = $_typedResult.readTableOrNull(_streaksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$UserGoalProgressTable, List<UserGoalProgressData>>
   _userGoalProgressRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.userGoalProgress,
@@ -13846,29 +13551,6 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     column: $table.progressValue,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$StreaksTableFilterComposer get streakID {
-    final $$StreaksTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.streakID,
-      referencedTable: $db.streaks,
-      getReferencedColumn: (t) => t.streakID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$StreaksTableFilterComposer(
-            $db: $db,
-            $table: $db.streaks,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<bool> fastingGoalsRefs(
     Expression<bool> Function($$FastingGoalsTableFilterComposer f) f,
@@ -13970,6 +13652,31 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     return f(composer);
   }
 
+  Expression<bool> streaksRefs(
+    Expression<bool> Function($$StreaksTableFilterComposer f) f,
+  ) {
+    final $$StreaksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.streaks,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StreaksTableFilterComposer(
+            $db: $db,
+            $table: $db.streaks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> userGoalProgressRefs(
     Expression<bool> Function($$UserGoalProgressTableFilterComposer f) f,
   ) {
@@ -14039,29 +13746,6 @@ class $$GoalsTableOrderingComposer
     column: $table.progressValue,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$StreaksTableOrderingComposer get streakID {
-    final $$StreaksTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.streakID,
-      referencedTable: $db.streaks,
-      getReferencedColumn: (t) => t.streakID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$StreaksTableOrderingComposer(
-            $db: $db,
-            $table: $db.streaks,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$GoalsTableAnnotationComposer
@@ -14102,29 +13786,6 @@ class $$GoalsTableAnnotationComposer
     column: $table.progressValue,
     builder: (column) => column,
   );
-
-  $$StreaksTableAnnotationComposer get streakID {
-    final $$StreaksTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.streakID,
-      referencedTable: $db.streaks,
-      getReferencedColumn: (t) => t.streakID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$StreaksTableAnnotationComposer(
-            $db: $db,
-            $table: $db.streaks,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<T> fastingGoalsRefs<T extends Object>(
     Expression<T> Function($$FastingGoalsTableAnnotationComposer a) f,
@@ -14226,6 +13887,31 @@ class $$GoalsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> streaksRefs<T extends Object>(
+    Expression<T> Function($$StreaksTableAnnotationComposer a) f,
+  ) {
+    final $$StreaksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.streaks,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StreaksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.streaks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> userGoalProgressRefs<T extends Object>(
     Expression<T> Function($$UserGoalProgressTableAnnotationComposer a) f,
   ) {
@@ -14266,11 +13952,11 @@ class $$GoalsTableTableManager
           (Goal, $$GoalsTableReferences),
           Goal,
           PrefetchHooks Function({
-            bool streakID,
             bool fastingGoalsRefs,
             bool weightGoalsRefs,
             bool hydrationGoalsRefs,
             bool nutritionGoalsRefs,
+            bool streaksRefs,
             bool userGoalProgressRefs,
           })
         > {
@@ -14292,7 +13978,6 @@ class $$GoalsTableTableManager
                 Value<double?> thresholdValue = const Value.absent(),
                 Value<MetricType> metricType = const Value.absent(),
                 Value<GoalOperator> op = const Value.absent(),
-                Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),
               }) => GoalsCompanion(
@@ -14301,7 +13986,6 @@ class $$GoalsTableTableManager
                 thresholdValue: thresholdValue,
                 metricType: metricType,
                 op: op,
-                streakID: streakID,
                 isComplete: isComplete,
                 progressValue: progressValue,
               ),
@@ -14312,7 +13996,6 @@ class $$GoalsTableTableManager
                 Value<double?> thresholdValue = const Value.absent(),
                 required MetricType metricType,
                 required GoalOperator op,
-                Value<int?> streakID = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),
               }) => GoalsCompanion.insert(
@@ -14321,7 +14004,6 @@ class $$GoalsTableTableManager
                 thresholdValue: thresholdValue,
                 metricType: metricType,
                 op: op,
-                streakID: streakID,
                 isComplete: isComplete,
                 progressValue: progressValue,
               ),
@@ -14333,11 +14015,11 @@ class $$GoalsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                streakID = false,
                 fastingGoalsRefs = false,
                 weightGoalsRefs = false,
                 hydrationGoalsRefs = false,
                 nutritionGoalsRefs = false,
+                streaksRefs = false,
                 userGoalProgressRefs = false,
               }) {
                 return PrefetchHooks(
@@ -14347,40 +14029,10 @@ class $$GoalsTableTableManager
                     if (weightGoalsRefs) db.weightGoals,
                     if (hydrationGoalsRefs) db.hydrationGoals,
                     if (nutritionGoalsRefs) db.nutritionGoals,
+                    if (streaksRefs) db.streaks,
                     if (userGoalProgressRefs) db.userGoalProgress,
                   ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (streakID) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.streakID,
-                                    referencedTable: $$GoalsTableReferences
-                                        ._streakIDTable(db),
-                                    referencedColumn: $$GoalsTableReferences
-                                        ._streakIDTable(db)
-                                        .streakID,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
+                  addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (fastingGoalsRefs)
@@ -14467,6 +14119,19 @@ class $$GoalsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (streaksRefs)
+                        await $_getPrefetchedData<Goal, $GoalsTable, Streak>(
+                          currentTable: table,
+                          referencedTable: $$GoalsTableReferences
+                              ._streaksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$GoalsTableReferences(db, table, p0).streaksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalID == item.goalID,
+                              ),
+                          typedResults: items,
+                        ),
                       if (userGoalProgressRefs)
                         await $_getPrefetchedData<
                           Goal,
@@ -14509,11 +14174,11 @@ typedef $$GoalsTableProcessedTableManager =
       (Goal, $$GoalsTableReferences),
       Goal,
       PrefetchHooks Function({
-        bool streakID,
         bool fastingGoalsRefs,
         bool weightGoalsRefs,
         bool hydrationGoalsRefs,
         bool nutritionGoalsRefs,
+        bool streaksRefs,
         bool userGoalProgressRefs,
       })
     >;
@@ -15656,6 +15321,342 @@ typedef $$NutritionGoalsTableProcessedTableManager =
       $$NutritionGoalsTableUpdateCompanionBuilder,
       (NutritionGoal, $$NutritionGoalsTableReferences),
       NutritionGoal,
+      PrefetchHooks Function({bool goalID})
+    >;
+typedef $$StreaksTableCreateCompanionBuilder =
+    StreaksCompanion Function({
+      Value<int> streakID,
+      required int goalID,
+      Value<int> streakProgress,
+      Value<DateTime> startDate,
+      Value<DateTime?> endDate,
+      Value<UnlockType?> unlockType,
+    });
+typedef $$StreaksTableUpdateCompanionBuilder =
+    StreaksCompanion Function({
+      Value<int> streakID,
+      Value<int> goalID,
+      Value<int> streakProgress,
+      Value<DateTime> startDate,
+      Value<DateTime?> endDate,
+      Value<UnlockType?> unlockType,
+    });
+
+final class $$StreaksTableReferences
+    extends BaseReferences<_$AppDatabase, $StreaksTable, Streak> {
+  $$StreaksTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $GoalsTable _goalIDTable(_$AppDatabase db) =>
+      db.goals.createAlias('streaks__goal_i_d__goals__goal_i_d');
+
+  $$GoalsTableProcessedTableManager get goalID {
+    final $_column = $_itemColumn<int>('goal_i_d')!;
+
+    final manager = $$GoalsTableTableManager(
+      $_db,
+      $_db.goals,
+    ).filter((f) => f.goalID.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIDTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StreaksTableFilterComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get streakID => $composableBuilder(
+    column: $table.streakID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<UnlockType?, UnlockType, String>
+  get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$GoalsTableFilterComposer get goalID {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StreaksTableOrderingComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get streakID => $composableBuilder(
+    column: $table.streakID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unlockType => $composableBuilder(
+    column: $table.unlockType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GoalsTableOrderingComposer get goalID {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StreaksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StreaksTable> {
+  $$StreaksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get streakID =>
+      $composableBuilder(column: $table.streakID, builder: (column) => column);
+
+  GeneratedColumn<int> get streakProgress => $composableBuilder(
+    column: $table.streakProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<UnlockType?, String> get unlockType =>
+      $composableBuilder(
+        column: $table.unlockType,
+        builder: (column) => column,
+      );
+
+  $$GoalsTableAnnotationComposer get goalID {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalID,
+      referencedTable: $db.goals,
+      getReferencedColumn: (t) => t.goalID,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.goals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StreaksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StreaksTable,
+          Streak,
+          $$StreaksTableFilterComposer,
+          $$StreaksTableOrderingComposer,
+          $$StreaksTableAnnotationComposer,
+          $$StreaksTableCreateCompanionBuilder,
+          $$StreaksTableUpdateCompanionBuilder,
+          (Streak, $$StreaksTableReferences),
+          Streak,
+          PrefetchHooks Function({bool goalID})
+        > {
+  $$StreaksTableTableManager(_$AppDatabase db, $StreaksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StreaksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StreaksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StreaksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> streakID = const Value.absent(),
+                Value<int> goalID = const Value.absent(),
+                Value<int> streakProgress = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+                Value<UnlockType?> unlockType = const Value.absent(),
+              }) => StreaksCompanion(
+                streakID: streakID,
+                goalID: goalID,
+                streakProgress: streakProgress,
+                startDate: startDate,
+                endDate: endDate,
+                unlockType: unlockType,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> streakID = const Value.absent(),
+                required int goalID,
+                Value<int> streakProgress = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+                Value<UnlockType?> unlockType = const Value.absent(),
+              }) => StreaksCompanion.insert(
+                streakID: streakID,
+                goalID: goalID,
+                streakProgress: streakProgress,
+                startDate: startDate,
+                endDate: endDate,
+                unlockType: unlockType,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StreaksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable: $$StreaksTableReferences
+                                    ._goalIDTable(db),
+                                referencedColumn: $$StreaksTableReferences
+                                    ._goalIDTable(db)
+                                    .goalID,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StreaksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StreaksTable,
+      Streak,
+      $$StreaksTableFilterComposer,
+      $$StreaksTableOrderingComposer,
+      $$StreaksTableAnnotationComposer,
+      $$StreaksTableCreateCompanionBuilder,
+      $$StreaksTableUpdateCompanionBuilder,
+      (Streak, $$StreaksTableReferences),
+      Streak,
       PrefetchHooks Function({bool goalID})
     >;
 typedef $$UserGoalProgressTableCreateCompanionBuilder =
@@ -17502,8 +17503,6 @@ class $AppDatabaseManager {
       $$MealRecipeContentTableTableManager(_db, _db.mealRecipeContent);
   $$MealFoodContentTableTableManager get mealFoodContent =>
       $$MealFoodContentTableTableManager(_db, _db.mealFoodContent);
-  $$StreaksTableTableManager get streaks =>
-      $$StreaksTableTableManager(_db, _db.streaks);
   $$GoalsTableTableManager get goals =>
       $$GoalsTableTableManager(_db, _db.goals);
   $$FastingGoalsTableTableManager get fastingGoals =>
@@ -17514,6 +17513,8 @@ class $AppDatabaseManager {
       $$HydrationGoalsTableTableManager(_db, _db.hydrationGoals);
   $$NutritionGoalsTableTableManager get nutritionGoals =>
       $$NutritionGoalsTableTableManager(_db, _db.nutritionGoals);
+  $$StreaksTableTableManager get streaks =>
+      $$StreaksTableTableManager(_db, _db.streaks);
   $$UserGoalProgressTableTableManager get userGoalProgress =>
       $$UserGoalProgressTableTableManager(_db, _db.userGoalProgress);
   $$AchievementsTableTableManager get achievements =>

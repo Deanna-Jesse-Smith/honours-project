@@ -9,9 +9,9 @@ class Goals extends Table {
   RealColumn get thresholdValue => real().nullable()();
   TextColumn get metricType => textEnum<MetricType>()();
   TextColumn get op => textEnum<GoalOperator>()();
-  IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); // This is the completeness check for non-streak goals, that is the point of this I think
-  RealColumn get progressValue => real().withDefault(const Constant(0))();
+  // IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); // This is the completeness check for non-streak goals, that is the point of this I think. Only reall applicable to weight though? Since the other ones are a daily/weekly thing
+  RealColumn get progressValue => real().withDefault(const Constant(0))();     // Again, mostly just applicable to weight
 }
 
 class FastingGoals extends Table {
@@ -55,6 +55,7 @@ class NutritionGoals extends Table {
 // @TableIndex(name: 'streak_type', columns: {#streakType})
 class Streaks extends Table {
   IntColumn get streakID => integer().autoIncrement()();
+  IntColumn get goalID => integer().references(Goals, #goalID)();
   IntColumn get streakProgress => integer().withDefault(const Constant(0))();  //! Days, not individual metric checking
   // IntColumn get bestStreak => integer().withDefault(const Constant(0))();   //! calculate this in the DAO instead
   DateTimeColumn get startDate => dateTime().withDefault(currentDate)();

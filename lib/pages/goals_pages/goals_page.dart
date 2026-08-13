@@ -116,6 +116,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   }
 
   void saveChanges() {
+    curGoal.threshold = double.tryParse(goalController.text)!;
     final asyncGoals = ref.watch(asyncGoalsProvider.notifier);
     if (curGoal.goalID < 0) {
       asyncGoals.insertGoal(curGoal);

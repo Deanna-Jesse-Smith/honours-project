@@ -19,20 +19,18 @@ part 'goals_dao.g.dart';
 class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   GoalsDao(super.db);
 
-  Future<void> insertNutritionStreak(
+  Future<void> insertNutritionGoal(
     int userID,
     NutrientType type,
     int amount,
   ) async {
     await transaction(() async {
-      final streakID = await (into(streaks)).insert(StreaksCompanion.insert(unlockType: Value(UnlockType.badge)));
 
       final goalID = await (into(goals).insert(
         GoalsCompanion.insert(
           type: GoalType.nutrition,
           op: GoalOperator.logOnly,
           metricType: MetricType.meals,
-          streakID: Value(streakID),
         ),
       ));
       //? Put something here in case they should be below a threshold? Use the operator field?
@@ -46,14 +44,13 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     });
   }
 
-  Future<void> insertHydrationStreak(
+  Future<void> insertHydrationGoal(
     int userID,
     DateTime date,
     int amount,
     GoalOperator op,
   ) async {
     await transaction(() async {
-      final streakID = await (into(streaks)).insert(StreaksCompanion.insert(unlockType: Value(UnlockType.badge)));
 
       final goalID = await (into(goals).insert(
         GoalsCompanion.insert(
@@ -61,7 +58,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           thresholdValue: Value(amount.toDouble()),
           metricType: MetricType.litres,
           op: op,
-          streakID: Value(streakID),
         ),
       ));
 
@@ -132,11 +128,11 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     return goalID;
   }
 
-  Future<void> makeFastingStreak(int goalID) async {
-    final streakID = await (into(streaks)).insert(StreaksCompanion.insert(unlockType: Value(UnlockType.badge)));
+  // Future<void> makeFastingStreak(int goalID) async {
+  //   final streakID = await (into(streaks)).insert(StreaksCompanion.insert(unlockType: Value(UnlockType.badge)));
 
-    (update(goals)..where((g) => g.goalID.equals(goalID))).write(GoalsCompanion(streakID: Value(streakID)));
-  }
+  //   (update(goals)..where((g) => g.goalID.equals(goalID))).write(GoalsCompanion(streakID: Value(streakID)));
+  // }
 
   Future<BasicStreak?> checkActiveStreak(GoalType type) {
     switch (type) {
@@ -158,7 +154,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   fastingGoals,
                   fastingGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.fasting)))
@@ -192,7 +188,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   fastingGoals,
                   fastingGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])..addColumns([streaks.streakProgress])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.fasting)));
@@ -206,20 +202,21 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   hydrationGoals,
                   hydrationGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])..addColumns([streaks.streakProgress])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.hydration)));
 
     return streakRows.watchSingleOrNull().map((row) => row?.read(streaks.streakProgress));
   }
+
   Stream<int?> getActiveFoodStreak() {
     final streakRows = (selectOnly(goals).join([
                 innerJoin(
                   nutritionGoals,
                   nutritionGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])..addColumns([streaks.streakProgress])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.fasting)));
@@ -234,7 +231,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   hydrationGoals,
                   hydrationGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.hydration)))
@@ -270,7 +267,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   nutritionGoals,
                   nutritionGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.nutrition)))
@@ -307,7 +304,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   weightGoals,
                   weightGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.weight)))
@@ -344,7 +341,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                   nutritionGoals,
                   nutritionGoals.goalID.equalsExp(goals.goalID),
                 ),
-                innerJoin(streaks, streaks.streakID.equalsExp(goals.streakID)),
+                innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
               ..where(goals.type.equalsValue(GoalType.nutrition)))
@@ -401,8 +398,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
               ])
               ..where(goals.type.equalsValue(GoalType.fasting))
               ..where(goals.isComplete.isValue(false))
-              ..where(goals.streakID.isNull()))
-            .getSingleOrNull();
+              // ..where(goals.streakID.isNull()))
+        ).getSingleOrNull();
 
     if (goalRows == null) {
       return null;
@@ -433,8 +430,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
               ])
               ..where(goals.type.equalsValue(GoalType.hydration))
               ..where(goals.isComplete.isValue(false))
-              ..where(goals.streakID.isNull()))
-            .getSingleOrNull();
+              // ..where(goals.streakID.isNull()))
+            ).getSingleOrNull();
 
     if (goalRows == null) {
       return null;
@@ -463,8 +460,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
               ])
               ..where(goals.type.equalsValue(GoalType.nutrition))
               ..where(goals.isComplete.isValue(false))
-              ..where(goals.streakID.isNull()))
-            .getSingleOrNull();
+              // ..where(goals.streakID.isNull()))
+        ).getSingleOrNull();
 
     if (goalRows == null) {
       return null;
@@ -493,8 +490,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
               ])
               ..where(goals.type.equalsValue(GoalType.weight))
               ..where(goals.isComplete.isValue(false))
-              ..where(goals.streakID.isNull()))
-            .getSingleOrNull();
+              // ..where(goals.streakID.isNull()))
+        ).getSingleOrNull();
 
     if (goalRows == null) {
       return null;
@@ -546,27 +543,41 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
-  void updateGoal(BasicGoal model) {
+  Future<void> updateGoal(BasicGoal model) async {
     (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(
-        thresholdValue: Value(model.threshold),
-        progressValue: Value(model.progress),
-        op: Value(model.op),
+        isComplete: Value(true),
       ),
     );
+
+    //! Create the copy stuff later
+
+    final streak = await (select(streaks)..where((s) => s.goalID.isValue(model.goalID))).getSingleOrNull();
+    if (streak != null) {
+      (update(streaks)..where((g) => g.goalID.equals(streak.streakID))).write(
+      StreaksCompanion(endDate: Value(DateTime.now())));
+    }
   }
 
   void updateStreak(BasicStreak model) {
-    (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
-      GoalsCompanion(
-        thresholdValue: Value(model.threshold),
-        progressValue: Value(model.progress),
-        op: Value(model.op),
-      ),
-    );
+    // (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
+    //   GoalsCompanion(
+    //     thresholdValue: Value(model.threshold),
+    //     progressValue: Value(model.progress),
+    //     op: Value(model.op),
+    //   ),
+    // );
 
     (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(
       StreaksCompanion(streakProgress: Value(model.daysProgress)),
     );
+  }
+
+  void breakStreak(BasicStreak curStreak) {
+    (update(streaks)..where((s) => s.streakID.equals(curStreak.streakID))).write(StreaksCompanion(endDate: Value(DateTime.now())));
+  }
+
+  void insertStreak(int goalID) {
+    // into(streaks).insert(StreaksCompanion.insert(goalID: goalID, startDate: Value(DateTime.now()), unlockType: Value(UnlockType.badge)));
   }
 }
