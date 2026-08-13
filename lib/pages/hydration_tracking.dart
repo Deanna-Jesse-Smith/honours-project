@@ -42,27 +42,26 @@ class HydrationTracking extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: curStreak,
+                future: goalsNotifier.checkGoal(GoalType.hydration),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');
                   }
 
-                  HydrationStreak? model = asyncSnapshot.data;
+                  final model = asyncSnapshot.data;
 
-                  if (model == null) {
+                  if (model == null || model == -1) {
                     return Text('No ongoing goal');
                   }
-                  double percent = model.calculateProgress(amount) / 100;
 
-                  if (model.isComplete) {
-                    goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
+                  // if (model.isComplete) {
+                  //   goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
 
-                    //! whatever happens when a goal is completed
-                  }
+                  //   //! whatever happens when a goal is completed
+                  // }
 
                   return LinearPercentIndicator(
-                    percent: percent,
+                    percent: model,
                     lineHeight: 10,
                     width: MediaQuery.of(context).size.width - 80,
                     animation: true,

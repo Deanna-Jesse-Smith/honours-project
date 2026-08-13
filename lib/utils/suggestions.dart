@@ -24,8 +24,10 @@ class ObligationMeals {
 class ObligationSpan {
   final TimeOfDay earliest;
   final TimeOfDay latest;
-  final Duration requiredWindow;
+  late Duration requiredWindow;
   ObligationSpan(this.earliest, this.latest, this.requiredWindow);
+
+  ObligationSpan.o(this.earliest, this.latest);
 
   static ObligationSpan extractSpan(List<TimeOfDay> mealTimes, {Duration buffer = const Duration(minutes: 30)}) {
   final sorted = [...mealTimes]..sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
@@ -156,7 +158,13 @@ class RecommendFast {
   RecommendFast.o(this.form, this.meals, this.exp);
 
   Suggestion makePlan() {
-    final constraints = ObligationSpan(earliest, latest, requiredWindow);
+    late ObligationSpan constraints;
+    if (meals.times.isEmpty) {
+      constraints = ObligationSpan.o(earliestNormalStart, latestNormalEnd);
+    } else {
+      constraints = ObligationSpan.extractSpan(meals.times);
+    }
+    
     final considerations = treEvaluation(constraints, exp);
     fiveTwoEvaluation(meals, exp);
     if (exp == Experience.experienced) {
@@ -213,7 +221,7 @@ class RecommendFast {
   Suggestion adfEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> combinations = validCombos(3, getAvailable);
+    List<List<int>> combinations = validCombosHelper(getAvailable, true);
 
     adfList = combinations;
 
@@ -223,7 +231,7 @@ class RecommendFast {
   Suggestion fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> pairs = isValidCombo(getAvailable);
+    List<List<int>> pairs = validCombosHelper(getAvailable, false);
 
     String selectionDays =
         'It is then recommended you pick from the following combinations for your fasting days:';
@@ -269,28 +277,22 @@ class RecommendFast {
     return availableDays;
   }
 
-  List<List<int>> findCombos(List<int> pool, int cap) {
-    if (pool.isEmpty) return [];
+  List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
+    int cap = isADF ? 3 : 2;
 
-    final List<List<int>> allCombos = [];
-
-    List<List<int>> create(List<int> subpool, int initDay, List<List<int>> acc, List<int> cur) {
+    List<List<int>> validCombos(List<int> subpool, int initDay, List<List<int>> acc, List<int> cur) {
       if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
       List<List<int>> withDay = [], withoutDay = [];
       if (initDay + 1 < subpool.first) {
-        withoutDay = create(subpool.sublist(1), initDay, acc, cur);
+        withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
         cur = [...cur, subpool.first];
-        withDay = create(subpool.sublist(1), subpool.first, acc, cur);
+        withDay = validCombos(subpool.sublist(1), subpool.first, acc, cur);
       } else {
-        withoutDay = create(subpool.sublist(1), initDay, acc, cur);
+        withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
       }
       return [...withDay, ...withoutDay];
     }
-
-    for (int loop = 0; loop < pool.length; loop++) {
-      final List<int> curCombo = [];
-
-    }
+    return validCombos(pool.sublist(1), pool.first, [], []);
   }
 
   List<int> makeCombo(int day, List<int> subpool) {
@@ -305,48 +307,6 @@ class RecommendFast {
     }
   }
 
-  List<List<int>> isValidADFCombo(List<int> pool) {
-    final twoDayCombos = isValidCombo(pool);
-    if (twoDayCombos.isEmpty) return [];
-    
-    List<List<int>> output = [];
-    for (final initCombo in twoDayCombos) {
-      final remainingDays = pool.sublist(pool.indexOf(initCombo.last) + 1);
-      final temp = isValidCombo(remainingDays);
-      output.addAll(temp);
-    }
-    output.addAll(twoDayCombos);
-    return output;
-  }
-
-  static List<List<int>> isValidCombo(List<int> pool) {
-    if (pool.isEmpty) {
-      return [];
-    }
-    int testAgainst = pool.first;
-    List<List<int>> options = [];
-
-    List<List<int>> isValid(List<int> subPool, List<List<int>> acc) {
-      if (subPool.isEmpty) return acc;
-      if (subPool.first > testAgainst + 1) {
-        List<int> curCombo = [testAgainst, subPool.first];
-        final temp = subPool.sublist(1);
-        acc.add(curCombo);
-        return isValid(temp, acc);
-      } else {
-        return isValid(subPool.sublist(1), acc);
-      }
-    }
-
-    for (final day in pool) {
-      testAgainst = day;
-
-      final test = isValid(pool.sublist(pool.indexOf(day)), []);
-      options.addAll(test);
-    }
-    return options;
-  }
-
   List<List<int>> combos(int cap, List<int> pool) {
     if (pool.isEmpty) return [];
     final first = pool.first;
@@ -356,12 +316,12 @@ class RecommendFast {
     return [...withWrap, ...noWrap];
   }
 
-  List<List<int>> validCombos(int cap, List<int> pool) {
-    return combos(cap, pool).where((combo) {
-      final setForm = combo.toSet();
-      return combo.every((d) => !setForm.contains((d + 1) % 7));
-    }).toList();
-  }
+  // List<List<int>> validCombos(int cap, List<int> pool) {
+  //   return combos(cap, pool).where((combo) {
+  //     final setForm = combo.toSet();
+  //     return combo.every((d) => !setForm.contains((d + 1) % 7));
+  //   }).toList();
+  // }
 
   bool checkConsecutive(int small, int large) {
     return large > small + 1;

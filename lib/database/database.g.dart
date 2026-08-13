@@ -54,18 +54,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<FastingForm>($UsersTable.$converterformIF);
-  static const VerificationMeta _experienceMeta = const VerificationMeta(
-    'experience',
-  );
   @override
-  late final GeneratedColumn<String> experience = GeneratedColumn<String>(
-    'experience',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('Beginner'),
-  );
+  late final GeneratedColumnWithTypeConverter<Experience, String> experience =
+      GeneratedColumn<String>(
+        'experience',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<Experience>($UsersTable.$converterexperience);
   static const VerificationMeta _typicalEatingStartMeta =
       const VerificationMeta('typicalEatingStart');
   @override
@@ -170,12 +167,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         isMetric.isAcceptableOrUnknown(data['is_metric']!, _isMetricMeta),
       );
     }
-    if (data.containsKey('experience')) {
-      context.handle(
-        _experienceMeta,
-        experience.isAcceptableOrUnknown(data['experience']!, _experienceMeta),
-      );
-    }
     if (data.containsKey('typical_eating_start')) {
       context.handle(
         _typicalEatingStartMeta,
@@ -248,10 +239,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           data['${effectivePrefix}form_i_f'],
         )!,
       ),
-      experience: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}experience'],
-      )!,
+      experience: $UsersTable.$converterexperience.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}experience'],
+        )!,
+      ),
       typicalEatingStart: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}typical_eating_start'],
@@ -282,6 +275,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
 
   static JsonTypeConverter2<FastingForm, String, String> $converterformIF =
       const EnumNameConverter<FastingForm>(FastingForm.values);
+  static JsonTypeConverter2<Experience, String, String> $converterexperience =
+      const EnumNameConverter<Experience>(Experience.values);
 }
 
 class User extends DataClass implements Insertable<User> {
@@ -289,7 +284,7 @@ class User extends DataClass implements Insertable<User> {
   final String name;
   final bool isMetric;
   final FastingForm formIF;
-  final String experience;
+  final Experience experience;
   final DateTime? typicalEatingStart;
   final DateTime? typicalEatingEnd;
   final DateTime createdDate;
@@ -318,7 +313,11 @@ class User extends DataClass implements Insertable<User> {
         $UsersTable.$converterformIF.toSql(formIF),
       );
     }
-    map['experience'] = Variable<String>(experience);
+    {
+      map['experience'] = Variable<String>(
+        $UsersTable.$converterexperience.toSql(experience),
+      );
+    }
     if (!nullToAbsent || typicalEatingStart != null) {
       map['typical_eating_start'] = Variable<DateTime>(typicalEatingStart);
     }
@@ -362,7 +361,9 @@ class User extends DataClass implements Insertable<User> {
       formIF: $UsersTable.$converterformIF.fromJson(
         serializer.fromJson<String>(json['formIF']),
       ),
-      experience: serializer.fromJson<String>(json['experience']),
+      experience: $UsersTable.$converterexperience.fromJson(
+        serializer.fromJson<String>(json['experience']),
+      ),
       typicalEatingStart: serializer.fromJson<DateTime?>(
         json['typicalEatingStart'],
       ),
@@ -386,7 +387,9 @@ class User extends DataClass implements Insertable<User> {
       'formIF': serializer.toJson<String>(
         $UsersTable.$converterformIF.toJson(formIF),
       ),
-      'experience': serializer.toJson<String>(experience),
+      'experience': serializer.toJson<String>(
+        $UsersTable.$converterexperience.toJson(experience),
+      ),
       'typicalEatingStart': serializer.toJson<DateTime?>(typicalEatingStart),
       'typicalEatingEnd': serializer.toJson<DateTime?>(typicalEatingEnd),
       'createdDate': serializer.toJson<DateTime>(createdDate),
@@ -400,7 +403,7 @@ class User extends DataClass implements Insertable<User> {
     String? name,
     bool? isMetric,
     FastingForm? formIF,
-    String? experience,
+    Experience? experience,
     Value<DateTime?> typicalEatingStart = const Value.absent(),
     Value<DateTime?> typicalEatingEnd = const Value.absent(),
     DateTime? createdDate,
@@ -500,7 +503,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> name;
   final Value<bool> isMetric;
   final Value<FastingForm> formIF;
-  final Value<String> experience;
+  final Value<Experience> experience;
   final Value<DateTime?> typicalEatingStart;
   final Value<DateTime?> typicalEatingEnd;
   final Value<DateTime> createdDate;
@@ -523,14 +526,15 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String name,
     this.isMetric = const Value.absent(),
     required FastingForm formIF,
-    this.experience = const Value.absent(),
+    required Experience experience,
     this.typicalEatingStart = const Value.absent(),
     this.typicalEatingEnd = const Value.absent(),
     this.createdDate = const Value.absent(),
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
   }) : name = Value(name),
-       formIF = Value(formIF);
+       formIF = Value(formIF),
+       experience = Value(experience);
   static Insertable<User> custom({
     Expression<int>? userID,
     Expression<String>? name,
@@ -564,7 +568,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? name,
     Value<bool>? isMetric,
     Value<FastingForm>? formIF,
-    Value<String>? experience,
+    Value<Experience>? experience,
     Value<DateTime?>? typicalEatingStart,
     Value<DateTime?>? typicalEatingEnd,
     Value<DateTime>? createdDate,
@@ -603,7 +607,9 @@ class UsersCompanion extends UpdateCompanion<User> {
       );
     }
     if (experience.present) {
-      map['experience'] = Variable<String>(experience.value);
+      map['experience'] = Variable<String>(
+        $UsersTable.$converterexperience.toSql(experience.value),
+      );
     }
     if (typicalEatingStart.present) {
       map['typical_eating_start'] = Variable<DateTime>(
@@ -698,6 +704,18 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _fastResultSeverityMeta =
+      const VerificationMeta('fastResultSeverity');
+  @override
+  late final GeneratedColumn<String> fastResultSeverity =
+      GeneratedColumn<String>(
+        'fast_result_severity',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
   static const VerificationMeta _startDateTimeMeta = const VerificationMeta(
     'startDateTime',
   );
@@ -728,6 +746,7 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     userID,
     formIF,
     fastResult,
+    fastResultSeverity,
     startDateTime,
     endDateTime,
   ];
@@ -761,6 +780,15 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
       context.handle(
         _fastResultMeta,
         fastResult.isAcceptableOrUnknown(data['fast_result']!, _fastResultMeta),
+      );
+    }
+    if (data.containsKey('fast_result_severity')) {
+      context.handle(
+        _fastResultSeverityMeta,
+        fastResultSeverity.isAcceptableOrUnknown(
+          data['fast_result_severity']!,
+          _fastResultSeverityMeta,
+        ),
       );
     }
     if (data.containsKey('start_date_time')) {
@@ -808,6 +836,10 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
         DriftSqlType.string,
         data['${effectivePrefix}fast_result'],
       )!,
+      fastResultSeverity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fast_result_severity'],
+      )!,
       startDateTime: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date_time'],
@@ -833,6 +865,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
   final int userID;
   final FastingForm formIF;
   final String fastResult;
+  final String fastResultSeverity;
   final DateTime startDateTime;
   final DateTime? endDateTime;
   const FastLogData({
@@ -840,6 +873,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     required this.userID,
     required this.formIF,
     required this.fastResult,
+    required this.fastResultSeverity,
     required this.startDateTime,
     this.endDateTime,
   });
@@ -854,6 +888,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       );
     }
     map['fast_result'] = Variable<String>(fastResult);
+    map['fast_result_severity'] = Variable<String>(fastResultSeverity);
     map['start_date_time'] = Variable<DateTime>(startDateTime);
     if (!nullToAbsent || endDateTime != null) {
       map['end_date_time'] = Variable<DateTime>(endDateTime);
@@ -867,6 +902,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       userID: Value(userID),
       formIF: Value(formIF),
       fastResult: Value(fastResult),
+      fastResultSeverity: Value(fastResultSeverity),
       startDateTime: Value(startDateTime),
       endDateTime: endDateTime == null && nullToAbsent
           ? const Value.absent()
@@ -886,6 +922,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
         serializer.fromJson<String>(json['formIF']),
       ),
       fastResult: serializer.fromJson<String>(json['fastResult']),
+      fastResultSeverity: serializer.fromJson<String>(
+        json['fastResultSeverity'],
+      ),
       startDateTime: serializer.fromJson<DateTime>(json['startDateTime']),
       endDateTime: serializer.fromJson<DateTime?>(json['endDateTime']),
     );
@@ -900,6 +939,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
         $FastLogTable.$converterformIF.toJson(formIF),
       ),
       'fastResult': serializer.toJson<String>(fastResult),
+      'fastResultSeverity': serializer.toJson<String>(fastResultSeverity),
       'startDateTime': serializer.toJson<DateTime>(startDateTime),
       'endDateTime': serializer.toJson<DateTime?>(endDateTime),
     };
@@ -910,6 +950,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     int? userID,
     FastingForm? formIF,
     String? fastResult,
+    String? fastResultSeverity,
     DateTime? startDateTime,
     Value<DateTime?> endDateTime = const Value.absent(),
   }) => FastLogData(
@@ -917,6 +958,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     userID: userID ?? this.userID,
     formIF: formIF ?? this.formIF,
     fastResult: fastResult ?? this.fastResult,
+    fastResultSeverity: fastResultSeverity ?? this.fastResultSeverity,
     startDateTime: startDateTime ?? this.startDateTime,
     endDateTime: endDateTime.present ? endDateTime.value : this.endDateTime,
   );
@@ -928,6 +970,9 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastResult: data.fastResult.present
           ? data.fastResult.value
           : this.fastResult,
+      fastResultSeverity: data.fastResultSeverity.present
+          ? data.fastResultSeverity.value
+          : this.fastResultSeverity,
       startDateTime: data.startDateTime.present
           ? data.startDateTime.value
           : this.startDateTime,
@@ -944,6 +989,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
           ..write('fastResult: $fastResult, ')
+          ..write('fastResultSeverity: $fastResultSeverity, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -956,6 +1002,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     userID,
     formIF,
     fastResult,
+    fastResultSeverity,
     startDateTime,
     endDateTime,
   );
@@ -967,6 +1014,7 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           other.userID == this.userID &&
           other.formIF == this.formIF &&
           other.fastResult == this.fastResult &&
+          other.fastResultSeverity == this.fastResultSeverity &&
           other.startDateTime == this.startDateTime &&
           other.endDateTime == this.endDateTime);
 }
@@ -976,6 +1024,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   final Value<int> userID;
   final Value<FastingForm> formIF;
   final Value<String> fastResult;
+  final Value<String> fastResultSeverity;
   final Value<DateTime> startDateTime;
   final Value<DateTime?> endDateTime;
   const FastLogCompanion({
@@ -983,6 +1032,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     this.userID = const Value.absent(),
     this.formIF = const Value.absent(),
     this.fastResult = const Value.absent(),
+    this.fastResultSeverity = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   });
@@ -991,6 +1041,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     required int userID,
     required FastingForm formIF,
     this.fastResult = const Value.absent(),
+    this.fastResultSeverity = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   }) : userID = Value(userID),
@@ -1000,6 +1051,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Expression<int>? userID,
     Expression<String>? formIF,
     Expression<String>? fastResult,
+    Expression<String>? fastResultSeverity,
     Expression<DateTime>? startDateTime,
     Expression<DateTime>? endDateTime,
   }) {
@@ -1008,6 +1060,8 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       if (userID != null) 'user_i_d': userID,
       if (formIF != null) 'form_i_f': formIF,
       if (fastResult != null) 'fast_result': fastResult,
+      if (fastResultSeverity != null)
+        'fast_result_severity': fastResultSeverity,
       if (startDateTime != null) 'start_date_time': startDateTime,
       if (endDateTime != null) 'end_date_time': endDateTime,
     });
@@ -1018,6 +1072,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Value<int>? userID,
     Value<FastingForm>? formIF,
     Value<String>? fastResult,
+    Value<String>? fastResultSeverity,
     Value<DateTime>? startDateTime,
     Value<DateTime?>? endDateTime,
   }) {
@@ -1026,6 +1081,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       userID: userID ?? this.userID,
       formIF: formIF ?? this.formIF,
       fastResult: fastResult ?? this.fastResult,
+      fastResultSeverity: fastResultSeverity ?? this.fastResultSeverity,
       startDateTime: startDateTime ?? this.startDateTime,
       endDateTime: endDateTime ?? this.endDateTime,
     );
@@ -1048,6 +1104,9 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     if (fastResult.present) {
       map['fast_result'] = Variable<String>(fastResult.value);
     }
+    if (fastResultSeverity.present) {
+      map['fast_result_severity'] = Variable<String>(fastResultSeverity.value);
+    }
     if (startDateTime.present) {
       map['start_date_time'] = Variable<DateTime>(startDateTime.value);
     }
@@ -1064,6 +1123,7 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
           ..write('fastResult: $fastResult, ')
+          ..write('fastResultSeverity: $fastResultSeverity, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -8468,7 +8528,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       required String name,
       Value<bool> isMetric,
       required FastingForm formIF,
-      Value<String> experience,
+      required Experience experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
       Value<DateTime> createdDate,
@@ -8481,7 +8541,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> name,
       Value<bool> isMetric,
       Value<FastingForm> formIF,
-      Value<String> experience,
+      Value<Experience> experience,
       Value<DateTime?> typicalEatingStart,
       Value<DateTime?> typicalEatingEnd,
       Value<DateTime> createdDate,
@@ -8652,9 +8712,10 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<String> get experience => $composableBuilder(
+  ColumnWithTypeConverterFilters<Experience, Experience, String>
+  get experience => $composableBuilder(
     column: $table.experience,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get typicalEatingStart => $composableBuilder(
@@ -8939,10 +9000,11 @@ class $$UsersTableAnnotationComposer
   GeneratedColumnWithTypeConverter<FastingForm, String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
 
-  GeneratedColumn<String> get experience => $composableBuilder(
-    column: $table.experience,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<Experience, String> get experience =>
+      $composableBuilder(
+        column: $table.experience,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<DateTime> get typicalEatingStart => $composableBuilder(
     column: $table.typicalEatingStart,
@@ -9185,7 +9247,7 @@ class $$UsersTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<bool> isMetric = const Value.absent(),
                 Value<FastingForm> formIF = const Value.absent(),
-                Value<String> experience = const Value.absent(),
+                Value<Experience> experience = const Value.absent(),
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
                 Value<DateTime> createdDate = const Value.absent(),
@@ -9209,7 +9271,7 @@ class $$UsersTableTableManager
                 required String name,
                 Value<bool> isMetric = const Value.absent(),
                 required FastingForm formIF,
-                Value<String> experience = const Value.absent(),
+                required Experience experience,
                 Value<DateTime?> typicalEatingStart = const Value.absent(),
                 Value<DateTime?> typicalEatingEnd = const Value.absent(),
                 Value<DateTime> createdDate = const Value.absent(),
@@ -9428,6 +9490,7 @@ typedef $$FastLogTableCreateCompanionBuilder =
       required int userID,
       required FastingForm formIF,
       Value<String> fastResult,
+      Value<String> fastResultSeverity,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
     });
@@ -9437,6 +9500,7 @@ typedef $$FastLogTableUpdateCompanionBuilder =
       Value<int> userID,
       Value<FastingForm> formIF,
       Value<String> fastResult,
+      Value<String> fastResultSeverity,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
     });
@@ -9485,6 +9549,11 @@ class $$FastLogTableFilterComposer
 
   ColumnFilters<String> get fastResult => $composableBuilder(
     column: $table.fastResult,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fastResultSeverity => $composableBuilder(
+    column: $table.fastResultSeverity,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9546,6 +9615,11 @@ class $$FastLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get fastResultSeverity => $composableBuilder(
+    column: $table.fastResultSeverity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get startDateTime => $composableBuilder(
     column: $table.startDateTime,
     builder: (column) => ColumnOrderings(column),
@@ -9597,6 +9671,11 @@ class $$FastLogTableAnnotationComposer
 
   GeneratedColumn<String> get fastResult => $composableBuilder(
     column: $table.fastResult,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fastResultSeverity => $composableBuilder(
+    column: $table.fastResultSeverity,
     builder: (column) => column,
   );
 
@@ -9666,6 +9745,7 @@ class $$FastLogTableTableManager
                 Value<int> userID = const Value.absent(),
                 Value<FastingForm> formIF = const Value.absent(),
                 Value<String> fastResult = const Value.absent(),
+                Value<String> fastResultSeverity = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion(
@@ -9673,6 +9753,7 @@ class $$FastLogTableTableManager
                 userID: userID,
                 formIF: formIF,
                 fastResult: fastResult,
+                fastResultSeverity: fastResultSeverity,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),
@@ -9682,6 +9763,7 @@ class $$FastLogTableTableManager
                 required int userID,
                 required FastingForm formIF,
                 Value<String> fastResult = const Value.absent(),
+                Value<String> fastResultSeverity = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion.insert(
@@ -9689,6 +9771,7 @@ class $$FastLogTableTableManager
                 userID: userID,
                 formIF: formIF,
                 fastResult: fastResult,
+                fastResultSeverity: fastResultSeverity,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),

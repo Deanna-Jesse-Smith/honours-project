@@ -21,6 +21,7 @@ class MyExpandableFAB extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     session = ref.watch(userSessionProvider).value!;
+    debugPrint('start FAB');
     final actions = BuildFAB.buildFab(
       ref,
       index: index,
@@ -78,6 +79,7 @@ class MyExpandableFAB extends ConsumerWidget {
         }
       },
     );
+    debugPrint('end FAB');
     return ExpandableFab(
       type: ExpandableFabType.up,
       pos: posi,

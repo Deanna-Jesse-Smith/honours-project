@@ -19,6 +19,7 @@ import 'package:testrun/pages/start_page.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
+import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -84,7 +85,7 @@ void insert(WidgetRef ref) {
         'Deanna',
         true,
         FastingForm.tre,
-        'Beginner',
+        Experience.beginner,
         start,
         end,
         '1,3,5',
@@ -108,7 +109,7 @@ class MyApp extends ConsumerWidget {
         '/FastingPlan': (context) => FastingPlan(),
         '/MealTracking': (context) => MealTracking(),
         '/StepCount': (context) => StepCounts(),
-        '/SetupUser': (context) => SetupUser(name: 'Deanna', experience: 'Beginner'),
+        '/SetupUser': (context) => SetupUser(name: 'Deanna', experience: false),
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
         '/Reminder' : (context) => const ReminderPage(),

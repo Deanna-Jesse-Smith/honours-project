@@ -40,26 +40,26 @@ class WeightTracking extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: curGoal,
+                future: goalsNotifier.checkGoal(GoalType.weight),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');
                   }
 
-                  WeightGoalModel? model = asyncSnapshot.data;
+                  final model = asyncSnapshot.data;
 
-                  if (model == null || curWeight == null) {
+                  if (model == null || curWeight == null || model == -1) {
                     return Text('No ongoing goal');
                   }
-                  model.calculateComplete(curWeight!);
+                  // model.calculateComplete(curWeight!);
 
-                  if (model.isComplete) {
-                    ref.read(gDaoProvider).finishGoal(model.goalID, -1);
+                  // if (model.isComplete) {
+                  //   ref.read(gDaoProvider).finishGoal(model.goalID, -1);
 
-                    //! whatever happens when a goal is completed
-                  }
+                  //   //! whatever happens when a goal is completed
+                  // }
                   return LinearPercentIndicator(
-                    percent: model.progress,
+                    percent: model,
                     lineHeight: 10,
                     width: MediaQuery.of(context).size.width - 80,
                     animation: true,

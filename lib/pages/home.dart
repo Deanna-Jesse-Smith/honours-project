@@ -19,11 +19,10 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
-    Future<FastingStreak?> curStreak = ref.watch(gDaoProvider).checkActiveFastingStreak();
 
     // ref.read(fDaoProvider).dummyData();
 
-    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
+    final goalsNotifier = ref.read(asyncGoalsProvider.notifier);
 
     CustomWidgets customWidgets = CustomWidgets();
     double percent = calculatePercentageTRE(session!);
@@ -56,15 +55,17 @@ class HomePage extends ConsumerWidget {
                 future: goalsNotifier.checkGoal(GoalType.fasting),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
-                    return const Text('No ongoing Fasting streak');
+                    return const Text('No ongoing Fasting goal');
                   }
 
                   final model = asyncSnapshot.data;
 
-                  if (model == null) {
-                    return const Text('No ongoing Fasting streak');
+                  if (model == null || model == -1) {
+                    return const Text('No ongoing Fasting goal');
                   }
                   //! Calculate the progress here somehow
+
+                  debugPrint('In Goals');
 
                   return LinearPercentIndicator(
                     percent: percent,
@@ -78,25 +79,25 @@ class HomePage extends ConsumerWidget {
                 }
               )
             ),
-            StreamBuilder(
-                stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return const Text('No ongoing Fasting streak');
-                  }
+            // StreamBuilder(
+            //     stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
+            //     builder: (context, asyncSnapshot) {
+            //       if (!asyncSnapshot.hasData) {
+            //         return const Text('No ongoing Fasting streak');
+            //       }
 
-                  final days = asyncSnapshot.data;
+            //       final days = asyncSnapshot.data;
 
-                  if (days == null) {
-                    return const SizedBox.shrink();
-                  }
-                  //! Calculate the progress here somehow
+            //       if (days == null) {
+            //         return const SizedBox.shrink();
+            //       }
+            //       //! Calculate the progress here somehow
 
-                  return Text('You\'re on a $days streak!');
-                }
-              ),
+            //       return Text('You\'re on a $days streak!');
+            //     }
+            //   ),
             Padding(
-              padding: EdgeInsets.all(35),
+              padding: EdgeInsets.all(30),
               child: circularIndicator(percent, Colors.cyan, Colors.lightBlueAccent, session)
             ),
         ],),
@@ -120,6 +121,7 @@ class HomePage extends ConsumerWidget {
     UserSessionData ses
   ) {
     // String temp = ses.status.homeReminder;
+    debugPrint('In indicator');
     return CircularPercentIndicator(
       radius: 100,
       percent: percent,

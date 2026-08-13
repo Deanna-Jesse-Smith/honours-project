@@ -13,7 +13,12 @@ import 'package:testrun/widgets/dialogs.dart';
 
 class GoalsPage extends ConsumerStatefulWidget {
   final GoalType type;
-  const GoalsPage({super.key, required this.type});
+  final MetricType mType;
+  const GoalsPage({
+    super.key,
+    required this.type,
+    this.mType = MetricType.hours,
+  });
 
   @override
   ConsumerState<GoalsPage> createState() => _GoalsPageState();
@@ -52,7 +57,10 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(type.forDisplay, style: TextStyle(fontSize: TextSizing.large)),
+        title: Text(
+          type.forDisplay,
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -83,20 +91,21 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ],
       ),
       // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text('Current Goal: '),
-            goalInfo()
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const Text(
+            'Giving a description of the goal system and how it works',
+            style: TextStyle(fontSize: TextSizing.small),
+            textAlign: TextAlign.center,
+          ),
+          goalInfo(),
+        ],
       ),
       persistentFooterButtons: [
         ElevatedButton(
           onPressed: () {
-            //! Save dialogue and actions here
-            
+            saveChanges();
 
             Navigator.of(context).pop();
           },
@@ -121,74 +130,121 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     };
   }
 
+  BasicGoal createDummyGoal() {
+    return switch (type) {
+      GoalType.fasting => FastingGoalModel(
+        -1,
+        0,
+        0,
+        GoalOperator.greaterThan,
+        widget.mType,
+      ),
+      GoalType.weight => WeightGoalModel(
+        -1,
+        0,
+        0,
+        GoalOperator.lesserEqual,
+        MetricType.kg,
+        startWeight: 0,
+      ),
+      GoalType.hydration => HydrationGoalModel(
+        -1,
+        0,
+        0,
+        GoalOperator.greaterEqual,
+        MetricType.litres,
+      ),
+      GoalType.nutrition => NutritionGoalModel(
+        -1,
+        3,
+        0,
+        GoalOperator.greaterEqual,
+        MetricType.meals,
+      ),
+    };
+  }
+
   FutureBuilder goalInfo() {
     return FutureBuilder(
       future: ref.watch(gDaoProvider).findActiveGoal(type),
       builder: (context, asyncSnapshot) {
-        if (!asyncSnapshot.hasData) {
-          return Text('Add Goal?');
-        }
-
         BasicGoal? goal = asyncSnapshot.data;
 
         if (goal == null) {
-          return Card(
-              child: Column(
-                children: [
-                  //* Progress bar
-                  Text(type.goalText),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: goalController,
-                            keyboardType: TextInputType.numberWithOptions(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-        }
+          debugPrint('Null goal card');
 
-        curGoal = goal;
+          curGoal = createDummyGoal();
+          // return Card(
+          //     child: Column(
+          //       children: [
+          //         //* Progress bar
+          //         Text(type.goalText),
+          //         Table(
+          //           children: [
+          //             TableRow(
+          //               children: [Text('Comparison: '), goalOperatorMenu()],
+          //             ),
+          //             TableRow(
+          //               children: [
+          //                 Text('Amount: '),
+          //                 TextField(
+          //                   controller: goalController,
+          //                   keyboardType: TextInputType.numberWithOptions(),
+          //                 ),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          //       ],
+          //     ),
+          //   );
+        } else {
+          curGoal = goal;
+        }
 
         goalController.text = curGoal.threshold.toString();
 
-        switch (goal) {
+        switch (curGoal) {
           case FastingGoalModel model:
-          curGoal = model;
+            curGoal = model;
 
-          final session = ref.watch(userSessionProvider).value;
-          String goalText = '';
+            final session = ref.watch(userSessionProvider).value;
+            String goalText = '';
 
-          switch (session!.fastingForm) {
-            case FastingForm.tre:
-              goalText = 'Hours of fasting per day.';
-            case FastingForm.fiveTwo:
-              goalText = 'Meals per fasting day.';
-            case FastingForm.adf:
-              goalText = 'Days of fasting a week.';
-          } 
+            switch (session!.fastingForm) {
+              case FastingForm.tre:
+                goalText = 'Hours of fasting per day.';
+              case FastingForm.fiveTwo:
+                goalText = 'Meals per fasting day.';
+              case FastingForm.adf:
+                goalText = 'Days of fasting a week.';
+            }
 
-          return goalCard(TextInputType.numberWithOptions(), goalText);
+            return goalCard(TextInputType.numberWithOptions(), goalText);
           case WeightGoalModel model:
             curGoal = model;
-            return goalCard(TextInputType.numberWithOptions(decimal: true), 'As my goal', suffixText: 'kg');
+            return goalCard(
+              TextInputType.numberWithOptions(decimal: true),
+              'As my goal',
+              suffixText: 'kg',
+            );
           case HydrationGoalModel model:
             curGoal = model;
-            return goalCard(TextInputType.numberWithOptions(decimal: true), 'litres of water per day', suffixText: 'Litres');
+            return goalCard(
+              TextInputType.numberWithOptions(decimal: true),
+              'litres of water per day',
+              suffixText: 'Litres',
+            );
           case NutritionGoalModel model:
             curGoal = model;
-            return goalCard(TextInputType.numberWithOptions(), 'Meal(s) per day');
+            return goalCard(
+              TextInputType.numberWithOptions(),
+              'Meal(s) per day',
+            );
           case BasicStreak():
+            // TODO: Handle this case.
+            throw UnimplementedError();
+          case null:
             // TODO: Handle this case.
             throw UnimplementedError();
         }
@@ -196,37 +252,57 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     );
   }
 
-  Card goalCard(TextInputType inputType, String goalText, {String suffixText = ''}) {
+  Card goalCard(
+    TextInputType inputType,
+    String goalText, {
+    String suffixText = '',
+  }) {
     return Card(
-              child: Column(
+      margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 40,
+        children: [
+          //* Progress bar
+          Text(type.goalText, style: TextStyle(fontSize: TextSizing.medium)),
+          Table(
+            children: [
+              TableRow(
                 children: [
-                  //* Progress bar
-                  Text(type.goalText),
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [Text('Comparison: '), goalOperatorMenu()],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Amount: '),
-                          TextField(
-                            controller: goalController,
-                            keyboardType: inputType,
-                            decoration: InputDecoration(suffix: Text(suffixText)),
-                            onChanged: (value) => setState(() {
-                              double? temp = double.tryParse(value);
-                              if (temp != null) curGoal.threshold = temp;
-                            }),
-                          ),
-                        ],
-                      ),
-                    ],
+                  Text(
+                    'Comparison: ',
+                    style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  Text(goalText),
+                  goalOperatorMenu(),
                 ],
               ),
-            );
+              TableRow(
+                children: [
+                  Text(
+                    'Amount: ',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                  TextField(
+                    style: TextStyle(fontSize: TextSizing.medium),
+                    controller: goalController,
+                    keyboardType: inputType,
+                    decoration: InputDecoration(suffix: Text(suffixText)),
+                    // onChanged: (value) => setState(() {
+                    //   double? temp = double.tryParse(value);
+                    //   if (temp != null) {
+                    //     curGoal.threshold = temp;
+                    //     goalController.text = temp.toString();
+                    //   }
+                    // }),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Text(goalText, style: TextStyle(fontSize: TextSizing.medium)),
+        ],
+      ),
+    );
   }
 
   FutureBuilder streakInfo() {
@@ -304,7 +380,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           curGoal.op = value!;
         });
       },
-      textStyle: TextStyle(fontSize: TextSizing.small),
+      textStyle: TextStyle(fontSize: TextSizing.large),
     );
   }
 }

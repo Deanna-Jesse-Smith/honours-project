@@ -13,8 +13,9 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController controller =TextEditingController(text: '');
+    TextEditingController controller = TextEditingController(text: '');
     Experience? exp = Experience.beginner;
+    bool hasExperience = false;
     return Scaffold(
       body: Column(
         children: [
@@ -22,32 +23,47 @@ class _StartPageState extends State<StartPage> {
           const Text('To your Intermittent Fasting Support app!'),
           Padding(
             padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-            child: TextField(
-              controller: controller,
-              autofocus: true,
-            ),
+            child: TextField(controller: controller, autofocus: true),
           ),
           SizedBox(height: 50),
-          Padding(padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-          child: RadioGroup<Experience>(groupValue: exp, 
-          onChanged: (Experience? value) => setState(() => exp = value), 
-          child: Row(
-            children: [
-                SizedBox(width: 30),
-                Text('Beginner'),
-                Radio<Experience>(value: Experience.beginner),
-                const SizedBox(width: 12),
-                Text('Experienced'),
-                Radio<Experience>(value: Experience.experienced),
-            ],
-          )),),
-          ElevatedButton(onPressed: () async {
-            if (controller.text.isNotEmpty) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SetupUser(name: controller.text, experience: exp!.name)));
-            } else {
-              await Dialogs.dangerDialog(context, title: 'WARNING', message: 'You need to input your name to proceed');
-            }
-          }, child: const Text('Sign Up'))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+            child: CheckboxListTile(value: hasExperience, onChanged: ((value) => setState(() => !hasExperience)),
+            // child: RadioGroup<Experience>(
+            //   groupValue: exp,
+            //   onChanged: (Experience? value) => setState(() => exp = value),
+            //   child: Row(
+            //     children: [
+            //       SizedBox(width: 30),
+            //       Text('Beginner'),
+            //       Radio<Experience>(value: Experience.beginner),
+            //       const SizedBox(width: 12),
+            //       Text('Experienced'),
+            //       Radio<Experience>(value: Experience.experienced),
+            //     ],
+            //   ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SetupUser(name: controller.text, experience: hasExperience),
+                  ),
+                );
+              } else {
+                await Dialogs.dangerDialog(
+                  context,
+                  title: 'WARNING',
+                  message: 'You need to input your name to proceed',
+                );
+              }
+            },
+            child: const Text('Sign Up'),
+          ),
         ],
       ),
     );

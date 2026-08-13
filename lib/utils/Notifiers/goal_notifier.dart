@@ -60,25 +60,31 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     final session = ref.read(userSessionProvider).value;
     final week = bookendWeek();
 
+    debugPrint('check Goals start');
+
     late bool? result;
     double percent = -1.0;
     
     switch (type) {
       case GoalType.fasting:
+      debugPrint('check Goals fasting');
         final goal = await ref.watch(gDaoProvider).findActiveFastingGoal();
+        debugPrint('check Goals found no goal');
 
         if (goal == null) {
           result = null;
           break;
         }
 
+        debugPrint('check Goals metric');
         if (goal.metric == MetricType.hours) {
           final curDur = await ref.read(fDaoProvider).getCurDuration(0);
-
+          debugPrint('check Goals duration');
           if (curDur >= (goal.threshold * 60)) {
             result = true;
             break;
           }
+          debugPrint('check Goals percent');
           percent = (goal.threshold * 60) / curDur;
           result = false;
         } else if (goal.metric == MetricType.days) {
@@ -152,10 +158,12 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
 
     if (result != null && result) {
+      debugPrint('check Goals streak??');
       updateStreak(type);
       percent = 1;
     }
 
+    debugPrint('check Goals end');
     return percent;
   }
 

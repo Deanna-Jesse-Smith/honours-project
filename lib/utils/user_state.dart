@@ -4,12 +4,15 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
+import 'package:testrun/utils/suggestions.dart';
 
 class UserState {
   int userID = -1;
   final ValueNotifier<String> userName = ValueNotifier("");
   final ValueNotifier<bool> isFasting = ValueNotifier(false);
-  final ValueNotifier<FastingStatus> status = ValueNotifier(FastingStatus.upcoming);
+  final ValueNotifier<FastingStatus> status = ValueNotifier(
+    FastingStatus.upcoming,
+  );
   final ValueNotifier<FastingForm> fastingForm = ValueNotifier(FastingForm.tre);
   final ValueNotifier<DateTime> startTime = ValueNotifier(DateTime(0));
   final ValueNotifier<DateTime> endTime = ValueNotifier(DateTime(0));
@@ -29,6 +32,7 @@ class UserSessionData {
   final List<int> fiveTwoDaysSelected;
   final FastingStatus status;
   final bool isFasting;
+  final Experience experience;
 
   const UserSessionData({
     required this.userId,
@@ -40,9 +44,10 @@ class UserSessionData {
     required this.fiveTwoDaysSelected,
     required this.status,
     required this.isFasting,
+    required this.experience,
   });
 
-    UserSessionData copyWith({
+  UserSessionData copyWith({
     String? userName,
     DateTime? startTime,
     DateTime? endTime,
@@ -51,6 +56,7 @@ class UserSessionData {
     List<int>? fiveTwoDaysSelected,
     FastingStatus? status,
     bool? isFasting,
+    Experience? exp,
   }) {
     return UserSessionData(
       userId: userId,
@@ -62,6 +68,7 @@ class UserSessionData {
       fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
       status: status ?? this.status,
       isFasting: isFasting ?? this.isFasting,
+      experience: exp ?? experience,
     );
   }
 }
@@ -82,7 +89,9 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       activeLog: fast,
     );
 
-    final isFasting = fast == null ? false : !fast.endDateTime!.isAtSameMomentAs(fast.startDateTime);
+    final isFasting = fast == null
+        ? false
+        : !fast.endDateTime!.isAtSameMomentAs(fast.startDateTime);
 
     return UserSessionData(
       userId: user.userID,
@@ -91,9 +100,12 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       endTime: user.typicalEatingEnd!,
       fastingForm: user.formIF,
       adfDaysSelected: DayOfWeekConverter().fromSQL(user.adfDaysSelected),
-      fiveTwoDaysSelected: DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected),
+      fiveTwoDaysSelected: DayOfWeekConverter().fromSQL(
+        user.fiveTwoDaysSelected,
+      ),
       status: status,
       isFasting: isFasting,
+      experience: user.experience,
     );
   }
 
@@ -110,24 +122,32 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     }
 
     final userSnapshot = User(
-    userID: curUser.userId,
-    name: curUser.userName,
-    typicalEatingStart: curUser.startTime,
-    typicalEatingEnd: curUser.endTime,
-    isMetric: true,
-    experience: 'Beginner',
-    createdDate: DateTime.now(),
-    adfDaysSelected: '',
-    fiveTwoDaysSelected: '',
-    formIF: curUser.fastingForm
-  );
+      userID: curUser.userId,
+      name: curUser.userName,
+      typicalEatingStart: curUser.startTime,
+      typicalEatingEnd: curUser.endTime,
+      isMetric: true,
+      experience: curUser.experience,
+      createdDate: DateTime.now(),
+      adfDaysSelected: '',
+      fiveTwoDaysSelected: '',
+      formIF: curUser.fastingForm,
+    );
 
-    FastingStatus updatedStatus = determineFastingStatus(now: DateTime.now(), user: userSnapshot, activeLog: cur);
+    FastingStatus updatedStatus = determineFastingStatus(
+      now: DateTime.now(),
+      user: userSnapshot,
+      activeLog: cur,
+    );
     debugPrint('Updated fasting status: ${updatedStatus.name}');
     state = AsyncData(copy(updatedStatus, curUser.isFasting, data: curUser));
   }
 
-    UserSessionData copy(FastingStatus status, bool isFasting, {required UserSessionData data}) {
+  UserSessionData copy(
+    FastingStatus status,
+    bool isFasting, {
+    required UserSessionData data,
+  }) {
     return UserSessionData(
       userId: data.userId,
       userName: data.userName,
@@ -138,10 +158,18 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       fiveTwoDaysSelected: data.fiveTwoDaysSelected,
       status: status,
       isFasting: isFasting,
+      experience: data.experience,
     );
   }
 
-  Future<void> updateUser({String? userName, DateTime? start, DateTime? end, FastingForm? form, List<int>? adfDays, List<int>? fiveTwoDays}) async {
+  Future<void> updateUser({
+    String? userName,
+    DateTime? start,
+    DateTime? end,
+    FastingForm? form,
+    List<int>? adfDays,
+    List<int>? fiveTwoDays,
+  }) async {
     final cur = state.value;
     if (cur == null) return;
 
@@ -165,7 +193,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
 
     try {
       FastLogData? updated;
-      
+
       if (!prevFasting) {
         await fDao.startFast(cur.userId, cur.fastingForm, now);
         updated = await fDao.isFasting(cur.userId);
@@ -174,20 +202,24 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
         updated = null;
       }
 
-          final userSnapshot = User(
-    userID: cur.userId,
-    name: cur.userName,
-    typicalEatingStart: cur.startTime,
-    typicalEatingEnd: cur.endTime,
-    isMetric: true,
-    experience: 'Beginner',
-    createdDate: DateTime.now(),
-    adfDaysSelected: '',
-    fiveTwoDaysSelected: '',
-    formIF: cur.fastingForm
-  );
+      final userSnapshot = User(
+        userID: cur.userId,
+        name: cur.userName,
+        typicalEatingStart: cur.startTime,
+        typicalEatingEnd: cur.endTime,
+        isMetric: true,
+        experience: cur.experience,
+        createdDate: DateTime.now(),
+        adfDaysSelected: '',
+        fiveTwoDaysSelected: '',
+        formIF: cur.fastingForm,
+      );
 
-      final newStatus = determineFastingStatus(now: now, user: userSnapshot, activeLog: updated);
+      final newStatus = determineFastingStatus(
+        now: now,
+        user: userSnapshot,
+        activeLog: updated,
+      );
       debugPrint('Toggled fasting status: ${newStatus.name}');
       final toggled = copy(newStatus, !prevFasting, data: cur);
       state = AsyncData(toggled);
@@ -197,4 +229,5 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   }
 }
 
-final userSessionProvider = AsyncNotifierProvider<UserSession, UserSessionData?>(UserSession.new);
+final userSessionProvider =
+    AsyncNotifierProvider<UserSession, UserSessionData?>(UserSession.new);

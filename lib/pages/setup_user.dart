@@ -15,7 +15,7 @@ import 'package:testrun/widgets/dialogs.dart';
 
 class SetupUser extends ConsumerStatefulWidget {
   final String name;
-  final String experience;
+  final bool experience;
 
   const SetupUser({
     super.key,
@@ -46,20 +46,24 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   final TextEditingController heightController = TextEditingController(text: '0');
   final TextEditingController weightController = TextEditingController(text: '0');
+  final TextEditingController durationController = TextEditingController(text: '1');
 
   bool isSaving = false;
+
+  Experience exp = Experience.beginner;
 
   @override
   void dispose() {
     heightController.dispose();
     weightController.dispose();
+    durationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.experience), centerTitle: true),
+      appBar: AppBar(title: const Text('Questionnaire'), centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -81,6 +85,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
             ),
             Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
+            if (widget.experience) buildWithExperience(),
             buildQuestion('Do you prefer metric or imperial?'),
             ElevatedButton(
               onPressed: () async {
@@ -164,7 +169,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             widget.name,
             isMetric,
             dropDownValuee,
-            widget.experience,
+            exp,
             DateTime(2000), // start: not collected on this screen yet
             DateTime(2000), // end: not collected on this screen yet
             days,
@@ -175,10 +180,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       List<int> tempDays = boolsToInts(obligationDays);
 
-      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: widget.experience, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
+      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: exp, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
       ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
       Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
-      // Navigator.pushNamed(context, '/FinalSetup');
+      Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -224,7 +229,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
   Row getObligationMeal(int index) {
-    TimeOfDay time = obligationTimes[index];
+    TimeOfDay? time = obligationTimes[index];
     return Row(children: [
       ElevatedButton(onPressed: () => selectMealTime(index), child: Text(time == null ? '+' : time.format(context))),
       IconButton(onPressed: () => setState(() => obligationTimes.removeAt(index)), icon: Icon(Icons.cancel))
@@ -260,6 +265,34 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           ),
           children: [Text(text, style: TextStyle(fontSize: TextSizing.medium))],
         ),
+      ),
+    );
+  }
+
+  Set<FastingForm> selectedForms = {};
+
+  Widget buildWithExperience() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text('What form(s) of intermittent fasting have you done before?'),
+          SegmentedButton<FastingForm>(segments: FastingForm.values.map((ff) {
+            return ButtonSegment<FastingForm>(value: ff, label: Text(ff.label),);
+          }).toList(), 
+          selected: selectedForms,
+          onSelectionChanged: (Set<FastingForm> newForm) {
+            setState(() {
+              selectedForms = newForm;
+            });
+          },
+          multiSelectionEnabled: true
+          ,),
+          const Text('For what duration?'),
+          TextField(controller: durationController,
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: false),
+          decoration: InputDecoration(suffixText: 'weeks'),)
+        ],
       ),
     );
   }

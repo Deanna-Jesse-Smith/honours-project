@@ -7,6 +7,7 @@ class FastLog extends Table {
   IntColumn get userID => integer().references(Users, #userID)();
   TextColumn get formIF => textEnum<FastingForm>()();
   TextColumn get fastResult => text().withDefault(const Constant(''))();
+  TextColumn get fastResultSeverity => text().withDefault(const Constant(''))();
   DateTimeColumn get startDateTime => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get endDateTime => dateTime().nullable()();
 }

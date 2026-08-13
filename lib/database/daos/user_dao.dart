@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/utils/suggestions.dart';
 import '../database.dart';
 import '../tables/user_table.dart';
 
@@ -14,7 +15,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     String name,
     bool isMetric,
     FastingForm form,
-    String exp,
+    Experience exp,
     DateTime start,
     DateTime end,
     String days52,
@@ -23,7 +24,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     return into(users).insert(
       UsersCompanion.insert(
         formIF: form,
-        experience: Value(exp),
+        experience: exp,
         name: name,
         typicalEatingStart: Value(start),
         typicalEatingEnd: Value(end),

@@ -23,6 +23,7 @@ import 'package:testrun/database/tables/weight_tables.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/utils/suggestions.dart';
 
 import 'tables/user_table.dart';
 

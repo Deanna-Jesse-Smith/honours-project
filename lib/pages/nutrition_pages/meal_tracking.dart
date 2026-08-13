@@ -59,7 +59,7 @@ class MealTracking extends ConsumerWidget {
 
                   final model = asyncSnapshot.data;
 
-                  if (model == null) {
+                  if (model == null || model == -1) {
                     return Text('No ongoing goal');
                   }
 
