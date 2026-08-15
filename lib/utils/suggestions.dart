@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:testrun/models/converters.dart';
 
 class HydrationDefaults {
@@ -29,13 +30,23 @@ class ObligationSpan {
 
   ObligationSpan.o(this.earliest, this.latest);
 
-  static ObligationSpan extractSpan(List<TimeOfDay> mealTimes, {Duration buffer = const Duration(minutes: 30)}) {
-  final sorted = [...mealTimes]..sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
-  final earliest = sorted.first;
-  final latest = sorted.last;
-  final span = Duration(minutes: (latest.hour * 60 + latest.minute) - (earliest.hour * 60 + earliest.minute));
-  return ObligationSpan(earliest, latest, span + buffer * 2);
-}
+  static ObligationSpan extractSpan(
+    List<TimeOfDay> mealTimes, {
+    Duration buffer = const Duration(minutes: 30),
+  }) {
+    final sorted = [...mealTimes]
+      ..sort(
+        (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+      );
+    final earliest = sorted.first;
+    final latest = sorted.last;
+    final span = Duration(
+      minutes:
+          (latest.hour * 60 + latest.minute) -
+          (earliest.hour * 60 + earliest.minute),
+    );
+    return ObligationSpan(earliest, latest, span + buffer * 2);
+  }
 }
 
 class DayConstraints {
@@ -92,7 +103,13 @@ final class TREoption extends FastOption {
   final TimeOfDay start, end;
   final Duration length;
 
-  TREoption(this.start, this.end, this.length, super.label, super.justification);
+  TREoption(
+    this.start,
+    this.end,
+    this.length,
+    super.label,
+    super.justification,
+  );
 }
 
 final class ADFoption extends FastOption {
@@ -148,46 +165,68 @@ class Suggestion {
 class RecommendationSystem {
   final Set<FastingForm> prevForms;
   final int prevDuration;
-  final Set<String> struggles;
+  final Set<String> struggle;
   final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30), latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
   final ObligationMeals meals;
   late ObligationSpan constraints;
-  late Experience exp;
+  late Experience exp = Experience.beginner;
 
-  RecommendationSystem({required this.prevForms, required this.prevDuration, required this.struggles, required this.meals}) {
+  late bool restrainNonTRE = false, restrainTRE = false;
+
+  RecommendationSystem({
+    required this.prevForms,
+    required this.prevDuration,
+    required this.struggle,
+    required this.meals,
+  }) {
     if (prevDuration > 8) {
+      exp = Experience.experienced;
 
+      if (struggle.last.contains('weekly')) {
+        restrainNonTRE = true;
+      } else if (struggle.contains('daily')) {
+        restrainTRE = true;
+      }
     } else if (prevDuration > 4) {
-
+      if (struggle.last.contains('weekly')) {
+        restrainNonTRE = true;
+      } else if (struggle.contains('daily')) {
+        restrainTRE = true;
+      }
     }
-    
+
     if (meals.times.isEmpty) {
       constraints = ObligationSpan.o(earliestNormalStart, latestNormalEnd);
     } else {
       constraints = ObligationSpan.extractSpan(meals.times);
     }
-
-
-    exp = Experience.beginner;
   }
 
   List<FastOption> getRecs() {
     List<FastOption> options = [];
 
-    options.addAll(treEvaluation(constraints, exp));
+    if (!restrainTRE || prevForms.contains(FastingForm.tre)) {
+      options.addAll(treEvaluation(constraints, exp));
+    }
 
-    options.addAll(adfEvaluation(meals, exp));
+    if (!restrainNonTRE || prevForms.contains(FastingForm.adf)) {
+      options.addAll(adfEvaluation(meals, exp));
+    }
 
-    options.addAll(fiveTwoEvaluation(meals, exp));
+    if (!restrainNonTRE || prevForms.contains(FastingForm.fiveTwo)) {
+      options.addAll(fiveTwoEvaluation(meals, exp));
+    }
 
     return options;
   }
 
   int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
 
-  TimeOfDay toTimeOfDay(int m) => TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
+  TimeOfDay toTimeOfDay(int m) =>
+      TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
 
-  final dayEarliest = TimeOfDay(hour: 5, minute: 0), dayLatest = TimeOfDay(hour: 22, minute: 0);
+  final dayEarliest = TimeOfDay(hour: 5, minute: 0),
+      dayLatest = TimeOfDay(hour: 22, minute: 0);
 
   List<TREoption> treEvaluation(ObligationSpan span, Experience exp) {
     final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
@@ -199,28 +238,61 @@ class RecommendationSystem {
 
     final dayEarliestMinutes = toMinutes(dayEarliest);
     final dayLatestMinutes = toMinutes(dayLatest);
-    
+
     final options = <TREoption>[];
 
-    final eartlyStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - length);
+    final eartlyStart = earliestStart.clamp(
+      dayEarliestMinutes,
+      dayLatestMinutes - length,
+    );
     final earlyEnd = eartlyStart + length;
     if (earlyEnd <= dayLatestMinutes) {
-      options.add(TREoption(toTimeOfDay(eartlyStart), toTimeOfDay(earlyEnd), Duration(minutes: length), 'Early TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+      options.add(
+        TREoption(
+          toTimeOfDay(eartlyStart),
+          toTimeOfDay(earlyEnd),
+          Duration(minutes: length),
+          'Early TRE',
+          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}, giving you extra time afterwards in case you run late.',
+        ),
+      );
     }
 
-    final lateEnd = latestEnd.clamp(dayEarliestMinutes + length, dayLatestMinutes);
+    final lateEnd = latestEnd.clamp(
+      dayEarliestMinutes + length,
+      dayLatestMinutes,
+    );
     final lateStart = lateEnd - length;
     if (lateStart >= dayEarliestMinutes && lateStart != eartlyStart) {
-      options.add(TREoption(toTimeOfDay(lateStart), toTimeOfDay(lateEnd), Duration(minutes: length), 'Late TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+      options.add(
+        TREoption(
+          toTimeOfDay(lateStart),
+          toTimeOfDay(lateEnd),
+          Duration(minutes: length),
+          'Late TRE',
+          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(lateStart)}, giving you extra time before your first meal.',
+        ),
+      );
     }
 
     if (length - biggestLength > 0) {
       final otherLength = length + 60;
-      final otherStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - otherLength);
+      final otherStart = earliestStart.clamp(
+        dayEarliestMinutes,
+        dayLatestMinutes - otherLength,
+      );
       final otherEnd = otherStart + otherLength;
 
       if (otherEnd <= dayLatestMinutes) {
-        options.add(TREoption(toTimeOfDay(otherStart), toTimeOfDay(otherEnd), Duration(minutes: otherLength), 'Other', 'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.'));
+        options.add(
+          TREoption(
+            toTimeOfDay(otherStart),
+            toTimeOfDay(otherEnd),
+            Duration(minutes: otherLength),
+            'Other',
+            'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.',
+          ),
+        );
       }
     }
     return options;
@@ -234,24 +306,24 @@ class RecommendationSystem {
     List<ADFoption> options = [];
 
     for (final combo in combinations) {
-
+      options.add(ADFoption(combo, 'A ${combo.length} day option', ''));
     }
 
     return options;
   }
 
-  List<ModifiedOption> fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
+  List<ModifiedOption> fiveTwoEvaluation(
+    ObligationMeals meals,
+    Experience exp,
+  ) {
     final getAvailable = findAvailableDays(meals, true);
 
     List<List<int>> pairs = validCombosHelper(getAvailable, false);
 
-    String selectionDays =
-        'It is then recommended you pick from the following combinations for your fasting days:';
-
     List<ModifiedOption> options = [];
 
     for (final pair in pairs) {
-
+      options.add(ModifiedOption(pair, '', ''));
     }
 
     return options;
@@ -296,7 +368,12 @@ class RecommendationSystem {
   List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
     int cap = isADF ? 3 : 2;
 
-    List<List<int>> validCombos(List<int> subpool, int initDay, List<List<int>> acc, List<int> cur) {
+    List<List<int>> validCombos(
+      List<int> subpool,
+      int initDay,
+      List<List<int>> acc,
+      List<int> cur,
+    ) {
       if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
       List<List<int>> withDay = [], withoutDay = [];
       if (initDay + 1 < subpool.first) {
@@ -308,6 +385,7 @@ class RecommendationSystem {
       }
       return [...withDay, ...withoutDay];
     }
+
     return validCombos(pool.sublist(1), pool.first, [], []);
   }
 }
@@ -340,7 +418,7 @@ class RecommendFast {
     } else {
       constraints = ObligationSpan.extractSpan(meals.times);
     }
-    
+
     final considerations = treEvaluation(constraints, exp);
     fiveTwoEvaluation(meals, exp);
     if (exp == Experience.experienced) {
@@ -352,9 +430,11 @@ class RecommendFast {
 
   int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
 
-  TimeOfDay toTimeOfDay(int m) => TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
+  TimeOfDay toTimeOfDay(int m) =>
+      TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
 
-  final dayEarliest = TimeOfDay(hour: 5, minute: 0), dayLatest = TimeOfDay(hour: 22, minute: 0);
+  final dayEarliest = TimeOfDay(hour: 5, minute: 0),
+      dayLatest = TimeOfDay(hour: 22, minute: 0);
 
   Suggestion treEvaluation(ObligationSpan span, Experience exp) {
     final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
@@ -366,28 +446,61 @@ class RecommendFast {
 
     final dayEarliestMinutes = toMinutes(dayEarliest);
     final dayLatestMinutes = toMinutes(dayLatest);
-    
+
     final options = <TREoption>[];
 
-    final eartlyStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - length);
+    final eartlyStart = earliestStart.clamp(
+      dayEarliestMinutes,
+      dayLatestMinutes - length,
+    );
     final earlyEnd = eartlyStart + length;
     if (earlyEnd <= dayLatestMinutes) {
-      options.add(TREoption(toTimeOfDay(eartlyStart), toTimeOfDay(earlyEnd), Duration(minutes: length), 'Early TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+      options.add(
+        TREoption(
+          toTimeOfDay(eartlyStart),
+          toTimeOfDay(earlyEnd),
+          Duration(minutes: length),
+          'Early TRE',
+          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}',
+        ),
+      );
     }
 
-    final lateEnd = latestEnd.clamp(dayEarliestMinutes + length, dayLatestMinutes);
+    final lateEnd = latestEnd.clamp(
+      dayEarliestMinutes + length,
+      dayLatestMinutes,
+    );
     final lateStart = lateEnd - length;
     if (lateStart >= dayEarliestMinutes && lateStart != eartlyStart) {
-      options.add(TREoption(toTimeOfDay(lateStart), toTimeOfDay(lateEnd), Duration(minutes: length), 'Late TRE', 'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}'));
+      options.add(
+        TREoption(
+          toTimeOfDay(lateStart),
+          toTimeOfDay(lateEnd),
+          Duration(minutes: length),
+          'Late TRE',
+          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}',
+        ),
+      );
     }
 
     if (length - biggestLength > 0) {
       final otherLength = length + 60;
-      final otherStart = earliestStart.clamp(dayEarliestMinutes, dayLatestMinutes - otherLength);
+      final otherStart = earliestStart.clamp(
+        dayEarliestMinutes,
+        dayLatestMinutes - otherLength,
+      );
       final otherEnd = otherStart + otherLength;
 
       if (otherEnd <= dayLatestMinutes) {
-        options.add(TREoption(toTimeOfDay(otherStart), toTimeOfDay(otherEnd), Duration(minutes: otherLength), 'Other', 'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.'));
+        options.add(
+          TREoption(
+            toTimeOfDay(otherStart),
+            toTimeOfDay(otherEnd),
+            Duration(minutes: otherLength),
+            'Other',
+            'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.',
+          ),
+        );
       }
     }
 
@@ -456,7 +569,12 @@ class RecommendFast {
   List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
     int cap = isADF ? 3 : 2;
 
-    List<List<int>> validCombos(List<int> subpool, int initDay, List<List<int>> acc, List<int> cur) {
+    List<List<int>> validCombos(
+      List<int> subpool,
+      int initDay,
+      List<List<int>> acc,
+      List<int> cur,
+    ) {
       if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
       List<List<int>> withDay = [], withoutDay = [];
       if (initDay + 1 < subpool.first) {
@@ -468,6 +586,7 @@ class RecommendFast {
       }
       return [...withDay, ...withoutDay];
     }
+
     return validCombos(pool.sublist(1), pool.first, [], []);
   }
 

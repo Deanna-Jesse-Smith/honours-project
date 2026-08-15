@@ -19,18 +19,18 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(userSessionProvider).value;
+    final session = ref.watch(userSessionProvider);
 
     // ref.read(fDaoProvider).dummyData();
 
     final goalsNotifier = ref.read(asyncGoalsProvider.notifier);
 
     CustomWidgets customWidgets = CustomWidgets();
-    double percent = calculatePercentageTRE(session!);
+    double percent = calculatePercentageTRE(session.value!);
     // curProgress(ref);
 
     return Scaffold(
-      appBar: MainAppBar.appBar('', session.userName),
+      appBar: MainAppBar.appBar('', session.value!.userName),
       // appBar: customWidgets.appBar(customWidgets.insertRow().then((value) => ,),
       // body: circleIndicator(0.4, Colors.blueAccent, Colors.lightBlueAccent),
       body: Container(
@@ -64,14 +64,14 @@ class HomePage extends ConsumerWidget {
                   debugPrint('In Goals');
 
                   return LinearPercentIndicator(
-                    percent: percent,
-                    lineHeight: model,
+                    percent: model,
+                    lineHeight: 12,
                     width: MediaQuery.of(context).size.width - 80,
                     animation: true,
                     animationDuration: 2000,
                     progressColor: Colors.amber,
-                    backgroundColor: Colors.black,
-                    progressBorderColor: Colors.black,
+                    backgroundColor: Colors.yellow,
+                    barRadius: Radius.circular(10),
                   );
                 }
               )
@@ -102,7 +102,7 @@ class HomePage extends ConsumerWidget {
       header: Padding(
         padding: EdgeInsets.only(bottom: 10),
         child: Text(
-          session.status.homeReminder,
+          session.value!.status.homeReminder,
           // "You're only an hour away from the end",
           maxLines: 2,
           textAlign: TextAlign.center,

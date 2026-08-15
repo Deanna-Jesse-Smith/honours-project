@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter/material.dart' hide Table;
 import 'package:path_provider/path_provider.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/goals_dao.dart';
@@ -66,7 +67,9 @@ part 'database.g.dart';
 )
 
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? executor]): super(executor ?? _openConnection());
+  AppDatabase([QueryExecutor? executor]): super(executor ?? _openConnection()){
+    printPath();
+  }
 
   @override
   int get schemaVersion => 9;
@@ -78,9 +81,13 @@ class AppDatabase extends _$AppDatabase {
     },
     onUpgrade: (m, from, to) async {
       // await m.createTable(FastLog);
-
     }
   );
+
+  Future<void> printPath() async {
+    final directory = await getApplicationSupportDirectory();
+    debugPrint(directory.path);
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

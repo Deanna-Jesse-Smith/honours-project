@@ -9,9 +9,8 @@ class Goals extends Table {
   RealColumn get thresholdValue => real().nullable()();
   TextColumn get metricType => textEnum<MetricType>()();
   TextColumn get op => textEnum<GoalOperator>()();
-  // IntColumn get streakID => integer().nullable().references(Streaks, #streakID)();
-  BoolColumn get isComplete => boolean().withDefault(const Constant(false))(); // This is the completeness check for non-streak goals, that is the point of this I think. Only reall applicable to weight though? Since the other ones are a daily/weekly thing
-  RealColumn get progressValue => real().withDefault(const Constant(0))();     // Again, mostly just applicable to weight
+  BoolColumn get isComplete => boolean().withDefault(const Constant(false))();
+  RealColumn get progressValue => real().withDefault(const Constant(0))(); 
 }
 
 class FastingGoals extends Table {

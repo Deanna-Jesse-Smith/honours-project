@@ -146,6 +146,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             .read(hDaoProvider)
             .getTodayHydration(0, DateTime.now());
 
+        debugPrint('Water: $curWater');
+
         result = goal.calculateComplete(curWater);
         percent = curWater / goal.threshold;
       case GoalType.nutrition:
@@ -217,8 +219,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return ref.read(gDaoProvider).updateGoal(changedGoal);
   }
 
-  Future<void> finishGoal(int goalID, {int streakID = -1}) {
-    return ref.read(gDaoProvider).finishGoal(goalID, streakID);
+  Future<void> finishGoal(int goalID) {
+    return ref.read(gDaoProvider).finishGoal(goalID);
   }
 }
 

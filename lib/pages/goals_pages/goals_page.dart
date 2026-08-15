@@ -29,7 +29,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   late String title;
   late BasicGoal curGoal;
   late Future<BasicStreak?> curStreak;
-  final TextEditingController goalController = TextEditingController(text: '0');
+  final TextEditingController goalController = TextEditingController();
   bool isLogOnly = true;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =

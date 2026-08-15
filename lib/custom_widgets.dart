@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator_circle/percent_indicator_circle.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/models/category_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:testrun/models/meals_model.dart';
-import 'package:testrun/pages/nutrition_pages/meal_log.dart';
 import 'package:testrun/utils/text_sizing.dart';
-import 'package:testrun/utils/user_state.dart';
-import 'package:testrun/widgets/dialogs.dart';
 
 class CustomWidgets {
   late String userName;

@@ -188,7 +188,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: exp, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
       ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp,)));
+      RecommendationSystem rs = RecommendationSystem(prevForms: selectedForms, prevDuration: int.parse(durationController.text), struggle: selectedStruggle, meals: temp);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp, rs: rs,)));
       Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
@@ -315,8 +316,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   }
 
   List<String> struggles = ['Weekly schedule change', 'Daily schedule change'];
-  Set<String> selectedStruggle = {};
-
+  Set<String> selectedStruggle = {''};
 
   Widget struggle() {
     return Container(
@@ -346,7 +346,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       child: Column(
         children: [
           const Text('Do you prefer more or less flexibility in your eating schedule?'),
-          
+
         ],
       ),
     );

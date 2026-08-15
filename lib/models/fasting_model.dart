@@ -108,6 +108,7 @@ FastingStatus determineFastingStatus({
   }
 
   final diff = expectedStart.difference(now);
+  debugPrint('Now - expected start = $diff');
 
   if (diff.inMinutes <= 30 && diff.inMinutes > 0) {
     return FastingStatus.startingSoon;

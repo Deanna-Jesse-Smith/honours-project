@@ -12,11 +12,13 @@ import 'package:testrun/widgets/dialogs.dart';
 class FinalSetup extends ConsumerStatefulWidget {
   final User almost;
   final ObligationMeals obligations;
+  final RecommendationSystem rs;
 
   const FinalSetup({
     super.key,
     required this.almost,
     required this.obligations,
+    required this.rs,
   });
 
   @override
@@ -29,7 +31,10 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
 
   @override
   Widget build(BuildContext context) {
-    final int curSelection = -1;
+    int curSelection = -1;
+
+    final recs = widget.rs.getRecs();
+
     RecommendFast rf = RecommendFast.o(
       FastingForm.tre,
       widget.obligations,
@@ -55,34 +60,99 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
             'The suggested fasting schedules are below, but you can choose to make your own',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
-          RadioGroup<int>(onChanged: (int? value) {
-            setState(() {
-              selectedForm = FastingForm.tre;
-              scheduleSelected = value!;
-            }
-            );
-          }, child: Column(children: Suggestion.treList.map((plan) => RadioListTile(value: plan, title: Text('Start at: ${plan[0].format(context)}, end at: ${plan[1].format(context)}'),)).toList(),)),
-          if (Suggestion.fiveTwoList.isEmpty) suggestionGroup(List<List<int>>.from(Suggestion.fiveTwoList), true),
-          if (Suggestion.adfList.isEmpty) suggestionGroup(List<List<int>>.from(Suggestion.adfList), true),
-          SizedBox(height: 40,),
-          const Text('You can choose one of the above options to start with, or you can make one yourself.', style: TextStyle(fontSize: TextSizing.medium),),
-          ElevatedButton(onPressed: () async {
-            final decision = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'You won\'t be able to come back here after this.');
+          RadioGroup<int>(
+            onChanged: (int? value) {
+              setState(() {
+                selectedForm = FastingForm.tre;
+                scheduleSelected = value!;
+              });
+            },
+            child: Column(
+              children: Suggestion.treList
+                  .map(
+                    (plan) => RadioListTile(
+                      value: plan,
+                      title: Text(
+                        'Start at: ${plan[0].format(context)}, end at: ${plan[1].format(context)}',
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          if (Suggestion.fiveTwoList.isEmpty)
+            suggestionGroup(List<List<int>>.from(Suggestion.fiveTwoList), true),
+          if (Suggestion.adfList.isEmpty)
+            suggestionGroup(List<List<int>>.from(Suggestion.adfList), true),
 
-            if (decision) {
-              String cur52Schedule = selectedForm == FastingForm.fiveTwo ? Suggestion.fiveTwoList[scheduleSelected].join(',') : '';
-              String curADFSchedule = selectedForm == FastingForm.adf ? Suggestion.adfList[scheduleSelected].join(',') : '';
+          SizedBox(height: 40),
+          const Text(
+            'You can choose one of the above options to start with, or you can make one yourself.',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final decision = await Dialogs.dangerDialog(
+                context,
+                title: 'Are you sure?',
+                message: 'You won\'t be able to come back here after this.',
+              );
 
-              DateTime today = DateTime.now();
-              List<DateTime> times = selectedForm == FastingForm.tre ? Suggestion.treList[scheduleSelected].map((t) => t.convertToDateTime(today)).toList() : [DateTime(2026, 0, 0, 0, 0), DateTime(2026, 0, 0, 0, 0)];
+              if (decision) {
+                String cur52Schedule = selectedForm == FastingForm.fiveTwo
+                    ? Suggestion.fiveTwoList[scheduleSelected].join(',')
+                    : '';
+                String curADFSchedule = selectedForm == FastingForm.adf
+                    ? Suggestion.adfList[scheduleSelected].join(',')
+                    : '';
 
-              ref.read(uDaoProvider).addUser(widget.almost.name, widget.almost.isMetric, selectedForm, widget.almost.experience, times.first, times.last, cur52Schedule, curADFSchedule);
+                DateTime today = DateTime.now();
+                List<DateTime> times = selectedForm == FastingForm.tre
+                    ? Suggestion.treList[scheduleSelected]
+                          .map((t) => t.convertToDateTime(today))
+                          .toList()
+                    : [DateTime(2026, 0, 0, 0, 0), DateTime(2026, 0, 0, 0, 0)];
 
-              if (!context.mounted) return;
-              Navigator.pushNamed(context, '/');
-            }
-          }, child: const Text('Continue')),
+                ref
+                    .read(uDaoProvider)
+                    .addUser(
+                      widget.almost.name,
+                      widget.almost.isMetric,
+                      selectedForm,
+                      widget.almost.experience,
+                      times.first,
+                      times.last,
+                      cur52Schedule,
+                      curADFSchedule,
+                    );
+
+                if (!context.mounted) return;
+                Navigator.pushNamed(context, '/');
+              }
+            },
+            child: const Text('Continue'),
+          ),
         ],
+      ),
+    );
+  }
+
+  FastOption? selected;
+
+  RadioGroup recGroup(List<FastOption> options) {
+    return RadioGroup<FastOption>(
+      onChanged: (FastOption? value) {
+        selected = value;
+      },
+      child: Column(
+        children: List.generate(
+          options.length,
+          (o) => RadioListTile(
+            value: options[o],
+            title: Text(options[o].label),
+            subtitle: Text(options[o].justification),
+          ),
+        ),
       ),
     );
   }
@@ -95,14 +165,10 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
         setState(() {
           selectedForm = isFiveTwo ? FastingForm.fiveTwo : FastingForm.adf;
           scheduleSelected = value!;
-        }
-        );
+        });
       },
       child: Column(
-        children: List.generate(
-          len,
-          (t) => buildDaySuggestion(t, days[t]),
-        ),
+        children: List.generate(len, (t) => buildDaySuggestion(t, days[t])),
       ),
     );
   }
@@ -113,7 +179,15 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     return RadioListTile<int>(value: index, title: Text(theseDays));
   }
 
-  RadioListTile<int> buildTRESuggetsion(int index, List<TimeOfDay> vialbeTimes) {
-    return .new(value: index, title: Text('Start at: ${vialbeTimes[0].format(context)}, end at: ${vialbeTimes[1].format(context)}'));
+  RadioListTile<int> buildTRESuggetsion(
+    int index,
+    List<TimeOfDay> vialbeTimes,
+  ) {
+    return .new(
+      value: index,
+      title: Text(
+        'Start at: ${vialbeTimes[0].format(context)}, end at: ${vialbeTimes[1].format(context)}',
+      ),
+    );
   }
 }

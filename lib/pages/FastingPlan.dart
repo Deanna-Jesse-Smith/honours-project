@@ -12,6 +12,7 @@ import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
@@ -71,7 +72,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider).value;
-    CustomWidgets customWidgets = CustomWidgets();
+
+    // ref.read(gDaoProvider).createDummyGoals();
 
     return Scaffold(
       appBar: MainAppBar.appBar('Fasting Plan', session!.userName),
@@ -354,24 +356,13 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             if (value! != session.fastingForm) {
               decision = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'Changing your fasting form will wipe your current fasting goal and/or streak.');
             }
-            //! Figure out when/how to update the fasting form in the table
+            
             if (decision) {
               dropDownValuee = value;
               debugPrint('The user selected: $value');
-              DateTime temp = DateTime.now();
+               AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
 
-              switch (dropDownValuee) {
-                case FastingForm.tre:
-                  ref.read(uDaoProvider).changeToTRE(session.userId, start.convertToDateTime(temp), end.convertToDateTime(temp));
-                case FastingForm.fiveTwo:
-                  ref.read(uDaoProvider).changeTo52(session.userId, boolsToInts(fiveTwoDaysSelected));
-                case FastingForm.adf:
-                  ref.read(uDaoProvider).changeToADF(session.userId, boolsToInts(adfDaysSelected));
-              }
-
-              if (gottenStreak != null) {
-                ref.read(gDaoProvider).finishGoal(gottenStreak!.goalID, gottenStreak!.streakID);
-              }
+               asyncFasting.handleChangingForms(dropDownValuee, start, end, fiveTwoDaysSelected, adfDaysSelected);
             }
             // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
           });

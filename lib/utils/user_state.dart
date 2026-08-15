@@ -230,7 +230,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     }
   }
 
-  
 }
 
 final userSessionProvider =
