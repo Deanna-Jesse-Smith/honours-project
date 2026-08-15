@@ -23,13 +23,9 @@ class WeightTracking extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     final session = ref.watch(userSessionProvider).value;
-    Future<WeightGoalModel?> curGoal = ref
-        .watch(gDaoProvider)
-        .findActiveWeightGoal();
-    findWeight(ref, session!.userId);
-    CustomWidgets customWidgets = CustomWidgets();
+
     return Scaffold(
-      appBar: MainAppBar.appBar('Weight Tracking', session.userName),
+      appBar: MainAppBar.appBar('Weight Tracking', session!.userName),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),

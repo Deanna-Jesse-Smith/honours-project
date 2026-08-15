@@ -25,11 +25,6 @@ class HydrationTracking extends ConsumerWidget {
     final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     final session = ref.watch(userSessionProvider).value;
 
-    Future<HydrationStreak?> curStreak = ref
-        .watch(gDaoProvider)
-        .checkActiveHydrationStreak();
-
-    CustomWidgets customWidgets = CustomWidgets();
     return Scaffold(
       appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
       body: Container(

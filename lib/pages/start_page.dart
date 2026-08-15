@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/pages/setup_user.dart';
-import 'package:testrun/utils/suggestions.dart';
+import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
 class StartPage extends StatefulWidget {
@@ -14,7 +14,6 @@ class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController(text: '');
-    Experience? exp = Experience.beginner;
     bool hasExperience = false;
     return Scaffold(
       body: Column(
@@ -28,7 +27,7 @@ class _StartPageState extends State<StartPage> {
           SizedBox(height: 50),
           Padding(
             padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-            child: CheckboxListTile(value: hasExperience, onChanged: ((value) => setState(() => !hasExperience)),
+            child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => !hasExperience)),
             // child: RadioGroup<Experience>(
             //   groupValue: exp,
             //   onChanged: (Experience? value) => setState(() => exp = value),

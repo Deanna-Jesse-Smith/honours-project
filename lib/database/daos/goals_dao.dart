@@ -568,9 +568,20 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     //   ),
     // );
 
-    (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(
-      StreaksCompanion(streakProgress: Value(model.daysProgress)),
+    DateTime temp = model.start.add(Duration(days: model.daysProgress));
+    Duration diffProgress = temp.difference(model.start);
+    Duration diffToday = DateTime.now().difference(model.start);
+
+    if (diffToday.inDays == diffProgress.inDays) {
+
+    } else if (diffToday.inDays > diffProgress.inDays - 2) {
+      (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(
+      StreaksCompanion(streakProgress: Value(model.daysProgress + 1)),
     );
+    } else {
+      temp.add(Duration(days: 1));
+      (update(streaks)..where((s) => s.streakID.equals(model.streakID))).write(StreaksCompanion(endDate: Value(temp)));
+    }
   }
 
   void breakStreak(BasicStreak curStreak) {
@@ -578,6 +589,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   }
 
   void insertStreak(int goalID) {
-    // into(streaks).insert(StreaksCompanion.insert(goalID: goalID, startDate: Value(DateTime.now()), unlockType: Value(UnlockType.badge)));
+    into(streaks).insert(StreaksCompanion.insert(goalID: goalID, startDate: Value(DateTime.now()), unlockType: Value(UnlockType.badge)));
   }
 }

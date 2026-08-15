@@ -30,13 +30,6 @@ class SetupUser extends ConsumerStatefulWidget {
 enum Measurement { metric, imperial }
 
 class _SetupUserState extends ConsumerState<SetupUser> {
-  static final List<DropdownMenuEntry<FastingForm>> entriess =
-      UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
-        FastingForm.values.map<DropdownMenuEntry<FastingForm>>(
-          (FastingForm form) =>
-              DropdownMenuEntry(value: form, label: form.label),
-        ),
-      );
   late FastingForm dropDownValuee;
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
@@ -85,8 +78,9 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
             ),
             Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
-            if (widget.experience) buildWithExperience(),
+            if (widget.experience) buildWithExperience(),  //? What form(s) of IF have you done before? And for how long (weeks)?
             buildQuestion('Do you prefer metric or imperial?'),
+
             ElevatedButton(
               onPressed: () async {
                 final DateTime? dateTime = await showDatePicker(
@@ -103,6 +97,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               },
               child: const Text('Select Birthday'),
             ),
+
             Row(
               children: [
                 const Text('How tall are you?'),
@@ -113,6 +108,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               ),
               ],
             ),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
               child: TextField(
@@ -121,6 +117,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 decoration: InputDecoration(suffixText: 'cm'),
               ),
             ),
+
             const Text('How much do you weigh?'),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -130,6 +127,9 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 decoration: InputDecoration(suffixText: 'kg'),
               ),
             ),
+
+            struggle(),  //? What do you struggle most with: daily schedule change or a weekly change?
+
             const Text('Do you eat meals with family or friends regularly?'),
             Checkbox(
               value: obligationVisibility,
@@ -148,6 +148,12 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                     )
                   : const Text('Finished'),
             ),
+
+            // What do you hope to achieve with IF?
+
+            // What is your preferred flexibility in your IF schedule?
+
+            
           ],
         ),
       ),
@@ -193,7 +199,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       if (mounted) setState(() => isSaving = false);
     }
   }
-
   
   List<int> boolsToInts(List<bool> days) => [
     for (int loop = 0; loop < days.length; loop++)
@@ -292,6 +297,56 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           TextField(controller: durationController,
           keyboardType: TextInputType.numberWithOptions(decimal: false, signed: false),
           decoration: InputDecoration(suffixText: 'weeks'),)
+        ],
+      ),
+    );
+  }
+
+  Widget whatToAchieve() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text('What do you hope to achieve with intermittent fasting?'),
+
+        ],
+      ),
+    );
+  }
+
+  List<String> struggles = ['Weekly schedule change', 'Daily schedule change'];
+  Set<String> selectedStruggle = {};
+
+
+  Widget struggle() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text('What do you struggle more with?'),
+          SegmentedButton<String>(segments: struggles.map((s) {
+            return ButtonSegment(value: s, label: Text(s));
+          }).toList(), 
+          selected: selectedStruggle,
+          onSelectionChanged: (Set<String> str) {
+            setState(() {
+              selectedStruggle = str;
+            });
+          },
+          emptySelectionAllowed: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget flexibility() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text('Do you prefer more or less flexibility in your eating schedule?'),
+          
         ],
       ),
     );

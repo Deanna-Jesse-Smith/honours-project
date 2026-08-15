@@ -97,6 +97,8 @@ class WeightGoalModel extends BasicGoal {
       case GoalOperator.equalTo:
         isComplete = curWeight == threshold;
       case GoalOperator.greaterEqual:
+        
+
         isComplete = curWeight >= threshold;
       case GoalOperator.lesserEqual:
         isComplete = curWeight <= threshold;
