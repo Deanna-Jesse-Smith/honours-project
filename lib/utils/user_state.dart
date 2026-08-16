@@ -194,14 +194,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     try {
       FastLogData? updated;
 
-      if (!prevFasting) {
-        await fDao.startFast(cur.userId, cur.fastingForm, now);
-        updated = await fDao.isFasting(cur.userId);
-      } else {
-        await fDao.breakFast(cur.userId, now);
-        updated = null;
-      }
-
       final userSnapshot = User(
         userID: cur.userId,
         name: cur.userName,
@@ -220,6 +212,31 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
         user: userSnapshot,
         activeLog: updated,
       );
+
+      final calculator = calculatorFor(cur.fastingForm);
+      if (!prevFasting) {
+        final expectedStart = calculator.expectedStartFor(
+          userSnapshot.typicalEatingStart!,
+          userSnapshot,
+        );
+        if (expectedStart == null) {
+          throw Exception('No fast is scheduled for this day');
+        }
+        await fDao.startFast(cur.userId, cur.fastingForm, now, expectedStart);
+        updated = await fDao.isFasting(cur.userId);
+      } else {
+        final expectedEnd = calculator.expectedEndFor(
+          userSnapshot.typicalEatingStart!,
+          userSnapshot,
+          updated!.startDateTime,
+        );
+        if (expectedEnd == null) {
+          throw Exception('Unable to determine expected fast end');
+        }
+        await fDao.breakFast(cur.userId, now, expectedEnd);
+        updated = null;
+      }
+
       debugPrint('Toggled fasting status: ${newStatus.name}');
       final toggled = copy(newStatus, !prevFasting, data: cur);
       state = AsyncData(toggled);
@@ -229,7 +246,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       rethrow;
     }
   }
-
 }
 
 final userSessionProvider =

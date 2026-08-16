@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/fasting_model.dart';
 import '../database.dart';
 import '../tables/fasting_tables.dart';
 
@@ -12,20 +13,37 @@ part 'fasting_dao.g.dart';
 class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
   FastingDao(super.attachedDatabase);
 
-  Future<int> startFast(int userID, FastingForm form, DateTime startTime) {
+  Future<int> startFast(int userID, FastingForm form, DateTime startTime, DateTime expectedStart) {
       // testing();
+
+      final (result, severity) = evaluateTiming(
+  startTime,
+  expectedStart,
+  FastResult.earlyStart,
+  FastResult.lateStart,
+);
+
     return into(fastLog).insert(
       FastLogCompanion.insert(
         userID: userID,
         formIF: form,
         startDateTime: Value(startTime),
-        endDateTime: Value(startTime)
+        fastResult: Value(result.name),
+        fastResultSeverity: Value(severity.toString()),
       ),
     );
   }
 
-  Future<int> breakFast(int userID, DateTime endTime) async {
+  Future<int> breakFast(int userID, DateTime endTime, DateTime expectedEnd) async {
       // testing();
+
+      final (result, severity) = evaluateTiming(
+  endTime,
+  expectedEnd,
+  FastResult.earlyEnd,
+  FastResult.lateEnd,
+);
+
     final curLog =
         await (select(fastLog)
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
@@ -33,7 +51,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
             .getSingle();
 
     return (update(fastLog)..where((f) => f.fastLogID.equals(curLog.fastLogID)))
-        .write(FastLogCompanion(endDateTime: Value(endTime)));
+        .write(FastLogCompanion(endDateTime: Value(endTime), fastResult: Value('${curLog.fastResult},${result.name}'), ));
   }
 
   Future<FastLogData?> isFasting(int userID) {

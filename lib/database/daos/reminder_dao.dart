@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/database/tables/reminder_table.dart';
-import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/models/reminder_model.dart';
 import '../database.dart';
 
 part 'reminder_dao.g.dart';
@@ -9,15 +8,6 @@ part 'reminder_dao.g.dart';
 @DriftAccessor(tables: [Reminder])
 class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin {
   ReminderDao(super.db);
-
-  Future<int> insertReminder(int userID, DateTime time, String days, String text, GoalType type) async {
-    final newReminder = into(reminder).insert(ReminderCompanion.insert(userID: userID, time: Value(time), days: Value(days), type: type));
-
-    // TRE: ~15 minutes before/after and at the time, plus a halfway one? 5 daily
-    // ADF: Have one at like 6:30 that reminds the person to not eat that day, plus one halfway through. 2 on fasting days
-    // 5:2 A reminder to eat only one meal or one meal plus a snack that day? 1 on fasting days
-    return newReminder;
-  }
 
   Future<void> changeReminder(int reminderID, DateTime time, String days, String text) {
     return (update(reminder)..where((r) => r.reminderID.equals(reminderID))).write(ReminderCompanion(time: Value(time), days: Value(days)));
@@ -35,4 +25,31 @@ class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin 
     final reminders = (select(reminder)).get();
     return reminders;
   }
+
+  Future<ReminderData?> getReminder(
+  int userID,
+  ReminderType type,
+) {
+  final rem = (select(reminder)..where((r) => r.userID.equals(userID) & r.type.equals(type.name)));
+  return rem.getSingleOrNull();
+}
+
+// Future<List<ReminderData>> getReminders(
+//   int userID,
+// ) async {
+//   final rem = await (select(reminder)..where((r) => r.userID.equals(userID))).get();
+//   return rem;
+// }
+
+
+Future<void> deleteReminder(
+  int userID,
+  ReminderType type
+) {
+  return (delete(reminder)..where((g) => g.userID.equals(userID) & g.type.equals(type.name))).go();
+}
+
+Future<void> saveReminder(ReminderCompanion reminders) async {
+  await into(reminder).insertOnConflictUpdate(reminders);
+}
 }

@@ -7593,14 +7593,14 @@ class $ReminderTable extends Reminder
     ),
   );
   @override
-  late final GeneratedColumnWithTypeConverter<GoalType, String> type =
+  late final GeneratedColumnWithTypeConverter<ReminderType, String> type =
       GeneratedColumn<String>(
         'type',
         aliasedName,
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<GoalType>($ReminderTable.$convertertype);
+      ).withConverter<ReminderType>($ReminderTable.$convertertype);
   static const VerificationMeta _isEnabledMeta = const VerificationMeta(
     'isEnabled',
   );
@@ -7621,10 +7621,9 @@ class $ReminderTable extends Reminder
   late final GeneratedColumn<DateTime> time = GeneratedColumn<DateTime>(
     'time',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _minutesOffsetMeta = const VerificationMeta(
     'minutesOffset',
@@ -7719,6 +7718,10 @@ class $ReminderTable extends Reminder
   @override
   Set<GeneratedColumn> get $primaryKey => {reminderID};
   @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {userID, type},
+  ];
+  @override
   ReminderData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ReminderData(
@@ -7743,7 +7746,7 @@ class $ReminderTable extends Reminder
       time: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}time'],
-      )!,
+      ),
       minutesOffset: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}minutes_offset'],
@@ -7760,16 +7763,16 @@ class $ReminderTable extends Reminder
     return $ReminderTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<GoalType, String, String> $convertertype =
-      const EnumNameConverter<GoalType>(GoalType.values);
+  static JsonTypeConverter2<ReminderType, String, String> $convertertype =
+      const EnumNameConverter<ReminderType>(ReminderType.values);
 }
 
 class ReminderData extends DataClass implements Insertable<ReminderData> {
   final int reminderID;
   final int userID;
-  final GoalType type;
+  final ReminderType type;
   final bool isEnabled;
-  final DateTime time;
+  final DateTime? time;
   final int minutesOffset;
   final String? days;
   const ReminderData({
@@ -7777,7 +7780,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     required this.userID,
     required this.type,
     required this.isEnabled,
-    required this.time,
+    this.time,
     required this.minutesOffset,
     this.days,
   });
@@ -7790,7 +7793,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       map['type'] = Variable<String>($ReminderTable.$convertertype.toSql(type));
     }
     map['is_enabled'] = Variable<bool>(isEnabled);
-    map['time'] = Variable<DateTime>(time);
+    if (!nullToAbsent || time != null) {
+      map['time'] = Variable<DateTime>(time);
+    }
     map['minutes_offset'] = Variable<int>(minutesOffset);
     if (!nullToAbsent || days != null) {
       map['days'] = Variable<String>(days);
@@ -7804,7 +7809,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
       userID: Value(userID),
       type: Value(type),
       isEnabled: Value(isEnabled),
-      time: Value(time),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
       minutesOffset: Value(minutesOffset),
       days: days == null && nullToAbsent ? const Value.absent() : Value(days),
     );
@@ -7822,7 +7827,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
         serializer.fromJson<String>(json['type']),
       ),
       isEnabled: serializer.fromJson<bool>(json['isEnabled']),
-      time: serializer.fromJson<DateTime>(json['time']),
+      time: serializer.fromJson<DateTime?>(json['time']),
       minutesOffset: serializer.fromJson<int>(json['minutesOffset']),
       days: serializer.fromJson<String?>(json['days']),
     );
@@ -7837,7 +7842,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
         $ReminderTable.$convertertype.toJson(type),
       ),
       'isEnabled': serializer.toJson<bool>(isEnabled),
-      'time': serializer.toJson<DateTime>(time),
+      'time': serializer.toJson<DateTime?>(time),
       'minutesOffset': serializer.toJson<int>(minutesOffset),
       'days': serializer.toJson<String?>(days),
     };
@@ -7846,9 +7851,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
   ReminderData copyWith({
     int? reminderID,
     int? userID,
-    GoalType? type,
+    ReminderType? type,
     bool? isEnabled,
-    DateTime? time,
+    Value<DateTime?> time = const Value.absent(),
     int? minutesOffset,
     Value<String?> days = const Value.absent(),
   }) => ReminderData(
@@ -7856,7 +7861,7 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
     userID: userID ?? this.userID,
     type: type ?? this.type,
     isEnabled: isEnabled ?? this.isEnabled,
-    time: time ?? this.time,
+    time: time.present ? time.value : this.time,
     minutesOffset: minutesOffset ?? this.minutesOffset,
     days: days.present ? days.value : this.days,
   );
@@ -7916,9 +7921,9 @@ class ReminderData extends DataClass implements Insertable<ReminderData> {
 class ReminderCompanion extends UpdateCompanion<ReminderData> {
   final Value<int> reminderID;
   final Value<int> userID;
-  final Value<GoalType> type;
+  final Value<ReminderType> type;
   final Value<bool> isEnabled;
-  final Value<DateTime> time;
+  final Value<DateTime?> time;
   final Value<int> minutesOffset;
   final Value<String?> days;
   const ReminderCompanion({
@@ -7933,7 +7938,7 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   ReminderCompanion.insert({
     this.reminderID = const Value.absent(),
     required int userID,
-    required GoalType type,
+    required ReminderType type,
     this.isEnabled = const Value.absent(),
     this.time = const Value.absent(),
     this.minutesOffset = const Value.absent(),
@@ -7963,9 +7968,9 @@ class ReminderCompanion extends UpdateCompanion<ReminderData> {
   ReminderCompanion copyWith({
     Value<int>? reminderID,
     Value<int>? userID,
-    Value<GoalType>? type,
+    Value<ReminderType>? type,
     Value<bool>? isEnabled,
-    Value<DateTime>? time,
+    Value<DateTime?>? time,
     Value<int>? minutesOffset,
     Value<String?>? days,
   }) {
@@ -16916,9 +16921,9 @@ typedef $$ReminderTableCreateCompanionBuilder =
     ReminderCompanion Function({
       Value<int> reminderID,
       required int userID,
-      required GoalType type,
+      required ReminderType type,
       Value<bool> isEnabled,
-      Value<DateTime> time,
+      Value<DateTime?> time,
       Value<int> minutesOffset,
       Value<String?> days,
     });
@@ -16926,9 +16931,9 @@ typedef $$ReminderTableUpdateCompanionBuilder =
     ReminderCompanion Function({
       Value<int> reminderID,
       Value<int> userID,
-      Value<GoalType> type,
+      Value<ReminderType> type,
       Value<bool> isEnabled,
-      Value<DateTime> time,
+      Value<DateTime?> time,
       Value<int> minutesOffset,
       Value<String?> days,
     });
@@ -16969,7 +16974,7 @@ class $$ReminderTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get type =>
+  ColumnWithTypeConverterFilters<ReminderType, ReminderType, String> get type =>
       $composableBuilder(
         column: $table.type,
         builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -17096,7 +17101,7 @@ class $$ReminderTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumnWithTypeConverter<GoalType, String> get type =>
+  GeneratedColumnWithTypeConverter<ReminderType, String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<bool> get isEnabled =>
@@ -17167,9 +17172,9 @@ class $$ReminderTableTableManager
               ({
                 Value<int> reminderID = const Value.absent(),
                 Value<int> userID = const Value.absent(),
-                Value<GoalType> type = const Value.absent(),
+                Value<ReminderType> type = const Value.absent(),
                 Value<bool> isEnabled = const Value.absent(),
-                Value<DateTime> time = const Value.absent(),
+                Value<DateTime?> time = const Value.absent(),
                 Value<int> minutesOffset = const Value.absent(),
                 Value<String?> days = const Value.absent(),
               }) => ReminderCompanion(
@@ -17185,9 +17190,9 @@ class $$ReminderTableTableManager
               ({
                 Value<int> reminderID = const Value.absent(),
                 required int userID,
-                required GoalType type,
+                required ReminderType type,
                 Value<bool> isEnabled = const Value.absent(),
-                Value<DateTime> time = const Value.absent(),
+                Value<DateTime?> time = const Value.absent(),
                 Value<int> minutesOffset = const Value.absent(),
                 Value<String?> days = const Value.absent(),
               }) => ReminderCompanion.insert(

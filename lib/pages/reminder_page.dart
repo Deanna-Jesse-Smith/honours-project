@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
-import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/models/reminder_model.dart';
+import 'package:testrun/utils/Notifiers/reminder_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -19,13 +16,6 @@ class ReminderPage extends ConsumerStatefulWidget {
   ConsumerState<ReminderPage> createState() => _ReminderPageState();
 }
 
-const Map<GoalType, int> reminderKey = {
-  GoalType.fasting: 1,
-  GoalType.hydration: 2,
-  GoalType.nutrition: 3,
-  GoalType.weight: 4,
-};
-
 class _ReminderPageState extends ConsumerState<ReminderPage> {
   bool isFast = false,
       isWeight = false,
@@ -33,16 +23,20 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
       isNutrition = false;
   final String dailyReminder = '0,1,2,3,4,5,6';
   final String weeklyReminder = '0';
+  late AsyncReminder asyncReminder;
+  late UserSessionData session;
 
   @override
   void initState() {
-    // TODO: implement initState
+    asyncReminder = ref.read(asyncReminderNotifier.notifier);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(userSessionProvider).value;
+    foodText = foodTime.format(context);
+    waterText = waterTime.format(context);
+    session = ref.watch(userSessionProvider).value!;
     DateTime today = DateTime.now();
     DateTime time = DateTime(today.year, today.month, today.day, 8);
     return Scaffold(
@@ -70,7 +64,10 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text('Fasting', style: TextStyle(fontSize: TextSizing.medium)),
+              Text(
+                'Fasting (${session!.fastingForm.label})',
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
               Tooltip(
                 message: '',
                 triggerMode: TooltipTriggerMode.tap,
@@ -81,46 +78,10 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
               ),
             ],
           ),
-          Row(
-            children: [
-              CheckboxListTile(
-                value: isFast,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isFast = value!;
-
-                    switch (session!.fastingForm) {
-                      case FastingForm.tre:
-                        // final times = CalculateReminderTimes.getTREtimes(session);
-
-                    //     for (final time in times) {
-                    //       FlutterLocalNotificationsPlugin().zonedSchedule(
-                    //   id: reminderKey[GoalType.fasting]!,
-                    //   scheduledDate: tz.TZDateTime.from(time, tz.local),
-                    //   notificationDetails: const NotificationDetails(
-                    //     android: AndroidNotificationDetails(
-                    //       'channelId',
-                    //       'channelName',
-                    //     ),
-                    //   ),
-                    //   androidScheduleMode:
-                    //       AndroidScheduleMode.exactAllowWhileIdle,
-                    // );
-                    //     }
-                        throw UnimplementedError();
-                      case FastingForm.fiveTwo:
-                        // TODO: Handle this case.
-                        throw UnimplementedError();
-                      case FastingForm.adf:
-                        // TODO: Handle this case.
-                        throw UnimplementedError();
-                    }
-                  });
-                },
-                title: const Text('Have fast reminder:'),
-              ),
-            ],
-          ),
+          if (session.fastingForm == FastingForm.tre)
+            dailyFastReminder()
+          else
+            weekdayFastReminder(),
           const SizedBox(height: 50),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -145,7 +106,13 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                     isHydration = value!;
                   });
                 },
-                title: const Text('Have daily hydration reminder:'),
+                title: ElevatedButton(
+                  onPressed: selectWaterTime,
+                  child: Text(
+                    waterText,
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
               ),
             ],
           ),
@@ -171,29 +138,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 onChanged: (bool? value) {
                   setState(() {
                     isWeight = value!;
-
-                                        ref
-                        .read(rDaoProvider)
-                        .insertReminder(
-                          session!.userId,
-                          time,
-                          weeklyReminder,
-                          '',
-                          GoalType.weight
-                        );
-                    DateTime temp = DateTime.now();
-                    FlutterLocalNotificationsPlugin().zonedSchedule(
-                      id: reminderKey[GoalType.weight]!,
-                      scheduledDate: tz.TZDateTime.from(temp, tz.local),
-                      notificationDetails: const NotificationDetails(
-                        android: AndroidNotificationDetails(
-                          'channelId',
-                          'channelName',
-                        ),
-                      ),
-                      androidScheduleMode:
-                          AndroidScheduleMode.exactAllowWhileIdle,
-                    );
                   });
                 },
                 title: const Text('Have weekly weight reminder:'),
@@ -204,7 +148,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text('Nutrition', style: TextStyle(fontSize: TextSizing.medium)),
+              Text('Food', style: TextStyle(fontSize: TextSizing.medium)),
               Tooltip(
                 message: '',
                 triggerMode: TooltipTriggerMode.tap,
@@ -223,33 +167,16 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                   setState(() async {
                     isNutrition = value!;
 
-                    ref
-                        .read(rDaoProvider)
-                        .insertReminder(
-                          session!.userId,
-                          time,
-                          dailyReminder,
-                          '',
-                          GoalType.nutrition
-                        );
-                    DateTime temp = DateTime.now();
-                    FlutterLocalNotificationsPlugin().zonedSchedule(
-                      id: reminderKey[GoalType.nutrition]!,
-                      scheduledDate: tz.TZDateTime.from(temp, tz.local),
-                      notificationDetails: const NotificationDetails(
-                        android: AndroidNotificationDetails(
-                          'channelId',
-                          'channelName',
-                        ),
-                      ),
-                      androidScheduleMode:
-                          AndroidScheduleMode.exactAllowWhileIdle,
-                    );
-
                     // await FlutterLocalNotificationsPlugin(id: 0,androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, scheduledDate: tz.TZDateTime.now(tz.local), notificationDetails: const NotificationDetails(android: AndroidNotificationDetails('','')));
                   });
                 },
-                title: const Text('Have daily food reminder:'),
+                title: ElevatedButton(
+                  onPressed: selectWaterTime,
+                  child: Text(
+                    waterText,
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
               ),
             ],
           ),
@@ -266,5 +193,104 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         ],
       ),
     );
+  }
+
+  bool isStart = false, isEnd = false, isMid = false;
+
+  Widget dailyFastReminder() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          CheckboxListTile(
+            value: isStart,
+            onChanged: (bool? value) => setState(() {
+              isStart = value!;
+              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+            ),
+            title: const Text('Fast starting soon 15 minutes before'),
+          ),
+          CheckboxListTile(
+            value: isMid,
+            onChanged: (bool? value) => setState(() {
+              isMid = value!;
+              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+              ),
+            title: const Text('Halfway through fast'),
+          ),
+          CheckboxListTile(
+            value: isEnd,
+            onChanged: (bool? value) => setState(() {
+              isEnd = value!;
+              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+              ),
+            title: const Text('Fast ending soon 15 minutes before'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget weekdayFastReminder() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          CheckboxListTile(
+            value: isStart,
+            onChanged: (bool? value) => setState(() {
+              isStart = value!;
+              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+            ),
+            title: const Text('Fast starting soon 15 minutes before'),
+          ),
+          CheckboxListTile(
+            value: isMid,
+            onChanged: (bool? value) => setState(() {
+              isMid = value!;
+              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+              ),
+            title: const Text('Halfway through fast'),
+          ),
+          CheckboxListTile(
+            value: isEnd,
+            onChanged: (bool? value) => setState(() {
+              isEnd = value!;
+              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
+              }
+              ),
+            title: const Text('Fast ending soon 15 minutes before'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  TimeOfDay foodTime = TimeOfDay.now(), waterTime = TimeOfDay.now();
+  late String foodText, waterText;
+
+  Future<void> selectFoodTime() async {
+    final time = await Dialogs.showTimeInput(context, initialTime: foodTime);
+    if (time != null) {
+      setState(() {
+        foodTime = time;
+        foodText = time.format(context);
+      });
+    }
+  }
+
+  Future<void> selectWaterTime() async {
+    final time = await Dialogs.showTimeInput(context, initialTime: waterTime);
+    if (time != null) {
+      setState(() {
+        waterTime = time;
+        waterText = time.format(context);
+      });
+    }
   }
 }

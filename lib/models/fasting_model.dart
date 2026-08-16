@@ -121,6 +121,25 @@ FastingStatus determineFastingStatus({
   return FastingStatus.overdue;
 }
 
+(FastResult, int) evaluateTiming(
+  DateTime actual,
+  DateTime expected,
+  FastResult earlyResult,
+  FastResult lateResult,
+) {
+  final difference = actual.difference(expected).inMinutes;
+
+  if (difference.abs() <= 20) {
+    return (FastResult.asPlanned, 0);
+  }
+
+  if (difference < 0) {
+    return (earlyResult, difference.abs());
+  }
+
+  return (lateResult, difference);
+}
+
 enum FastingStatus {
   notFastingDay,
   upcoming,
@@ -156,7 +175,7 @@ enum FastResult {
   lateEnd,
   earlyEnd,
   skipped,
-  interrupted, // half fast in some way?
+  interrupted, // Stopped/started around the middle third of the fast
   overate, // 5:2 specific
   underate, // 5:2 specific
 }
