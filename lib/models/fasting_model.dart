@@ -2,36 +2,116 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
+
+class DummyUser {
+  final DateTime start;
+  final List<int> adfDaysSelected;
+  final FastingForm form;
+  final DateTime typicalStart, typicalEnd;
+
+  DummyUser(this.start, this.adfDaysSelected, this.form, this.typicalStart, this.typicalEnd);
+}
+
+class FastingInterval {
+  final DateTime start;
+  final DateTime end;
+
+  const FastingInterval({
+    required this.start,
+    required this.end,
+  });
+
+  bool contains(DateTime time) {
+    return !time.isBefore(start) && time.isBefore(end);
+  }
+
+  Duration get duration => end.difference(start);
+}
 
 abstract class FastingScheduleCalculator {
-  DateTime? expectedStartFor(DateTime date, User user);
-  DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart);
+  /// Returns the scheduled fasting interval associated with [date].
+  ///
+  /// Returns null when there is no scheduled fast for that date.
+  FastingInterval? intervalFor(
+    DateTime date,
+    DummyUser user,
+  );
 }
 
 class TRECalculator implements FastingScheduleCalculator {
   @override
-  DateTime? expectedStartFor(DateTime date, User user) {
-    final start = DateTime(
+  FastingInterval intervalFor(
+    DateTime date,
+    DummyUser user,
+  ) {
+    final day = DateTime(
       date.year,
       date.month,
       date.day,
-    ).add(dateTimeToDuration(user.typicalEatingEnd!));
-    return start;
-  }
+    );
 
-  @override
-  DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart) {
-    var end = DateTime(
-      date.year,
-      date.month,
-      date.day,
-    ).add(dateTimeToDuration(user.typicalEatingStart!));
+    final start = day.add(
+      Duration(
+        hours: user.typicalEnd.hour,
+        minutes: user.typicalEnd.minute,
+      ),
+    );
 
-    //! Add something to account for if the window goes over midnight
-    if (end.isBefore(expectedStartFor(date, user)!)) {
+    DateTime end = day.add(
+      Duration(
+        hours: user.typicalStart.hour,
+        minutes: user.typicalStart.minute,
+      ),
+    );
+
+    // Eating window crosses midnight.
+    if (!end.isAfter(start)) {
       end = end.add(const Duration(days: 1));
     }
-    return end;
+
+    return FastingInterval(
+      start: start,
+      end: end,
+    );
+  }
+}
+
+class WeekdayBasedCalculator implements FastingScheduleCalculator {
+  final Duration fastDuration;
+
+  const WeekdayBasedCalculator({
+    required this.fastDuration,
+  });
+
+  @override
+  FastingInterval? intervalFor(
+    DateTime date,
+    DummyUser user,
+  ) {
+    final dayIndex = date.weekday - 1; // Monday = 0
+
+    if (!user.adfDaysSelected.contains(dayIndex)) {
+      return null;
+    }
+
+    final day = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+
+    final start = day.add(
+      Duration(
+        hours: user.typicalStart.hour,
+        minutes: user.typicalStart.minute,
+      ),
+    );
+
+    return FastingInterval(
+      start: start,
+      end: start.add(fastDuration),
+    );
   }
 }
 
@@ -39,86 +119,93 @@ FastingScheduleCalculator calculatorFor(FastingForm form) {
   switch (form) {
     case FastingForm.tre:
       return TRECalculator();
+
     case FastingForm.adf:
-      return WeekdayBasedCalculator(fastDurationHours: 36);
+      return const WeekdayBasedCalculator(
+        fastDuration: Duration(hours: 36),
+      );
+
     case FastingForm.fiveTwo:
-      return WeekdayBasedCalculator(fastDurationHours: 24);
+      return const WeekdayBasedCalculator(
+        fastDuration: Duration(hours: 24),
+      );
   }
 }
 
-class WeekdayBasedCalculator implements FastingScheduleCalculator {
-  final int fastDurationHours;
+FastingInterval? findRelevantInterval(
+  DateTime now,
+  DummyUser user,
+) {
+  final calculator = calculatorFor(user.form);
 
-  WeekdayBasedCalculator({required this.fastDurationHours});
+  final today = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  );
 
-  List<int> parseFastingDays(String raw) {
-    return raw.split(',').map((s) => int.parse(s.trim())).toList();
+  // Check yesterday first because its fast may still be active.
+  final yesterday = today.subtract(
+    const Duration(days: 1),
+  );
+
+  final yesterdayInterval = calculator.intervalFor(
+    yesterday,
+    user,
+  );
+
+  if (yesterdayInterval != null &&
+      now.isBefore(yesterdayInterval.end)) {
+    return yesterdayInterval;
   }
 
-  bool isFastingDay(DateTime date, User user) {
-    final fastingDays = parseFastingDays(user.adfDaysSelected);
-    return fastingDays.contains(date.weekday); // My weeks start on Monday
-  }
-
-  @override
-  DateTime? expectedStartFor(DateTime date, User user) {
-    if (!isFastingDay(date, user)) return null;
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    ).add(dateTimeToDuration(user.typicalEatingStart!));
-  }
-
-  @override
-  DateTime? expectedEndFor(DateTime date, User user, DateTime? actualStart) {
-    final start = actualStart ?? expectedStartFor(date, user);
-    if (start == null) return null;
-
-    return start.add(Duration(hours: fastDurationHours));
-  }
+  return calculator.intervalFor(today, user);
 }
 
 FastingStatus determineFastingStatus({
   required DateTime now,
-  required User user,
-  required FastLogData? activeLog,
+  required DummyUser user,
+  required DateTime? activeLogStart,
 }) {
-  final today = DateTime(now.year, now.month, now.day);
-  final calculator = calculatorFor(user.formIF);
-  final expectedStart = calculator.expectedStartFor(now, user);
+  final calculator = calculatorFor(user.form);
 
-  if (expectedStart == null) return FastingStatus.notFastingDay;
-
-  DateTime? expectedEnd = calculator.expectedEndFor(
+  final interval = findRelevantInterval(
     now,
     user,
-    activeLog?.startDateTime,
   );
 
-  debugPrint(
-    'Status: ${DateFormat('HH:mm a').format(now)} start at ${DateFormat('HH:mm a').format(expectedEnd!)} end at ${DateFormat('HH:mm a').format(expectedStart!)}',
-  );
+  // There is no scheduled fast relevant to now.
+  if (interval == null) {
+    return FastingStatus.notFastingDay;
+  }
 
-  if (activeLog != null) {
-    if (expectedEnd != null && expectedEnd.difference(now).inMinutes <= 30) {
+  // A database log exists, so the user has actually started fasting.
+  if (activeLogStart != null) {
+    final remaining = interval.end.difference(now);
+
+    if (remaining.inMinutes <= 30 && !remaining.isNegative) {
       return FastingStatus.endingSoon;
     }
+
     return FastingStatus.active;
   }
 
-  final diff = expectedStart.difference(now);
-  debugPrint('Now - expected start = $diff');
+  // No active log: determine how close we are to the scheduled start.
+  final untilStart = interval.start.difference(now);
 
-  if (diff.inMinutes <= 30 && diff.inMinutes > 0) {
+  if (untilStart.inMinutes <= 30 && untilStart.inMinutes > 0) {
     return FastingStatus.startingSoon;
   }
 
-  if (diff.inHours < 4 && diff.inHours > 0) {
+  if (untilStart.inHours < 4 && untilStart.inHours > 0) {
     return FastingStatus.upcoming;
   }
 
-  return FastingStatus.overdue;
+  if (untilStart.isNegative) {
+    return FastingStatus.overdue;
+  }
+
+  return FastingStatus.scheduled;
 }
 
 (FastResult, int) evaluateTiming(
@@ -148,6 +235,7 @@ enum FastingStatus {
   active,
   endingSoon,
   completed,
+  scheduled,
 }
 
 Duration timeOfDayToDuration(TimeOfDay t) =>
@@ -165,6 +253,8 @@ extension FastingStatusAppearance on FastingStatus {
     FastingStatus.active => 'You remembered!',
     FastingStatus.endingSoon => 'Almost at the finish line',
     FastingStatus.completed => 'Well done!',
+    // TODO: Handle this case.
+    FastingStatus.scheduled => throw UnimplementedError(),
   };
 }
 

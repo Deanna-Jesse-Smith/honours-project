@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/utils/suggestions.dart';
 
 class UserState {
@@ -30,7 +31,6 @@ class UserSessionData {
   final FastingForm fastingForm;
   final List<int> adfDaysSelected;
   final List<int> fiveTwoDaysSelected;
-  final FastingStatus status;
   final bool isFasting;
   final Experience experience;
 
@@ -42,7 +42,6 @@ class UserSessionData {
     required this.fastingForm,
     required this.adfDaysSelected,
     required this.fiveTwoDaysSelected,
-    required this.status,
     required this.isFasting,
     required this.experience,
   });
@@ -66,7 +65,6 @@ class UserSessionData {
       fastingForm: fastingForm ?? this.fastingForm,
       adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
       fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
-      status: status ?? this.status,
       isFasting: isFasting ?? this.isFasting,
       experience: exp ?? experience,
     );
@@ -83,11 +81,21 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     if (user == null) return null;
 
     final fast = await fDao.isFasting(user.userID);
-    final status = determineFastingStatus(
-      now: DateTime.now(),
-      user: user,
-      activeLog: fast,
-    );
+    final curStart = await fDao.getLatestStart(user.userID);
+    List<int> days = switch(user.formIF) {
+      FastingForm.tre => [],
+      FastingForm.fiveTwo => DayOfWeekConverter().fromSQL(user.adfDaysSelected),
+      FastingForm.adf => DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected),
+    };
+
+    late FastingStatus status;
+
+    if (curStart == null) {
+      status = FastingStatus.notFastingDay;
+    } else {
+      status = determineFastingStatus(now: DateTime.now(), user: DummyUser(curStart, days, user.formIF, user.typicalEatingStart!, user.typicalEatingEnd!), activeLogStart: curStart);
+    }
+
 
     final isFasting = fast == null
         ? false
@@ -103,44 +111,9 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       fiveTwoDaysSelected: DayOfWeekConverter().fromSQL(
         user.fiveTwoDaysSelected,
       ),
-      status: status,
       isFasting: isFasting,
       experience: user.experience,
     );
-  }
-
-  Future<void> refreshFastingStatus() async {
-    final curUser = state.value;
-    if (curUser == null) return;
-
-    final fDao = ref.read(fDaoProvider);
-    final cur = await fDao.isFasting(curUser.userId);
-
-    if (cur == null) {
-      // fDao.startFast(curUser.userId, curUser.fastingForm, DateTime.now());
-      return;
-    }
-
-    final userSnapshot = User(
-      userID: curUser.userId,
-      name: curUser.userName,
-      typicalEatingStart: curUser.startTime,
-      typicalEatingEnd: curUser.endTime,
-      isMetric: true,
-      experience: curUser.experience,
-      createdDate: DateTime.now(),
-      adfDaysSelected: '',
-      fiveTwoDaysSelected: '',
-      formIF: curUser.fastingForm,
-    );
-
-    FastingStatus updatedStatus = determineFastingStatus(
-      now: DateTime.now(),
-      user: userSnapshot,
-      activeLog: cur,
-    );
-    debugPrint('Updated fasting status: ${updatedStatus.name}');
-    state = AsyncData(copy(updatedStatus, curUser.isFasting, data: curUser));
   }
 
   UserSessionData copy(
@@ -156,95 +129,30 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       fastingForm: data.fastingForm,
       adfDaysSelected: data.adfDaysSelected,
       fiveTwoDaysSelected: data.fiveTwoDaysSelected,
-      status: status,
       isFasting: isFasting,
       experience: data.experience,
     );
   }
 
-  Future<void> updateUser({
-    String? userName,
-    DateTime? start,
-    DateTime? end,
-    FastingForm? form,
-    List<int>? adfDays,
-    List<int>? fiveTwoDays,
-  }) async {
-    final cur = state.value;
-    if (cur == null) return;
-
-    final uDao = ref.read(uDaoProvider);
-    final fDao = ref.read(fDaoProvider);
-
-    state = await AsyncValue.guard(() async {
-      // await uDao.upd
-      //! Figure out how to do this well
-    });
+  Future<bool> updateTRE(TimeOfDay start, TimeOfDay end) async {
+    //! check if it is a healthy schedule
+    ref.read(uDaoProvider).updateTREtimes(state.value!.userId, start.dateTimeConversion, end.dateTimeConversion);
+    ref.invalidateSelf();
+    return true;
   }
 
-  Future<void> toggleFast() async {
-    debugPrint('Toggling fast');
-    final cur = state.requireValue;
-    if (cur == null) return;
+  Future<bool> updateADF(List<int> days) async {
+    //! check if it is a healthy schedule
+    ref.read(uDaoProvider).updateADF(state.value!.userId, days);
+    ref.invalidateSelf();
+    return true;
+  }
 
-    final fDao = ref.read(fDaoProvider);
-    final now = DateTime.now();
-    final prevFasting = cur.isFasting;
-
-    try {
-      FastLogData? updated;
-
-      final userSnapshot = User(
-        userID: cur.userId,
-        name: cur.userName,
-        typicalEatingStart: cur.startTime,
-        typicalEatingEnd: cur.endTime,
-        isMetric: true,
-        experience: cur.experience,
-        createdDate: DateTime.now(),
-        adfDaysSelected: '',
-        fiveTwoDaysSelected: '',
-        formIF: cur.fastingForm,
-      );
-
-      final newStatus = determineFastingStatus(
-        now: now,
-        user: userSnapshot,
-        activeLog: updated,
-      );
-
-      final calculator = calculatorFor(cur.fastingForm);
-      if (!prevFasting) {
-        final expectedStart = calculator.expectedStartFor(
-          userSnapshot.typicalEatingStart!,
-          userSnapshot,
-        );
-        if (expectedStart == null) {
-          throw Exception('No fast is scheduled for this day');
-        }
-        await fDao.startFast(cur.userId, cur.fastingForm, now, expectedStart);
-        updated = await fDao.isFasting(cur.userId);
-      } else {
-        final expectedEnd = calculator.expectedEndFor(
-          userSnapshot.typicalEatingStart!,
-          userSnapshot,
-          updated!.startDateTime,
-        );
-        if (expectedEnd == null) {
-          throw Exception('Unable to determine expected fast end');
-        }
-        await fDao.breakFast(cur.userId, now, expectedEnd);
-        updated = null;
-      }
-
-      debugPrint('Toggled fasting status: ${newStatus.name}');
-      final toggled = copy(newStatus, !prevFasting, data: cur);
-      state = AsyncData(toggled);
-    } catch (e) {
-      debugPrint('Toggle Fast Failure');
-      debugPrint(e.toString());
-      rethrow;
-    }
+  Future<bool> update52(List<int> days) async {
+    //! check if it is a healthy schedule
+    ref.read(uDaoProvider).update52(state.value!.userId, days);
+    ref.invalidateSelf();
+    return true;
   }
 }
 

@@ -91,15 +91,21 @@ class HydrationTracking extends ConsumerWidget {
             SizedBox(
               width: 100,
               height: 100,
-              child: LiquidCircularProgressIndicator(
-                value: amount,
-                valueColor: AlwaysStoppedAnimation( Colors.pink),
-                backgroundColor: Colors.white,
-                // borderColor: Colors.red,
-                // borderWidth: 5.0,
-                direction: Axis.vertical,
-                center: Text("Get drinking!"),
-                // shapePath: buildBottlePath(const Size(100, 180)),
+              child: FutureBuilder(
+                future: ref.watch(hDaoProvider).getTodayHydration(session.userId, DateTime.now()),
+                builder: (context, asyncSnapshot) {
+                  if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+                  return LiquidCircularProgressIndicator(
+                    value: amount,
+                    valueColor: AlwaysStoppedAnimation( Colors.pink),
+                    backgroundColor: Colors.white,
+                    // borderColor: Colors.red,
+                    // borderWidth: 5.0,
+                    direction: Axis.vertical,
+                    center: Text("Get drinking!"),
+                    // shapePath: buildBottlePath(const Size(100, 180)),
+                  );
+                }
               ),
               // child: LiquidCircularProgressIndicator(
               //   value: amount, // Defaults to 0.5.

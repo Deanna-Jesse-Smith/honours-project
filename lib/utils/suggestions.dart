@@ -13,42 +13,6 @@ class HydrationDefaults {
   }
 }
 
-enum Experience { beginner, experienced }
-
-class ObligationMeals {
-  final List<int> days;
-  final List<TimeOfDay> times;
-
-  ObligationMeals(this.days, this.times);
-}
-
-class ObligationSpan {
-  final TimeOfDay earliest;
-  final TimeOfDay latest;
-  late Duration requiredWindow;
-  ObligationSpan(this.earliest, this.latest, this.requiredWindow);
-
-  ObligationSpan.o(this.earliest, this.latest);
-
-  static ObligationSpan extractSpan(
-    List<TimeOfDay> mealTimes, {
-    Duration buffer = const Duration(minutes: 30),
-  }) {
-    final sorted = [...mealTimes]
-      ..sort(
-        (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
-      );
-    final earliest = sorted.first;
-    final latest = sorted.last;
-    final span = Duration(
-      minutes:
-          (latest.hour * 60 + latest.minute) -
-          (earliest.hour * 60 + earliest.minute),
-    );
-    return ObligationSpan(earliest, latest, span + buffer * 2);
-  }
-}
-
 class DayConstraints {
   final TimeOfDay earlyMeal, lateMeal;
   final Duration eatingWindow;
@@ -93,37 +57,6 @@ class Suggest {
       trePlans = null;
 }
 
-base class FastOption {
-  final String label, justification;
-
-  FastOption(this.label, this.justification);
-}
-
-final class TREoption extends FastOption {
-  final TimeOfDay start, end;
-  final Duration length;
-
-  TREoption(
-    this.start,
-    this.end,
-    this.length,
-    super.label,
-    super.justification,
-  );
-}
-
-final class ADFoption extends FastOption {
-  final List<int> days;
-
-  ADFoption(this.days, super.label, super.justification);
-}
-
-final class ModifiedOption extends FastOption {
-  final List<int> days;
-
-  ModifiedOption(this.days, super.label, super.justification);
-}
-
 class Suggestion {
   static List<List<int>> adfList = [], fiveTwoList = [];
   static late List<List<TimeOfDay>> treList;
@@ -162,10 +95,86 @@ class Suggestion {
   }
 }
 
+enum Experience { beginner, experienced }
+
+class ObligationMeals {
+  final List<int> days;
+  final List<TimeOfDay> times;
+
+  ObligationMeals(this.days, this.times);
+}
+
+class ObligationSpan {
+  final TimeOfDay earliest;
+  final TimeOfDay latest;
+  late Duration requiredWindow;
+  ObligationSpan(this.earliest, this.latest, this.requiredWindow);
+
+  ObligationSpan.o(this.earliest, this.latest);
+
+  static ObligationSpan extractSpan(
+    List<TimeOfDay> mealTimes, {
+    Duration buffer = const Duration(minutes: 30),
+  }) {
+    final sorted = [...mealTimes]
+      ..sort(
+        (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+      );
+    final earliest = sorted.first;
+    final latest = sorted.last;
+    final span = Duration(
+      minutes:
+          (latest.hour * 60 + latest.minute) -
+          (earliest.hour * 60 + earliest.minute),
+    );
+    return ObligationSpan(earliest, latest, span + buffer * 2);
+  }
+}
+
+class ScoredOption {
+  final FastOption option;
+  final int score;
+
+  const ScoredOption(this.option, this.score);
+}
+
+base class FastOption {
+  final String label, justification;
+
+  FastOption(this.label, this.justification);
+}
+
+final class TREoption extends FastOption {
+  final TimeOfDay start, end;
+  final Duration length;
+
+  TREoption(
+    this.start,
+    this.end,
+    this.length,
+    super.label,
+    super.justification,
+  );
+}
+
+final class ADFoption extends FastOption {
+  final List<int> days;
+
+  ADFoption(this.days, super.label, super.justification);
+}
+
+final class ModifiedOption extends FastOption {
+  final List<int> days;
+
+  ModifiedOption(this.days, super.label, super.justification);
+}
+
+enum Struggle { weekly, daily }
+
 class RecommendationSystem {
   final Set<FastingForm> prevForms;
   final int prevDuration;
-  final Set<String> struggle;
+  final Set<Struggle> struggle;
   final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30), latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
   final ObligationMeals meals;
   late ObligationSpan constraints;
@@ -179,21 +188,15 @@ class RecommendationSystem {
     required this.struggle,
     required this.meals,
   }) {
+    exp = prevDuration > 8 ? Experience.experienced : Experience.beginner;
     if (prevDuration > 8) {
-      exp = Experience.experienced;
-
-      if (struggle.last.contains('weekly')) {
-        restrainNonTRE = true;
-      } else if (struggle.contains('daily')) {
-        restrainTRE = true;
-      }
+      
     } else if (prevDuration > 4) {
-      if (struggle.last.contains('weekly')) {
-        restrainNonTRE = true;
-      } else if (struggle.contains('daily')) {
-        restrainTRE = true;
-      }
+      
     }
+
+    restrainTRE = struggle.contains(Struggle.daily);
+    restrainNonTRE = struggle.contains(Struggle.weekly);
 
     if (meals.times.isEmpty) {
       constraints = ObligationSpan.o(earliestNormalStart, latestNormalEnd);
@@ -202,22 +205,64 @@ class RecommendationSystem {
     }
   }
 
+  int scoreForm(FastingForm form) {
+  var score = 0;
+
+  if (prevForms.contains(form)) {
+    score += 3;
+  }
+
+  if (form == FastingForm.tre &&
+      exp == Experience.beginner) {
+    score += 2;
+  }
+
+  if (form != FastingForm.tre &&
+      exp == Experience.experienced) {
+    score += 1;
+  }
+
+  if (form == FastingForm.tre &&
+      struggle.contains(Struggle.daily)) {
+    score -= 4;
+  }
+
+  if (form != FastingForm.tre &&
+      struggle.contains(Struggle.weekly)) {
+    score -= 4;
+  }
+
+  return score;
+}
+
+  ScoredOption score(FastOption option) {
+    late FastingForm form;
+    if (option is TREoption) {
+      form = FastingForm.tre;
+    } else if (option is ADFoption) {
+      form = FastingForm.adf;
+    } else {
+      form = FastingForm.fiveTwo;
+    }
+    return ScoredOption(option, scoreForm(form));
+  }
+
   List<FastOption> getRecs() {
-    List<FastOption> options = [];
+    List<ScoredOption> options = [];
 
     if (!restrainTRE || prevForms.contains(FastingForm.tre)) {
-      options.addAll(treEvaluation(constraints, exp));
+      options.addAll(treEvaluation(constraints, exp).map((option) => score(option)));
     }
 
     if (!restrainNonTRE || prevForms.contains(FastingForm.adf)) {
-      options.addAll(adfEvaluation(meals, exp));
+      options.addAll(adfEvaluation(meals, exp).map((option) => score(option)));
     }
 
     if (!restrainNonTRE || prevForms.contains(FastingForm.fiveTwo)) {
-      options.addAll(fiveTwoEvaluation(meals, exp));
+      options.addAll(fiveTwoEvaluation(meals, exp).map((option) => score(option)));
     }
 
-    return options;
+    return options.take(3).map((o) => o.option).toList();
   }
 
   int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;

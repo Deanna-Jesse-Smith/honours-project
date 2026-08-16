@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
@@ -23,12 +24,12 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     TimeOfDay end,
     List<bool> daysADF, List<bool> days52,
   ) async {
-    final session = ref.watch(userSessionProvider).value;
+    final session = ref.read(userSessionProvider).value;
 
     DateTime today = DateTime.now();
     switch (newForm) {
       case FastingForm.tre:
-        ref
+        await ref
             .read(uDaoProvider)
             .changeToTRE(
               session!.userId,
@@ -36,17 +37,52 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
               end.convertToDateTime(today),
             );
       case FastingForm.fiveTwo:
-        ref.read(uDaoProvider).changeTo52(session!.userId, boolsToInts(days52));
+        await ref.read(uDaoProvider).changeTo52(session!.userId, boolsToInts(days52));
       case FastingForm.adf:
-        ref.read(uDaoProvider).changeToADF(session!.userId, boolsToInts(daysADF));
+        await ref.read(uDaoProvider).changeToADF(session!.userId, boolsToInts(daysADF));
     }
 
     AsyncGoals tempGoals = ref.read(asyncGoalsProvider.notifier);
     BasicGoal? tempGoal = await ref.read(gDaoProvider).findActiveFastingGoal();
-    if (tempGoal != null) tempGoals.finishGoal(tempGoal.goalID);
+    if (tempGoal != null) await tempGoals.finishGoal(tempGoal.goalID);
 
     if (session.isFasting) {
-      ref.read(userSessionProvider.notifier).toggleFast();
+      await toggleFast();
+    }
+
+    ref.invalidate(userSessionProvider);
+  }
+
+  Future<FastingStatus> refreshFastingStatus() async {
+    final cur = ref.watch(userSessionProvider).value;
+    if (cur == null) return FastingStatus.notFastingDay;
+
+    final fDao = ref.read(fDaoProvider);
+    final now = DateTime.now();
+    final curStart = await fDao.getLatestStart(cur.userId);
+    List<int> days = switch(cur.fastingForm) {
+      FastingForm.tre => [],
+      FastingForm.fiveTwo => cur.adfDaysSelected,
+      FastingForm.adf => cur.fiveTwoDaysSelected,
+    };
+
+    return determineFastingStatus(now: now, user: DummyUser(cur.startTime, days, cur.fastingForm, cur.startTime, cur.endTime), activeLogStart: curStart);
+  }
+
+Future<void> toggleFast() async {
+    final cur = ref.read(userSessionProvider).value;
+    if (cur == null) return;
+
+    final fDao = ref.read(fDaoProvider);
+    
+    final lastFast = await fDao.isFasting(cur.userId);
+
+    if (lastFast != null) {
+
+      await fDao.breakFast(cur.userId, cur.endTime, DateTime.now());
+    } else {
+
+      await fDao.startFast(cur.userId, cur.fastingForm, DateTime.now(), cur.startTime);
     }
   }
 

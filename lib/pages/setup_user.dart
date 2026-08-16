@@ -17,11 +17,7 @@ class SetupUser extends ConsumerStatefulWidget {
   final String name;
   final bool experience;
 
-  const SetupUser({
-    super.key,
-    required this.name,
-    required this.experience,
-  });
+  const SetupUser({super.key, required this.name, required this.experience});
 
   @override
   ConsumerState<SetupUser> createState() => _SetupUserState();
@@ -37,9 +33,15 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   bool obligationVisibility = false;
   List<bool> obligationDays = List.filled(7, false);
 
-  final TextEditingController heightController = TextEditingController(text: '0');
-  final TextEditingController weightController = TextEditingController(text: '0');
-  final TextEditingController durationController = TextEditingController(text: '1');
+  final TextEditingController heightController = TextEditingController(
+    text: '0',
+  );
+  final TextEditingController weightController = TextEditingController(
+    text: '0',
+  );
+  final TextEditingController durationController = TextEditingController(
+    text: '1',
+  );
 
   bool isSaving = false;
 
@@ -78,7 +80,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
             ),
             Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
-            if (widget.experience) buildWithExperience(),  //? What form(s) of IF have you done before? And for how long (weeks)?
+            if (widget.experience)
+              buildWithExperience(), //? What form(s) of IF have you done before? And for how long (weeks)?
             buildQuestion('Do you prefer metric or imperial?'),
 
             ElevatedButton(
@@ -102,10 +105,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               children: [
                 const Text('How tall are you?'),
                 TextField(
-                controller: heightController,
-                keyboardType: TextInputType.numberWithOptions(decimal: false),
-                decoration: InputDecoration(suffixText: 'cm'),
-              ),
+                  controller: heightController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: false),
+                  decoration: InputDecoration(suffixText: 'cm'),
+                ),
               ],
             ),
 
@@ -128,7 +131,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               ),
             ),
 
-            struggle(),  //? What do you struggle most with: daily schedule change or a weekly change?
+            struggle(), //? What do you struggle most with: daily schedule change or a weekly change?
 
             const Text('Do you eat meals with family or friends regularly?'),
             Checkbox(
@@ -152,8 +155,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             // What do you hope to achieve with IF?
 
             // What is your preferred flexibility in your IF schedule?
-
-            
           ],
         ),
       ),
@@ -171,7 +172,9 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           .map((e) => e.key)
           .join(',');
 
-      await ref.read(uDaoProvider).addUser(
+      await ref
+          .read(uDaoProvider)
+          .addUser(
             widget.name,
             isMetric,
             dropDownValuee,
@@ -186,21 +189,41 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
       List<int> tempDays = boolsToInts(obligationDays);
 
-      User tempUser = User(userID: 0, name: widget.name, isMetric: measurement == Measurement.metric, experience: exp, createdDate: DateTime.now(), formIF: dropDownValuee, adfDaysSelected: '', fiveTwoDaysSelected: '');
+      User tempUser = User(
+        userID: 0,
+        name: widget.name,
+        isMetric: measurement == Measurement.metric,
+        experience: exp,
+        createdDate: DateTime.now(),
+        formIF: dropDownValuee,
+        adfDaysSelected: '',
+        fiveTwoDaysSelected: '',
+      );
       ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
-      RecommendationSystem rs = RecommendationSystem(prevForms: selectedForms, prevDuration: int.parse(durationController.text), struggle: selectedStruggle, meals: temp);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => FinalSetup(almost: tempUser, obligations: temp, rs: rs,)));
+      RecommendationSystem rs = RecommendationSystem(
+        prevForms: selectedForms,
+        prevDuration: int.parse(durationController.text),
+        struggle: selectedStruggle,
+        meals: temp,
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              FinalSetup(almost: tempUser, obligations: temp, rs: rs),
+        ),
+      );
       Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save user: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not save user: $e')));
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
   }
-  
+
   List<int> boolsToInts(List<bool> days) => [
     for (int loop = 0; loop < days.length; loop++)
       if (days[loop]) loop,
@@ -224,22 +247,39 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           ),
         ),
         const Text('Which meals are reserved for these obligations?'),
-        for (int loop = 0; loop < obligationTimes.length; loop++) getObligationMeal(loop),
-        if (obligationTimes.length < mealCap) TextButton(onPressed: () => setState(() => obligationTimes.add(TimeOfDay.now())), child: const Text('+')),
+        for (int loop = 0; loop < obligationTimes.length; loop++)
+          getObligationMeal(loop),
+        if (obligationTimes.length < mealCap)
+          TextButton(
+            onPressed: () =>
+                setState(() => obligationTimes.add(TimeOfDay.now())),
+            child: const Text('+'),
+          ),
       ],
     );
   }
 
   static const int mealCap = 3;
-  List<TimeOfDay> obligationTimes = [TimeOfDay(hour: 6, minute: 0), TimeOfDay(hour: 21, minute: 0)];
+  List<TimeOfDay> obligationTimes = [
+    TimeOfDay(hour: 6, minute: 0),
+    TimeOfDay(hour: 21, minute: 0),
+  ];
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
   Row getObligationMeal(int index) {
     TimeOfDay? time = obligationTimes[index];
-    return Row(children: [
-      ElevatedButton(onPressed: () => selectMealTime(index), child: Text(time == null ? '+' : time.format(context))),
-      IconButton(onPressed: () => setState(() => obligationTimes.removeAt(index)), icon: Icon(Icons.cancel))
-    ]);
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: () => selectMealTime(index),
+          child: Text(time == null ? '+' : time.format(context)),
+        ),
+        IconButton(
+          onPressed: () => setState(() => obligationTimes.removeAt(index)),
+          icon: Icon(Icons.cancel),
+        ),
+      ],
+    );
   }
 
   Future<void> selectMealTime(int index) async {
@@ -282,22 +322,33 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          const Text('What form(s) of intermittent fasting have you done before?'),
-          SegmentedButton<FastingForm>(segments: FastingForm.values.map((ff) {
-            return ButtonSegment<FastingForm>(value: ff, label: Text(ff.label),);
-          }).toList(), 
-          selected: selectedForms,
-          onSelectionChanged: (Set<FastingForm> newForm) {
-            setState(() {
-              selectedForms = newForm;
-            });
-          },
-          multiSelectionEnabled: true
-          ,),
+          const Text(
+            'What form(s) of intermittent fasting have you done before?',
+          ),
+          SegmentedButton<FastingForm>(
+            segments: FastingForm.values.map((ff) {
+              return ButtonSegment<FastingForm>(
+                value: ff,
+                label: Text(ff.label),
+              );
+            }).toList(),
+            selected: selectedForms,
+            onSelectionChanged: (Set<FastingForm> newForm) {
+              setState(() {
+                selectedForms = newForm;
+              });
+            },
+            multiSelectionEnabled: true,
+          ),
           const Text('For what duration?'),
-          TextField(controller: durationController,
-          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: false),
-          decoration: InputDecoration(suffixText: 'weeks'),)
+          TextField(
+            controller: durationController,
+            keyboardType: TextInputType.numberWithOptions(
+              decimal: false,
+              signed: false,
+            ),
+            decoration: InputDecoration(suffixText: 'weeks'),
+          ),
         ],
       ),
     );
@@ -309,14 +360,13 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       child: Column(
         children: [
           const Text('What do you hope to achieve with intermittent fasting?'),
-
         ],
       ),
     );
   }
 
   List<String> struggles = ['Weekly schedule change', 'Daily schedule change'];
-  Set<String> selectedStruggle = {''};
+  Set<Struggle> selectedStruggle = {};
 
   Widget struggle() {
     return Container(
@@ -324,16 +374,25 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       child: Column(
         children: [
           const Text('What do you struggle more with?'),
-          SegmentedButton<String>(segments: struggles.map((s) {
-            return ButtonSegment(value: s, label: Text(s));
-          }).toList(), 
-          selected: selectedStruggle,
-          onSelectionChanged: (Set<String> str) {
-            setState(() {
-              selectedStruggle = str;
-            });
-          },
-          emptySelectionAllowed: true,
+          SegmentedButton<Struggle>(
+            segments: Struggle.values.map((s) {
+              return ButtonSegment(
+                value: s,
+                label: Text(
+                  s == Struggle.weekly
+                      ? 'Weekly schedule change'
+                      : 'Daily schedule change',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+              );
+            }).toList(),
+            selected: selectedStruggle,
+            onSelectionChanged: (Set<Struggle> str) {
+              setState(() {
+                selectedStruggle = str;
+              });
+            },
+            emptySelectionAllowed: true,
           ),
         ],
       ),
@@ -345,8 +404,9 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          const Text('Do you prefer more or less flexibility in your eating schedule?'),
-
+          const Text(
+            'Do you prefer more or less flexibility in your eating schedule?',
+          ),
         ],
       ),
     );
@@ -407,7 +467,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
 //   bool obligationVisibility = false;
 //   List<bool> obligationDays = List.filled(7, false);
-  
 
 //   @override
 //   Widget build(BuildContext context) {

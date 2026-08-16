@@ -50,13 +50,16 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       );
   late FastingForm dropDownValuee;
-  TimeOfDay start = TimeOfDay(hour: 0, minute: 0), end = TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay start = TimeOfDay(hour: 0, minute: 0),
+      end = TimeOfDay(hour: 0, minute: 0);
+  late AsyncFasting asyncFasting;
 
   @override
   void initState() {
-    final session = ref.watch(userSessionProvider).value;
+    final session = ref.read(userSessionProvider).value;
     dropDownValue = session!.fastingForm.name;
     dropDownValuee = session.fastingForm;
+    asyncFasting = ref.read(asyncFatingNotifier.notifier);
     debugPrint('The value is: $dropDownValue');
 
     fiveTwoDaysSelected = intsToBools(
@@ -85,27 +88,40 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       persistentFooterButtons: [
         Row(
           spacing: 30,
-          children: [ElevatedButton(
-            onPressed: () => {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const FastingHistory()),
+          children: [
+            ElevatedButton(
+              onPressed: () => {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const FastingHistory(),
+                  ),
+                ),
+              },
+              child: Text(
+                'View Fasting History',
+                style: Theme.of(context).textTheme.displayMedium,
               ),
-            },
-            child: Text(
-              'View Fasting History',
-              style: Theme.of(context).textTheme.displayMedium,
             ),
-          ),
-          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoalsPage(type: GoalType.fasting))), child: Text(
-              'Goals/Streaks',
-              style: Theme.of(context).textTheme.displayMedium,
-            ))
-          ]
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GoalsPage(type: GoalType.fasting),
+                ),
+              ),
+              child: Text(
+                'Goals/Streaks',
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+            ),
+          ],
         ),
       ],
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: MyExpandableFAB(index: 1, posi: ExpandableFabPos.right,),
+      floatingActionButton: MyExpandableFAB(
+        index: 1,
+        posi: ExpandableFabPos.right,
+      ),
       // floatingActionButton: customWidgets.getFAB(
       //   ref,
       //   context,
@@ -212,11 +228,16 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   Future<void> selectStartTime(int id) async {
     final time = await Dialogs.showTimeInput(context, initialTime: start);
     if (time != null) {
+      final outcome = await ref
+          .read(userSessionProvider.notifier)
+          .updateTRE(time, end);
       setState(() {
-        start = time;
-        startText = time.format(context);
-
-        ref.read(uDaoProvider).updateTREtimes(id, start.dateTimeConversion, end.dateTimeConversion);
+        if (outcome) {
+          start = time;
+          startText = time.format(context);
+        } else {
+          //! Pop up to warn user
+        }
       });
     }
   }
@@ -224,11 +245,16 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   Future<void> selectEndTime(int id) async {
     final time = await Dialogs.showTimeInput(context, initialTime: end);
     if (time != null) {
+      final outcome = await ref
+          .read(userSessionProvider.notifier)
+          .updateTRE(start, time);
       setState(() {
-        end = time;
-        endText = time.format(context);
-
-        ref.read(uDaoProvider).updateTREtimes(id, start.dateTimeConversion, end.dateTimeConversion);
+        if (outcome) {
+          end = time;
+          endText = time.format(context);
+        } else {
+          //! Pop up to warn user
+        }
       });
     }
   }
@@ -242,8 +268,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     endText = end.format(context);
     List<String> headings = ['Starting Time', 'Ending Time'];
     List<ElevatedButton> times = [
-      ElevatedButton(onPressed: () => selectStartTime(session.userId), child: Text(startText)),
-      ElevatedButton(onPressed: () => selectEndTime(session.userId), child: Text(endText)),
+      ElevatedButton(
+        onPressed: () => selectStartTime(session.userId),
+        child: Text(startText),
+      ),
+      ElevatedButton(
+        onPressed: () => selectEndTime(session.userId),
+        child: Text(endText),
+      ),
     ];
 
     return Column(
@@ -342,52 +374,65 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   Row chooseFastingPlan(UserSessionData session) {
     return .new(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
-      DropdownMenu<FastingForm>(
-        initialSelection: dropDownValuee,
-        // side
-        // menuStyle: MenuStyle(),
-        onSelected: (FastingForm? value) {
-          setState(() async {
-            bool decision = true;
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
+        DropdownMenu<FastingForm>(
+          initialSelection: dropDownValuee,
+          // side
+          // menuStyle: MenuStyle(),
+          onSelected: (FastingForm? value) {
+            setState(() async {
+              bool decision = true;
 
-            if (value! != session.fastingForm) {
-              decision = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'Changing your fasting form will wipe your current fasting goal and/or streak.');
-            }
-            
-            if (decision) {
-              dropDownValuee = value;
-              debugPrint('The user selected: $value');
-               AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
+              if (value! != session.fastingForm) {
+                decision = await Dialogs.dangerDialog(
+                  context,
+                  title: 'Are you sure?',
+                  message:
+                      'Changing your fasting form will wipe your current fasting goal and/or streak.',
+                );
+              }
 
-               asyncFasting.handleChangingForms(dropDownValuee, start, end, fiveTwoDaysSelected, adfDaysSelected);
-            }
-            // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-          });
-        },
-        dropdownMenuEntries: entriess,
-        textStyle: TextStyle(fontSize: TextSizing.large),
-      ),
-      // DropdownMenu<String>(
-      //   initialSelection: dropDownValue,
-      //   // side
-      //   // menuStyle: MenuStyle(),
-      //   onSelected: (String? value) {
-      //     setState(() {
-      //       dropDownValue = value!;
-      //       debugPrint('The user selected: $value');
-      //       //! Figure out when/how to update the fasting form in the table
-      //       // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-      //     });
-      //   },
-      //   dropdownMenuEntries: entries,
-      //   textStyle: TextStyle(fontSize: TextSizing.large),
-      // ),
-    ],
-  );
-}
+              if (decision) {
+                dropDownValuee = value;
+                debugPrint('The user selected: $value');
+                AsyncFasting asyncFasting = ref.read(
+                  asyncFatingNotifier.notifier,
+                );
+
+                asyncFasting.handleChangingForms(
+                  dropDownValuee,
+                  start,
+                  end,
+                  fiveTwoDaysSelected,
+                  adfDaysSelected,
+                );
+              }
+              // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+            });
+          },
+          dropdownMenuEntries: entriess,
+          textStyle: TextStyle(fontSize: TextSizing.large),
+        ),
+        // DropdownMenu<String>(
+        //   initialSelection: dropDownValue,
+        //   // side
+        //   // menuStyle: MenuStyle(),
+        //   onSelected: (String? value) {
+        //     setState(() {
+        //       dropDownValue = value!;
+        //       debugPrint('The user selected: $value');
+        //       //! Figure out when/how to update the fasting form in the table
+        //       // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+        //     });
+        //   },
+        //   dropdownMenuEntries: entries,
+        //   textStyle: TextStyle(fontSize: TextSizing.large),
+        // ),
+      ],
+    );
+  }
 }
 
 extension TimeOfDayToDateTime on TimeOfDay {

@@ -211,12 +211,12 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else if (newGoal is WeightGoalModel) {
       return ref.read(gDaoProvider).insertWeightGoal(session!.userId, newGoal.threshold, newGoal.startWeight, newGoal.op);
     } else {
-      return ref.read(gDaoProvider).insertNutritionGoal(session!.userId, NutrientType.caloreis, newGoal.threshold.toInt());
+      return ref.read(gDaoProvider).insertNutritionGoal(session!.userId, NutrientType.caloreis, newGoal.threshold);
     }
   }
 
   Future<void> changeGoal(BasicGoal changedGoal) async {
-    return ref.read(gDaoProvider).updateGoal(changedGoal);
+    return ref.read(gDaoProvider).updateGoal(changedGoal, session!.userId);
   }
 
   Future<void> finishGoal(int goalID) {

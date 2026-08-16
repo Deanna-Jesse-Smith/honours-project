@@ -73,6 +73,15 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     return lastUser;
   }
 
+  Stream<User?> watchUser() {
+    final lastUser =
+       (select(users)
+              ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+              ..limit(1))
+            .watchSingleOrNull();
+    return lastUser;
+  } 
+
   Future<void> updateADF(int userID, List<int> newDays) async {
     String sqlDays = DayOfWeekConverter().toSQL(newDays);
 

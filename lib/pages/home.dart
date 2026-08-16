@@ -7,6 +7,7 @@ import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/goals_model.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -101,12 +102,19 @@ class HomePage extends ConsumerWidget {
       lineWidth: 40,
       header: Padding(
         padding: EdgeInsets.only(bottom: 10),
-        child: Text(
-          session.value!.status.homeReminder,
-          // "You're only an hour away from the end",
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: TextSizing.small),
+        child: FutureBuilder(
+          future: ref.read(asyncFatingNotifier.notifier).refreshFastingStatus(),
+          builder: (context, asyncSnapshot) {
+            if (!asyncSnapshot.hasData) return const CircularProgressIndicator();
+            final status = asyncSnapshot.data!;
+            return Text(
+              status.homeReminder,
+              // "You're only an hour away from the end",
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: TextSizing.small),
+            );
+          }
         ),
       ),
       progressColor: Colors.lightBlueAccent,
@@ -126,35 +134,6 @@ class HomePage extends ConsumerWidget {
       //   onPressed: () {
 
       //   }),
-    );
-  }
-
-    CircularPercentIndicator circularIndicator(
-    double percent,
-    Color backgroundColor,
-    progress,
-    UserSessionData ses
-  ) {
-    // String temp = ses.status.homeReminder;
-    debugPrint('In indicator');
-    return CircularPercentIndicator(
-      radius: 100,
-      percent: percent,
-      lineWidth: 40,
-      header: Padding(
-        padding: EdgeInsets.only(bottom: 10),
-        child: Text(
-          ses.status.homeReminder,
-          // "You're only an hour away from the end",
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: TextSizing.small),
-        ),
-      ),
-      progressColor: Colors.lightBlueAccent,
-      backgroundColor: Colors.cyan,
-      circularStrokeCap: CircularStrokeCap.round,
-      animationDuration: 500,
     );
   }
 

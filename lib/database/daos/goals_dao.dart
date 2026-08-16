@@ -23,7 +23,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   Future<void> insertNutritionGoal(
     int userID,
     NutrientType type,
-    int amount,
+    double amount,
   ) async {
     await transaction(() async {
       final goalID = await (into(goals).insert(
@@ -31,6 +31,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           type: GoalType.nutrition,
           op: GoalOperator.logOnly,
           metricType: MetricType.meals,
+          thresholdValue: Value(amount),
         ),
       ));
       //? Put something here in case they should be below a threshold? Use the operator field?
@@ -38,7 +39,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         NutritionGoalsCompanion.insert(
           goalID: Value(goalID),
           nutrientType: type,
-          nutritionDailyTarget: amount,
+          nutritionDailyTarget: amount.toInt(),
         ),
       );
     });
@@ -429,9 +430,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       goalRow.progressValue,
       goalRow.op,
       goalRow.metricType,
-      // targetHours: fastingRow.targetHours,
-      // targetDays: fastingRow.targetDays,
-      // targetCalories: fastingRow.targetCalories,
     );
   }
 
@@ -563,12 +561,23 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
-  Future<void> updateGoal(BasicGoal model) async {
+  Future<void> updateGoal(BasicGoal model, int id) async {
     (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(isComplete: Value(true)),
     );
 
-    //! Create the copy stuff later
+    switch (model) {
+      case FastingGoalModel():
+        insertFastingGoal(id, model.threshold, model.op, model.metric);
+      case WeightGoalModel():
+        insertWeightGoal(id, model.threshold, model.startWeight, model.op);
+      case HydrationGoalModel():
+        insertHydrationGoal(id, DateTime.now(), model.threshold.toInt(), model.op);
+      case NutritionGoalModel():
+        insertNutritionGoal(id, NutrientType.caloreis, model.threshold);
+      case BasicStreak():
+        throw UnimplementedError();
+    }
 
     final streak = await (select(
       streaks,

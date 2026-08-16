@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
 
 class FabButton {
@@ -19,9 +20,9 @@ class FabButton {
 class BuildFAB {
   static List<FabButton> buildFab(WidgetRef ref, {required int index, required VoidCallback onWeightTapped, required VoidCallback onMealTapped, required VoidCallback onHydrationTapped}) {
     debugPrint('mid start FAB');
-    final isFasting = ref.watch(isFastingProvider);
+    final isFasting = ref.read(isFastingProvider);
     final actions = [
-    FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: Colors.deepPurpleAccent, onPressed: () => ref.read(userSessionProvider.notifier).toggleFast()),
+    FabButton(title: isFasting ? 'Break my fast' : 'Start my fast', colour: Colors.deepPurpleAccent, onPressed: () => ref.read(asyncFatingNotifier.notifier).toggleFast()),
     FabButton(title: 'Log Weight', colour: Colors.green, onPressed: onWeightTapped),
     FabButton(title: 'Log Meal', colour: Colors.amber, onPressed: onMealTapped),
     FabButton(title: 'Log Hydration', colour: Colors.blue, onPressed: onHydrationTapped)

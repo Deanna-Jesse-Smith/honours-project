@@ -104,6 +104,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 onChanged: (bool? value) {
                   setState(() {
                     isHydration = value!;
+                    asyncReminder.setWaterReminder(enabled: isHydration, time: waterTime);
                   });
                 },
                 title: ElevatedButton(
@@ -166,7 +167,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 onChanged: (bool? value) {
                   setState(() async {
                     isNutrition = value!;
-
+                    asyncReminder.setFoodReminder(enabled: isNutrition, time: foodTime);
                     // await FlutterLocalNotificationsPlugin(id: 0,androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, scheduledDate: tz.TZDateTime.now(tz.local), notificationDetails: const NotificationDetails(android: AndroidNotificationDetails('','')));
                   });
                 },

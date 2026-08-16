@@ -26,7 +26,8 @@ class FinalSetup extends ConsumerStatefulWidget {
 }
 
 class _FinalSetupState extends ConsumerState<FinalSetup> {
-  late FastingForm selectedForm;
+  late FastOption? selectedOption;
+  FastingForm selectedForm = FastingForm.tre;
   int scheduleSelected = -1;
 
   @override
@@ -34,13 +35,6 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     int curSelection = -1;
 
     final recs = widget.rs.getRecs();
-
-    RecommendFast rf = RecommendFast.o(
-      FastingForm.tre,
-      widget.obligations,
-      Experience.beginner,
-    );
-    rf.makePlan();
 
     // List<TimeOfDay> testTRE = plans[0].treList;
     return Container(
@@ -60,30 +54,29 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
             'The suggested fasting schedules are below, but you can choose to make your own',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
-          RadioGroup<int>(
-            onChanged: (int? value) {
-              setState(() {
+
+          RadioGroup<FastOption>(
+            groupValue: selected,
+            onChanged: (FastOption? value) {
+              selected = value;
+              if (value is TREoption) {
                 selectedForm = FastingForm.tre;
-                scheduleSelected = value!;
-              });
+              } else if (value is ADFoption) {
+                selectedForm = FastingForm.adf;
+              } else {
+                selectedForm = FastingForm.fiveTwo;
+              }
             },
             child: Column(
-              children: Suggestion.treList
-                  .map(
-                    (plan) => RadioListTile(
-                      value: plan,
-                      title: Text(
-                        'Start at: ${plan[0].format(context)}, end at: ${plan[1].format(context)}',
-                      ),
-                    ),
-                  )
-                  .toList(),
+              children: recs.map((option) {
+                return RadioListTile<FastOption>(
+                  value: option,
+                  title: Text(option.label),
+                  subtitle: Text(option.justification),
+                );
+              }).toList(),
             ),
           ),
-          if (Suggestion.fiveTwoList.isEmpty)
-            suggestionGroup(List<List<int>>.from(Suggestion.fiveTwoList), true),
-          if (Suggestion.adfList.isEmpty)
-            suggestionGroup(List<List<int>>.from(Suggestion.adfList), true),
 
           SizedBox(height: 40),
           const Text(
@@ -99,19 +92,32 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               );
 
               if (decision) {
-                String cur52Schedule = selectedForm == FastingForm.fiveTwo
-                    ? Suggestion.fiveTwoList[scheduleSelected].join(',')
-                    : '';
-                String curADFSchedule = selectedForm == FastingForm.adf
-                    ? Suggestion.adfList[scheduleSelected].join(',')
-                    : '';
+                String cur52Schedule;
+                if (selectedForm == FastingForm.fiveTwo) {
+                  final temp = selected as ModifiedOption;
+                  cur52Schedule = temp.days.join(',');
+                } else {
+                  cur52Schedule = '';
+                }
 
-                DateTime today = DateTime.now();
-                List<DateTime> times = selectedForm == FastingForm.tre
-                    ? Suggestion.treList[scheduleSelected]
-                          .map((t) => t.convertToDateTime(today))
-                          .toList()
-                    : [DateTime(2026, 0, 0, 0, 0), DateTime(2026, 0, 0, 0, 0)];
+                String curADFSchedule;
+                if (selectedForm == FastingForm.adf) {
+                  final temp = selected as ADFoption;
+                  curADFSchedule = temp.days.join(',');
+                } else {
+                  curADFSchedule = '';
+                }
+
+                List<DateTime> times;
+                if (selectedForm == FastingForm.tre) {
+                  final temp = selected as TREoption;
+                  times = [
+                    DateTime(2026, 0, 0, temp.start.hour, temp.start.minute),
+                    DateTime(2026, 0, 0, temp.end.hour, temp.end.minute),
+                  ];
+                } else {
+                  times = [DateTime(2026), DateTime(2026)];
+                }
 
                 ref
                     .read(uDaoProvider)

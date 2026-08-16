@@ -34,6 +34,15 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     );
   }
 
+  Future<DateTime?> getLatestStart(int userID) async {
+    final fast =
+        await (selectOnly(fastLog)..addColumns([fastLog.startDateTime])
+        ..where(fastLog.endDateTime.isNull())
+              ..orderBy([OrderingTerm.desc(fastLog.fastLogID)])
+              ..limit(1)).getSingleOrNull();
+    return fast?.read(fastLog.startDateTime);
+  }
+
   Future<int> breakFast(int userID, DateTime endTime, DateTime expectedEnd) async {
       // testing();
 

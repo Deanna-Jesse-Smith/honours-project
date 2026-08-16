@@ -117,9 +117,11 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   void saveChanges() {
     curGoal.threshold = double.tryParse(goalController.text)!;
-    final asyncGoals = ref.watch(asyncGoalsProvider.notifier);
+    final asyncGoals = ref.read(asyncGoalsProvider.notifier);
     if (curGoal.goalID < 0) {
       asyncGoals.insertGoal(curGoal);
+    } else {
+      asyncGoals.changeGoal(curGoal);
     }
   }
 
@@ -169,36 +171,20 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     return FutureBuilder(
       future: ref.watch(gDaoProvider).findActiveGoal(type),
       builder: (context, asyncSnapshot) {
+        debugPrint('connectionState: ${asyncSnapshot.connectionState}');
+  debugPrint('hasData: ${asyncSnapshot.hasData}');
+  debugPrint('data: ${asyncSnapshot.data}');
+  debugPrint('error: ${asyncSnapshot.error}');
+  debugPrint('hasError: ${asyncSnapshot.hasError}');
+  debugPrint('FUTURE BUILDER BUILD: ${asyncSnapshot.connectionState}');
+debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
+  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+    return const CircularProgressIndicator();
+  }
         BasicGoal? goal = asyncSnapshot.data;
 
         if (goal == null) {
-          debugPrint('Null goal card');
-
           curGoal = createDummyGoal();
-          // return Card(
-          //     child: Column(
-          //       children: [
-          //         //* Progress bar
-          //         Text(type.goalText),
-          //         Table(
-          //           children: [
-          //             TableRow(
-          //               children: [Text('Comparison: '), goalOperatorMenu()],
-          //             ),
-          //             TableRow(
-          //               children: [
-          //                 Text('Amount: '),
-          //                 TextField(
-          //                   controller: goalController,
-          //                   keyboardType: TextInputType.numberWithOptions(),
-          //                 ),
-          //               ],
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   );
         } else {
           curGoal = goal;
         }
