@@ -37,11 +37,13 @@ class AsyncReminder extends AsyncNotifier<NotificationSystem> {
         );
 
     if (enabled) {
+          debugPrint('Inside reminder en');
       NotificationSystem.scheduleMealReminders(
         userID: session!.userId,
         time: time,
       );
     } else {
+          debugPrint('Inside reminder dis');
       NotificationSystem.cancelMealReminder(session!.userId);
       ref.read(rDaoProvider).deleteReminder(session!.userId, ReminderType.foodLog);
     }

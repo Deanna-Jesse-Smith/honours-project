@@ -213,8 +213,17 @@ class Dialogs {
   }
 
   static Future<void> getFastResultHelp(BuildContext context) {
-    final temp = showDialog(context: context, builder: (context) => SimpleDialog(title: Text('Your fasting result icons'),
-    children: FastResult.values.map((r) => r.forToolTip).toList(),));
+    final temp = showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text('Your fasting result icons'),
+        children: FastResult.values.map((r) => Row(
+          spacing: 10,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [r.resultIcon, SizedBox(width: MediaQuery.of(context).size.width * 0.6, child: Text(r.description))],
+  )).toList(),
+      ),
+    );
     return temp;
   }
 }

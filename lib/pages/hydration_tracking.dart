@@ -3,7 +3,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
@@ -17,9 +16,9 @@ import 'package:testrun/widgets/navigation_drawer.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
 class HydrationTracking extends ConsumerWidget {
-  HydrationTracking({super.key});
+  const HydrationTracking({super.key});
 
-  double amount = 0;
+  // double amount = 0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
@@ -91,13 +90,18 @@ class HydrationTracking extends ConsumerWidget {
             SizedBox(
               width: 100,
               height: 100,
-              child: FutureBuilder(
-                future: ref.watch(hDaoProvider).getTodayHydration(session.userId, DateTime.now()),
+              child: StreamBuilder(
+                stream: ref.watch(hDaoProvider).watchTodayHydration(session.userId, DateTime.now()),
                 builder: (context, asyncSnapshot) {
                   if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+                  
+                  final am = asyncSnapshot.data!;
+
+                  final prog = 1 <= 0 ? 0.0 : (am / 1).clamp(0.0, 1.0);
+                  
                   return LiquidCircularProgressIndicator(
-                    value: amount,
-                    valueColor: AlwaysStoppedAnimation( Colors.pink),
+                    value: prog,
+                    valueColor: AlwaysStoppedAnimation( Colors.lightBlue),
                     backgroundColor: Colors.white,
                     // borderColor: Colors.red,
                     // borderWidth: 5.0,
@@ -154,22 +158,6 @@ class HydrationTracking extends ConsumerWidget {
       ],
       // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
-  }
-
-  void getTodayHydration(WidgetRef ref, int userID) async {
-    // final todays = await getIt<HydrationDao>().getTodayHydration(userState.userID, DateTime.now());
-    debugPrint('getTodayHydration');
-    final curHydr = await ref.watch(hDaoProvider).getTodayHydration(userID, DateTime.now());
-
-    amount = curHydr;
-    // double sum = 0;
-
-    // for (var log in curHydr) {
-    //   sum += log.amount;
-    // }
-
-    // amount = sum;
-    // return todays.fold(0, (sum, log) => sum + log.amount);
   }
 }
 

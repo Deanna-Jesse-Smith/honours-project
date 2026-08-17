@@ -217,19 +217,18 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 child: CheckboxListTile(
                   value: isNutrition,
                   onChanged: (bool? value) {
-                    setState(() async {
+                    setState(() {
                       isNutrition = value!;
-                      asyncReminder.setFoodReminder(
+                    });
+                    asyncReminder.setFoodReminder(
                         enabled: isNutrition,
                         time: foodTime,
                       );
-                      // await FlutterLocalNotificationsPlugin(id: 0,androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, scheduledDate: tz.TZDateTime.now(tz.local), notificationDetails: const NotificationDetails(android: AndroidNotificationDetails('','')));
-                    });
                   },
                   title: ElevatedButton(
                     onPressed: selectFoodTime,
                     child: Text(
-                      waterText,
+                      foodText,
                       style: TextStyle(fontSize: TextSizing.medium),
                     ),
                   ),

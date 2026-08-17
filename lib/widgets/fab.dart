@@ -123,24 +123,4 @@ class MyExpandableFAB extends ConsumerWidget {
       );
     }
   }
-
-  // void handleDialog() async {
-  //   double? curWeight = await reff
-  //           .read(wDaoProvider)
-  //           .latestWeight(session!.userId);
-  //       final newAmount = await Dialogs.getNewInput(
-  //         context,
-  //         initialVal: curWeight,
-  //         title: 'Log Weight',
-  //       );
-  //       if (newAmount != null) {
-  //         reff
-  //             .read(wDaoProvider)
-  //             .insertWeight(
-  //               session.userId,
-  //               newAmount.toDouble(),
-  //               DateTime.now(),
-  //             );
-  //       }
-  // }
 }

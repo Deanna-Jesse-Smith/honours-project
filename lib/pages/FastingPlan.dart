@@ -68,22 +68,40 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
     adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
 
-    curStreak = ref.watch(gDaoProvider).checkActiveFastingStreak();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(userSessionProvider).value;
+    final session = ref.watch(userSessionProvider);
 
     // ref.read(gDaoProvider).createDummyGoals();
 
     return Scaffold(
-      appBar: MainAppBar.appBar('Fasting Plan', session!.userName),
+      appBar: MainAppBar.appBar(
+        'Fasting Plan',
+        session.asData!.value!.userName,
+      ),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
-        child: getCorrectLayout(session),
+        child: session.when(
+          data: (session) {
+            if (session != null) {
+              if (session.fastingForm == FastingForm.adf) {
+                return createADF(session);
+              } else if (session.fastingForm == FastingForm.tre) {
+                return createTRE(session);
+              } else {
+                return create52(session);
+              }
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+          error: (e, _) => Text(e.toString()),
+          loading: () => const CircularProgressIndicator(),
+        ),
       ),
       persistentFooterButtons: [
         Row(
@@ -131,25 +149,36 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
   }
 
-  Column getCorrectLayout(UserSessionData session) {
-    // if (dropDownValuee == FastingForm.adf) {
-    //   return createADF(session);
-    // } else if (dropDownValuee == FastingForm.tre) {
-    //   return createTRE(session);
-    // } else {
-    //   return create52(session);
-    // }
-
-    if (dropDownValue.toLowerCase() == 'adf') {
-      return createADF(session);
-    } else if (dropDownValue.toLowerCase() == 'tre') {
-      return createTRE(session);
-    } else {
-      return create52(session);
-    }
+  void initDays(UserSessionData session) {
+    adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
+    fiveTwoDaysSelected = intsToBools(
+      session.fiveTwoDaysSelected,
+      fiveTwoDaysSelected,
+    );
   }
 
+  // Column getCorrectLayout(UserSessionData session) {
+  //   if (dropDownValuee == FastingForm.adf) {
+  //     return createADF(session);
+  //   } else if (dropDownValuee == FastingForm.tre) {
+  //     return createTRE(session);
+  //   } else {
+  //     return create52(session);
+  //   }
+
+  //   // if (dropDownValue.toLowerCase() == 'adf') {
+  //   //   return createADF(session);
+  //   // } else if (dropDownValue.toLowerCase() == 'tre') {
+  //   //   return createTRE(session);
+  //   // } else {
+  //   //   return create52(session);
+  //   // }
+  // }
+
   List<bool> intsToBools(List<int> days, List<bool> list) {
+    debugPrint(
+  'REINITIALISING 5:2 FROM SESSION',
+);
     list.fillRange(0, 6, false);
     for (int day in days) {
       list[day] = true;
@@ -162,12 +191,27 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       if (days[loop]) loop,
   ];
 
-  CustomCheckbox getBox(int index, List<bool> curList) => .new(
+  CustomCheckbox getBox(int index, List<bool> curList) {
+    debugPrint(
+    'Building checkbox: index=$index, selected=${curList[index]}, day=${daysOfWeek[index]}',
+  );
+    return .new(
     isSelected: curList[index],
     dayOfWeek: daysOfWeek[index],
     onTap: (bool val) {
+      debugPrint('TAPPED index=${daysOfWeek[index]}, value=$val');
       setState(() {
         curList[index] = val;
+      });
+    },
+  );}
+
+  CustomCheckbox getADFBox(int index) => .new(
+    isSelected: adfDaysSelected[index],
+    dayOfWeek: daysOfWeek[index],
+    onTap: (bool val) {
+      setState(() {
+        adfDaysSelected[index] = val;
       });
     },
   );
@@ -335,14 +379,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         padding: EdgeInsets.all(15),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(4, (c) => getBox(c, adfDaysSelected)),
+          children: List.generate(4, (c) => getADFBox(c)),
         ),
       ),
       Padding(
         padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(3, (c) => getBox(c + 4, adfDaysSelected)),
+          children: List.generate(3, (c) => getADFBox(c + 4)),
         ),
       ),
       Padding(
@@ -382,56 +426,45 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           // side
           // menuStyle: MenuStyle(),
           onSelected: (FastingForm? value) {
-            setState(() async {
-              bool decision = true;
-
-              if (value! != session.fastingForm) {
-                decision = await Dialogs.dangerDialog(
-                  context,
-                  title: 'Are you sure?',
-                  message:
-                      'Changing your fasting form will wipe your current fasting goal and/or streak.',
-                );
-              }
-
-              if (decision) {
-                dropDownValuee = value;
-                debugPrint('The user selected: $value');
-                AsyncFasting asyncFasting = ref.read(
-                  asyncFatingNotifier.notifier,
-                );
-
-                asyncFasting.handleChangingForms(
-                  dropDownValuee,
-                  start,
-                  end,
-                  fiveTwoDaysSelected,
-                  adfDaysSelected,
-                );
-              }
-              // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
+            setState(() {
+              checkChanging(value, session);
             });
           },
           dropdownMenuEntries: entriess,
           textStyle: TextStyle(fontSize: TextSizing.large),
         ),
-        // DropdownMenu<String>(
-        //   initialSelection: dropDownValue,
-        //   // side
-        //   // menuStyle: MenuStyle(),
-        //   onSelected: (String? value) {
-        //     setState(() {
-        //       dropDownValue = value!;
-        //       debugPrint('The user selected: $value');
-        //       //! Figure out when/how to update the fasting form in the table
-        //       // ref.read(uDaoProvider).changeFormIF(session.userId, formConverter.fromSql(dropDownValue), start, end, days)
-        //     });
-        //   },
-        //   dropdownMenuEntries: entries,
-        //   textStyle: TextStyle(fontSize: TextSizing.large),
-        // ),
       ],
     );
+  }
+
+  Future<void> checkChanging(
+    FastingForm? value,
+    UserSessionData session,
+  ) async {
+    bool decision = true;
+
+    if (value! != session.fastingForm) {
+      decision = await Dialogs.dangerDialog(
+        context,
+        title: 'Are you sure?',
+        message:
+            'Changing your fasting form will wipe your current fasting goal and/or streak.',
+      );
+    }
+
+    if (decision) {
+      dropDownValuee = value;
+      debugPrint('The user selected: $value');
+      AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
+
+      asyncFasting.handleChangingForms(
+        dropDownValuee,
+        start,
+        end,
+        fiveTwoDaysSelected,
+        adfDaysSelected,
+      );
+    }
   }
 }
 

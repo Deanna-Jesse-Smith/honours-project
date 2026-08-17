@@ -309,11 +309,6 @@ extension FastResultHistory on FastResult {
       'You ate more than was recommended on a restrictive day',
     FastResult.underate => 'You ate less than was recommended',
   };
-
-  Row get forToolTip => .new(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [resultIcon, Text(description)],
-  );
 }
 
 class Fast {

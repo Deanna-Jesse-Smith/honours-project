@@ -54,8 +54,8 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     if (session.isFasting) {
       await toggleFast();
+      
     }
-
     ref.invalidate(userSessionProvider);
   }
 

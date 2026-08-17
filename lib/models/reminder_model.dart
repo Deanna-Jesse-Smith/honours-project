@@ -125,7 +125,7 @@ class CalculateReminderTimes {
                         ),
                       ),
                       androidScheduleMode:
-                          AndroidScheduleMode.exactAllowWhileIdle,
+                          AndroidScheduleMode.inexactAllowWhileIdle,
                     );
   }
 }
@@ -146,6 +146,11 @@ class NotificationSystem {
     required String body,
     required DateTime date,
   }) async {
+    final scheduled = tz.TZDateTime.from(date, tz.local);
+    debugPrint('System time: ${DateTime.now()}');
+debugPrint('TZ local: ${tz.local}');
+debugPrint('Input date: $date');
+debugPrint('Scheduled date: $scheduled');
     await plugin.zonedSchedule(
       id: id,
       title: title,
@@ -160,7 +165,7 @@ class NotificationSystem {
         ),
       ),
       androidScheduleMode:
-          AndroidScheduleMode.exactAllowWhileIdle,
+          AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 
@@ -200,6 +205,7 @@ class NotificationSystem {
   required String body,
   required TimeOfDay time,
 }) async {
+  
   final now = tz.TZDateTime.now(tz.local);
 
   var scheduled = tz.TZDateTime(
@@ -210,6 +216,11 @@ class NotificationSystem {
     time.hour,
     time.minute,
   );
+
+    debugPrint('System time: ${DateTime.now()}');
+debugPrint('TZ local: ${tz.local}');
+// debugPrint('Input date: $date');
+debugPrint('Scheduled date: $scheduled');
 
   if (scheduled.isBefore(now)) {
     scheduled = scheduled.add(const Duration(days: 1));
@@ -229,7 +240,7 @@ class NotificationSystem {
       ),
     ),
     androidScheduleMode:
-        AndroidScheduleMode.exactAllowWhileIdle,
+        AndroidScheduleMode.inexactAllowWhileIdle,
     matchDateTimeComponents: DateTimeComponents.time,
   );
 }

@@ -34,5 +34,4 @@ class CustomCheckbox extends StatelessWidget {
         ),
       ),
     );
-  
 }
