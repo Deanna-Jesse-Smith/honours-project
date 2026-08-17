@@ -16,54 +16,46 @@ class _StartPageState extends State<StartPage> {
     TextEditingController controller = TextEditingController(text: '');
     bool hasExperience = false;
     return Scaffold(
-      body: Column(
-        children: [
-          const Text('Welcome!'),
-          const Text('To your Intermittent Fasting Support app!'),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-            child: TextField(controller: controller, autofocus: true),
-          ),
-          SizedBox(height: 50),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-            child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => !hasExperience)),
-            // child: RadioGroup<Experience>(
-            //   groupValue: exp,
-            //   onChanged: (Experience? value) => setState(() => exp = value),
-            //   child: Row(
-            //     children: [
-            //       SizedBox(width: 30),
-            //       Text('Beginner'),
-            //       Radio<Experience>(value: Experience.beginner),
-            //       const SizedBox(width: 12),
-            //       Text('Experienced'),
-            //       Radio<Experience>(value: Experience.experienced),
-            //     ],
-            //   ),
+      body: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 20,
+          children: [
+            const Text('Welcome!', style: TextStyle(fontSize: TextSizing.large),),
+            const Text('To your Intermittent Fasting Support app!', style: TextStyle(fontSize: TextSizing.large)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+              child: TextField(controller: controller, autofocus: true, style: TextStyle(fontSize: TextSizing.medium),),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (controller.text.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        SetupUser(name: controller.text, experience: hasExperience),
-                  ),
-                );
-              } else {
-                await Dialogs.dangerDialog(
-                  context,
-                  title: 'WARNING',
-                  message: 'You need to input your name to proceed',
-                );
-              }
-            },
-            child: const Text('Sign Up'),
-          ),
-        ],
+            SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+              child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => !hasExperience)),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (controller.text.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SetupUser(name: controller.text, experience: hasExperience),
+                    ),
+                  );
+                } else {
+                  await Dialogs.dangerDialog(
+                    context,
+                    title: 'WARNING',
+                    message: 'You need to input your name to proceed',
+                  );
+                }
+              },
+              child: const Text('Sign Up'),
+            ),
+          ],
+        ),
       ),
     );
   }

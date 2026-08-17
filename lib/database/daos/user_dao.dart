@@ -68,7 +68,8 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
             .getSingleOrNull();
             debugPrint('got');
     final count = await (select(users)).get();
-    debugPrint('User number: ${count.length}');
+    debugPrint('uDao: User number: ${count.length}');
+    debugPrint(lastUser.toString());
 
     return lastUser;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/pages/fasting_history.dart';
 
 class HydrationDefaults {
   final String gender;
@@ -175,7 +176,8 @@ class RecommendationSystem {
   final Set<FastingForm> prevForms;
   final int prevDuration;
   final Set<Struggle> struggle;
-  final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30), latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
+  final TimeOfDay earliestNormalStart = TimeOfDay(hour: 6, minute: 30),
+      latestNormalEnd = TimeOfDay(hour: 21, minute: 0);
   final ObligationMeals meals;
   late ObligationSpan constraints;
   late Experience exp = Experience.beginner;
@@ -188,12 +190,10 @@ class RecommendationSystem {
     required this.struggle,
     required this.meals,
   }) {
+    debugPrint('In rec system');
     exp = prevDuration > 8 ? Experience.experienced : Experience.beginner;
     if (prevDuration > 8) {
-      
-    } else if (prevDuration > 4) {
-      
-    }
+    } else if (prevDuration > 4) {}
 
     restrainTRE = struggle.contains(Struggle.daily);
     restrainNonTRE = struggle.contains(Struggle.weekly);
@@ -205,31 +205,53 @@ class RecommendationSystem {
     }
   }
 
-  int scoreForm(FastingForm form) {
+  Experience getExp() => exp;
+
+int scoreForm(FastingForm form) {
   var score = 0;
 
   if (prevForms.contains(form)) {
     score += 3;
   }
 
-  if (form == FastingForm.tre &&
-      exp == Experience.beginner) {
-    score += 2;
-  }
+  if (form == FastingForm.tre) {
+    if (exp == Experience.beginner) {
+      score += 2;
+    } else {
+      score -= 1;
+    }
 
-  if (form != FastingForm.tre &&
-      exp == Experience.experienced) {
-    score += 1;
-  }
+    if (struggle.contains(Struggle.daily)) {
+      score -= 4;
+    }
+  } else if (form == FastingForm.adf) {
+    if (exp == Experience.beginner) {
+      score -= 2;
 
-  if (form == FastingForm.tre &&
-      struggle.contains(Struggle.daily)) {
-    score -= 4;
-  }
+      if (struggle.contains(Struggle.daily)) {
+        score -= 2;
+      }
+    } else {
+      score += 1;
+    }
 
-  if (form != FastingForm.tre &&
-      struggle.contains(Struggle.weekly)) {
-    score -= 4;
+    if (struggle.contains(Struggle.weekly)) {
+      score -= 4;
+    }
+  } else if (form == FastingForm.fiveTwo) {
+    if (exp == Experience.beginner) {
+      score -= 2;
+
+      if (struggle.contains(Struggle.daily)) {
+        score += 2;
+      }
+    } else {
+      score += 1;
+    }
+
+    if (struggle.contains(Struggle.weekly)) {
+      score -= 4;
+    }
   }
 
   return score;
@@ -251,7 +273,9 @@ class RecommendationSystem {
     List<ScoredOption> options = [];
 
     if (!restrainTRE || prevForms.contains(FastingForm.tre)) {
-      options.addAll(treEvaluation(constraints, exp).map((option) => score(option)));
+      options.addAll(
+        treEvaluation(constraints, exp).map((option) => score(option)),
+      );
     }
 
     if (!restrainNonTRE || prevForms.contains(FastingForm.adf)) {
@@ -259,9 +283,12 @@ class RecommendationSystem {
     }
 
     if (!restrainNonTRE || prevForms.contains(FastingForm.fiveTwo)) {
-      options.addAll(fiveTwoEvaluation(meals, exp).map((option) => score(option)));
+      options.addAll(
+        fiveTwoEvaluation(meals, exp).map((option) => score(option)),
+      );
     }
 
+    options.sort((a, b) => b.score.compareTo(a.score));
     return options.take(3).map((o) => o.option).toList();
   }
 
@@ -270,8 +297,12 @@ class RecommendationSystem {
   TimeOfDay toTimeOfDay(int m) =>
       TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
 
-  final dayEarliest = TimeOfDay(hour: 5, minute: 0),
+  final dayEarliest = TimeOfDay(hour: 7, minute: 0),
       dayLatest = TimeOfDay(hour: 22, minute: 0);
+
+  String formatTime(TimeOfDay time) =>
+      '${time.hour.toString().padLeft(2, '0')}:'
+      '${time.minute.toString().padLeft(2, '0')}';
 
   List<TREoption> treEvaluation(ObligationSpan span, Experience exp) {
     final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
@@ -297,8 +328,8 @@ class RecommendationSystem {
           toTimeOfDay(eartlyStart),
           toTimeOfDay(earlyEnd),
           Duration(minutes: length),
-          'Early TRE',
-          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(eartlyStart)}, giving you extra time afterwards in case you run late.',
+          'Early TRE (${formatTime(toTimeOfDay(eartlyStart))}–${formatTime(toTimeOfDay(earlyEnd))})',
+          'A ${length ~/ 60}-hour eating window, giving you extra time afterwards in case you run late.',
         ),
       );
     }
@@ -314,8 +345,8 @@ class RecommendationSystem {
           toTimeOfDay(lateStart),
           toTimeOfDay(lateEnd),
           Duration(minutes: length),
-          'Late TRE',
-          'A ${length ~/ 60}-hour eating window, starting at ${toTimeOfDay(lateStart)}, giving you extra time before your first meal.',
+          'Late TRE (${formatTime(toTimeOfDay(lateStart))}–${formatTime(toTimeOfDay(lateEnd))})',
+          'A ${length ~/ 60}-hour eating window, giving you extra time before your first meal.',
         ),
       );
     }
@@ -334,7 +365,7 @@ class RecommendationSystem {
             toTimeOfDay(otherStart),
             toTimeOfDay(otherEnd),
             Duration(minutes: otherLength),
-            'Other',
+            'TRE (${formatTime(toTimeOfDay(otherStart))}–${formatTime(toTimeOfDay(otherEnd))})',
             'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.',
           ),
         );
@@ -347,14 +378,21 @@ class RecommendationSystem {
     final getAvailable = findAvailableDays(meals, false);
 
     List<List<int>> combinations = validCombosHelper(getAvailable, true);
+    combinations.retainWhere((c) => c.isNotEmpty);
 
     List<ADFoption> options = [];
 
     for (final combo in combinations) {
-      options.add(ADFoption(combo, 'A ${combo.length} day option', ''));
+      options.add(ADFoption(combo, 'ADF: A ${combo.length} day option', adfCombo(combo.sublist(1), 'A fast on ${daysOfWeek[combo.first]}')));
     }
 
     return options;
+  }
+
+  String adfCombo(List<int> combo, String acc) {
+    if (combo.isEmpty) return acc;
+    if (combo.length == 1) return '$acc and ${daysOfWeek[combo.first]}';
+    return adfCombo(combo.sublist(1), '$acc, ${daysOfWeek[combo.first]}');
   }
 
   List<ModifiedOption> fiveTwoEvaluation(
@@ -364,11 +402,12 @@ class RecommendationSystem {
     final getAvailable = findAvailableDays(meals, true);
 
     List<List<int>> pairs = validCombosHelper(getAvailable, false);
+    pairs.retainWhere((c) => c.isNotEmpty);
 
     List<ModifiedOption> options = [];
 
     for (final pair in pairs) {
-      options.add(ModifiedOption(pair, '', ''));
+      options.add(ModifiedOption(pair, '5:2', 'A schedule with your calorie restriction days on ${daysOfWeek[pair.first]} and ${daysOfWeek[pair.last]}'));
     }
 
     return options;

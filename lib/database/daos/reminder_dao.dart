@@ -27,10 +27,9 @@ class ReminderDao extends DatabaseAccessor<AppDatabase> with _$ReminderDaoMixin 
   }
 
   Future<ReminderData?> getReminder(
-  int userID,
   ReminderType type,
 ) {
-  final rem = (select(reminder)..where((r) => r.userID.equals(userID) & r.type.equals(type.name)));
+  final rem = (select(reminder)..where((r) => r.type.equals(type.name)));
   return rem.getSingleOrNull();
 }
 

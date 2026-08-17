@@ -26,7 +26,7 @@ class SetupUser extends ConsumerStatefulWidget {
 enum Measurement { metric, imperial }
 
 class _SetupUserState extends ConsumerState<SetupUser> {
-  late FastingForm dropDownValuee;
+  FastingForm dropDownValuee = FastingForm.tre;
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
 
@@ -61,6 +61,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       appBar: AppBar(title: const Text('Questionnaire'), centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Forms of Intermittent Fasting',
@@ -84,62 +85,92 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               buildWithExperience(), //? What form(s) of IF have you done before? And for how long (weeks)?
             buildQuestion('Do you prefer metric or imperial?'),
 
-            ElevatedButton(
-              onPressed: () async {
-                final DateTime? dateTime = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(3000),
-                );
-                if (dateTime != null) {
-                  setState(() {
-                    selectedDate = dateTime;
-                  });
-                }
-              },
-              child: const Text('Select Birthday'),
-            ),
-
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text('How tall are you?'),
-                TextField(
-                  controller: heightController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: false),
-                  decoration: InputDecoration(suffixText: 'cm'),
+                const Text('When were you born?', style: TextStyle(fontSize: TextSizing.medium),),
+                ElevatedButton(
+                  onPressed: () async {
+                    final DateTime? dateTime = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(3000),
+                    );
+                    if (dateTime != null) {
+                      setState(() {
+                        selectedDate = dateTime;
+                      });
+                    }
+                  },
+                  child: const Text('Select Birthday'),
                 ),
               ],
             ),
 
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: TextField(
-                controller: heightController,
-                keyboardType: TextInputType.numberWithOptions(decimal: false),
-                decoration: InputDecoration(suffixText: 'cm'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'How tall are you?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: heightController,
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: false,
+                    ),
+                    decoration: InputDecoration(suffixText: 'cm'),
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
+              ],
             ),
 
-            const Text('How much do you weigh?'),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: weightController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(suffixText: 'kg'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'How much do you weigh?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: weightController,
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(suffixText: 'kg'),
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
+              ],
             ),
 
             struggle(), //? What do you struggle most with: daily schedule change or a weekly change?
 
-            const Text('Do you eat meals with family or friends regularly?'),
-            Checkbox(
-              value: obligationVisibility,
-              onChanged: (value) {
-                setState(() => obligationVisibility = value ?? false);
-              },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 250,
+                  child: const Text(
+                    'Do you eat meals with family or friends regularly?',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
+                Checkbox(
+                  value: obligationVisibility,
+                  onChanged: (value) {
+                    setState(() => obligationVisibility = value ?? false);
+                  },
+                ),
+              ],
             ),
+
             if (obligationVisibility) getWeek(),
             ElevatedButton(
               onPressed: isSaving ? null : handleFinished,
@@ -164,27 +195,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   Future<void> handleFinished() async {
     setState(() => isSaving = true);
     try {
-      final isMetric = measurement == Measurement.metric;
-      final days = obligationDays
-          .asMap()
-          .entries
-          .where((e) => e.value)
-          .map((e) => e.key)
-          .join(',');
-
-      await ref
-          .read(uDaoProvider)
-          .addUser(
-            widget.name,
-            isMetric,
-            dropDownValuee,
-            exp,
-            DateTime(2000), // start: not collected on this screen yet
-            DateTime(2000), // end: not collected on this screen yet
-            days,
-            days,
-          );
-
       if (!mounted) return;
 
       List<int> tempDays = boolsToInts(obligationDays);
@@ -213,7 +223,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               FinalSetup(almost: tempUser, obligations: temp, rs: rs),
         ),
       );
-      Navigator.pushNamed(context, '/FinalSetup');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -250,10 +259,11 @@ class _SetupUserState extends ConsumerState<SetupUser> {
         for (int loop = 0; loop < obligationTimes.length; loop++)
           getObligationMeal(loop),
         if (obligationTimes.length < mealCap)
-          TextButton(
+          ElevatedButton(
             onPressed: () =>
                 setState(() => obligationTimes.add(TimeOfDay.now())),
-            child: const Text('+'),
+            child: const Text('+',
+                    style: TextStyle(fontSize: TextSizing.large),),
           ),
       ],
     );
@@ -261,8 +271,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   static const int mealCap = 3;
   List<TimeOfDay> obligationTimes = [
-    TimeOfDay(hour: 6, minute: 0),
-    TimeOfDay(hour: 21, minute: 0),
+    TimeOfDay(hour: 12, minute: 0),
+    TimeOfDay(hour: 18, minute: 0),
   ];
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
@@ -373,7 +383,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          const Text('What do you struggle more with?'),
+          const Text('What do you struggle more with?',
+                    style: TextStyle(fontSize: TextSizing.medium),),
           SegmentedButton<Struggle>(
             segments: Struggle.values.map((s) {
               return ButtonSegment(
@@ -382,7 +393,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                   s == Struggle.weekly
                       ? 'Weekly schedule change'
                       : 'Daily schedule change',
-                  style: TextStyle(fontSize: TextSizing.medium),
+                  style: TextStyle(fontSize: TextSizing.small),
                 ),
               );
             }).toList(),

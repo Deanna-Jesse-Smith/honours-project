@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/converters.dart';
-import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 
 class DummyUser {
-  final DateTime start;
   final List<int> adfDaysSelected;
   final FastingForm form;
   final DateTime typicalStart, typicalEnd;
 
-  DummyUser(this.start, this.adfDaysSelected, this.form, this.typicalStart, this.typicalEnd);
+  DummyUser(this.adfDaysSelected, this.form, this.typicalStart, this.typicalEnd);
 }
 
 class FastingInterval {
@@ -167,8 +164,6 @@ FastingStatus determineFastingStatus({
   required DummyUser user,
   required DateTime? activeLogStart,
 }) {
-  final calculator = calculatorFor(user.form);
-
   final interval = findRelevantInterval(
     now,
     user,

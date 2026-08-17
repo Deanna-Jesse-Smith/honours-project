@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/utils/Notifiers/reminder_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 class ReminderPage extends ConsumerStatefulWidget {
   const ReminderPage({super.key});
@@ -29,16 +29,60 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   @override
   void initState() {
     asyncReminder = ref.read(asyncReminderNotifier.notifier);
+
+    initTimes();
+
     super.initState();
+  }
+
+  Future<void> initTimes() async {
+    final waterRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.waterLog);
+    if (waterRem != null) {
+      isHydration = waterRem.isEnabled;
+      waterTime = TimeOfDay.fromDateTime(waterRem.time!);
+    }
+
+    final foodRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.foodLog);
+    if (foodRem != null) {
+      isNutrition = foodRem.isEnabled;
+      foodTime = TimeOfDay.fromDateTime(foodRem.time!);
+    }
+
+    final startRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.fastStart);
+    if (startRem != null) {
+      isStart = startRem.isEnabled;
+    }
+
+    final midRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.fastMidpoint);
+    if (midRem != null) {
+      isMid = midRem.isEnabled;
+    }
+
+    final endRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.fastEnd);
+    if (endRem != null) {
+      isEnd = endRem.isEnabled;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      waterText = waterTime.format(context);
+      foodText = foodTime.format(context);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    foodText = foodTime.format(context);
-    waterText = waterTime.format(context);
     session = ref.watch(userSessionProvider).value!;
-    DateTime today = DateTime.now();
-    DateTime time = DateTime(today.year, today.month, today.day, 8);
     return Scaffold(
       appBar: AppBar(
         title: Text('Reminders', style: TextStyle(fontSize: TextSizing.large)),
@@ -84,7 +128,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             weekdayFastReminder(),
           const SizedBox(height: 50),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Hydration', style: TextStyle(fontSize: TextSizing.medium)),
               Tooltip(
@@ -99,19 +143,24 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
           ),
           Row(
             children: [
-              CheckboxListTile(
-                value: isHydration,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isHydration = value!;
-                    asyncReminder.setWaterReminder(enabled: isHydration, time: waterTime);
-                  });
-                },
-                title: ElevatedButton(
-                  onPressed: selectWaterTime,
-                  child: Text(
-                    waterText,
-                    style: TextStyle(fontSize: TextSizing.medium),
+              Expanded(
+                child: CheckboxListTile(
+                  value: isHydration,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isHydration = value!;
+                      asyncReminder.setWaterReminder(
+                        enabled: isHydration,
+                        time: waterTime,
+                      );
+                    });
+                  },
+                  title: ElevatedButton(
+                    onPressed: selectWaterTime,
+                    child: Text(
+                      waterText,
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
                   ),
                 ),
               ),
@@ -134,14 +183,16 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
           ),
           Row(
             children: [
-              CheckboxListTile(
-                value: isWeight,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isWeight = value!;
-                  });
-                },
-                title: const Text('Have weekly weight reminder:'),
+              Expanded(
+                child: CheckboxListTile(
+                  value: isWeight,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isWeight = value!;
+                    });
+                  },
+                  title: const Text('Have weekly weight reminder:'),
+                ),
               ),
             ],
           ),
@@ -162,20 +213,25 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
           ),
           Row(
             children: [
-              CheckboxListTile(
-                value: isNutrition,
-                onChanged: (bool? value) {
-                  setState(() async {
-                    isNutrition = value!;
-                    asyncReminder.setFoodReminder(enabled: isNutrition, time: foodTime);
-                    // await FlutterLocalNotificationsPlugin(id: 0,androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, scheduledDate: tz.TZDateTime.now(tz.local), notificationDetails: const NotificationDetails(android: AndroidNotificationDetails('','')));
-                  });
-                },
-                title: ElevatedButton(
-                  onPressed: selectWaterTime,
-                  child: Text(
-                    waterText,
-                    style: TextStyle(fontSize: TextSizing.medium),
+              Expanded(
+                child: CheckboxListTile(
+                  value: isNutrition,
+                  onChanged: (bool? value) {
+                    setState(() async {
+                      isNutrition = value!;
+                      asyncReminder.setFoodReminder(
+                        enabled: isNutrition,
+                        time: foodTime,
+                      );
+                      // await FlutterLocalNotificationsPlugin(id: 0,androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, scheduledDate: tz.TZDateTime.now(tz.local), notificationDetails: const NotificationDetails(android: AndroidNotificationDetails('','')));
+                    });
+                  },
+                  title: ElevatedButton(
+                    onPressed: selectFoodTime,
+                    child: Text(
+                      waterText,
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
                   ),
                 ),
               ),
@@ -207,28 +263,43 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             value: isStart,
             onChanged: (bool? value) => setState(() {
               isStart = value!;
-              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-            ),
-            title: const Text('Fast starting soon 15 minutes before'),
+              asyncReminder.setFastingReminders(
+                fastStart: session.startTime,
+                fastEnd: session.endTime,
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
+            title: const Text('Fast starting soon (15 minutes before)'),
           ),
           CheckboxListTile(
             value: isMid,
             onChanged: (bool? value) => setState(() {
               isMid = value!;
-              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-              ),
+              asyncReminder.setFastingReminders(
+                fastStart: session.startTime,
+                fastEnd: session.endTime,
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
             title: const Text('Halfway through fast'),
           ),
           CheckboxListTile(
             value: isEnd,
             onChanged: (bool? value) => setState(() {
               isEnd = value!;
-              asyncReminder.setFastingReminders(fastStart: session.startTime, fastEnd: session.endTime, startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-              ),
-            title: const Text('Fast ending soon 15 minutes before'),
+              asyncReminder.setFastingReminders(
+                fastStart: session.startTime,
+                fastEnd: session.endTime,
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
+            title: const Text('Fast ending soon (15 minutes before)'),
           ),
         ],
       ),
@@ -244,28 +315,43 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             value: isStart,
             onChanged: (bool? value) => setState(() {
               isStart = value!;
-              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-            ),
-            title: const Text('Fast starting soon 15 minutes before'),
+              asyncReminder.setFastingReminders(
+                fastStart: DateTime(2026, 1, 1, 20, 00),
+                fastEnd: DateTime(2026, 1, 1, 6, 0),
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
+            title: const Text('The night before (20:00)'),
           ),
           CheckboxListTile(
             value: isMid,
             onChanged: (bool? value) => setState(() {
               isMid = value!;
-              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-              ),
+              asyncReminder.setFastingReminders(
+                fastStart: DateTime(2026, 1, 1, 20, 00),
+                fastEnd: DateTime(2026, 1, 1, 6, 0),
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
             title: const Text('Halfway through fast'),
           ),
           CheckboxListTile(
             value: isEnd,
             onChanged: (bool? value) => setState(() {
               isEnd = value!;
-              asyncReminder.setFastingReminders(fastStart: DateTime(2026, 1, 1, 20, 00), fastEnd: DateTime(2026, 1, 1, 6, 0), startEnabled: isStart, midpointEnabled: isMid, endEnabled: isEnd);
-              }
-              ),
-            title: const Text('Fast ending soon 15 minutes before'),
+              asyncReminder.setFastingReminders(
+                fastStart: DateTime(2026, 1, 1, 20, 00),
+                fastEnd: DateTime(2026, 1, 1, 6, 0),
+                startEnabled: isStart,
+                midpointEnabled: isMid,
+                endEnabled: isEnd,
+              );
+            }),
+            title: const Text('The morning after (06:00)'),
           ),
         ],
       ),
@@ -273,7 +359,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   }
 
   TimeOfDay foodTime = TimeOfDay.now(), waterTime = TimeOfDay.now();
-  late String foodText, waterText;
+  String foodText = '', waterText = '';
 
   Future<void> selectFoodTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: foodTime);

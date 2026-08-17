@@ -121,15 +121,17 @@ class MealTracking extends ConsumerWidget {
                 }, ifAbsent: () => temp);
               }
               List<DayFoods> curr = foodMap.values.toList();
-              return ListView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: curr.length,
-                itemBuilder: (context, index) {
-                  if (curr.isNotEmpty) {
-                    return DaySection(dayMeal: curr[index]);
-                  }
-                  return SizedBox(height: 10);
-                },
+              return Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: curr.length,
+                  itemBuilder: (context, index) {
+                    if (curr.isNotEmpty) {
+                      return DaySection(dayMeal: curr[index]);
+                    }
+                    return SizedBox(height: 10);
+                  },
+                ),
               );
             },
           ),

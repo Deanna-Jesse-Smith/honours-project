@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
@@ -74,34 +73,21 @@ class UserSessionData {
 class UserSession extends AsyncNotifier<UserSessionData?> {
   @override
   Future<UserSessionData?> build() async {
+    debugPrint('session start');
     final uDao = ref.watch(uDaoProvider);
+    debugPrint('session watching');
     final fDao = ref.watch(fDaoProvider);
 
     final user = await uDao.getUser();
-    if (user == null) return null;
-
-    final fast = await fDao.isFasting(user.userID);
-    final curStart = await fDao.getLatestStart(user.userID);
-    List<int> days = switch(user.formIF) {
-      FastingForm.tre => [],
-      FastingForm.fiveTwo => DayOfWeekConverter().fromSQL(user.adfDaysSelected),
-      FastingForm.adf => DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected),
-    };
-
-    late FastingStatus status;
-
-    if (curStart == null) {
-      status = FastingStatus.notFastingDay;
-    } else {
-      status = determineFastingStatus(now: DateTime.now(), user: DummyUser(curStart, days, user.formIF, user.typicalEatingStart!, user.typicalEatingEnd!), activeLogStart: curStart);
+    if (user == null) {
+      debugPrint('session null');
+      return null;
     }
+    debugPrint('session not null');
 
-
-    final isFasting = fast == null
-        ? false
-        : !fast.endDateTime!.isAtSameMomentAs(fast.startDateTime);
-
-    return UserSessionData(
+    final isFasting = await fDao.isFasting();
+  
+        return  UserSessionData(
       userId: user.userID,
       userName: user.name,
       startTime: user.typicalEatingStart!,
@@ -114,6 +100,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       isFasting: isFasting,
       experience: user.experience,
     );
+
   }
 
   UserSessionData copy(
@@ -135,7 +122,9 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   }
 
   Future<bool> updateTRE(TimeOfDay start, TimeOfDay end) async {
-    //! check if it is a healthy schedule
+    if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) > 1200) {
+      return false;
+    }
     ref.read(uDaoProvider).updateTREtimes(state.value!.userId, start.dateTimeConversion, end.dateTimeConversion);
     ref.invalidateSelf();
     return true;

@@ -63,15 +63,22 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         .write(FastLogCompanion(endDateTime: Value(endTime), fastResult: Value('${curLog.fastResult},${result.name}'), ));
   }
 
-  Future<FastLogData?> isFasting(int userID) {
+  Future<bool> isFasting() async {
     final fast =
-        (select(fastLog)
-        ..where((f) => f.userID.equals(userID) & f.endDateTime.isNull())
+        await (select(fastLog)
+        ..where((f) => f.endDateTime.isNull())
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
               ..limit(1))
             .getSingleOrNull();
 
-    return fast;
+    return fast != null;
+  }
+
+  Stream<bool> checkFastingStatus() {
+    return (select(fastLog)
+        ..where((f) => f.endDateTime.isNull())
+              ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
+              ..limit(1)).watchSingleOrNull().map((fast) => fast != null);
   }
 
   Stream<List<FastLogData>> findFastsInRange(int userID, DateTime start, DateTime end) {

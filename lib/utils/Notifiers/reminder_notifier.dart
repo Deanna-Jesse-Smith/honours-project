@@ -137,6 +137,10 @@ class AsyncReminder extends AsyncNotifier<NotificationSystem> {
       endEnabled: endEnabled,
     );
   }
+
+  // Future<void> interventionNotification() {
+
+  // }
 }
 
 final asyncReminderNotifier =

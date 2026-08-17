@@ -11,6 +11,7 @@ import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/pages/goals_pages/reminder_page.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
@@ -21,6 +22,8 @@ import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -61,13 +64,9 @@ final foodRangeProvider = FutureProvider.family<Map<DateTime, DayFoods>, List<Da
     return repo.getFoodInRange(days);
   },
 );
-final isFastingProvider = Provider<bool>((ref) {
-  final curUser = ref.watch(userSessionProvider);
-  return curUser.when(
-    data: (u) => u!.isFasting,
-    error: (a, b) => false,
-    loading: () => false,
-  );
+final isFastingProvider = StreamProvider<bool>((ref) {
+  final dao = ref.watch(fDaoProvider);
+  return dao.checkFastingStatus();
 });
 
 void main() async {
@@ -102,7 +101,7 @@ class MyApp extends ConsumerWidget {
     // insert(ref);
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
-
+    tz.initializeTimeZones();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
@@ -116,8 +115,11 @@ class MyApp extends ConsumerWidget {
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),
-        loading: () => const StartPage(),
-        error: (e, st) => const StepCounts(),
+        loading: () => const CircularProgressIndicator(),
+        error: (e, st) {
+          debugPrint('Error: ${e.toString()}');
+          return ErrorPage(e.toString());
+        },
       ),
       theme: ThemeData(
         // colorScheme: ColorScheme(brightness: Brightness.light,

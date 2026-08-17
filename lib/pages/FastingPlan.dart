@@ -87,7 +87,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
       persistentFooterButtons: [
         Row(
-          spacing: 30,
+          // spacing: 30,
           children: [
             ElevatedButton(
               onPressed: () => {

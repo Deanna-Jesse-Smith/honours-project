@@ -98,14 +98,13 @@ class DayOfWeekConverter {
   const DayOfWeekConverter();
 
   List<int> fromSQL(String fromDB) {
+    if (fromDB.trim().isEmpty) return [];
     List<int> days = fromDB.split(',').map((d) => int.parse(d)).toList();
     return days;
   }
 
   String toSQL(List<int> days) {
     String selected = days.join(',');
-    // String selected = days.fold('', (prev, ele) => '$prev,$ele');
-    //? Originally went with the one above, but the top one is so much cooler
     return selected;
   }
 }

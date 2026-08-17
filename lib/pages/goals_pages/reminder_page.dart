@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ReminderPage extends StatelessWidget {
-  const ReminderPage({super.key});
+class ErrorPage extends StatelessWidget {
+  final String errorText;
+  const ErrorPage(this.errorText, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(body: SizedBox(width: MediaQuery.of(context).size.width - 80,child: Text(errorText)),);
   }
 }
