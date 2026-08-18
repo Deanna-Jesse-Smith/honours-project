@@ -109,7 +109,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                'Fasting (${session!.fastingForm.label})',
+                'Fasting (${session.fastingForm.label})',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               Tooltip(

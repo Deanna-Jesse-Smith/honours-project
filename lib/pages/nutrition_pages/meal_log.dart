@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -58,8 +57,6 @@ class _MealLogState extends ConsumerState<MealLog> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(userSessionProvider).value;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(

@@ -32,7 +32,6 @@ class HistoryItem {
     DateTime today = DateTime.now();
     DateTime start = DateTime(today.year, today.month, 1);
     DateTime end = DateTime(today.year, today.month + 1, 0);
-    int daysInMonth = end.day;
 
     final test =  ref.watch(fDaoProvider).findFastsInRange(userID, start, end);
 

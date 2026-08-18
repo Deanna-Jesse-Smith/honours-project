@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
@@ -137,8 +138,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       curADFSchedule,
                     );
                 
-    //             await FlutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-    // ?.requestNotificationsPermission();
+                FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
                 ref.invalidate(userSessionProvider);
 
                 if (!context.mounted) return;

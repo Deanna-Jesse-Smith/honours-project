@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_logs/flutter_logs.dart';
+import 'package:testrun/widgets/navigation_drawer.dart';
 
 class StepCounts extends StatefulWidget {
   const StepCounts({super.key});
@@ -37,7 +38,7 @@ class _StepCountState extends State<StepCounts> {
     });
   }
 
-  void onPedestrianStatusError(error) {
+  void onPedestrianStatusError(String error) {
     FlutterLogs.logError("Error", "PedestrianStatus", 'onPedestrianStatusError: $error');
     setState(() {
       _status = 'Pedestrian Status not available';
@@ -45,7 +46,7 @@ class _StepCountState extends State<StepCounts> {
     FlutterLogs.logInfo("Error", "PedestrianStatus", _status);
   }
 
-  void onStepCountError(error) {
+  void onStepCountError(String error) {
     FlutterLogs.logError("Error", "StepCounts", 'onStepCountError: $error');
     setState(() {
       _steps = 'Step Count not available';
@@ -86,6 +87,7 @@ class _StepCountState extends State<StepCounts> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('Pedometer Example')),
+        drawer: MyNavigationDrawer(),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

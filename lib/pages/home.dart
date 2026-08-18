@@ -3,7 +3,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/goals_model.dart';

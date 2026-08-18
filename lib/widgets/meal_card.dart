@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testrun/database/database.dart';
-import 'package:testrun/database/tables/nutrition_tables/food_table.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 

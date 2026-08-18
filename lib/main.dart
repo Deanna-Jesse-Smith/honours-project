@@ -23,7 +23,6 @@ import 'package:testrun/pages/weight_tracking.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();

@@ -11,8 +11,7 @@ import 'package:testrun/widgets/dialogs.dart';
 class MyExpandableFAB extends ConsumerWidget {
   final int index;
   final ExpandableFabPos posi;
-  late UserSessionData session;
-  MyExpandableFAB({
+  const MyExpandableFAB({
     super.key,
     required this.index,
     this.posi = ExpandableFabPos.center,
@@ -20,7 +19,7 @@ class MyExpandableFAB extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    session = ref.watch(userSessionProvider).value!;
+    UserSessionData session = ref.watch(userSessionProvider).value!;
     final actions = BuildFAB.buildFab(
       ref,
       index: index,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/fasting_history.dart';
 

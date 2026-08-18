@@ -5,11 +5,8 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:testrun/custom_widgets.dart';
-import 'package:testrun/database/tables/goal_tables.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
