@@ -56,7 +56,9 @@ class FoodCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
             Text(food.category.cardName),
             Text(DateFormat('HH:mm a').format(food.logDate)),
           ],),

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,8 +29,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   late Future<FastingStreak?> curStreak;
   late FastingStreak? gottenStreak;
 
-  List<bool> adfDaysSelected = List.filled(7, false);
-  List<bool> fiveTwoDaysSelected = List.filled(7, false);
+  List<bool> adfDaysSelected = List.filled(7, false), ogADF = List.filled(7, false);
+  List<bool> fiveTwoDaysSelected = List.filled(7, false), ogFiveTwo = List.filled(7, false);
 
   static final List<DropdownMenuEntry<FastingForm>> entriess =
       UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
@@ -49,11 +50,13 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     dropDownValuee = session!.fastingForm;
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
 
-    fiveTwoDaysSelected = intsToBools(
+    ogFiveTwo = intsToBools(
       session.fiveTwoDaysSelected,
-      fiveTwoDaysSelected,
+      ogFiveTwo,
     );
-    adfDaysSelected = intsToBools(session.adfDaysSelected, adfDaysSelected);
+    fiveTwoDaysSelected = List<bool>.of(ogFiveTwo);
+    ogADF = intsToBools(session.adfDaysSelected, ogADF);
+    adfDaysSelected = List<bool>.of(ogADF);
 
     super.initState();
   }
@@ -147,21 +150,21 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   void changePlan() async {
     AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
     final session = ref.read(userSessionProvider).value;
+    bool changed = false;
 
-    if (dropDownValuee != session!.fastingForm) {
-      
+    if (dropDownValuee == FastingForm.adf) {
+      if (!listEquals(ogADF, adfDaysSelected)) {
+        final isValid = asyncFasting.validateADFplan(adfDaysSelected);
+      }
+    } else if (dropDownValuee == FastingForm.fiveTwo) {
+      if (!listEquals(ogFiveTwo, fiveTwoDaysSelected)) {
+        final isValid = asyncFasting.validate52plan(fiveTwoDaysSelected);
+      }
     } else {
-
+      // if (start)
     }
 
-    if (asyncFasting.validatePlan(
-      dropDownValuee,
-      start,
-      end,
-      fiveTwoDaysSelected,
-      adfDaysSelected,
-    )) {
-      if (dropDownValuee! != session.fastingForm) {
+    if (dropDownValuee != session!.fastingForm) {
       final decision = await Dialogs.dangerDialog(
         context,
         title: 'Are you sure?',
@@ -169,16 +172,24 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             'Changing your fasting form will wipe your current fasting goal and/or streak.',
       );
     }
-      asyncFasting.handleChangingForms(
-        dropDownValuee,
-        start,
-        end,
-        fiveTwoDaysSelected,
-        adfDaysSelected,
-      );
-    } else {
 
-    }
+    // if (asyncFasting.validatePlan(
+    //   dropDownValuee,
+    //   start,
+    //   end,
+    //   fiveTwoDaysSelected,
+    //   adfDaysSelected,
+    // )) {
+    //   asyncFasting.handleChangingForms(
+    //     dropDownValuee,
+    //     start,
+    //     end,
+    //     fiveTwoDaysSelected,
+    //     adfDaysSelected,
+    //   );
+    // } else {
+
+    // }
   }
 
   // Column getCorrectLayout(UserSessionData session) {

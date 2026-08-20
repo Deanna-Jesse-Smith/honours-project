@@ -141,6 +141,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         0,
         GoalOperator.greaterThan,
         widget.mType,
+        DateTime.now()
       ),
       GoalType.weight => WeightGoalModel(
         -1,
@@ -148,6 +149,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         0,
         GoalOperator.lesserEqual,
         MetricType.kg,
+        DateTime.now(),
         startWeight: 0,
       ),
       GoalType.hydration => HydrationGoalModel(
@@ -156,6 +158,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         0,
         GoalOperator.greaterEqual,
         MetricType.litres,
+        DateTime.now(),
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
@@ -163,6 +166,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         0,
         GoalOperator.greaterEqual,
         MetricType.meals,
+        DateTime.now(),
       ),
     };
   }

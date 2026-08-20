@@ -4460,6 +4460,19 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _lastEvaluatedMeta = const VerificationMeta(
+    'lastEvaluated',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastEvaluated =
+      GeneratedColumn<DateTime>(
+        'last_evaluated',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        defaultValue: currentDate,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     goalID,
@@ -4469,6 +4482,7 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     op,
     isComplete,
     progressValue,
+    lastEvaluated,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4509,6 +4523,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         progressValue.isAcceptableOrUnknown(
           data['progress_value']!,
           _progressValueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_evaluated')) {
+      context.handle(
+        _lastEvaluatedMeta,
+        lastEvaluated.isAcceptableOrUnknown(
+          data['last_evaluated']!,
+          _lastEvaluatedMeta,
         ),
       );
     }
@@ -4555,6 +4578,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.double,
         data['${effectivePrefix}progress_value'],
       )!,
+      lastEvaluated: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_evaluated'],
+      )!,
     );
   }
 
@@ -4579,6 +4606,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   final GoalOperator op;
   final bool isComplete;
   final double progressValue;
+  final DateTime lastEvaluated;
   const Goal({
     required this.goalID,
     required this.type,
@@ -4587,6 +4615,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.op,
     required this.isComplete,
     required this.progressValue,
+    required this.lastEvaluated,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4608,6 +4637,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     }
     map['is_complete'] = Variable<bool>(isComplete);
     map['progress_value'] = Variable<double>(progressValue);
+    map['last_evaluated'] = Variable<DateTime>(lastEvaluated);
     return map;
   }
 
@@ -4622,6 +4652,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       op: Value(op),
       isComplete: Value(isComplete),
       progressValue: Value(progressValue),
+      lastEvaluated: Value(lastEvaluated),
     );
   }
 
@@ -4644,6 +4675,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       ),
       isComplete: serializer.fromJson<bool>(json['isComplete']),
       progressValue: serializer.fromJson<double>(json['progressValue']),
+      lastEvaluated: serializer.fromJson<DateTime>(json['lastEvaluated']),
     );
   }
   @override
@@ -4661,6 +4693,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       'op': serializer.toJson<String>($GoalsTable.$converterop.toJson(op)),
       'isComplete': serializer.toJson<bool>(isComplete),
       'progressValue': serializer.toJson<double>(progressValue),
+      'lastEvaluated': serializer.toJson<DateTime>(lastEvaluated),
     };
   }
 
@@ -4672,6 +4705,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     GoalOperator? op,
     bool? isComplete,
     double? progressValue,
+    DateTime? lastEvaluated,
   }) => Goal(
     goalID: goalID ?? this.goalID,
     type: type ?? this.type,
@@ -4682,6 +4716,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     op: op ?? this.op,
     isComplete: isComplete ?? this.isComplete,
     progressValue: progressValue ?? this.progressValue,
+    lastEvaluated: lastEvaluated ?? this.lastEvaluated,
   );
   Goal copyWithCompanion(GoalsCompanion data) {
     return Goal(
@@ -4700,6 +4735,9 @@ class Goal extends DataClass implements Insertable<Goal> {
       progressValue: data.progressValue.present
           ? data.progressValue.value
           : this.progressValue,
+      lastEvaluated: data.lastEvaluated.present
+          ? data.lastEvaluated.value
+          : this.lastEvaluated,
     );
   }
 
@@ -4712,7 +4750,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
           ..write('isComplete: $isComplete, ')
-          ..write('progressValue: $progressValue')
+          ..write('progressValue: $progressValue, ')
+          ..write('lastEvaluated: $lastEvaluated')
           ..write(')'))
         .toString();
   }
@@ -4726,6 +4765,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     op,
     isComplete,
     progressValue,
+    lastEvaluated,
   );
   @override
   bool operator ==(Object other) =>
@@ -4737,7 +4777,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.metricType == this.metricType &&
           other.op == this.op &&
           other.isComplete == this.isComplete &&
-          other.progressValue == this.progressValue);
+          other.progressValue == this.progressValue &&
+          other.lastEvaluated == this.lastEvaluated);
 }
 
 class GoalsCompanion extends UpdateCompanion<Goal> {
@@ -4748,6 +4789,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<GoalOperator> op;
   final Value<bool> isComplete;
   final Value<double> progressValue;
+  final Value<DateTime> lastEvaluated;
   const GoalsCompanion({
     this.goalID = const Value.absent(),
     this.type = const Value.absent(),
@@ -4756,6 +4798,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.op = const Value.absent(),
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
+    this.lastEvaluated = const Value.absent(),
   });
   GoalsCompanion.insert({
     this.goalID = const Value.absent(),
@@ -4765,6 +4808,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required GoalOperator op,
     this.isComplete = const Value.absent(),
     this.progressValue = const Value.absent(),
+    this.lastEvaluated = const Value.absent(),
   }) : type = Value(type),
        metricType = Value(metricType),
        op = Value(op);
@@ -4776,6 +4820,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<String>? op,
     Expression<bool>? isComplete,
     Expression<double>? progressValue,
+    Expression<DateTime>? lastEvaluated,
   }) {
     return RawValuesInsertable({
       if (goalID != null) 'goal_i_d': goalID,
@@ -4785,6 +4830,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (op != null) 'op': op,
       if (isComplete != null) 'is_complete': isComplete,
       if (progressValue != null) 'progress_value': progressValue,
+      if (lastEvaluated != null) 'last_evaluated': lastEvaluated,
     });
   }
 
@@ -4796,6 +4842,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<GoalOperator>? op,
     Value<bool>? isComplete,
     Value<double>? progressValue,
+    Value<DateTime>? lastEvaluated,
   }) {
     return GoalsCompanion(
       goalID: goalID ?? this.goalID,
@@ -4805,6 +4852,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       op: op ?? this.op,
       isComplete: isComplete ?? this.isComplete,
       progressValue: progressValue ?? this.progressValue,
+      lastEvaluated: lastEvaluated ?? this.lastEvaluated,
     );
   }
 
@@ -4836,6 +4884,9 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (progressValue.present) {
       map['progress_value'] = Variable<double>(progressValue.value);
     }
+    if (lastEvaluated.present) {
+      map['last_evaluated'] = Variable<DateTime>(lastEvaluated.value);
+    }
     return map;
   }
 
@@ -4848,7 +4899,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('metricType: $metricType, ')
           ..write('op: $op, ')
           ..write('isComplete: $isComplete, ')
-          ..write('progressValue: $progressValue')
+          ..write('progressValue: $progressValue, ')
+          ..write('lastEvaluated: $lastEvaluated')
           ..write(')'))
         .toString();
   }
@@ -13383,6 +13435,7 @@ typedef $$GoalsTableCreateCompanionBuilder =
       required GoalOperator op,
       Value<bool> isComplete,
       Value<double> progressValue,
+      Value<DateTime> lastEvaluated,
     });
 typedef $$GoalsTableUpdateCompanionBuilder =
     GoalsCompanion Function({
@@ -13393,6 +13446,7 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<GoalOperator> op,
       Value<bool> isComplete,
       Value<double> progressValue,
+      Value<DateTime> lastEvaluated,
     });
 
 final class $$GoalsTableReferences
@@ -13554,6 +13608,11 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<double> get progressValue => $composableBuilder(
     column: $table.progressValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastEvaluated => $composableBuilder(
+    column: $table.lastEvaluated,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13751,6 +13810,11 @@ class $$GoalsTableOrderingComposer
     column: $table.progressValue,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get lastEvaluated => $composableBuilder(
+    column: $table.lastEvaluated,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$GoalsTableAnnotationComposer
@@ -13789,6 +13853,11 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<double> get progressValue => $composableBuilder(
     column: $table.progressValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastEvaluated => $composableBuilder(
+    column: $table.lastEvaluated,
     builder: (column) => column,
   );
 
@@ -13985,6 +14054,7 @@ class $$GoalsTableTableManager
                 Value<GoalOperator> op = const Value.absent(),
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),
+                Value<DateTime> lastEvaluated = const Value.absent(),
               }) => GoalsCompanion(
                 goalID: goalID,
                 type: type,
@@ -13993,6 +14063,7 @@ class $$GoalsTableTableManager
                 op: op,
                 isComplete: isComplete,
                 progressValue: progressValue,
+                lastEvaluated: lastEvaluated,
               ),
           createCompanionCallback:
               ({
@@ -14003,6 +14074,7 @@ class $$GoalsTableTableManager
                 required GoalOperator op,
                 Value<bool> isComplete = const Value.absent(),
                 Value<double> progressValue = const Value.absent(),
+                Value<DateTime> lastEvaluated = const Value.absent(),
               }) => GoalsCompanion.insert(
                 goalID: goalID,
                 type: type,
@@ -14011,6 +14083,7 @@ class $$GoalsTableTableManager
                 op: op,
                 isComplete: isComplete,
                 progressValue: progressValue,
+                lastEvaluated: lastEvaluated,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -10,7 +10,8 @@ class Goals extends Table {
   TextColumn get metricType => textEnum<MetricType>()();
   TextColumn get op => textEnum<GoalOperator>()();
   BoolColumn get isComplete => boolean().withDefault(const Constant(false))();
-  RealColumn get progressValue => real().withDefault(const Constant(0))(); 
+  RealColumn get progressValue => real().withDefault(const Constant(0))();
+  DateTimeColumn get lastEvaluated => dateTime().withDefault(currentDate)();
 }
 
 class FastingGoals extends Table {

@@ -13,7 +13,14 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   @override
   FastingGoalModel build() {
     session = ref.watch(userSessionProvider).value;
-    return FastingGoalModel(0, 0, 0, GoalOperator.logOnly, MetricType.hours);
+    return FastingGoalModel(
+      0,
+      0,
+      0,
+      GoalOperator.logOnly,
+      MetricType.hours,
+      DateTime.now(),
+    );
   }
 
   Future<BasicGoal?> findGoal(GoalType type) {
@@ -23,7 +30,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   (DateTime, DateTime) bookendWeek() {
     DateTime today = DateUtils.dateOnly(DateTime.now());
 
-    DateTime start = today.subtract(Duration(days: findMonday(today.weekday, 0)));
+    DateTime start = today.subtract(
+      Duration(days: findMonday(today.weekday, 0)),
+    );
     DateTime end = start.add(const Duration(days: 7));
 
     return (start, end);
@@ -61,7 +70,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     late bool? result;
     double percent = -1.0;
     int goalID = -1;
-    
+    late DateTime evalDay;
+
     switch (type) {
       case GoalType.fasting:
         final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
@@ -71,6 +81,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           break;
         }
         goalID = goal.goalID;
+        evalDay = goal.lastEval;
 
         if (goal.metric == MetricType.hours) {
           final curDur = await ref.read(fDaoProvider).getCurDuration(0);
@@ -94,7 +105,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           percent = weekDays / goal.threshold;
         } else {
           final fiveTwoDays = session!.fiveTwoDaysSelected;
-          List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
+          List<DateTime?> daysList = fiveTwoDays
+              .map((d) => getFullDay(d))
+              .toList();
           // daysList.removeWhere((d) => d == null);
 
           if (daysList.isEmpty) {
@@ -105,14 +118,16 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           bool resultt = false;
           for (final day in daysList) {
             DateTime temp = day!.add(const Duration(days: 1));
-            bool complete = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
+            bool complete = await ref
+                .read(nDaoProvider)
+                .isFiveTwoDay(day, temp);
 
             if (!complete) {
               resultt = false;
               break;
             }
           }
-          
+
           result = resultt;
         }
       case GoalType.weight:
@@ -124,6 +139,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         }
 
         goalID = goal.goalID;
+        evalDay = goal.lastEval;
         final curWeight = await ref.read(wDaoProvider).latestWeight(0);
 
         if (curWeight == null) {
@@ -141,12 +157,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           break;
         }
         goalID = goal.goalID;
+        evalDay = goal.lastEval;
 
         final curWater = await ref
             .read(hDaoProvider)
             .getTodayHydration(0, DateTime.now());
-
-        
 
         if (curWater == null) {
           debugPrint('Water: null');
@@ -157,7 +172,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           result = goal.calculateComplete(curWater);
           percent = curWater / goal.threshold;
         }
-        
+
       case GoalType.nutrition:
         final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
 
@@ -166,14 +181,27 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           break;
         }
         goalID = goal.goalID;
+        evalDay = goal.lastEval;
 
-        final mealCounts = await ref.read(nDaoProvider).countMealsInRange(week.$1, week.$2);
+        final mealCounts = await ref
+            .read(nDaoProvider)
+            .countMealsInRange(week.$1, week.$2);
 
-        result = mealCounts.length < 7 ? false : mealCounts.every((v) => v >= goal.threshold);
+        result = mealCounts.length < 7
+            ? false
+            : mealCounts.every((v) => v >= goal.threshold);
     }
 
     if (result != null) {
-      await updateStreak(type, goalID, result);
+      if (type != GoalType.weight) {
+        if (type == GoalType.fasting &&
+            !DateUtils.isSameDay(evalDay, week.$1)) {
+          await updateStreak(type, goalID, result);
+        } else if (!DateUtils.isSameDay(evalDay, DateTime.now())) {
+          await updateStreak(type, goalID, result);
+        }
+      }
+
       if (result == true) {
         percent = 1;
       } else {
@@ -184,26 +212,28 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
-  // Future<void> evaluateStreak() {
-
-  // }
-
   Future<void> updateStreak(GoalType type, int goalID, bool result) async {
-    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+    BasicStreak? curStreak = await ref
+        .read(gDaoProvider)
+        .checkActiveStreak(type);
+    final today = DateUtils.dateOnly(DateTime.now());
     if (curStreak == null && result && type != GoalType.weight) {
-      await ref.read(gDaoProvider).insertStreak(goalID);
+      await ref.read(gDaoProvider).insertStreak(goalID, today);
     } else if (curStreak != null) {
+      curStreak.lastEval = DateUtils.dateOnly(today);
       if (result) {
-        final today = DateUtils.dateOnly(DateTime.now());
-        final expected = DateUtils.dateOnly(curStreak.start).add(Duration(days: curStreak.daysProgress));
+        final expected = DateUtils.dateOnly(
+          curStreak.start,
+        ).add(Duration(days: curStreak.daysProgress));
 
-        if (today == expected.subtract(Duration(days: 1)) || today == expected) {
+        if (today == expected.subtract(Duration(days: 1)) ||
+            today == expected) {
           await ref.read(gDaoProvider).updateStreak(curStreak);
         } else {
-          await ref.read(gDaoProvider).breakStreak(curStreak.streakID);
+          await ref.read(gDaoProvider).breakStreak(curStreak);
         }
       } else {
-        await ref.read(gDaoProvider).breakStreak(curStreak.streakID);
+        await ref.read(gDaoProvider).breakStreak(curStreak);
       }
     }
   }
@@ -215,7 +245,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   // }
 
   Future<int> checkStreak(GoalType type, double curState) async {
-    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+    BasicStreak? curStreak = await ref
+        .read(gDaoProvider)
+        .checkActiveStreak(type);
 
     if (curStreak == null) return -1;
 
@@ -226,13 +258,40 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
   Future<void> insertGoal(BasicGoal newGoal) {
     if (newGoal is FastingGoalModel) {
-      return ref.read(gDaoProvider).insertFastingGoal(session!.userId, newGoal.threshold, newGoal.op, newGoal.metric);
+      return ref
+          .read(gDaoProvider)
+          .insertFastingGoal(
+            session!.userId,
+            newGoal.threshold,
+            newGoal.op,
+            newGoal.metric,
+          );
     } else if (newGoal is HydrationGoalModel) {
-      return ref.read(gDaoProvider).insertHydrationGoal(session!.userId, DateTime.now(), newGoal.threshold.toInt(), newGoal.op);
+      return ref
+          .read(gDaoProvider)
+          .insertHydrationGoal(
+            session!.userId,
+            DateTime.now(),
+            newGoal.threshold.toInt(),
+            newGoal.op,
+          );
     } else if (newGoal is WeightGoalModel) {
-      return ref.read(gDaoProvider).insertWeightGoal(session!.userId, newGoal.threshold, newGoal.startWeight, newGoal.op);
+      return ref
+          .read(gDaoProvider)
+          .insertWeightGoal(
+            session!.userId,
+            newGoal.threshold,
+            newGoal.startWeight,
+            newGoal.op,
+          );
     } else {
-      return ref.read(gDaoProvider).insertNutritionGoal(session!.userId, NutrientType.caloreis, newGoal.threshold);
+      return ref
+          .read(gDaoProvider)
+          .insertNutritionGoal(
+            session!.userId,
+            NutrientType.caloreis,
+            newGoal.threshold,
+          );
     }
   }
 
@@ -245,4 +304,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   }
 }
 
-final asyncGoalsProvider = AsyncNotifierProvider<AsyncGoals, BasicGoal?>(AsyncGoals.new);
+final asyncGoalsProvider = AsyncNotifierProvider<AsyncGoals, BasicGoal?>(
+  AsyncGoals.new,
+);
