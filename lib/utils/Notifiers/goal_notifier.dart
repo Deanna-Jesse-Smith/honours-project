@@ -11,9 +11,9 @@ import 'package:testrun/utils/user_state.dart';
 class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   late UserSessionData? session;
   @override
-  Future<BasicGoal?> build() {
+  FastingGoalModel build() {
     session = ref.watch(userSessionProvider).value;
-    return ref.read(gDaoProvider).findActiveFastingGoal();
+    return FastingGoalModel(0, 0, 0, GoalOperator.logOnly, MetricType.hours);
   }
 
   Future<BasicGoal?> findGoal(GoalType type) {
@@ -146,10 +146,18 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             .read(hDaoProvider)
             .getTodayHydration(0, DateTime.now());
 
-        debugPrint('Water: $curWater');
+        
 
-        result = goal.calculateComplete(curWater);
-        percent = curWater / goal.threshold;
+        if (curWater == null) {
+          debugPrint('Water: null');
+          result = false;
+          percent = 0.0;
+        } else {
+          debugPrint('Water: $curWater');
+          result = goal.calculateComplete(curWater);
+          percent = curWater / goal.threshold;
+        }
+        
       case GoalType.nutrition:
         final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
 
@@ -165,36 +173,49 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
 
     if (result != null) {
-      updateStreak(type, goalID, result);
+      await updateStreak(type, goalID, result);
       if (result == true) {
         percent = 1;
       } else {
-        percent.clamp(0.0, 1.0);
+        percent = percent.clamp(0.0, 1.0);
       }
     }
 
     return percent;
   }
 
+  // Future<void> evaluateStreak() {
+
+  // }
+
   Future<void> updateStreak(GoalType type, int goalID, bool result) async {
     BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+    if (curStreak == null && result && type != GoalType.weight) {
+      await ref.read(gDaoProvider).insertStreak(goalID);
+    } else if (curStreak != null) {
+      if (result) {
+        final today = DateUtils.dateOnly(DateTime.now());
+        final expected = DateUtils.dateOnly(curStreak.start).add(Duration(days: curStreak.daysProgress));
 
-    if (curStreak != null) {
-      // curStreak.increment();
-      ref.read(gDaoProvider).updateStreak(curStreak);
-    } else if (type != GoalType.weight && result) {
-      ref.read(gDaoProvider).insertStreak(goalID);
+        if (today == expected.subtract(Duration(days: 1)) || today == expected) {
+          await ref.read(gDaoProvider).updateStreak(curStreak);
+        } else {
+          await ref.read(gDaoProvider).breakStreak(curStreak.streakID);
+        }
+      } else {
+        await ref.read(gDaoProvider).breakStreak(curStreak.streakID);
+      }
     }
   }
 
-  Future<void> breakStreak(GoalType type) async {
-    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
+  // Future<void> breakStreak(GoalType type) async {
+  //   BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
 
-    if (curStreak != null) ref.read(gDaoProvider).breakStreak(curStreak);
-  }
+  //   if (curStreak != null) ref.read(gDaoProvider).breakStreak(curStreak);
+  // }
 
   Future<int> checkStreak(GoalType type, double curState) async {
-    BasicStreak? curStreak = await ref.watch(gDaoProvider).checkActiveStreak(type);
+    BasicStreak? curStreak = await ref.read(gDaoProvider).checkActiveStreak(type);
 
     if (curStreak == null) return -1;
 

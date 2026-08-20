@@ -8,6 +8,7 @@ import 'package:testrun/models/fasting_schedule.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 
 @riverpod
@@ -54,7 +55,6 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     if (session.isFasting) {
       await toggleFast();
-      
     }
     ref.invalidate(userSessionProvider);
   }
@@ -72,17 +72,47 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       FastingForm.adf => cur.fiveTwoDaysSelected,
     };
 
-      return determineFastingStatus(
-        now: now,
-        user: DummyUser(
-          days,
-          cur.fastingForm,
-          cur.startTime,
-          cur.endTime,
-        ),
-        activeLogStart: curStart,
-      );
-    
+    return determineFastingStatus(
+      now: now,
+      user: DummyUser(days, cur.fastingForm, cur.startTime, cur.endTime),
+      activeLogStart: curStart,
+    );
+  }
+
+  bool validatePlan(
+    FastingForm form,
+    TimeOfDay start,
+    TimeOfDay end,
+    List<bool> daysADF,
+    List<bool> days52,
+  ) {
+    switch (form) {
+      case FastingForm.tre:
+        final length = Duration(
+          minutes:
+              (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute),
+        );
+
+        int maxLength = session!.experience == Experience.beginner ? 840 : 1200;
+        bool isValid = length.inMinutes <= maxLength;
+        
+        
+        return isValid;
+      case FastingForm.fiveTwo:
+      final availability = RecommendationSystem.validCombosHelper(boolsToInts(days52), false);
+      if (availability.isEmpty) {
+        return false;
+      } else {
+        return true;
+      }
+      case FastingForm.adf:
+        final availability = RecommendationSystem.validCombosHelper(boolsToInts(daysADF), true);
+      if (availability.isEmpty) {
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   Future<FastingProgress> refreshProgress() async {
@@ -97,17 +127,11 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       FastingForm.adf => cur.fiveTwoDaysSelected,
     };
 
-      return calculateFastingProgress(
-        now: now,
-        user: DummyUser(
-          days,
-          cur.fastingForm,
-          cur.startTime,
-          cur.endTime,
-        ),
-        activeStart: curStart,
-      );
-    
+    return calculateFastingProgress(
+      now: now,
+      user: DummyUser(days, cur.fastingForm, cur.startTime, cur.endTime),
+      activeStart: curStart,
+    );
   }
 
   Future<void> toggleFast() async {

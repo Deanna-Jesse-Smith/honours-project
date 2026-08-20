@@ -70,16 +70,19 @@ class WeightTracking extends ConsumerWidget {
               ),
             ),
             SizedBox(width: 100, height: 100),
-            StreamBuilder(stream: ref.watch(wDaoProvider).getCurWeight(session.userId), builder: (context, asyncSnapshot) {
-              if (!asyncSnapshot.hasData) {
-                curWeight = 0;
-                return const Text('No weight history');
-              }
+            StreamBuilder(
+              stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
+              builder: (context, asyncSnapshot) {
+                if (!asyncSnapshot.hasData) {
+                  curWeight = 0;
+                  return const Text('No weight history');
+                }
 
-              curWeight = asyncSnapshot.data ?? 0;
+                curWeight = asyncSnapshot.data ?? 0;
 
-              return Text('$curWeight kg');
-            }),
+                return Text('$curWeight kg', style: TextStyle(fontSize: TextSizing.large),);
+              },
+            ),
             ElevatedButton(
               onPressed: () async {
                 final newAmount = await Dialogs.getNewInput(
@@ -105,26 +108,33 @@ class WeightTracking extends ConsumerWidget {
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 4),
-            persistentFooterButtons: [
+      persistentFooterButtons: [
         Row(
           spacing: 30,
           children: [
-          //   ElevatedButton(
-          //   onPressed: () => {
-          //     Navigator.of(context).push(
-          //       MaterialPageRoute(builder: (context) => const FastingHistory()),
-          //     ),
-          //   },
-          //   child: Text(
-          //     'View Fasting History',
-          //     style: Theme.of(context).textTheme.displayMedium,
-          //   ),
-          // ),
-          ElevatedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => GoalsPage(type: GoalType.weight))), child: Text(
-              'Goals/Streaks',
-              style: TextStyle(fontSize: TextSizing.medium),
-            ))
-          ]
+            //   ElevatedButton(
+            //   onPressed: () => {
+            //     Navigator.of(context).push(
+            //       MaterialPageRoute(builder: (context) => const FastingHistory()),
+            //     ),
+            //   },
+            //   child: Text(
+            //     'View Fasting History',
+            //     style: Theme.of(context).textTheme.displayMedium,
+            //   ),
+            // ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GoalsPage(type: GoalType.weight),
+                ),
+              ),
+              child: Text(
+                'Goals/Streaks',
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
+            ),
+          ],
         ),
       ],
       // floatingActionButton: customWidgets.getFAB(ref, context, 4),

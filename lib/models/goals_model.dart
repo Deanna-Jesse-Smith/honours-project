@@ -72,7 +72,6 @@ mixin BasicStreak on BasicGoal {
 }
 
 class FastingGoalModel extends BasicGoal {
-
   FastingGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric);
 }
 

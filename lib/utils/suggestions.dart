@@ -412,7 +412,7 @@ int scoreForm(FastingForm form) {
     return options;
   }
 
-  List<int> findAvailableDays(ObligationMeals meals, bool isFiveTwo) {
+  static List<int> findAvailableDays(ObligationMeals meals, bool isFiveTwo) {
     // ADF: At most three days, so aim for two or three
     // 5:2 Obviously just two
 
@@ -448,7 +448,7 @@ int scoreForm(FastingForm form) {
     return availableDays;
   }
 
-  List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
+  static List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
     int cap = isADF ? 3 : 2;
 
     List<List<int>> validCombos(
@@ -468,7 +468,6 @@ int scoreForm(FastingForm form) {
       }
       return [...withDay, ...withoutDay];
     }
-
     return validCombos(pool.sublist(1), pool.first, [], []);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/models/goals_model.dart';
 import '../database.dart';
@@ -392,8 +393,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       case GoalType.fasting:
         return findActiveFastingGoal();
       case GoalType.weight:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return findActiveWeightGoal();
       case GoalType.hydration:
         return findActiveHydrationGoal();
       case GoalType.nutrition:
@@ -532,14 +532,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
 
     await (update(streaks)
-      ..where((s) =>
-          s.goalID.equals(goalID) &
-          s.endDate.isNull()))
-    .write(
-      StreaksCompanion(
-        endDate: Value(DateTime.now()),
-      ),
-    );
+          ..where((s) => s.goalID.equals(goalID) & s.endDate.isNull()))
+        .write(StreaksCompanion(endDate: Value(DateTime.now())));
   }
 
   void deleteGoal(int goalID, GoalType type, {int streakID = -1}) {
@@ -572,7 +566,12 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       case WeightGoalModel():
         insertWeightGoal(id, model.threshold, model.startWeight, model.op);
       case HydrationGoalModel():
-        insertHydrationGoal(id, DateTime.now(), model.threshold.toInt(), model.op);
+        insertHydrationGoal(
+          id,
+          DateTime.now(),
+          model.threshold.toInt(),
+          model.op,
+        );
       case NutritionGoalModel():
         insertNutritionGoal(id, NutrientType.caloreis, model.threshold);
       case BasicStreak():
@@ -589,44 +588,26 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
-  void updateStreak(BasicStreak model) {
-    // (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
-    //   GoalsCompanion(
-    //     thresholdValue: Value(model.threshold),
-    //     progressValue: Value(model.progress),
-    //     op: Value(model.op),
-    //   ),
-    // );
-
-    DateTime temp = model.start.add(Duration(days: model.daysProgress));
-    Duration diffProgress = temp.difference(model.start);
-    Duration diffToday = DateTime.now().difference(model.start);
-
-    if (diffToday.inDays == diffProgress.inDays) {
-    } else if (diffToday.inDays > diffProgress.inDays - 2) {
-      (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(
-        StreaksCompanion(streakProgress: Value(model.daysProgress + 1)),
-      );
-    } else {
-      temp.add(Duration(days: 1));
-      (update(streaks)..where((s) => s.streakID.equals(model.streakID))).write(
-        StreaksCompanion(endDate: Value(temp)),
-      );
-    }
+  Future<void> updateStreak(BasicStreak model) {
+    return (update(streaks)..where((g) => g.streakID.equals(model.streakID))).write(
+      StreaksCompanion(streakProgress: Value(model.daysProgress + 1)),
+    );
   }
 
-  void breakStreak(BasicStreak curStreak) {
-    (update(streaks)..where((s) => s.streakID.equals(curStreak.streakID)))
-        .write(StreaksCompanion(endDate: Value(DateTime.now())));
-  }
-
-  void insertStreak(int goalID) {
-    into(streaks).insert(
+  Future<void> insertStreak(int goalID) {
+    return into(streaks).insert(
       StreaksCompanion.insert(
         goalID: goalID,
         startDate: Value(DateTime.now()),
         unlockType: Value(UnlockType.badge),
+        streakProgress: Value(1),
       ),
+    );
+  }
+
+  Future<void> breakStreak(int id) {
+    return (update(streaks)..where((s) => s.streakID.equals(id))).write(
+      StreaksCompanion(endDate: Value(DateTime.now())),
     );
   }
 

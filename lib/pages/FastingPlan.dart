@@ -24,20 +24,12 @@ class FastingPlan extends ConsumerStatefulWidget {
   ConsumerState<FastingPlan> createState() => FastingPlanState();
 }
 
-const List<String> list = <String>['adf', 'tre', 'fiveTwo'];
-List<bool> adfDaysSelected = List.filled(7, false);
-List<bool> fiveTwoDaysSelected = List.filled(7, false);
-
 class FastingPlanState extends ConsumerState<FastingPlan> {
-  static final List<DropdownMenuEntry<String>> entries =
-      UnmodifiableListView<DropdownMenuEntry<String>>(
-        list.map<DropdownMenuEntry<String>>(
-          (String name) => DropdownMenuEntry(value: name, label: name),
-        ),
-      );
-  late String dropDownValue;
   late Future<FastingStreak?> curStreak;
   late FastingStreak? gottenStreak;
+
+  List<bool> adfDaysSelected = List.filled(7, false);
+  List<bool> fiveTwoDaysSelected = List.filled(7, false);
 
   static final List<DropdownMenuEntry<FastingForm>> entriess =
       UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
@@ -54,10 +46,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   @override
   void initState() {
     final session = ref.read(userSessionProvider).value;
-    dropDownValue = session!.fastingForm.name;
-    dropDownValuee = session.fastingForm;
+    dropDownValuee = session!.fastingForm;
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
-    debugPrint('The value is: $dropDownValue');
 
     fiveTwoDaysSelected = intsToBools(
       session.fiveTwoDaysSelected,
@@ -154,6 +144,43 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     );
   }
 
+  void changePlan() async {
+    AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
+    final session = ref.read(userSessionProvider).value;
+
+    if (dropDownValuee != session!.fastingForm) {
+      
+    } else {
+
+    }
+
+    if (asyncFasting.validatePlan(
+      dropDownValuee,
+      start,
+      end,
+      fiveTwoDaysSelected,
+      adfDaysSelected,
+    )) {
+      if (dropDownValuee! != session.fastingForm) {
+      final decision = await Dialogs.dangerDialog(
+        context,
+        title: 'Are you sure?',
+        message:
+            'Changing your fasting form will wipe your current fasting goal and/or streak.',
+      );
+    }
+      asyncFasting.handleChangingForms(
+        dropDownValuee,
+        start,
+        end,
+        fiveTwoDaysSelected,
+        adfDaysSelected,
+      );
+    } else {
+
+    }
+  }
+
   // Column getCorrectLayout(UserSessionData session) {
   //   if (dropDownValuee == FastingForm.adf) {
   //     return createADF(session);
@@ -173,9 +200,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   // }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {
-    debugPrint(
-  'REINITIALISING 5:2 FROM SESSION',
-);
+    debugPrint('REINITIALISING 5:2 FROM SESSION');
     list.fillRange(0, 6, false);
     for (int day in days) {
       list[day] = true;
@@ -190,18 +215,19 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   CustomCheckbox getBox(int index, List<bool> curList) {
     debugPrint(
-    'Building checkbox: index=$index, selected=${curList[index]}, day=${daysOfWeek[index]}',
-  );
+      'Building checkbox: index=$index, selected=${curList[index]}, day=${daysOfWeek[index]}',
+    );
     return .new(
-    isSelected: curList[index],
-    dayOfWeek: daysOfWeek[index],
-    onTap: (bool val) {
-      debugPrint('TAPPED index=${daysOfWeek[index]}, value=$val');
-      setState(() {
-        curList[index] = val;
-      });
-    },
-  );}
+      isSelected: curList[index],
+      dayOfWeek: daysOfWeek[index],
+      onTap: (bool val) {
+        debugPrint('TAPPED index=${daysOfWeek[index]}, value=$val');
+        setState(() {
+          curList[index] = val;
+        });
+      },
+    );
+  }
 
   CustomCheckbox getADFBox(int index) => .new(
     isSelected: adfDaysSelected[index],
