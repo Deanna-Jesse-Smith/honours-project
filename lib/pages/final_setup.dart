@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -13,12 +14,14 @@ class FinalSetup extends ConsumerStatefulWidget {
   final User almost;
   final ObligationMeals obligations;
   final RecommendationSystem rs;
+  final String weight;
 
   const FinalSetup({
     super.key,
     required this.almost,
     required this.obligations,
     required this.rs,
+    required this.weight,
   });
 
   @override
@@ -125,7 +128,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                   times = [DateTime(2026), DateTime(2026)];
                 }
     
-                ref
+                final id = await ref
                     .read(uDaoProvider)
                     .addUser(
                       widget.almost.name,
@@ -136,10 +139,13 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       times.last,
                       cur52Schedule,
                       curADFSchedule,
+                      widget.almost.height,
                     );
+                ref.read(wDaoProvider).logWeight(id, DateTime.now(), double.parse(widget.weight));
                 
                 FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
                 ref.invalidate(userSessionProvider);
+                ref.invalidate(asyncConcernsProvider);
 
                 if (!context.mounted) return;
                 Navigator.pushNamed(context, '/');

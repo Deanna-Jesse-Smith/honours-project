@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 
 class Dialogs {
@@ -225,6 +227,62 @@ class Dialogs {
       ),
     );
     return temp;
+  }
+
+  static Future<int?> showConcern(BuildContext context, BasicConcern concern) async {
+    int? output = -1;
+    if (concern is HealthConcern) {
+      output = await showDialog<int>(context: context, builder: (context) => AlertDialog(
+        title: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.health_and_safety, color: Colors.red),
+            const SizedBox(width: 8),
+            Expanded(child: Text(concern.title, style: TextStyle(fontSize: TextSizing.large),)),
+          ],
+        ),
+        content: Column(children: [
+          Expanded(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
+          Expanded(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
+        ],),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 1),
+            child: Text('Close'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 2),
+            child: Text('Dismiss (1 week)'),
+          ),
+        ],
+      ));
+    } else {
+      output = await showDialog<int>(context: context, builder: (context) => AlertDialog(
+        title: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.info_outline, color: Colors.lightGreenAccent),
+            const SizedBox(width: 8),
+            Expanded(child: Text(concern.title, style: TextStyle(fontSize: TextSizing.large),)),
+          ],
+        ),
+        content: Column(children: [
+          Expanded(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
+          Expanded(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
+        ],),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 1),
+            child: Text('Close'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 2),
+            child: Text('Dismiss (1 week)'),
+          ),
+        ],
+      ));
+    }
+    return output;
   }
 }
 

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -16,15 +16,34 @@ import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
-class HydrationTracking extends ConsumerWidget {
+class HydrationTracking extends ConsumerStatefulWidget {
   const HydrationTracking({super.key});
+
+  @override
+  ConsumerState<HydrationTracking> createState() => HydrationTrackingState();
+}
+
+class HydrationTrackingState extends ConsumerState<HydrationTracking> {
+
+  late BasicConcern? concern;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
+    });
+  }
 
   // double amount = 0;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final goalsNotifier = ref.read(asyncGoalsProvider.notifier);
     final session = ref.read(userSessionProvider).value;
     // final watching = ref.watch(watchHydrationProvider(DateTime.now()));
+
+    
 
     return Scaffold(
       appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
@@ -150,10 +169,11 @@ class HydrationTracking extends ConsumerWidget {
                   context,
                   title: 'How many cups have you drank?',
                 );
-                if (newAmount != null)
+                if (newAmount != null) {
                   ref
                       .read(hDaoProvider)
                       .addHydration(session.userId, DateTime.now(), newAmount);
+                }
               },
               child: Text('Log Hydration'),
             ),

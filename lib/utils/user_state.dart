@@ -32,6 +32,7 @@ class UserSessionData {
   final List<int> fiveTwoDaysSelected;
   final bool isFasting;
   final Experience experience;
+  final double height;
 
   const UserSessionData({
     required this.userId,
@@ -43,6 +44,7 @@ class UserSessionData {
     required this.fiveTwoDaysSelected,
     required this.isFasting,
     required this.experience,
+    required this.height,
   });
 
   UserSessionData copyWith({
@@ -55,6 +57,7 @@ class UserSessionData {
     FastingStatus? status,
     bool? isFasting,
     Experience? exp,
+    double? height,
   }) {
     return UserSessionData(
       userId: userId,
@@ -66,6 +69,7 @@ class UserSessionData {
       fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
       isFasting: isFasting ?? this.isFasting,
       experience: exp ?? experience,
+      height: height ?? this.height,
     );
   }
 }
@@ -99,6 +103,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       ),
       isFasting: isFasting,
       experience: user.experience,
+      height: user.height,
     );
 
   }
@@ -118,6 +123,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       fiveTwoDaysSelected: data.fiveTwoDaysSelected,
       isFasting: isFasting,
       experience: data.experience,
+      height: data.height,
     );
   }
 

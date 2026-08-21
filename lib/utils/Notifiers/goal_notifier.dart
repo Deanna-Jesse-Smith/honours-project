@@ -302,6 +302,12 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   Future<void> finishGoal(int goalID) {
     return ref.read(gDaoProvider).finishGoal(goalID);
   }
+
+  Future<bool> isValidConcern(GoalType type, int thr, int window) async {
+    final startWindow = DateTime.now().subtract(Duration(days: window));
+    final breaksInWindow = await ref.read(gDaoProvider).evaluateConcerns(type, startWindow);
+    return breaksInWindow >= thr;
+  }
 }
 
 final asyncGoalsProvider = AsyncNotifierProvider<AsyncGoals, BasicGoal?>(

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/final_setup.dart';
@@ -86,7 +87,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text('When were you born?', style: TextStyle(fontSize: TextSizing.medium),),
+                const Text(
+                  'When were you born?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
                 ElevatedButton(
                   onPressed: () async {
                     final DateTime? dateTime = await showDatePicker(
@@ -192,42 +196,53 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   Future<void> handleFinished() async {
     setState(() => isSaving = true);
-    try {
-      if (!mounted) return;
-
-      List<int> tempDays = boolsToInts(obligationDays);
-
-      User tempUser = User(
-        userID: 0,
-        name: widget.name,
-        isMetric: measurement == Measurement.metric,
-        experience: exp,
-        createdDate: DateTime.now(),
-        formIF: dropDownValuee,
-        adfDaysSelected: '',
-        fiveTwoDaysSelected: '',
-      );
-      ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
-      RecommendationSystem rs = RecommendationSystem(
-        prevForms: selectedForms,
-        prevDuration: int.parse(durationController.text),
-        struggle: selectedStruggle,
-        meals: temp,
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              FinalSetup(almost: tempUser, obligations: temp, rs: rs),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
+    if (heightController.text.isEmpty || weightController.text.isEmpty) {
       ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not save user: $e')));
-    } finally {
-      if (mounted) setState(() => isSaving = false);
+          context,
+        ).showSnackBar(SnackBar(content: Text('You need to fill in your height, weight and name to proceed')));
+    } else {
+      try {
+        if (!mounted) return;
+
+        List<int> tempDays = boolsToInts(obligationDays);
+
+        User tempUser = User(
+          userID: 0,
+          name: widget.name,
+          isMetric: measurement == Measurement.metric,
+          experience: exp,
+          createdDate: DateTime.now(),
+          formIF: dropDownValuee,
+          adfDaysSelected: '',
+          fiveTwoDaysSelected: '',
+          height: double.parse(heightController.text),
+        );
+        ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
+        RecommendationSystem rs = RecommendationSystem(
+          prevForms: selectedForms,
+          prevDuration: int.parse(durationController.text),
+          struggle: selectedStruggle,
+          meals: temp,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FinalSetup(
+              almost: tempUser,
+              obligations: temp,
+              rs: rs,
+              weight: weightController.text,
+            ),
+          ),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not save user: $e')));
+      } finally {
+        if (mounted) setState(() => isSaving = false);
+      }
     }
   }
 
@@ -260,8 +275,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           ElevatedButton(
             onPressed: () =>
                 setState(() => obligationTimes.add(TimeOfDay.now())),
-            child: const Text('+',
-                    style: TextStyle(fontSize: TextSizing.large),),
+            child: const Text(
+              '+',
+              style: TextStyle(fontSize: TextSizing.large),
+            ),
           ),
       ],
     );
@@ -381,8 +398,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          const Text('What do you struggle more with?',
-                    style: TextStyle(fontSize: TextSizing.medium),),
+          const Text(
+            'What do you struggle more with?',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
           SegmentedButton<Struggle>(
             segments: Struggle.values.map((s) {
               return ButtonSegment(

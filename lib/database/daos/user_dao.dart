@@ -20,6 +20,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     DateTime end,
     String days52,
     String daysADF,
+    double height,
   ) {
     return into(users).insert(
       UsersCompanion.insert(
@@ -30,6 +31,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
         typicalEatingEnd: Value(end),
         adfDaysSelected: Value(daysADF),
         fiveTwoDaysSelected: Value(days52),
+        height: height,
       ),
     );
   }

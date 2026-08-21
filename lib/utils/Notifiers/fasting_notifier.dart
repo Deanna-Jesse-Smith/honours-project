@@ -79,41 +79,81 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     );
   }
 
-  bool validatePlan(
-    FastingForm form,
-    TimeOfDay start,
-    TimeOfDay end,
-    List<bool> daysADF,
-    List<bool> days52,
-  ) {
-    switch (form) {
-      case FastingForm.tre:
-        final length = Duration(
-          minutes:
-              (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute),
-        );
+  bool validateTREplan(TimeOfDay start, TimeOfDay end) {
+    final length = Duration(
+      minutes: (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute),
+    );
 
-        int maxLength = session!.experience == Experience.beginner ? 840 : 1200;
-        bool isValid = length.inMinutes <= maxLength;
-        
-        
-        return isValid;
-      case FastingForm.fiveTwo:
-      final availability = RecommendationSystem.validCombosHelper(boolsToInts(days52), false);
-      if (availability.isEmpty) {
-        return false;
-      } else {
-        return true;
-      }
-      case FastingForm.adf:
-        final availability = RecommendationSystem.validCombosHelper(boolsToInts(daysADF), true);
-      if (availability.isEmpty) {
-        return false;
-      } else {
-        return true;
-      }
+    int maxLength = session!.experience == Experience.beginner ? 840 : 1200;
+    bool isValid = length.inMinutes <= maxLength;
+
+    return isValid;
+  }
+
+  bool validateADFplan(List<bool> daysADF) {
+    final availability = RecommendationSystem.validCombosHelper(
+      boolsToInts(daysADF),
+      true,
+    );
+    if (availability.isEmpty) {
+      return false;
+    } else {
+      return true;
     }
   }
+
+  bool validate52plan(List<bool> days52) {
+    final availability = RecommendationSystem.validCombosHelper(
+      boolsToInts(days52),
+      false,
+    );
+    if (availability.isEmpty) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  // bool validatePlan(
+  //   FastingForm form,
+  //   TimeOfDay start,
+  //   TimeOfDay end,
+  //   List<bool> daysADF,
+  //   List<bool> days52,
+  // ) {
+  //   switch (form) {
+  //     case FastingForm.tre:
+  //       final length = Duration(
+  //         minutes:
+  //             (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute),
+  //       );
+
+  //       int maxLength = session!.experience == Experience.beginner ? 840 : 1200;
+  //       bool isValid = length.inMinutes <= maxLength;
+
+  //       return isValid;
+  //     case FastingForm.fiveTwo:
+  //       final availability = RecommendationSystem.validCombosHelper(
+  //         boolsToInts(days52),
+  //         false,
+  //       );
+  //       if (availability.isEmpty) {
+  //         return false;
+  //       } else {
+  //         return true;
+  //       }
+  //     case FastingForm.adf:
+  //       final availability = RecommendationSystem.validCombosHelper(
+  //         boolsToInts(daysADF),
+  //         true,
+  //       );
+  //       if (availability.isEmpty) {
+  //         return false;
+  //       } else {
+  //         return true;
+  //       }
+  //   }
+  // }
 
   Future<FastingProgress> refreshProgress() async {
     final cur = ref.watch(userSessionProvider).value;

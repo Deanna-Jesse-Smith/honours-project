@@ -1,15 +1,22 @@
 import 'package:drift/drift.dart';
 import 'package:testrun/database/tables/goal_tables.dart';
+import 'package:testrun/models/goals_model.dart';
 
+@TableIndex(name: 'concern_type', columns: {#cType})
 class Reinforcements extends Table {
-  IntColumn get reinID => integer().autoIncrement()();
-  IntColumn get userGoalID => integer().references(UserGoalProgress, #userGoalID)();
-  IntColumn get achID => integer().nullable().references(Achievements, #achID)();
-  TextColumn get reinType => textEnum<ReinforcementType>()();
-  TextColumn get displayContext => text().withDefault(const Constant(''))();
-  IntColumn get priority => integer().withDefault(const Constant(0))();
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get cType => textEnum<ConcernType>()();
+  TextColumn get type => textEnum<GoalType>()();
+  TextColumn get title => text()();
+  TextColumn get displayContext => text()();
+  TextColumn get citation => text()();
+  IntColumn get threshold => integer()();
+  IntColumn get window => integer()();
+  DateTimeColumn get nextEval => dateTime().nullable()();
   // TextColumn get text => text()();
 }
+
+enum ConcernType { health, pr, }
 
 enum ReinforcementType {
   temp

@@ -14,4 +14,5 @@ class Users extends Table {
   DateTimeColumn get createdDate => dateTime().withDefault(currentDateAndTime)();
   TextColumn get adfDaysSelected => text().withDefault(const Constant(''))();
   TextColumn get fiveTwoDaysSelected => text().withDefault(const Constant(''))();
+  RealColumn get height => real()();
 }

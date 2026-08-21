@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/daos/goals_dao.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
+import 'package:testrun/database/daos/reinforcement_dao.dart';
 import 'package:testrun/database/daos/reminder_dao.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/database/daos/fasting_dao.dart';
@@ -20,6 +21,7 @@ import 'package:testrun/pages/start_page.dart';
 import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -50,6 +52,9 @@ final gDaoProvider = Provider<GoalsDao>(
 );
 final rDaoProvider = Provider<ReminderDao>(
   (ref) => ReminderDao(ref.watch(databaseProvider)),
+);
+final cDaoProvider = Provider<ReinforcementDao>(
+  (ref) => ReinforcementDao(ref.watch(databaseProvider)),
 );
 final mealRangeProvider = FutureProvider.family<Map<DateTime, DayMeals>, List<DateTime>>(
   (ref, days) {
@@ -88,6 +93,7 @@ void insert(WidgetRef ref) {
         end,
         '1,3,5',
         '2,4,6',
+        1.62,
       );
 }
 
@@ -100,6 +106,7 @@ class MyApp extends ConsumerWidget {
     // insert(ref);
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
+    ref.read(asyncConcernsProvider);
     tz.initializeTimeZones();
     return MaterialApp(
       debugShowCheckedModeBanner: false,

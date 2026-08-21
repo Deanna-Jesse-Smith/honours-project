@@ -122,6 +122,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         requiredDuringInsert: false,
         defaultValue: const Constant(''),
       );
+  static const VerificationMeta _heightMeta = const VerificationMeta('height');
+  @override
+  late final GeneratedColumn<double> height = GeneratedColumn<double>(
+    'height',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     userID,
@@ -134,6 +143,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     createdDate,
     adfDaysSelected,
     fiveTwoDaysSelected,
+    height,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -212,6 +222,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('height')) {
+      context.handle(
+        _heightMeta,
+        height.isAcceptableOrUnknown(data['height']!, _heightMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_heightMeta);
+    }
     return context;
   }
 
@@ -265,6 +283,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.string,
         data['${effectivePrefix}five_two_days_selected'],
       )!,
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}height'],
+      )!,
     );
   }
 
@@ -290,6 +312,7 @@ class User extends DataClass implements Insertable<User> {
   final DateTime createdDate;
   final String adfDaysSelected;
   final String fiveTwoDaysSelected;
+  final double height;
   const User({
     required this.userID,
     required this.name,
@@ -301,6 +324,7 @@ class User extends DataClass implements Insertable<User> {
     required this.createdDate,
     required this.adfDaysSelected,
     required this.fiveTwoDaysSelected,
+    required this.height,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -327,6 +351,7 @@ class User extends DataClass implements Insertable<User> {
     map['created_date'] = Variable<DateTime>(createdDate);
     map['adf_days_selected'] = Variable<String>(adfDaysSelected);
     map['five_two_days_selected'] = Variable<String>(fiveTwoDaysSelected);
+    map['height'] = Variable<double>(height);
     return map;
   }
 
@@ -346,6 +371,7 @@ class User extends DataClass implements Insertable<User> {
       createdDate: Value(createdDate),
       adfDaysSelected: Value(adfDaysSelected),
       fiveTwoDaysSelected: Value(fiveTwoDaysSelected),
+      height: Value(height),
     );
   }
 
@@ -375,6 +401,7 @@ class User extends DataClass implements Insertable<User> {
       fiveTwoDaysSelected: serializer.fromJson<String>(
         json['fiveTwoDaysSelected'],
       ),
+      height: serializer.fromJson<double>(json['height']),
     );
   }
   @override
@@ -395,6 +422,7 @@ class User extends DataClass implements Insertable<User> {
       'createdDate': serializer.toJson<DateTime>(createdDate),
       'adfDaysSelected': serializer.toJson<String>(adfDaysSelected),
       'fiveTwoDaysSelected': serializer.toJson<String>(fiveTwoDaysSelected),
+      'height': serializer.toJson<double>(height),
     };
   }
 
@@ -409,6 +437,7 @@ class User extends DataClass implements Insertable<User> {
     DateTime? createdDate,
     String? adfDaysSelected,
     String? fiveTwoDaysSelected,
+    double? height,
   }) => User(
     userID: userID ?? this.userID,
     name: name ?? this.name,
@@ -424,6 +453,7 @@ class User extends DataClass implements Insertable<User> {
     createdDate: createdDate ?? this.createdDate,
     adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
     fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
+    height: height ?? this.height,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -449,6 +479,7 @@ class User extends DataClass implements Insertable<User> {
       fiveTwoDaysSelected: data.fiveTwoDaysSelected.present
           ? data.fiveTwoDaysSelected.value
           : this.fiveTwoDaysSelected,
+      height: data.height.present ? data.height.value : this.height,
     );
   }
 
@@ -464,7 +495,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('typicalEatingEnd: $typicalEatingEnd, ')
           ..write('createdDate: $createdDate, ')
           ..write('adfDaysSelected: $adfDaysSelected, ')
-          ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected')
+          ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected, ')
+          ..write('height: $height')
           ..write(')'))
         .toString();
   }
@@ -481,6 +513,7 @@ class User extends DataClass implements Insertable<User> {
     createdDate,
     adfDaysSelected,
     fiveTwoDaysSelected,
+    height,
   );
   @override
   bool operator ==(Object other) =>
@@ -495,7 +528,8 @@ class User extends DataClass implements Insertable<User> {
           other.typicalEatingEnd == this.typicalEatingEnd &&
           other.createdDate == this.createdDate &&
           other.adfDaysSelected == this.adfDaysSelected &&
-          other.fiveTwoDaysSelected == this.fiveTwoDaysSelected);
+          other.fiveTwoDaysSelected == this.fiveTwoDaysSelected &&
+          other.height == this.height);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -509,6 +543,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<DateTime> createdDate;
   final Value<String> adfDaysSelected;
   final Value<String> fiveTwoDaysSelected;
+  final Value<double> height;
   const UsersCompanion({
     this.userID = const Value.absent(),
     this.name = const Value.absent(),
@@ -520,6 +555,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.createdDate = const Value.absent(),
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
+    this.height = const Value.absent(),
   });
   UsersCompanion.insert({
     this.userID = const Value.absent(),
@@ -532,9 +568,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.createdDate = const Value.absent(),
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
+    required double height,
   }) : name = Value(name),
        formIF = Value(formIF),
-       experience = Value(experience);
+       experience = Value(experience),
+       height = Value(height);
   static Insertable<User> custom({
     Expression<int>? userID,
     Expression<String>? name,
@@ -546,6 +584,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<DateTime>? createdDate,
     Expression<String>? adfDaysSelected,
     Expression<String>? fiveTwoDaysSelected,
+    Expression<double>? height,
   }) {
     return RawValuesInsertable({
       if (userID != null) 'user_i_d': userID,
@@ -560,6 +599,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (adfDaysSelected != null) 'adf_days_selected': adfDaysSelected,
       if (fiveTwoDaysSelected != null)
         'five_two_days_selected': fiveTwoDaysSelected,
+      if (height != null) 'height': height,
     });
   }
 
@@ -574,6 +614,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<DateTime>? createdDate,
     Value<String>? adfDaysSelected,
     Value<String>? fiveTwoDaysSelected,
+    Value<double>? height,
   }) {
     return UsersCompanion(
       userID: userID ?? this.userID,
@@ -586,6 +627,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       createdDate: createdDate ?? this.createdDate,
       adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
       fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
+      height: height ?? this.height,
     );
   }
 
@@ -630,6 +672,9 @@ class UsersCompanion extends UpdateCompanion<User> {
         fiveTwoDaysSelected.value,
       );
     }
+    if (height.present) {
+      map['height'] = Variable<double>(height.value);
+    }
     return map;
   }
 
@@ -645,7 +690,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('typicalEatingEnd: $typicalEatingEnd, ')
           ..write('createdDate: $createdDate, ')
           ..write('adfDaysSelected: $adfDaysSelected, ')
-          ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected')
+          ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected, ')
+          ..write('height: $height')
           ..write(')'))
         .toString();
   }
@@ -6815,6 +6861,567 @@ class UserGoalProgressCompanion extends UpdateCompanion<UserGoalProgressData> {
   }
 }
 
+class $ReinforcementsTable extends Reinforcements
+    with TableInfo<$ReinforcementsTable, Reinforcement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReinforcementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ConcernType, String> cType =
+      GeneratedColumn<String>(
+        'c_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ConcernType>($ReinforcementsTable.$convertercType);
+  @override
+  late final GeneratedColumnWithTypeConverter<GoalType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<GoalType>($ReinforcementsTable.$convertertype);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayContextMeta = const VerificationMeta(
+    'displayContext',
+  );
+  @override
+  late final GeneratedColumn<String> displayContext = GeneratedColumn<String>(
+    'display_context',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _citationMeta = const VerificationMeta(
+    'citation',
+  );
+  @override
+  late final GeneratedColumn<String> citation = GeneratedColumn<String>(
+    'citation',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _thresholdMeta = const VerificationMeta(
+    'threshold',
+  );
+  @override
+  late final GeneratedColumn<int> threshold = GeneratedColumn<int>(
+    'threshold',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowMeta = const VerificationMeta('window');
+  @override
+  late final GeneratedColumn<int> window = GeneratedColumn<int>(
+    'window',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextEvalMeta = const VerificationMeta(
+    'nextEval',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextEval = GeneratedColumn<DateTime>(
+    'next_eval',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    cType,
+    type,
+    title,
+    displayContext,
+    citation,
+    threshold,
+    window,
+    nextEval,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reinforcements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Reinforcement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('display_context')) {
+      context.handle(
+        _displayContextMeta,
+        displayContext.isAcceptableOrUnknown(
+          data['display_context']!,
+          _displayContextMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayContextMeta);
+    }
+    if (data.containsKey('citation')) {
+      context.handle(
+        _citationMeta,
+        citation.isAcceptableOrUnknown(data['citation']!, _citationMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_citationMeta);
+    }
+    if (data.containsKey('threshold')) {
+      context.handle(
+        _thresholdMeta,
+        threshold.isAcceptableOrUnknown(data['threshold']!, _thresholdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_thresholdMeta);
+    }
+    if (data.containsKey('window')) {
+      context.handle(
+        _windowMeta,
+        window.isAcceptableOrUnknown(data['window']!, _windowMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_windowMeta);
+    }
+    if (data.containsKey('next_eval')) {
+      context.handle(
+        _nextEvalMeta,
+        nextEval.isAcceptableOrUnknown(data['next_eval']!, _nextEvalMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Reinforcement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Reinforcement(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      cType: $ReinforcementsTable.$convertercType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}c_type'],
+        )!,
+      ),
+      type: $ReinforcementsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      displayContext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_context'],
+      )!,
+      citation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}citation'],
+      )!,
+      threshold: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}threshold'],
+      )!,
+      window: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}window'],
+      )!,
+      nextEval: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_eval'],
+      ),
+    );
+  }
+
+  @override
+  $ReinforcementsTable createAlias(String alias) {
+    return $ReinforcementsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ConcernType, String, String> $convertercType =
+      const EnumNameConverter<ConcernType>(ConcernType.values);
+  static JsonTypeConverter2<GoalType, String, String> $convertertype =
+      const EnumNameConverter<GoalType>(GoalType.values);
+}
+
+class Reinforcement extends DataClass implements Insertable<Reinforcement> {
+  final int id;
+  final ConcernType cType;
+  final GoalType type;
+  final String title;
+  final String displayContext;
+  final String citation;
+  final int threshold;
+  final int window;
+  final DateTime? nextEval;
+  const Reinforcement({
+    required this.id,
+    required this.cType,
+    required this.type,
+    required this.title,
+    required this.displayContext,
+    required this.citation,
+    required this.threshold,
+    required this.window,
+    this.nextEval,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    {
+      map['c_type'] = Variable<String>(
+        $ReinforcementsTable.$convertercType.toSql(cType),
+      );
+    }
+    {
+      map['type'] = Variable<String>(
+        $ReinforcementsTable.$convertertype.toSql(type),
+      );
+    }
+    map['title'] = Variable<String>(title);
+    map['display_context'] = Variable<String>(displayContext);
+    map['citation'] = Variable<String>(citation);
+    map['threshold'] = Variable<int>(threshold);
+    map['window'] = Variable<int>(window);
+    if (!nullToAbsent || nextEval != null) {
+      map['next_eval'] = Variable<DateTime>(nextEval);
+    }
+    return map;
+  }
+
+  ReinforcementsCompanion toCompanion(bool nullToAbsent) {
+    return ReinforcementsCompanion(
+      id: Value(id),
+      cType: Value(cType),
+      type: Value(type),
+      title: Value(title),
+      displayContext: Value(displayContext),
+      citation: Value(citation),
+      threshold: Value(threshold),
+      window: Value(window),
+      nextEval: nextEval == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextEval),
+    );
+  }
+
+  factory Reinforcement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Reinforcement(
+      id: serializer.fromJson<int>(json['id']),
+      cType: $ReinforcementsTable.$convertercType.fromJson(
+        serializer.fromJson<String>(json['cType']),
+      ),
+      type: $ReinforcementsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      title: serializer.fromJson<String>(json['title']),
+      displayContext: serializer.fromJson<String>(json['displayContext']),
+      citation: serializer.fromJson<String>(json['citation']),
+      threshold: serializer.fromJson<int>(json['threshold']),
+      window: serializer.fromJson<int>(json['window']),
+      nextEval: serializer.fromJson<DateTime?>(json['nextEval']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cType': serializer.toJson<String>(
+        $ReinforcementsTable.$convertercType.toJson(cType),
+      ),
+      'type': serializer.toJson<String>(
+        $ReinforcementsTable.$convertertype.toJson(type),
+      ),
+      'title': serializer.toJson<String>(title),
+      'displayContext': serializer.toJson<String>(displayContext),
+      'citation': serializer.toJson<String>(citation),
+      'threshold': serializer.toJson<int>(threshold),
+      'window': serializer.toJson<int>(window),
+      'nextEval': serializer.toJson<DateTime?>(nextEval),
+    };
+  }
+
+  Reinforcement copyWith({
+    int? id,
+    ConcernType? cType,
+    GoalType? type,
+    String? title,
+    String? displayContext,
+    String? citation,
+    int? threshold,
+    int? window,
+    Value<DateTime?> nextEval = const Value.absent(),
+  }) => Reinforcement(
+    id: id ?? this.id,
+    cType: cType ?? this.cType,
+    type: type ?? this.type,
+    title: title ?? this.title,
+    displayContext: displayContext ?? this.displayContext,
+    citation: citation ?? this.citation,
+    threshold: threshold ?? this.threshold,
+    window: window ?? this.window,
+    nextEval: nextEval.present ? nextEval.value : this.nextEval,
+  );
+  Reinforcement copyWithCompanion(ReinforcementsCompanion data) {
+    return Reinforcement(
+      id: data.id.present ? data.id.value : this.id,
+      cType: data.cType.present ? data.cType.value : this.cType,
+      type: data.type.present ? data.type.value : this.type,
+      title: data.title.present ? data.title.value : this.title,
+      displayContext: data.displayContext.present
+          ? data.displayContext.value
+          : this.displayContext,
+      citation: data.citation.present ? data.citation.value : this.citation,
+      threshold: data.threshold.present ? data.threshold.value : this.threshold,
+      window: data.window.present ? data.window.value : this.window,
+      nextEval: data.nextEval.present ? data.nextEval.value : this.nextEval,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Reinforcement(')
+          ..write('id: $id, ')
+          ..write('cType: $cType, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('displayContext: $displayContext, ')
+          ..write('citation: $citation, ')
+          ..write('threshold: $threshold, ')
+          ..write('window: $window, ')
+          ..write('nextEval: $nextEval')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    cType,
+    type,
+    title,
+    displayContext,
+    citation,
+    threshold,
+    window,
+    nextEval,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Reinforcement &&
+          other.id == this.id &&
+          other.cType == this.cType &&
+          other.type == this.type &&
+          other.title == this.title &&
+          other.displayContext == this.displayContext &&
+          other.citation == this.citation &&
+          other.threshold == this.threshold &&
+          other.window == this.window &&
+          other.nextEval == this.nextEval);
+}
+
+class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
+  final Value<int> id;
+  final Value<ConcernType> cType;
+  final Value<GoalType> type;
+  final Value<String> title;
+  final Value<String> displayContext;
+  final Value<String> citation;
+  final Value<int> threshold;
+  final Value<int> window;
+  final Value<DateTime?> nextEval;
+  const ReinforcementsCompanion({
+    this.id = const Value.absent(),
+    this.cType = const Value.absent(),
+    this.type = const Value.absent(),
+    this.title = const Value.absent(),
+    this.displayContext = const Value.absent(),
+    this.citation = const Value.absent(),
+    this.threshold = const Value.absent(),
+    this.window = const Value.absent(),
+    this.nextEval = const Value.absent(),
+  });
+  ReinforcementsCompanion.insert({
+    this.id = const Value.absent(),
+    required ConcernType cType,
+    required GoalType type,
+    required String title,
+    required String displayContext,
+    required String citation,
+    required int threshold,
+    required int window,
+    this.nextEval = const Value.absent(),
+  }) : cType = Value(cType),
+       type = Value(type),
+       title = Value(title),
+       displayContext = Value(displayContext),
+       citation = Value(citation),
+       threshold = Value(threshold),
+       window = Value(window);
+  static Insertable<Reinforcement> custom({
+    Expression<int>? id,
+    Expression<String>? cType,
+    Expression<String>? type,
+    Expression<String>? title,
+    Expression<String>? displayContext,
+    Expression<String>? citation,
+    Expression<int>? threshold,
+    Expression<int>? window,
+    Expression<DateTime>? nextEval,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cType != null) 'c_type': cType,
+      if (type != null) 'type': type,
+      if (title != null) 'title': title,
+      if (displayContext != null) 'display_context': displayContext,
+      if (citation != null) 'citation': citation,
+      if (threshold != null) 'threshold': threshold,
+      if (window != null) 'window': window,
+      if (nextEval != null) 'next_eval': nextEval,
+    });
+  }
+
+  ReinforcementsCompanion copyWith({
+    Value<int>? id,
+    Value<ConcernType>? cType,
+    Value<GoalType>? type,
+    Value<String>? title,
+    Value<String>? displayContext,
+    Value<String>? citation,
+    Value<int>? threshold,
+    Value<int>? window,
+    Value<DateTime?>? nextEval,
+  }) {
+    return ReinforcementsCompanion(
+      id: id ?? this.id,
+      cType: cType ?? this.cType,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      displayContext: displayContext ?? this.displayContext,
+      citation: citation ?? this.citation,
+      threshold: threshold ?? this.threshold,
+      window: window ?? this.window,
+      nextEval: nextEval ?? this.nextEval,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cType.present) {
+      map['c_type'] = Variable<String>(
+        $ReinforcementsTable.$convertercType.toSql(cType.value),
+      );
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $ReinforcementsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (displayContext.present) {
+      map['display_context'] = Variable<String>(displayContext.value);
+    }
+    if (citation.present) {
+      map['citation'] = Variable<String>(citation.value);
+    }
+    if (threshold.present) {
+      map['threshold'] = Variable<int>(threshold.value);
+    }
+    if (window.present) {
+      map['window'] = Variable<int>(window.value);
+    }
+    if (nextEval.present) {
+      map['next_eval'] = Variable<DateTime>(nextEval.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReinforcementsCompanion(')
+          ..write('id: $id, ')
+          ..write('cType: $cType, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('displayContext: $displayContext, ')
+          ..write('citation: $citation, ')
+          ..write('threshold: $threshold, ')
+          ..write('window: $window, ')
+          ..write('nextEval: $nextEval')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AchievementsTable extends Achievements
     with TableInfo<$AchievementsTable, Achievement> {
   @override
@@ -7179,433 +7786,6 @@ class AchievementsCompanion extends UpdateCompanion<Achievement> {
           ..write('description: $description, ')
           ..write('type: $type, ')
           ..write('unlockType: $unlockType')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ReinforcementsTable extends Reinforcements
-    with TableInfo<$ReinforcementsTable, Reinforcement> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ReinforcementsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _reinIDMeta = const VerificationMeta('reinID');
-  @override
-  late final GeneratedColumn<int> reinID = GeneratedColumn<int>(
-    'rein_i_d',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _userGoalIDMeta = const VerificationMeta(
-    'userGoalID',
-  );
-  @override
-  late final GeneratedColumn<int> userGoalID = GeneratedColumn<int>(
-    'user_goal_i_d',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_goal_progress (user_goal_i_d)',
-    ),
-  );
-  static const VerificationMeta _achIDMeta = const VerificationMeta('achID');
-  @override
-  late final GeneratedColumn<int> achID = GeneratedColumn<int>(
-    'ach_i_d',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES achievements (ach_i_d)',
-    ),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<ReinforcementType, String>
-  reinType = GeneratedColumn<String>(
-    'rein_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<ReinforcementType>($ReinforcementsTable.$converterreinType);
-  static const VerificationMeta _displayContextMeta = const VerificationMeta(
-    'displayContext',
-  );
-  @override
-  late final GeneratedColumn<String> displayContext = GeneratedColumn<String>(
-    'display_context',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
-  static const VerificationMeta _priorityMeta = const VerificationMeta(
-    'priority',
-  );
-  @override
-  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
-    'priority',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    reinID,
-    userGoalID,
-    achID,
-    reinType,
-    displayContext,
-    priority,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'reinforcements';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Reinforcement> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('rein_i_d')) {
-      context.handle(
-        _reinIDMeta,
-        reinID.isAcceptableOrUnknown(data['rein_i_d']!, _reinIDMeta),
-      );
-    }
-    if (data.containsKey('user_goal_i_d')) {
-      context.handle(
-        _userGoalIDMeta,
-        userGoalID.isAcceptableOrUnknown(
-          data['user_goal_i_d']!,
-          _userGoalIDMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_userGoalIDMeta);
-    }
-    if (data.containsKey('ach_i_d')) {
-      context.handle(
-        _achIDMeta,
-        achID.isAcceptableOrUnknown(data['ach_i_d']!, _achIDMeta),
-      );
-    }
-    if (data.containsKey('display_context')) {
-      context.handle(
-        _displayContextMeta,
-        displayContext.isAcceptableOrUnknown(
-          data['display_context']!,
-          _displayContextMeta,
-        ),
-      );
-    }
-    if (data.containsKey('priority')) {
-      context.handle(
-        _priorityMeta,
-        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {reinID};
-  @override
-  Reinforcement map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Reinforcement(
-      reinID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}rein_i_d'],
-      )!,
-      userGoalID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}user_goal_i_d'],
-      )!,
-      achID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}ach_i_d'],
-      ),
-      reinType: $ReinforcementsTable.$converterreinType.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}rein_type'],
-        )!,
-      ),
-      displayContext: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}display_context'],
-      )!,
-      priority: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}priority'],
-      )!,
-    );
-  }
-
-  @override
-  $ReinforcementsTable createAlias(String alias) {
-    return $ReinforcementsTable(attachedDatabase, alias);
-  }
-
-  static JsonTypeConverter2<ReinforcementType, String, String>
-  $converterreinType = const EnumNameConverter<ReinforcementType>(
-    ReinforcementType.values,
-  );
-}
-
-class Reinforcement extends DataClass implements Insertable<Reinforcement> {
-  final int reinID;
-  final int userGoalID;
-  final int? achID;
-  final ReinforcementType reinType;
-  final String displayContext;
-  final int priority;
-  const Reinforcement({
-    required this.reinID,
-    required this.userGoalID,
-    this.achID,
-    required this.reinType,
-    required this.displayContext,
-    required this.priority,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['rein_i_d'] = Variable<int>(reinID);
-    map['user_goal_i_d'] = Variable<int>(userGoalID);
-    if (!nullToAbsent || achID != null) {
-      map['ach_i_d'] = Variable<int>(achID);
-    }
-    {
-      map['rein_type'] = Variable<String>(
-        $ReinforcementsTable.$converterreinType.toSql(reinType),
-      );
-    }
-    map['display_context'] = Variable<String>(displayContext);
-    map['priority'] = Variable<int>(priority);
-    return map;
-  }
-
-  ReinforcementsCompanion toCompanion(bool nullToAbsent) {
-    return ReinforcementsCompanion(
-      reinID: Value(reinID),
-      userGoalID: Value(userGoalID),
-      achID: achID == null && nullToAbsent
-          ? const Value.absent()
-          : Value(achID),
-      reinType: Value(reinType),
-      displayContext: Value(displayContext),
-      priority: Value(priority),
-    );
-  }
-
-  factory Reinforcement.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Reinforcement(
-      reinID: serializer.fromJson<int>(json['reinID']),
-      userGoalID: serializer.fromJson<int>(json['userGoalID']),
-      achID: serializer.fromJson<int?>(json['achID']),
-      reinType: $ReinforcementsTable.$converterreinType.fromJson(
-        serializer.fromJson<String>(json['reinType']),
-      ),
-      displayContext: serializer.fromJson<String>(json['displayContext']),
-      priority: serializer.fromJson<int>(json['priority']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'reinID': serializer.toJson<int>(reinID),
-      'userGoalID': serializer.toJson<int>(userGoalID),
-      'achID': serializer.toJson<int?>(achID),
-      'reinType': serializer.toJson<String>(
-        $ReinforcementsTable.$converterreinType.toJson(reinType),
-      ),
-      'displayContext': serializer.toJson<String>(displayContext),
-      'priority': serializer.toJson<int>(priority),
-    };
-  }
-
-  Reinforcement copyWith({
-    int? reinID,
-    int? userGoalID,
-    Value<int?> achID = const Value.absent(),
-    ReinforcementType? reinType,
-    String? displayContext,
-    int? priority,
-  }) => Reinforcement(
-    reinID: reinID ?? this.reinID,
-    userGoalID: userGoalID ?? this.userGoalID,
-    achID: achID.present ? achID.value : this.achID,
-    reinType: reinType ?? this.reinType,
-    displayContext: displayContext ?? this.displayContext,
-    priority: priority ?? this.priority,
-  );
-  Reinforcement copyWithCompanion(ReinforcementsCompanion data) {
-    return Reinforcement(
-      reinID: data.reinID.present ? data.reinID.value : this.reinID,
-      userGoalID: data.userGoalID.present
-          ? data.userGoalID.value
-          : this.userGoalID,
-      achID: data.achID.present ? data.achID.value : this.achID,
-      reinType: data.reinType.present ? data.reinType.value : this.reinType,
-      displayContext: data.displayContext.present
-          ? data.displayContext.value
-          : this.displayContext,
-      priority: data.priority.present ? data.priority.value : this.priority,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Reinforcement(')
-          ..write('reinID: $reinID, ')
-          ..write('userGoalID: $userGoalID, ')
-          ..write('achID: $achID, ')
-          ..write('reinType: $reinType, ')
-          ..write('displayContext: $displayContext, ')
-          ..write('priority: $priority')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    reinID,
-    userGoalID,
-    achID,
-    reinType,
-    displayContext,
-    priority,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Reinforcement &&
-          other.reinID == this.reinID &&
-          other.userGoalID == this.userGoalID &&
-          other.achID == this.achID &&
-          other.reinType == this.reinType &&
-          other.displayContext == this.displayContext &&
-          other.priority == this.priority);
-}
-
-class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
-  final Value<int> reinID;
-  final Value<int> userGoalID;
-  final Value<int?> achID;
-  final Value<ReinforcementType> reinType;
-  final Value<String> displayContext;
-  final Value<int> priority;
-  const ReinforcementsCompanion({
-    this.reinID = const Value.absent(),
-    this.userGoalID = const Value.absent(),
-    this.achID = const Value.absent(),
-    this.reinType = const Value.absent(),
-    this.displayContext = const Value.absent(),
-    this.priority = const Value.absent(),
-  });
-  ReinforcementsCompanion.insert({
-    this.reinID = const Value.absent(),
-    required int userGoalID,
-    this.achID = const Value.absent(),
-    required ReinforcementType reinType,
-    this.displayContext = const Value.absent(),
-    this.priority = const Value.absent(),
-  }) : userGoalID = Value(userGoalID),
-       reinType = Value(reinType);
-  static Insertable<Reinforcement> custom({
-    Expression<int>? reinID,
-    Expression<int>? userGoalID,
-    Expression<int>? achID,
-    Expression<String>? reinType,
-    Expression<String>? displayContext,
-    Expression<int>? priority,
-  }) {
-    return RawValuesInsertable({
-      if (reinID != null) 'rein_i_d': reinID,
-      if (userGoalID != null) 'user_goal_i_d': userGoalID,
-      if (achID != null) 'ach_i_d': achID,
-      if (reinType != null) 'rein_type': reinType,
-      if (displayContext != null) 'display_context': displayContext,
-      if (priority != null) 'priority': priority,
-    });
-  }
-
-  ReinforcementsCompanion copyWith({
-    Value<int>? reinID,
-    Value<int>? userGoalID,
-    Value<int?>? achID,
-    Value<ReinforcementType>? reinType,
-    Value<String>? displayContext,
-    Value<int>? priority,
-  }) {
-    return ReinforcementsCompanion(
-      reinID: reinID ?? this.reinID,
-      userGoalID: userGoalID ?? this.userGoalID,
-      achID: achID ?? this.achID,
-      reinType: reinType ?? this.reinType,
-      displayContext: displayContext ?? this.displayContext,
-      priority: priority ?? this.priority,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (reinID.present) {
-      map['rein_i_d'] = Variable<int>(reinID.value);
-    }
-    if (userGoalID.present) {
-      map['user_goal_i_d'] = Variable<int>(userGoalID.value);
-    }
-    if (achID.present) {
-      map['ach_i_d'] = Variable<int>(achID.value);
-    }
-    if (reinType.present) {
-      map['rein_type'] = Variable<String>(
-        $ReinforcementsTable.$converterreinType.toSql(reinType.value),
-      );
-    }
-    if (displayContext.present) {
-      map['display_context'] = Variable<String>(displayContext.value);
-    }
-    if (priority.present) {
-      map['priority'] = Variable<int>(priority.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ReinforcementsCompanion(')
-          ..write('reinID: $reinID, ')
-          ..write('userGoalID: $userGoalID, ')
-          ..write('achID: $achID, ')
-          ..write('reinType: $reinType, ')
-          ..write('displayContext: $displayContext, ')
-          ..write('priority: $priority')
           ..write(')'))
         .toString();
   }
@@ -8517,8 +8697,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserGoalProgressTable userGoalProgress = $UserGoalProgressTable(
     this,
   );
-  late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReinforcementsTable reinforcements = $ReinforcementsTable(this);
+  late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReminderTable reminder = $ReminderTable(this);
   late final $FoodLogTable foodLog = $FoodLogTable(this);
   late final Index foodName = Index(
@@ -8536,6 +8716,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index goalType = Index(
     'goal_type',
     'CREATE INDEX goal_type ON goals (type)',
+  );
+  late final Index concernType = Index(
+    'concern_type',
+    'CREATE INDEX concern_type ON reinforcements (c_type)',
   );
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final FastingDao fastingDao = FastingDao(this as AppDatabase);
@@ -8569,14 +8753,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     nutritionGoals,
     streaks,
     userGoalProgress,
-    achievements,
     reinforcements,
+    achievements,
     reminder,
     foodLog,
     foodName,
     mealRecipeKey,
     mealFoodKey,
     goalType,
+    concernType,
   ];
 }
 
@@ -8592,6 +8777,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<DateTime> createdDate,
       Value<String> adfDaysSelected,
       Value<String> fiveTwoDaysSelected,
+      required double height,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -8605,6 +8791,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<DateTime> createdDate,
       Value<String> adfDaysSelected,
       Value<String> fiveTwoDaysSelected,
+      Value<double> height,
     });
 
 final class $$UsersTableReferences
@@ -8798,6 +8985,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get fiveTwoDaysSelected => $composableBuilder(
     column: $table.fiveTwoDaysSelected,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get height => $composableBuilder(
+    column: $table.height,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9035,6 +9227,11 @@ class $$UsersTableOrderingComposer
     column: $table.fiveTwoDaysSelected,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get height => $composableBuilder(
+    column: $table.height,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -9088,6 +9285,9 @@ class $$UsersTableAnnotationComposer
     column: $table.fiveTwoDaysSelected,
     builder: (column) => column,
   );
+
+  GeneratedColumn<double> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => column);
 
   Expression<T> fastLogRefs<T extends Object>(
     Expression<T> Function($$FastLogTableAnnotationComposer a) f,
@@ -9311,6 +9511,7 @@ class $$UsersTableTableManager
                 Value<DateTime> createdDate = const Value.absent(),
                 Value<String> adfDaysSelected = const Value.absent(),
                 Value<String> fiveTwoDaysSelected = const Value.absent(),
+                Value<double> height = const Value.absent(),
               }) => UsersCompanion(
                 userID: userID,
                 name: name,
@@ -9322,6 +9523,7 @@ class $$UsersTableTableManager
                 createdDate: createdDate,
                 adfDaysSelected: adfDaysSelected,
                 fiveTwoDaysSelected: fiveTwoDaysSelected,
+                height: height,
               ),
           createCompanionCallback:
               ({
@@ -9335,6 +9537,7 @@ class $$UsersTableTableManager
                 Value<DateTime> createdDate = const Value.absent(),
                 Value<String> adfDaysSelected = const Value.absent(),
                 Value<String> fiveTwoDaysSelected = const Value.absent(),
+                required double height,
               }) => UsersCompanion.insert(
                 userID: userID,
                 name: name,
@@ -9346,6 +9549,7 @@ class $$UsersTableTableManager
                 createdDate: createdDate,
                 adfDaysSelected: adfDaysSelected,
                 fiveTwoDaysSelected: fiveTwoDaysSelected,
+                height: height,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -15800,27 +16004,6 @@ final class $$UserGoalProgressTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
-
-  static MultiTypedResultKey<$ReinforcementsTable, List<Reinforcement>>
-  _reinforcementsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.reinforcements,
-    aliasName:
-        'user_goal_progress__user_goal_i_d__reinforcements__user_goal_i_d',
-  );
-
-  $$ReinforcementsTableProcessedTableManager get reinforcementsRefs {
-    final manager = $$ReinforcementsTableTableManager($_db, $_db.reinforcements)
-        .filter(
-          (f) => f.userGoalID.userGoalID.sqlEquals(
-            $_itemColumn<int>('user_goal_i_d')!,
-          ),
-        );
-
-    final cache = $_typedResult.readTableOrNull(_reinforcementsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$UserGoalProgressTableFilterComposer
@@ -15891,31 +16074,6 @@ class $$UserGoalProgressTableFilterComposer
           ),
     );
     return composer;
-  }
-
-  Expression<bool> reinforcementsRefs(
-    Expression<bool> Function($$ReinforcementsTableFilterComposer f) f,
-  ) {
-    final $$ReinforcementsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userGoalID,
-      referencedTable: $db.reinforcements,
-      getReferencedColumn: (t) => t.userGoalID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReinforcementsTableFilterComposer(
-            $db: $db,
-            $table: $db.reinforcements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
   }
 }
 
@@ -16057,31 +16215,6 @@ class $$UserGoalProgressTableAnnotationComposer
     );
     return composer;
   }
-
-  Expression<T> reinforcementsRefs<T extends Object>(
-    Expression<T> Function($$ReinforcementsTableAnnotationComposer a) f,
-  ) {
-    final $$ReinforcementsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userGoalID,
-      referencedTable: $db.reinforcements,
-      getReferencedColumn: (t) => t.userGoalID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReinforcementsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.reinforcements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$UserGoalProgressTableTableManager
@@ -16097,11 +16230,7 @@ class $$UserGoalProgressTableTableManager
           $$UserGoalProgressTableUpdateCompanionBuilder,
           (UserGoalProgressData, $$UserGoalProgressTableReferences),
           UserGoalProgressData,
-          PrefetchHooks Function({
-            bool userID,
-            bool goalID,
-            bool reinforcementsRefs,
-          })
+          PrefetchHooks Function({bool userID, bool goalID})
         > {
   $$UserGoalProgressTableTableManager(
     _$AppDatabase db,
@@ -16152,89 +16281,64 @@ class $$UserGoalProgressTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({userID = false, goalID = false, reinforcementsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (reinforcementsRefs) db.reinforcements,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (userID) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.userID,
-                                    referencedTable:
-                                        $$UserGoalProgressTableReferences
-                                            ._userIDTable(db),
-                                    referencedColumn:
-                                        $$UserGoalProgressTableReferences
-                                            ._userIDTable(db)
-                                            .userID,
-                                  )
-                                  as T;
-                        }
-                        if (goalID) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.goalID,
-                                    referencedTable:
-                                        $$UserGoalProgressTableReferences
-                                            ._goalIDTable(db),
-                                    referencedColumn:
-                                        $$UserGoalProgressTableReferences
-                                            ._goalIDTable(db)
-                                            .goalID,
-                                  )
-                                  as T;
-                        }
+          prefetchHooksCallback: ({userID = false, goalID = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.userID,
+                                referencedTable:
+                                    $$UserGoalProgressTableReferences
+                                        ._userIDTable(db),
+                                referencedColumn:
+                                    $$UserGoalProgressTableReferences
+                                        ._userIDTable(db)
+                                        .userID,
+                              )
+                              as T;
+                    }
+                    if (goalID) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalID,
+                                referencedTable:
+                                    $$UserGoalProgressTableReferences
+                                        ._goalIDTable(db),
+                                referencedColumn:
+                                    $$UserGoalProgressTableReferences
+                                        ._goalIDTable(db)
+                                        .goalID,
+                              )
+                              as T;
+                    }
 
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (reinforcementsRefs)
-                        await $_getPrefetchedData<
-                          UserGoalProgressData,
-                          $UserGoalProgressTable,
-                          Reinforcement
-                        >(
-                          currentTable: table,
-                          referencedTable: $$UserGoalProgressTableReferences
-                              ._reinforcementsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$UserGoalProgressTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).reinforcementsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.userGoalID == item.userGoalID,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
+                    return state;
                   },
-                );
+              getPrefetchedDataCallback: (items) async {
+                return [];
               },
+            );
+          },
         ),
       );
 }
@@ -16251,11 +16355,283 @@ typedef $$UserGoalProgressTableProcessedTableManager =
       $$UserGoalProgressTableUpdateCompanionBuilder,
       (UserGoalProgressData, $$UserGoalProgressTableReferences),
       UserGoalProgressData,
-      PrefetchHooks Function({
-        bool userID,
-        bool goalID,
-        bool reinforcementsRefs,
-      })
+      PrefetchHooks Function({bool userID, bool goalID})
+    >;
+typedef $$ReinforcementsTableCreateCompanionBuilder =
+    ReinforcementsCompanion Function({
+      Value<int> id,
+      required ConcernType cType,
+      required GoalType type,
+      required String title,
+      required String displayContext,
+      required String citation,
+      required int threshold,
+      required int window,
+      Value<DateTime?> nextEval,
+    });
+typedef $$ReinforcementsTableUpdateCompanionBuilder =
+    ReinforcementsCompanion Function({
+      Value<int> id,
+      Value<ConcernType> cType,
+      Value<GoalType> type,
+      Value<String> title,
+      Value<String> displayContext,
+      Value<String> citation,
+      Value<int> threshold,
+      Value<int> window,
+      Value<DateTime?> nextEval,
+    });
+
+class $$ReinforcementsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ConcernType, ConcernType, String> get cType =>
+      $composableBuilder(
+        column: $table.cType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get type =>
+      $composableBuilder(
+        column: $table.type,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get citation => $composableBuilder(
+    column: $table.citation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get threshold => $composableBuilder(
+    column: $table.threshold,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get window => $composableBuilder(
+    column: $table.window,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextEval => $composableBuilder(
+    column: $table.nextEval,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReinforcementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cType => $composableBuilder(
+    column: $table.cType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get citation => $composableBuilder(
+    column: $table.citation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get threshold => $composableBuilder(
+    column: $table.threshold,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get window => $composableBuilder(
+    column: $table.window,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextEval => $composableBuilder(
+    column: $table.nextEval,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReinforcementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReinforcementsTable> {
+  $$ReinforcementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ConcernType, String> get cType =>
+      $composableBuilder(column: $table.cType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<GoalType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get displayContext => $composableBuilder(
+    column: $table.displayContext,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get citation =>
+      $composableBuilder(column: $table.citation, builder: (column) => column);
+
+  GeneratedColumn<int> get threshold =>
+      $composableBuilder(column: $table.threshold, builder: (column) => column);
+
+  GeneratedColumn<int> get window =>
+      $composableBuilder(column: $table.window, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextEval =>
+      $composableBuilder(column: $table.nextEval, builder: (column) => column);
+}
+
+class $$ReinforcementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReinforcementsTable,
+          Reinforcement,
+          $$ReinforcementsTableFilterComposer,
+          $$ReinforcementsTableOrderingComposer,
+          $$ReinforcementsTableAnnotationComposer,
+          $$ReinforcementsTableCreateCompanionBuilder,
+          $$ReinforcementsTableUpdateCompanionBuilder,
+          (
+            Reinforcement,
+            BaseReferences<_$AppDatabase, $ReinforcementsTable, Reinforcement>,
+          ),
+          Reinforcement,
+          PrefetchHooks Function()
+        > {
+  $$ReinforcementsTableTableManager(
+    _$AppDatabase db,
+    $ReinforcementsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReinforcementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReinforcementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReinforcementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<ConcernType> cType = const Value.absent(),
+                Value<GoalType> type = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> displayContext = const Value.absent(),
+                Value<String> citation = const Value.absent(),
+                Value<int> threshold = const Value.absent(),
+                Value<int> window = const Value.absent(),
+                Value<DateTime?> nextEval = const Value.absent(),
+              }) => ReinforcementsCompanion(
+                id: id,
+                cType: cType,
+                type: type,
+                title: title,
+                displayContext: displayContext,
+                citation: citation,
+                threshold: threshold,
+                window: window,
+                nextEval: nextEval,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required ConcernType cType,
+                required GoalType type,
+                required String title,
+                required String displayContext,
+                required String citation,
+                required int threshold,
+                required int window,
+                Value<DateTime?> nextEval = const Value.absent(),
+              }) => ReinforcementsCompanion.insert(
+                id: id,
+                cType: cType,
+                type: type,
+                title: title,
+                displayContext: displayContext,
+                citation: citation,
+                threshold: threshold,
+                window: window,
+                nextEval: nextEval,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReinforcementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReinforcementsTable,
+      Reinforcement,
+      $$ReinforcementsTableFilterComposer,
+      $$ReinforcementsTableOrderingComposer,
+      $$ReinforcementsTableAnnotationComposer,
+      $$ReinforcementsTableCreateCompanionBuilder,
+      $$ReinforcementsTableUpdateCompanionBuilder,
+      (
+        Reinforcement,
+        BaseReferences<_$AppDatabase, $ReinforcementsTable, Reinforcement>,
+      ),
+      Reinforcement,
+      PrefetchHooks Function()
     >;
 typedef $$AchievementsTableCreateCompanionBuilder =
     AchievementsCompanion Function({
@@ -16273,29 +16649,6 @@ typedef $$AchievementsTableUpdateCompanionBuilder =
       Value<AchievementType> type,
       Value<UnlockType> unlockType,
     });
-
-final class $$AchievementsTableReferences
-    extends BaseReferences<_$AppDatabase, $AchievementsTable, Achievement> {
-  $$AchievementsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$ReinforcementsTable, List<Reinforcement>>
-  _reinforcementsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.reinforcements,
-    aliasName: 'achievements__ach_i_d__reinforcements__ach_i_d',
-  );
-
-  $$ReinforcementsTableProcessedTableManager get reinforcementsRefs {
-    final manager = $$ReinforcementsTableTableManager(
-      $_db,
-      $_db.reinforcements,
-    ).filter((f) => f.achID.achID.sqlEquals($_itemColumn<int>('ach_i_d')!));
-
-    final cache = $_typedResult.readTableOrNull(_reinforcementsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
 
 class $$AchievementsTableFilterComposer
     extends Composer<_$AppDatabase, $AchievementsTable> {
@@ -16332,31 +16685,6 @@ class $$AchievementsTableFilterComposer
     column: $table.unlockType,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
-
-  Expression<bool> reinforcementsRefs(
-    Expression<bool> Function($$ReinforcementsTableFilterComposer f) f,
-  ) {
-    final $$ReinforcementsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.achID,
-      referencedTable: $db.reinforcements,
-      getReferencedColumn: (t) => t.achID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReinforcementsTableFilterComposer(
-            $db: $db,
-            $table: $db.reinforcements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$AchievementsTableOrderingComposer
@@ -16422,31 +16750,6 @@ class $$AchievementsTableAnnotationComposer
         column: $table.unlockType,
         builder: (column) => column,
       );
-
-  Expression<T> reinforcementsRefs<T extends Object>(
-    Expression<T> Function($$ReinforcementsTableAnnotationComposer a) f,
-  ) {
-    final $$ReinforcementsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.achID,
-      referencedTable: $db.reinforcements,
-      getReferencedColumn: (t) => t.achID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReinforcementsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.reinforcements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$AchievementsTableTableManager
@@ -16460,9 +16763,12 @@ class $$AchievementsTableTableManager
           $$AchievementsTableAnnotationComposer,
           $$AchievementsTableCreateCompanionBuilder,
           $$AchievementsTableUpdateCompanionBuilder,
-          (Achievement, $$AchievementsTableReferences),
+          (
+            Achievement,
+            BaseReferences<_$AppDatabase, $AchievementsTable, Achievement>,
+          ),
           Achievement,
-          PrefetchHooks Function({bool reinforcementsRefs})
+          PrefetchHooks Function()
         > {
   $$AchievementsTableTableManager(_$AppDatabase db, $AchievementsTable table)
     : super(
@@ -16504,45 +16810,9 @@ class $$AchievementsTableTableManager
                 unlockType: unlockType,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$AchievementsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({reinforcementsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (reinforcementsRefs) db.reinforcements,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (reinforcementsRefs)
-                    await $_getPrefetchedData<
-                      Achievement,
-                      $AchievementsTable,
-                      Reinforcement
-                    >(
-                      currentTable: table,
-                      referencedTable: $$AchievementsTableReferences
-                          ._reinforcementsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$AchievementsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).reinforcementsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.achID == item.achID),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -16557,438 +16827,12 @@ typedef $$AchievementsTableProcessedTableManager =
       $$AchievementsTableAnnotationComposer,
       $$AchievementsTableCreateCompanionBuilder,
       $$AchievementsTableUpdateCompanionBuilder,
-      (Achievement, $$AchievementsTableReferences),
+      (
+        Achievement,
+        BaseReferences<_$AppDatabase, $AchievementsTable, Achievement>,
+      ),
       Achievement,
-      PrefetchHooks Function({bool reinforcementsRefs})
-    >;
-typedef $$ReinforcementsTableCreateCompanionBuilder =
-    ReinforcementsCompanion Function({
-      Value<int> reinID,
-      required int userGoalID,
-      Value<int?> achID,
-      required ReinforcementType reinType,
-      Value<String> displayContext,
-      Value<int> priority,
-    });
-typedef $$ReinforcementsTableUpdateCompanionBuilder =
-    ReinforcementsCompanion Function({
-      Value<int> reinID,
-      Value<int> userGoalID,
-      Value<int?> achID,
-      Value<ReinforcementType> reinType,
-      Value<String> displayContext,
-      Value<int> priority,
-    });
-
-final class $$ReinforcementsTableReferences
-    extends BaseReferences<_$AppDatabase, $ReinforcementsTable, Reinforcement> {
-  $$ReinforcementsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $UserGoalProgressTable _userGoalIDTable(_$AppDatabase db) =>
-      db.userGoalProgress.createAlias(
-        'reinforcements__user_goal_i_d__user_goal_progress__user_goal_i_d',
-      );
-
-  $$UserGoalProgressTableProcessedTableManager get userGoalID {
-    final $_column = $_itemColumn<int>('user_goal_i_d')!;
-
-    final manager = $$UserGoalProgressTableTableManager(
-      $_db,
-      $_db.userGoalProgress,
-    ).filter((f) => f.userGoalID.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userGoalIDTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $AchievementsTable _achIDTable(_$AppDatabase db) => db.achievements
-      .createAlias('reinforcements__ach_i_d__achievements__ach_i_d');
-
-  $$AchievementsTableProcessedTableManager? get achID {
-    final $_column = $_itemColumn<int>('ach_i_d');
-    if ($_column == null) return null;
-    final manager = $$AchievementsTableTableManager(
-      $_db,
-      $_db.achievements,
-    ).filter((f) => f.achID.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_achIDTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$ReinforcementsTableFilterComposer
-    extends Composer<_$AppDatabase, $ReinforcementsTable> {
-  $$ReinforcementsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get reinID => $composableBuilder(
-    column: $table.reinID,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<ReinforcementType, ReinforcementType, String>
-  get reinType => $composableBuilder(
-    column: $table.reinType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get displayContext => $composableBuilder(
-    column: $table.displayContext,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$UserGoalProgressTableFilterComposer get userGoalID {
-    final $$UserGoalProgressTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userGoalID,
-      referencedTable: $db.userGoalProgress,
-      getReferencedColumn: (t) => t.userGoalID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserGoalProgressTableFilterComposer(
-            $db: $db,
-            $table: $db.userGoalProgress,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$AchievementsTableFilterComposer get achID {
-    final $$AchievementsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.achID,
-      referencedTable: $db.achievements,
-      getReferencedColumn: (t) => t.achID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AchievementsTableFilterComposer(
-            $db: $db,
-            $table: $db.achievements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ReinforcementsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ReinforcementsTable> {
-  $$ReinforcementsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get reinID => $composableBuilder(
-    column: $table.reinID,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get reinType => $composableBuilder(
-    column: $table.reinType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get displayContext => $composableBuilder(
-    column: $table.displayContext,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$UserGoalProgressTableOrderingComposer get userGoalID {
-    final $$UserGoalProgressTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userGoalID,
-      referencedTable: $db.userGoalProgress,
-      getReferencedColumn: (t) => t.userGoalID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserGoalProgressTableOrderingComposer(
-            $db: $db,
-            $table: $db.userGoalProgress,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$AchievementsTableOrderingComposer get achID {
-    final $$AchievementsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.achID,
-      referencedTable: $db.achievements,
-      getReferencedColumn: (t) => t.achID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AchievementsTableOrderingComposer(
-            $db: $db,
-            $table: $db.achievements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ReinforcementsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ReinforcementsTable> {
-  $$ReinforcementsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get reinID =>
-      $composableBuilder(column: $table.reinID, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<ReinforcementType, String> get reinType =>
-      $composableBuilder(column: $table.reinType, builder: (column) => column);
-
-  GeneratedColumn<String> get displayContext => $composableBuilder(
-    column: $table.displayContext,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get priority =>
-      $composableBuilder(column: $table.priority, builder: (column) => column);
-
-  $$UserGoalProgressTableAnnotationComposer get userGoalID {
-    final $$UserGoalProgressTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userGoalID,
-      referencedTable: $db.userGoalProgress,
-      getReferencedColumn: (t) => t.userGoalID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserGoalProgressTableAnnotationComposer(
-            $db: $db,
-            $table: $db.userGoalProgress,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$AchievementsTableAnnotationComposer get achID {
-    final $$AchievementsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.achID,
-      referencedTable: $db.achievements,
-      getReferencedColumn: (t) => t.achID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AchievementsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.achievements,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ReinforcementsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $ReinforcementsTable,
-          Reinforcement,
-          $$ReinforcementsTableFilterComposer,
-          $$ReinforcementsTableOrderingComposer,
-          $$ReinforcementsTableAnnotationComposer,
-          $$ReinforcementsTableCreateCompanionBuilder,
-          $$ReinforcementsTableUpdateCompanionBuilder,
-          (Reinforcement, $$ReinforcementsTableReferences),
-          Reinforcement,
-          PrefetchHooks Function({bool userGoalID, bool achID})
-        > {
-  $$ReinforcementsTableTableManager(
-    _$AppDatabase db,
-    $ReinforcementsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ReinforcementsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ReinforcementsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ReinforcementsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> reinID = const Value.absent(),
-                Value<int> userGoalID = const Value.absent(),
-                Value<int?> achID = const Value.absent(),
-                Value<ReinforcementType> reinType = const Value.absent(),
-                Value<String> displayContext = const Value.absent(),
-                Value<int> priority = const Value.absent(),
-              }) => ReinforcementsCompanion(
-                reinID: reinID,
-                userGoalID: userGoalID,
-                achID: achID,
-                reinType: reinType,
-                displayContext: displayContext,
-                priority: priority,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> reinID = const Value.absent(),
-                required int userGoalID,
-                Value<int?> achID = const Value.absent(),
-                required ReinforcementType reinType,
-                Value<String> displayContext = const Value.absent(),
-                Value<int> priority = const Value.absent(),
-              }) => ReinforcementsCompanion.insert(
-                reinID: reinID,
-                userGoalID: userGoalID,
-                achID: achID,
-                reinType: reinType,
-                displayContext: displayContext,
-                priority: priority,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$ReinforcementsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({userGoalID = false, achID = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (userGoalID) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.userGoalID,
-                                referencedTable: $$ReinforcementsTableReferences
-                                    ._userGoalIDTable(db),
-                                referencedColumn:
-                                    $$ReinforcementsTableReferences
-                                        ._userGoalIDTable(db)
-                                        .userGoalID,
-                              )
-                              as T;
-                    }
-                    if (achID) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.achID,
-                                referencedTable: $$ReinforcementsTableReferences
-                                    ._achIDTable(db),
-                                referencedColumn:
-                                    $$ReinforcementsTableReferences
-                                        ._achIDTable(db)
-                                        .achID,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$ReinforcementsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $ReinforcementsTable,
-      Reinforcement,
-      $$ReinforcementsTableFilterComposer,
-      $$ReinforcementsTableOrderingComposer,
-      $$ReinforcementsTableAnnotationComposer,
-      $$ReinforcementsTableCreateCompanionBuilder,
-      $$ReinforcementsTableUpdateCompanionBuilder,
-      (Reinforcement, $$ReinforcementsTableReferences),
-      Reinforcement,
-      PrefetchHooks Function({bool userGoalID, bool achID})
+      PrefetchHooks Function()
     >;
 typedef $$ReminderTableCreateCompanionBuilder =
     ReminderCompanion Function({
@@ -17595,10 +17439,10 @@ class $AppDatabaseManager {
       $$StreaksTableTableManager(_db, _db.streaks);
   $$UserGoalProgressTableTableManager get userGoalProgress =>
       $$UserGoalProgressTableTableManager(_db, _db.userGoalProgress);
-  $$AchievementsTableTableManager get achievements =>
-      $$AchievementsTableTableManager(_db, _db.achievements);
   $$ReinforcementsTableTableManager get reinforcements =>
       $$ReinforcementsTableTableManager(_db, _db.reinforcements);
+  $$AchievementsTableTableManager get achievements =>
+      $$AchievementsTableTableManager(_db, _db.achievements);
   $$ReminderTableTableManager get reminder =>
       $$ReminderTableTableManager(_db, _db.reminder);
   $$FoodLogTableTableManager get foodLog =>
