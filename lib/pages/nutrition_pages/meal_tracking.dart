@@ -19,7 +19,6 @@ class MealTracking extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
-    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     DateTime end = DateUtils.dateOnly(DateTime.now());
     DateTime start = end.subtract(const Duration(days: 3));
     end = end.add(const Duration(days: 1));
@@ -50,7 +49,7 @@ class MealTracking extends ConsumerWidget {
           Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: goalsNotifier.checkGoal(GoalType.nutrition),
+                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.nutrition),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');

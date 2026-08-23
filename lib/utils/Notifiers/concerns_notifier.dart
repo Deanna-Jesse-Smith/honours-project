@@ -6,7 +6,6 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
-import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
 class AsyncConcerns extends AsyncNotifier<BasicConcern> {
@@ -14,7 +13,8 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
   Set<PositiveReinforcement> positiveReinforcements = {};
 
   @override
-  FutureOr<BasicConcern> build() {
+  FutureOr<BasicConcern> build() async {
+    // await ref.read(cDaoProvider).dummyData();
     populateSets();
     return healthConcerns.first;
   }
@@ -92,7 +92,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
       (pr) => pr.gType == type || pr.gType == null,
     );
     for (final pr in prRelated) {
-      if (pr.nextEval == null || pr.nextEval!.compareTo(today) > -1) {
+      if (pr.nextEval == null || today.compareTo(pr.nextEval!) > -1) {
         bool isValid = pr.gType == null
             ? true
             : await ref

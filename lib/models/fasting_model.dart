@@ -169,12 +169,10 @@ FastingStatus determineFastingStatus({
     user,
   );
 
-  // There is no scheduled fast relevant to now.
   if (interval == null) {
     return FastingStatus.notFastingDay;
   }
 
-  // A database log exists, so the user has actually started fasting.
   if (activeLogStart != null) {
     final remaining = interval.end.difference(now);
 
@@ -185,7 +183,6 @@ FastingStatus determineFastingStatus({
     return FastingStatus.active;
   }
 
-  // No active log: determine how close we are to the scheduled start.
   final untilStart = interval.start.difference(now);
 
   if (untilStart.inMinutes <= 30 && untilStart.inMinutes > 0) {
@@ -248,8 +245,7 @@ extension FastingStatusAppearance on FastingStatus {
     FastingStatus.active => 'You remembered!',
     FastingStatus.endingSoon => 'Almost at the finish line',
     FastingStatus.completed => 'Well done!',
-    // TODO: Handle this case.
-    FastingStatus.scheduled => throw UnimplementedError(),
+    FastingStatus.scheduled => 'Scheduled',
   };
 }
 

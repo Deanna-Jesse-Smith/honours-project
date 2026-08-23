@@ -242,8 +242,8 @@ class Dialogs {
           ],
         ),
         content: Column(children: [
-          Expanded(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
-          Expanded(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
+          Flexible(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
+          Flexible(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
         ],),
         actions: [
           TextButton(

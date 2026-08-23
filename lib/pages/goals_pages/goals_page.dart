@@ -104,10 +104,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       persistentFooterButtons: [
         ElevatedButton(
-          onPressed: () {
-            saveChanges();
+          onPressed: () async {
+            await saveChanges();
 
-            Navigator.of(context).pop();
+            if (!mounted) {
+              return;
+            } else if (mounted) {
+              Navigator.of(context).pop();
+            }
           },
           child: const Text('Save Changes'),
         ),
@@ -115,13 +119,12 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     );
   }
 
-  void saveChanges() {
+  Future<void> saveChanges() async {
     curGoal.threshold = double.tryParse(goalController.text)!;
-    final asyncGoals = ref.read(asyncGoalsProvider.notifier);
     if (curGoal.goalID < 0) {
-      asyncGoals.insertGoal(curGoal);
+      await ref.read(asyncGoalsProvider.notifier).insertGoal(curGoal);
     } else {
-      asyncGoals.changeGoal(curGoal);
+      await ref.read(asyncGoalsProvider.notifier).changeGoal(curGoal);
     }
   }
 
@@ -141,7 +144,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         0,
         GoalOperator.greaterThan,
         widget.mType,
-        DateTime.now()
+        DateTime.now(),
+        false
       ),
       GoalType.weight => WeightGoalModel(
         -1,
@@ -150,6 +154,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         GoalOperator.lesserEqual,
         MetricType.kg,
         DateTime.now(),
+        false,
         startWeight: 0,
       ),
       GoalType.hydration => HydrationGoalModel(
@@ -159,6 +164,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         GoalOperator.greaterEqual,
         MetricType.litres,
         DateTime.now(),
+        false,
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
@@ -167,6 +173,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         GoalOperator.greaterEqual,
         MetricType.meals,
         DateTime.now(),
+        false,
       ),
     };
   }

@@ -6,10 +6,11 @@ sealed class BasicGoal {
    GoalOperator op;
    final MetricType metric;
    DateTime lastEval;
+   bool isComplete;
 
-  BasicGoal(this.goalID, this.threshold, this.progress, this.op, this.metric, this.lastEval);
+  BasicGoal(this.goalID, this.threshold, this.progress, this.op, this.metric, this.lastEval, this.isComplete);
 
-  BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours}) : lastEval = DateTime.now();
+  BasicGoal.c({this.goalID = -1, this.threshold = 0, this.progress = 0, this.op = GoalOperator.greaterThan, this.metric = MetricType.hours}) : lastEval = DateTime.now(), isComplete = false;
 
   // double getPercent(num curState) {
   //   late double output;
@@ -73,20 +74,19 @@ mixin BasicStreak on BasicGoal {
 }
 
 class FastingGoalModel extends BasicGoal {
-  FastingGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval);
+  FastingGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete);
 }
 
 class FastingStreak extends FastingGoalModel with BasicStreak {
-  FastingStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+  FastingStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
 class WeightGoalModel extends BasicGoal {
   final double startWeight;
-  late bool isComplete;
   //? Isn't threshold the target weight here?
-  WeightGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, {required this.startWeight});
+  WeightGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required this.startWeight});
 
   bool calculateComplete(double curWeight) {
     switch (op) {
@@ -111,14 +111,14 @@ class WeightGoalModel extends BasicGoal {
 }
 
 class WeightStreak extends WeightGoalModel with BasicStreak {
-  WeightStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, {required super.startWeight, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+  WeightStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required super.startWeight, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }
 }
 
 class HydrationGoalModel extends BasicGoal {
 
-  HydrationGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval);
+  HydrationGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete);
 
     bool calculateComplete(double curWeight) {
       bool isComplete;
@@ -142,7 +142,7 @@ class HydrationGoalModel extends BasicGoal {
 }
 
 class HydrationStreak extends HydrationGoalModel with BasicStreak {
-  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }
 }
@@ -151,11 +151,11 @@ class NutritionGoalModel extends BasicGoal {
   // final int dailyNutritionTarget;
   // final NutrientType nType;
 
-  NutritionGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval);
+  NutritionGoalModel(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete);
 }
 
 class NutritionStreak extends NutritionGoalModel with BasicStreak {
-  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
+  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
     setStreakData(streakID, type, start, end, daysProgress);
   }
 }

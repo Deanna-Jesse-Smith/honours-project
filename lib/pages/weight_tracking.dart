@@ -21,7 +21,6 @@ class WeightTracking extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final goalsNotifier = ref.watch(asyncGoalsProvider.notifier);
     final session = ref.read(userSessionProvider).value;
     late double curWeight;
 
@@ -39,7 +38,7 @@ class WeightTracking extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: goalsNotifier.checkGoal(GoalType.weight),
+                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.weight),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');

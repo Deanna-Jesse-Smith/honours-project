@@ -43,11 +43,8 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
   // double amount = 0;
   @override
   Widget build(BuildContext context) {
-    final goalsNotifier = ref.read(asyncGoalsProvider.notifier);
     final session = ref.read(userSessionProvider).value;
     // final watching = ref.watch(watchHydrationProvider(DateTime.now()));
-
-    
 
     return Scaffold(
       appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
@@ -63,7 +60,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: goalsNotifier.checkGoal(GoalType.hydration),
+                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.hydration),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');
@@ -82,8 +79,8 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   // }
 
                   return SizedBox(
-                    width: 100,
-                    height: 100,
+                    width: 150,
+                    height: 150,
                     child: LiquidCircularProgressIndicator(
                           value: model,
                           valueColor: AlwaysStoppedAnimation(Colors.lightBlue),

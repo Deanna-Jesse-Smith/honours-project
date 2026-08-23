@@ -28,7 +28,7 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
 
   Stream<double?> getCurWeight(int userID) {
     final weight = (selectOnly(weightLog)..addColumns([weightLog.amount])
-    ..orderBy([OrderingTerm.desc(weightLog.userID)])
+    ..orderBy([OrderingTerm.desc(weightLog.date)])
     ..limit(1)).watchSingle();
     return weight.map((w) => w.read(weightLog.amount));
   }
@@ -37,6 +37,4 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
     final insert = await into(weightLog).insert(WeightLogCompanion(userID: Value(userID), date: Value(today), amount: Value(newWeight)));
     return insert;
   }
-
-  
 }

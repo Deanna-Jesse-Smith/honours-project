@@ -24,7 +24,7 @@ class TRECalculator implements FastingScheduleCalculator {
       date.year,
       date.month,
       date.day,
-    ).add(dateTimeToDuration(user.typicalEnd));
+    ).add(dateTimeToDuration(user.typicalStart));
   }
 
   @override
@@ -37,7 +37,7 @@ class TRECalculator implements FastingScheduleCalculator {
       date.year,
       date.month,
       date.day,
-    ).add(dateTimeToDuration(user.typicalStart));
+    ).add(dateTimeToDuration(user.typicalEnd));
 
     final start = actualStart ?? expectedStartFor(date, user)!;
 
@@ -241,7 +241,6 @@ FastingProgress calculateFastingProgress({
     );
   }
 
-  // Not fasting: find the next scheduled fast.
   final nextStart = calculator.nextExpectedStartFor(
     now,
     user,
