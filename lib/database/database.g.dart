@@ -6890,14 +6890,14 @@ class $ReinforcementsTable extends Reinforcements
         requiredDuringInsert: true,
       ).withConverter<ConcernType>($ReinforcementsTable.$convertercType);
   @override
-  late final GeneratedColumnWithTypeConverter<GoalType, String> type =
+  late final GeneratedColumnWithTypeConverter<GoalType?, String> type =
       GeneratedColumn<String>(
         'type',
         aliasedName,
-        false,
+        true,
         type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<GoalType>($ReinforcementsTable.$convertertype);
+        requiredDuringInsert: false,
+      ).withConverter<GoalType?>($ReinforcementsTable.$convertertypen);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -7055,11 +7055,11 @@ class $ReinforcementsTable extends Reinforcements
           data['${effectivePrefix}c_type'],
         )!,
       ),
-      type: $ReinforcementsTable.$convertertype.fromSql(
+      type: $ReinforcementsTable.$convertertypen.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}type'],
-        )!,
+        ),
       ),
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -7097,12 +7097,14 @@ class $ReinforcementsTable extends Reinforcements
       const EnumNameConverter<ConcernType>(ConcernType.values);
   static JsonTypeConverter2<GoalType, String, String> $convertertype =
       const EnumNameConverter<GoalType>(GoalType.values);
+  static JsonTypeConverter2<GoalType?, String?, String?> $convertertypen =
+      JsonTypeConverter2.asNullable($convertertype);
 }
 
 class Reinforcement extends DataClass implements Insertable<Reinforcement> {
   final int id;
   final ConcernType cType;
-  final GoalType type;
+  final GoalType? type;
   final String title;
   final String displayContext;
   final String citation;
@@ -7112,7 +7114,7 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
   const Reinforcement({
     required this.id,
     required this.cType,
-    required this.type,
+    this.type,
     required this.title,
     required this.displayContext,
     required this.citation,
@@ -7129,9 +7131,9 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
         $ReinforcementsTable.$convertercType.toSql(cType),
       );
     }
-    {
+    if (!nullToAbsent || type != null) {
       map['type'] = Variable<String>(
-        $ReinforcementsTable.$convertertype.toSql(type),
+        $ReinforcementsTable.$convertertypen.toSql(type),
       );
     }
     map['title'] = Variable<String>(title);
@@ -7149,7 +7151,7 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
     return ReinforcementsCompanion(
       id: Value(id),
       cType: Value(cType),
-      type: Value(type),
+      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
       title: Value(title),
       displayContext: Value(displayContext),
       citation: Value(citation),
@@ -7171,8 +7173,8 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
       cType: $ReinforcementsTable.$convertercType.fromJson(
         serializer.fromJson<String>(json['cType']),
       ),
-      type: $ReinforcementsTable.$convertertype.fromJson(
-        serializer.fromJson<String>(json['type']),
+      type: $ReinforcementsTable.$convertertypen.fromJson(
+        serializer.fromJson<String?>(json['type']),
       ),
       title: serializer.fromJson<String>(json['title']),
       displayContext: serializer.fromJson<String>(json['displayContext']),
@@ -7190,8 +7192,8 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
       'cType': serializer.toJson<String>(
         $ReinforcementsTable.$convertercType.toJson(cType),
       ),
-      'type': serializer.toJson<String>(
-        $ReinforcementsTable.$convertertype.toJson(type),
+      'type': serializer.toJson<String?>(
+        $ReinforcementsTable.$convertertypen.toJson(type),
       ),
       'title': serializer.toJson<String>(title),
       'displayContext': serializer.toJson<String>(displayContext),
@@ -7205,7 +7207,7 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
   Reinforcement copyWith({
     int? id,
     ConcernType? cType,
-    GoalType? type,
+    Value<GoalType?> type = const Value.absent(),
     String? title,
     String? displayContext,
     String? citation,
@@ -7215,7 +7217,7 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
   }) => Reinforcement(
     id: id ?? this.id,
     cType: cType ?? this.cType,
-    type: type ?? this.type,
+    type: type.present ? type.value : this.type,
     title: title ?? this.title,
     displayContext: displayContext ?? this.displayContext,
     citation: citation ?? this.citation,
@@ -7285,7 +7287,7 @@ class Reinforcement extends DataClass implements Insertable<Reinforcement> {
 class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
   final Value<int> id;
   final Value<ConcernType> cType;
-  final Value<GoalType> type;
+  final Value<GoalType?> type;
   final Value<String> title;
   final Value<String> displayContext;
   final Value<String> citation;
@@ -7306,7 +7308,7 @@ class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
   ReinforcementsCompanion.insert({
     this.id = const Value.absent(),
     required ConcernType cType,
-    required GoalType type,
+    this.type = const Value.absent(),
     required String title,
     required String displayContext,
     required String citation,
@@ -7314,7 +7316,6 @@ class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
     required int window,
     this.nextEval = const Value.absent(),
   }) : cType = Value(cType),
-       type = Value(type),
        title = Value(title),
        displayContext = Value(displayContext),
        citation = Value(citation),
@@ -7347,7 +7348,7 @@ class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
   ReinforcementsCompanion copyWith({
     Value<int>? id,
     Value<ConcernType>? cType,
-    Value<GoalType>? type,
+    Value<GoalType?>? type,
     Value<String>? title,
     Value<String>? displayContext,
     Value<String>? citation,
@@ -7381,7 +7382,7 @@ class ReinforcementsCompanion extends UpdateCompanion<Reinforcement> {
     }
     if (type.present) {
       map['type'] = Variable<String>(
-        $ReinforcementsTable.$convertertype.toSql(type.value),
+        $ReinforcementsTable.$convertertypen.toSql(type.value),
       );
     }
     if (title.present) {
@@ -16361,7 +16362,7 @@ typedef $$ReinforcementsTableCreateCompanionBuilder =
     ReinforcementsCompanion Function({
       Value<int> id,
       required ConcernType cType,
-      required GoalType type,
+      Value<GoalType?> type,
       required String title,
       required String displayContext,
       required String citation,
@@ -16373,7 +16374,7 @@ typedef $$ReinforcementsTableUpdateCompanionBuilder =
     ReinforcementsCompanion Function({
       Value<int> id,
       Value<ConcernType> cType,
-      Value<GoalType> type,
+      Value<GoalType?> type,
       Value<String> title,
       Value<String> displayContext,
       Value<String> citation,
@@ -16402,7 +16403,7 @@ class $$ReinforcementsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnWithTypeConverterFilters<GoalType, GoalType, String> get type =>
+  ColumnWithTypeConverterFilters<GoalType?, GoalType, String> get type =>
       $composableBuilder(
         column: $table.type,
         builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -16509,7 +16510,7 @@ class $$ReinforcementsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<ConcernType, String> get cType =>
       $composableBuilder(column: $table.cType, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<GoalType, String> get type =>
+  GeneratedColumnWithTypeConverter<GoalType?, String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
@@ -16568,7 +16569,7 @@ class $$ReinforcementsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<ConcernType> cType = const Value.absent(),
-                Value<GoalType> type = const Value.absent(),
+                Value<GoalType?> type = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> displayContext = const Value.absent(),
                 Value<String> citation = const Value.absent(),
@@ -16590,7 +16591,7 @@ class $$ReinforcementsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required ConcernType cType,
-                required GoalType type,
+                Value<GoalType?> type = const Value.absent(),
                 required String title,
                 required String displayContext,
                 required String citation,

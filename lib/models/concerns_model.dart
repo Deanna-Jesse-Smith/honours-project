@@ -6,7 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 @riverpod
 sealed class BasicConcern {
   final int id;
-  final GoalType gType;
+  final GoalType? gType;
   final String title, text, citation;
   final int threshold, window;
   final DateTime? nextEval;

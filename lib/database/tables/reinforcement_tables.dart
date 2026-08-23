@@ -6,7 +6,7 @@ import 'package:testrun/models/goals_model.dart';
 class Reinforcements extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get cType => textEnum<ConcernType>()();
-  TextColumn get type => textEnum<GoalType>()();
+  TextColumn get type => textEnum<GoalType>().nullable()();
   TextColumn get title => text()();
   TextColumn get displayContext => text()();
   TextColumn get citation => text()();

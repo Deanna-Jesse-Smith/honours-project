@@ -25,14 +25,18 @@ class HydrationTracking extends ConsumerStatefulWidget {
 
 class HydrationTrackingState extends ConsumerState<HydrationTracking> {
 
-  late BasicConcern? concern;
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
+      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
+
+      if (!mounted) return;
+
+      if (concern != null) {
+        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+      }
     });
   }
 

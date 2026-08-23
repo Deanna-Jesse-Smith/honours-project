@@ -648,7 +648,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
-  Future<int> evaluateConcerns(GoalType type, DateTime windowStart) async { // Won't be called for weight, that will be calculated in another dao/notifier
+  Future<int> evaluateConcerns(GoalType type, DateTime windowStart) async {
     final data =
         (select(
             streaks,

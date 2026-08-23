@@ -10,6 +10,7 @@ import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -46,6 +47,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   @override
   void initState() {
+    super.initState();
+
     final session = ref.read(userSessionProvider).value;
     dropDownValuee = session!.fastingForm;
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
@@ -58,7 +61,15 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     ogADF = intsToBools(session.adfDaysSelected, ogADF);
     adfDaysSelected = List<bool>.of(ogADF);
 
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.fasting);
+
+      if (!mounted) return;
+
+      if (concern != null) {
+        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+      }
+    });
   }
 
   @override

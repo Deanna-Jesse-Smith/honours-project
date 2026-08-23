@@ -7,6 +7,7 @@ import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/dialogs.dart';
 
 class AsyncConcerns extends AsyncNotifier<BasicConcern> {
   Set<HealthConcern> healthConcerns = {};
@@ -67,28 +68,36 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
       // } else {
 
       // }
-      
-    
     }
-    final healthRelated = healthConcerns.where((h) => h.gType == type);
+
+    final healthRelated = healthConcerns.where(
+      (h) => h.gType == type || h.gType == null,
+    );
     final today = DateTime.now();
     for (final health in healthRelated) {
-      if (health.nextEval == null || health.nextEval!.compareTo(today) > -1) {
-        final isValid = await ref
-            .read(asyncGoalsProvider.notifier)
-            .isValidConcern(type, health.threshold, health.window);
+      if (health.nextEval == null || today.compareTo(health.nextEval!) > -1) {
+        bool isValid = health.gType == null
+            ? true
+            : await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .isValidConcern(type, health.threshold, health.window);
+
         if (isValid) {
           return health;
         }
       }
     }
 
-    final prRelated = positiveReinforcements.where((pr) => pr.gType == type);
+    final prRelated = positiveReinforcements.where(
+      (pr) => pr.gType == type || pr.gType == null,
+    );
     for (final pr in prRelated) {
       if (pr.nextEval == null || pr.nextEval!.compareTo(today) > -1) {
-        final isValid = await ref
-            .read(asyncGoalsProvider.notifier)
-            .isValidConcern(type, pr.threshold, pr.window);
+        bool isValid = pr.gType == null
+            ? true
+            : await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .isValidConcern(type, pr.threshold, pr.window);
         if (isValid) {
           return pr;
         }
@@ -97,10 +106,16 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
     return null;
   }
 
-  Future<void> adjustConcernEval(BasicConcern concern) async {
-    DateTime newEval = DateUtils.dateOnly(DateTime.now().add(const Duration(days: 7)));
+  Future<void> adjustConcernEval(
+    BasicConcern concern, {
+    bool week = false,
+  }) async {
+    int numDays = week ? 7 : 2;
+    DateTime newEval = DateUtils.dateOnly(
+      DateTime.now().add(Duration(days: numDays)),
+    );
     await ref.read(cDaoProvider).changeEvalDate(concern.id, newEval);
-    
+
     if (concern is HealthConcern) {
       final adjusted = concern.copyWithEval(newEval);
       healthConcerns.removeWhere((h) => h.id == adjusted.id);
@@ -109,6 +124,15 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
       final adjusted = (concern as PositiveReinforcement).copyWithEval(newEval);
       positiveReinforcements.removeWhere((p) => p.id == adjusted.id);
       positiveReinforcements.add(adjusted);
+    }
+  }
+
+  Future<void> doConcernDialogue(BasicConcern concern, BuildContext context) async {
+    final result = await Dialogs.showConcern(context, concern);
+    if (result == null || result > 1) {
+      adjustConcernEval(concern);
+    } else {
+      adjustConcernEval(concern, week: true);
     }
   }
 }
