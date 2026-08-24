@@ -200,8 +200,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       if (type == GoalType.hydration) {
         DateTime today = DateTime.now();
         if (DateUtils.isSameDay(evalDay, today)) {
-
-        } else if (isComplete && DateUtils.isSameDay(
+        } else if (isComplete &&
+            DateUtils.isSameDay(
               evalDay,
               today.subtract(const Duration(days: 1)),
             )) {
@@ -214,7 +214,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           BasicStreak? curStreak = await ref
               .read(gDaoProvider)
               .checkActiveStreak(type);
-              if (curStreak != null) await ref.read(gDaoProvider).breakStreak(curStreak);
+          if (curStreak != null) {
+            await ref.read(gDaoProvider).breakStreak(curStreak);
+          }
         }
       }
 
@@ -240,43 +242,176 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
-  Future<double> checkHydrationGoal() async {
-    late bool? result;
-    double percent = -1.0;
-    int goalID = -1;
-    late DateTime evalDay;
+  Future<double> checkFastingGoal() async {
+    final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
+    if (goal == null) {
+      return 0.0;
+    }
+    int goalID = goal.goalID;
+    DateTime evalDay = goal.lastEval;
+    DateTime today = DateTime.now();
+    late double percent;
+    final week = bookendWeek();
+    late bool lastWeekComplete;
+
+    if (goal.metric == MetricType.hours) {
+      final curDur = await ref.read(fDaoProvider).getCurDuration(0);
+      if (curDur >= (goal.threshold * 60)) {
+        lastWeekComplete = true;
+      }
+      percent = curDur == 0 ? 0 : curDur / (goal.threshold * 60);
+      lastWeekComplete = false;
+    } else if (goal.metric == MetricType.days) {
+      final weekDays = await ref
+          .read(fDaoProvider)
+          .findFastsInRange(0, week.$1, week.$2)
+          .length;
+
+      if (weekDays >= goal.threshold) {
+        lastWeekComplete = true;
+      }
+      return (weekDays / goal.threshold).clamp(0.0, 1.0);
+    } else {
+      final fiveTwoDays = session!.fiveTwoDaysSelected;
+      List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
+      daysList.removeWhere((d) => d == null);
+
+      if (daysList.isEmpty) {
+        lastWeekComplete = false;
+      }
+
+      bool resultt = false;
+      for (final day in daysList) {
+        DateTime temp = day!.add(const Duration(days: 1));
+        bool complete = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
+
+        if (!complete) {
+          resultt = false;
+          break;
+        }
+      }
+      lastWeekComplete = resultt;
+    }
+
+    if (lastWeekComplete) {
+      BasicStreak? curStreak = await ref
+          .read(gDaoProvider)
+          .checkActiveStreak(GoalType.fasting);
+
+      if (curStreak == null) {
+        await ref.read(gDaoProvider).insertStreak(goalID, today);
+      } else {
+        curStreak.lastEval = DateUtils.dateOnly(today);
+        await ref.read(gDaoProvider).updateStreak(curStreak);
+      }
+    } else {
+      BasicStreak? curStreak = await ref
+          .read(gDaoProvider)
+          .checkActiveStreak(GoalType.fasting);
+
+      if (curStreak != null) {
+        await ref.read(gDaoProvider).breakStreak(curStreak);
+      }
+    }
+
+    return percent;
+  }
+
+  Future<double> checkWeightGoal() async {
+    final goal = await ref.read(gDaoProvider).findActiveWeightGoal();
+
+    if (goal == null) {
+      return -1;
+    }
+    int goalID = goal.goalID;
+    late double percent;
+
+    final curWeight = await ref
+        .read(wDaoProvider)
+        .latestWeight(session!.userId);
+
+    debugPrint('Weight: $curWeight');
+    percent = ((goal.startWeight - curWeight) /
+        (goal.startWeight - goal.threshold))
+    .clamp(0.0, 1.0);
+
+    if (percent == 1) {
+      ref.read(gDaoProvider).setComplete(true, goalID);
+    }
+
+    return percent;
+  }
+
+  Future<double> checkHydrationGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
     if (goal == null) {
-      result = null;
-      return 0;
+      return 0.0;
     }
-    goalID = goal.goalID;
-    evalDay = goal.lastEval;
+    int goalID = goal.goalID;
+    DateTime evalDay = goal.lastEval;
+    DateTime today = DateTime.now();
+    late double percent;
 
     final curWater = await ref
         .read(hDaoProvider)
-        .getTodayHydration(0, DateTime.now());
+        .getTodayHydration(session!.userId, DateTime.now());
 
     if (curWater == null) {
-      debugPrint('Water: null');
-      result = false;
-      percent = 0.0;
+      return 0.0;
     } else {
       debugPrint('Water: $curWater');
-      result = goal.calculateComplete(curWater);
-      percent = curWater / goal.threshold;
+      percent = (curWater / goal.threshold).clamp(0.0, 1.0);
+      if (!goal.isComplete &&
+          percent == 1 &&
+          DateUtils.isSameDay(evalDay, today)) {
+        BasicStreak? curStreak = await ref
+            .read(gDaoProvider)
+            .checkActiveStreak(GoalType.hydration);
+
+        if (curStreak == null) {
+          await ref.read(gDaoProvider).insertStreak(goalID, today);
+          return percent;
+        } else {
+          curStreak.lastEval = DateUtils.dateOnly(today);
+          await ref.read(gDaoProvider).updateStreak(curStreak);
+          return percent;
+        }
+      }
+
+      if (percent == 1) {
+        BasicStreak? curStreak = await ref
+            .read(gDaoProvider)
+            .checkActiveStreak(GoalType.hydration);
+
+        if (curStreak != null) {
+          final expectedDay = DateUtils.dateOnly(
+            curStreak.start,
+          ).add(Duration(days: curStreak.daysProgress));
+
+          if (DateUtils.isSameDay(today, expectedDay)) {
+            curStreak.lastEval = today;
+
+            await ref.read(gDaoProvider).updateStreak(curStreak);
+          } else {
+            await ref.read(gDaoProvider).breakStreak(curStreak);
+
+            await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
+          }
+        } else {
+          await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
+        }
+      }
     }
 
-    if (!DateUtils.isSameDay(evalDay, DateTime.now())) {
-      await updateStreak(GoalType.hydration, goalID, result);
-    }
-
-    if (result == true) {
-      percent = 1;
-    } else {
-      percent = percent.clamp(0.0, 1.0);
+    if (today.compareTo(evalDay) > 0) {
+      BasicStreak? curStreak = await ref
+          .read(gDaoProvider)
+          .checkActiveStreak(GoalType.hydration);
+      if (curStreak != null) {
+        await ref.read(gDaoProvider).breakStreak(curStreak);
+      }
     }
 
     return percent;

@@ -17,13 +17,13 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
     );
   }
 
-  Future<double?> latestWeight(int userID) async { //! Convert to a stream later if I have the energy/time
+  Future<double> latestWeight(int userID) async { //! Convert to a stream later if I have the energy/time
     final weight = await (select(weightLog)
     ..orderBy([(u) => OrderingTerm.desc(u.userID)])
     ..limit(1))
-    .getSingleOrNull();
+    .getSingle();
 
-    return weight?.amount;
+    return weight.amount;
   }
 
   Stream<double?> getCurWeight(int userID) {

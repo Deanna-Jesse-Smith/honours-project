@@ -16,11 +16,25 @@ import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
-class WeightTracking extends ConsumerWidget {
+class WeightTracking extends ConsumerStatefulWidget {
   const WeightTracking({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WeightTracking> createState() => _WeightTrackingState();
+}
+
+class _WeightTrackingState extends ConsumerState<WeightTracking> {
+  late Future<double> goalProgress;
+
+  @override
+  void initState() {
+    super.initState();
+    goalProgress = ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final session = ref.read(userSessionProvider).value;
     late double curWeight;
 
@@ -35,13 +49,17 @@ class WeightTracking extends ConsumerWidget {
               'Weight Motivation',
               style: TextStyle(fontSize: TextSizing.medium),
             ),
+            // Padding(padding: EdgeInsets.all(15)),
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.weight),
+                future: goalProgress,
                 builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return Text('No ongoing goal');
+                  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (asyncSnapshot.hasError) {
+                    return Text('Unable to load goal: ${asyncSnapshot.error}');
                   }
 
                   final model = asyncSnapshot.data;
@@ -56,14 +74,18 @@ class WeightTracking extends ConsumerWidget {
 
                   //   //! whatever happens when a goal is completed
                   // }
-                  return LinearPercentIndicator(
-                    percent: model,
-                    lineHeight: 10,
-                    width: MediaQuery.of(context).size.width - 80,
-                    animation: true,
-                    animationDuration: 2000,
-                    progressColor: Colors.amber,
-                    backgroundColor: Colors.black,
+                  return Center(
+                    child: LinearPercentIndicator(
+                      percent: model,
+                      lineHeight: 10,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      animation: true,
+                      animationDuration: 2000,
+                      progressColor: Colors.amber,
+                      backgroundColor: Colors.black,
+                      leading: Text('goal'),
+                      trailing: Text('start'),
+                    ),
                   );
                 },
               ),
@@ -90,13 +112,18 @@ class WeightTracking extends ConsumerWidget {
                   title: 'Log Weight',
                 );
                 if (newAmount != null) {
-                  ref
+                  await ref
                       .read(wDaoProvider)
                       .insertWeight(
                         session.userId,
                         newAmount.toDouble(),
                         DateTime.now(),
                       );
+                  setState(() {
+                    goalProgress = ref
+                        .read(asyncGoalsProvider.notifier)
+                        .checkWeightGoal();
+                  });
                 }
               },
               child: Text('Log Weight'),

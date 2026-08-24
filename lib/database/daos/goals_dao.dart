@@ -244,10 +244,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   Future<HydrationStreak?> checkActiveHydrationStreak() async {
     final streakRows =
         await (select(goals).join([
-                innerJoin(
-                  hydrationGoals,
-                  hydrationGoals.goalID.equalsExp(goals.goalID),
-                ),
                 innerJoin(streaks, streaks.goalID.equalsExp(goals.goalID)),
               ])
               ..where(streaks.endDate.isNull())
@@ -259,7 +255,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
 
     final goalRow = streakRows.readTable(goals);
-    final hydrationRow = streakRows.readTable(hydrationGoals);
+    // final hydrationRow = streakRows.readTable(hydrationGoals);
     final streakRow = streakRows.readTable(streaks);
 
     return HydrationStreak(
@@ -454,7 +450,9 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                 ),
               ])
               ..where(goals.type.equalsValue(GoalType.hydration))
-              ..where(goals.isComplete.isValue(false))
+              ..orderBy([
+    OrderingTerm.desc(goals.goalID),
+  ])
               ..limit(1))
             .getSingleOrNull();
 
@@ -520,6 +518,10 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
               ])
               ..where(goals.type.equalsValue(GoalType.weight))
               ..where(goals.isComplete.isValue(false))
+              ..orderBy([
+    OrderingTerm.desc(goals.goalID),
+  ])
+              ..limit(1)
             // ..where(goals.streakID.isNull()))
             )
             .getSingleOrNull();
@@ -574,17 +576,17 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   }
 
   Future<void> updateGoal(BasicGoal model, int id) async {
-    (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
+    await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(isComplete: Value(true)),
     );
 
     switch (model) {
       case FastingGoalModel():
-        insertFastingGoal(id, model.threshold, model.op, model.metric);
+        await insertFastingGoal(id, model.threshold, model.op, model.metric);
       case WeightGoalModel():
-        insertWeightGoal(id, model.threshold, model.startWeight, model.op);
+        await insertWeightGoal(id, model.threshold, model.startWeight, model.op);
       case HydrationGoalModel():
-        insertHydrationGoal(
+        await insertHydrationGoal(
           id,
           DateTime.now(),
           model.threshold.toInt(),
@@ -592,7 +594,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           // lastEvaluated:
         );
       case NutritionGoalModel():
-        insertNutritionGoal(id, NutrientType.caloreis, model.threshold);
+        await insertNutritionGoal(id, NutrientType.caloreis, model.threshold);
       case BasicStreak():
         throw UnimplementedError();
     }
@@ -609,7 +611,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
 
   Future<void> updateStreak(BasicStreak model) async {
     await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
-      GoalsCompanion(lastEvaluated: Value(model.lastEval)),
+      GoalsCompanion(lastEvaluated: Value(model.lastEval), isComplete: Value(true)),
     );
     await (update(streaks)..where((g) => g.streakID.equals(model.streakID)))
         .write(StreaksCompanion(streakProgress: Value(model.daysProgress + 1)));
@@ -636,8 +638,11 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
-  Future<void> breakStreak(BasicStreak streak) {
-    return (update(streaks)..where((s) => s.streakID.equals(streak.streakID)))
+  Future<void> breakStreak(BasicStreak streak) async {
+    await (update(goals)..where((g) => g.goalID.equals(streak.goalID))).write(
+      GoalsCompanion(lastEvaluated: Value(streak.lastEval), isComplete: Value(false)));
+
+    await (update(streaks)..where((s) => s.streakID.equals(streak.streakID)))
         .write(StreaksCompanion(endDate: Value(streak.lastEval)));
   }
 

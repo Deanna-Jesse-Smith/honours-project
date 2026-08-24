@@ -11,12 +11,12 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     with _$HydrationDaoMixin {
   HydrationDao(super.db);
 
-  Future<int> addHydration(int userId, DateTime when, int amount) {
+  Future<int> addHydration(int userId, DateTime when, double amount) {
     return into(hydrationLog).insert(
       HydrationLogCompanion.insert(
         userID: userId,
         logDateTime: Value(when),
-        amount: Value(amount.toDouble()),
+        amount: Value(amount),
       ),
     );
   }

@@ -46,7 +46,7 @@ class HomePage extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.all(15),
               child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.fasting),
+                future: ref.watch(asyncGoalsProvider.notifier).checkFastingGoal(),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return const Text('No ongoing Fasting goal');

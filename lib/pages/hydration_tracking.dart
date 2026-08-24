@@ -60,7 +60,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
             Padding(
               padding: const EdgeInsets.all(15),
               child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.hydration),
+                future: ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal(),
                 builder: (context, asyncSnapshot) {
                   if (!asyncSnapshot.hasData) {
                     return Text('No ongoing goal');
@@ -107,7 +107,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   return const SizedBox.shrink();
                 }
 
-                return Text('You\'re on a $days streak!', style: TextStyle(fontSize: TextSizing.medium),);
+                return Text('You\'re on a $days day streak!', style: TextStyle(fontSize: TextSizing.medium),);
               },
             ),
 
@@ -173,7 +173,8 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                 if (newAmount != null) {
                   ref
                       .read(hDaoProvider)
-                      .addHydration(session.userId, DateTime.now(), newAmount);
+                      .addHydration(session.userId, DateTime.now(), newAmount / 1000);
+                      ref.invalidate(asyncGoalsProvider);
                 }
               },
               child: Text('Log Hydration'),

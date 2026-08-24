@@ -10,6 +10,7 @@ import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/goals_pages/reminder_page.dart';
@@ -22,6 +23,7 @@ import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -71,6 +73,10 @@ final foodRangeProvider = FutureProvider.family<Map<DateTime, DayFoods>, List<Da
 final isFastingProvider = StreamProvider<bool>((ref) {
   final dao = ref.watch(fDaoProvider);
   return dao.checkFastingStatus();
+});
+
+final checkWeightGoalProvider = FutureProvider<double>((ref) {
+  return ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
 });
 
 void main() async {

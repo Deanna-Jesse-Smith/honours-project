@@ -31,7 +31,7 @@ class MyExpandableFAB extends ConsumerWidget {
         if (newAmount != null) {
           ref
               .read(hDaoProvider)
-              .addHydration(session.userId, DateTime.now(), newAmount);
+              .addHydration(session.userId, DateTime.now(), newAmount / 1000);
         }
       },
       onMealTapped: () async {
