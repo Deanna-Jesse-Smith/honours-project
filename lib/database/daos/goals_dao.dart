@@ -517,7 +517,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                 ),
               ])
               ..where(goals.type.equalsValue(GoalType.weight))
-              ..where(goals.isComplete.isValue(false))
+              // ..where(goals.isComplete.isValue(false))
               ..orderBy([
     OrderingTerm.desc(goals.goalID),
   ])

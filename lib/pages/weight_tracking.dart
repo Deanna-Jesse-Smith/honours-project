@@ -7,7 +7,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -29,7 +29,17 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
   @override
   void initState() {
     super.initState();
-    goalProgress = ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
+    // goalProgress = ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.weight);
+
+      if (!mounted) return;
+
+      if (concern != null) {
+        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+      }
+    });
   }
 
   @override
@@ -37,6 +47,8 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
     final ref = this.ref;
     final session = ref.read(userSessionProvider).value;
     late double curWeight;
+
+    final watchWeightGoal = ref.watch(checkWeightGoalProvider);
 
     return Scaffold(
       appBar: MainAppBar.appBar('Weight Tracking', session!.userName),
@@ -49,32 +61,10 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               'Weight Motivation',
               style: TextStyle(fontSize: TextSizing.medium),
             ),
-            // Padding(padding: EdgeInsets.all(15)),
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: FutureBuilder(
-                future: goalProgress,
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  if (asyncSnapshot.hasError) {
-                    return Text('Unable to load goal: ${asyncSnapshot.error}');
-                  }
-
-                  final model = asyncSnapshot.data;
-
-                  if (model == null || model == -1) {
-                    return Text('No ongoing goal');
-                  }
-                  // model.calculateComplete(curWeight!);
-
-                  // if (model.isComplete) {
-                  //   ref.read(gDaoProvider).finishGoal(model.goalID, -1);
-
-                  //   //! whatever happens when a goal is completed
-                  // }
-                  return Center(
+            Padding(padding: EdgeInsets.all(15),
+            child: watchWeightGoal.when(data: (goal) {
+              final model = goal == -1 ? 0.0 : goal;
+              return Center(
                     child: LinearPercentIndicator(
                       percent: model,
                       lineHeight: 10,
@@ -82,14 +72,54 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                       animation: true,
                       animationDuration: 2000,
                       progressColor: Colors.amber,
-                      backgroundColor: Colors.black,
+                      backgroundColor: Colors.yellow,
                       leading: Text('goal'),
                       trailing: Text('start'),
+                      barRadius: Radius.circular(10),
                     ),
                   );
-                },
-              ),
+            }, error: (e, l) => Text(e.toString()), loading: () => Text('No Gaol'))
             ),
+            // Padding(
+            //   padding: const EdgeInsets.all(15),
+            //   child: FutureBuilder(
+            //     future: goalProgress,
+            //     builder: (context, asyncSnapshot) {
+            //       if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+            //         return const CircularProgressIndicator();
+            //       }
+            //       if (asyncSnapshot.hasError) {
+            //         return Text('Unable to load goal: ${asyncSnapshot.error}');
+            //       }
+
+            //       final model = asyncSnapshot.data;
+
+            //       if (model == null || model == -1) {
+            //         return Text('No ongoing goal');
+            //       }
+            //       // model.calculateComplete(curWeight!);
+
+            //       // if (model.isComplete) {
+            //       //   ref.read(gDaoProvider).finishGoal(model.goalID, -1);
+
+            //       //   //! whatever happens when a goal is completed
+            //       // }
+            //       return Center(
+            //         child: LinearPercentIndicator(
+            //           percent: model,
+            //           lineHeight: 10,
+            //           width: MediaQuery.of(context).size.width * 0.6,
+            //           animation: true,
+            //           animationDuration: 2000,
+            //           progressColor: Colors.amber,
+            //           backgroundColor: Colors.black,
+            //           leading: Text('goal'),
+            //           trailing: Text('start'),
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
               stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
@@ -119,11 +149,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                         newAmount.toDouble(),
                         DateTime.now(),
                       );
-                  setState(() {
-                    goalProgress = ref
-                        .read(asyncGoalsProvider.notifier)
-                        .checkWeightGoal();
-                  });
+                  ref.invalidate(checkWeightGoalProvider);
                 }
               },
               child: Text('Log Weight'),

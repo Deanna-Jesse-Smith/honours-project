@@ -20,7 +20,7 @@ class MealTracking extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider).value;
     DateTime end = DateUtils.dateOnly(DateTime.now());
-    DateTime start = end.subtract(const Duration(days: 3));
+    DateTime start = end.subtract(const Duration(days: 31));
     end = end.add(const Duration(days: 1));
 
     // if (start.day - 3 < 0) {

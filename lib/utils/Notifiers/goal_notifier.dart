@@ -252,26 +252,31 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     DateTime evalDay = goal.lastEval;
     DateTime today = DateTime.now();
     late double percent;
-    final week = bookendWeek();
+    final curWeek = bookendWeek();
+    final lastWeek = (curWeek.$1.subtract(const Duration(days: 7)), curWeek.$2.subtract(const Duration(days: 7)));
     late bool lastWeekComplete;
 
     if (goal.metric == MetricType.hours) {
-      final curDur = await ref.read(fDaoProvider).getCurDuration(0);
-      if (curDur >= (goal.threshold * 60)) {
-        lastWeekComplete = true;
-      }
-      percent = curDur == 0 ? 0 : curDur / (goal.threshold * 60);
-      lastWeekComplete = false;
+      final curDur = await ref.read(fDaoProvider).getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+      int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
+      lastWeekComplete = numComplete == 7;
+      
+      percent = numComplete / 7;
     } else if (goal.metric == MetricType.days) {
       final weekDays = await ref
           .read(fDaoProvider)
-          .findFastsInRange(0, week.$1, week.$2)
+          .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
           .length;
 
       if (weekDays >= goal.threshold) {
         lastWeekComplete = true;
       }
-      return (weekDays / goal.threshold).clamp(0.0, 1.0);
+
+      final curWeekDays = await ref
+          .read(fDaoProvider)
+          .findFastsInRange(session!.userId, curWeek.$1, curWeek.$2)
+          .length;
+      return (curWeekDays / goal.threshold).clamp(0.0, 1.0);
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
       List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
@@ -332,9 +337,9 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .latestWeight(session!.userId);
 
     debugPrint('Weight: $curWeight');
-    percent = ((goal.startWeight - curWeight) /
-        (goal.startWeight - goal.threshold))
-    .clamp(0.0, 1.0);
+    percent =
+        ((goal.startWeight - curWeight) / (goal.startWeight - goal.threshold))
+            .clamp(0.0, 1.0);
 
     if (percent == 1) {
       ref.read(gDaoProvider).setComplete(true, goalID);
@@ -365,7 +370,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       percent = (curWater / goal.threshold).clamp(0.0, 1.0);
       if (!goal.isComplete &&
           percent == 1 &&
-          DateUtils.isSameDay(evalDay, today)) {
+          !DateUtils.isSameDay(evalDay, today)) {
         BasicStreak? curStreak = await ref
             .read(gDaoProvider)
             .checkActiveStreak(GoalType.hydration);
@@ -394,7 +399,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             curStreak.lastEval = today;
 
             await ref.read(gDaoProvider).updateStreak(curStreak);
-          } else {
+          } else if (!DateUtils.isSameDay(
+            today.add(const Duration(days: 1)),
+            expectedDay,
+          )) {
             await ref.read(gDaoProvider).breakStreak(curStreak);
 
             await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
@@ -405,7 +413,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       }
     }
 
-    if (today.compareTo(evalDay) > 0) {
+    final evalDiff = DateUtils.dateOnly(
+      today,
+    ).difference(DateUtils.dateOnly(evalDay)).inDays;
+    if (evalDiff > 1) {
       BasicStreak? curStreak = await ref
           .read(gDaoProvider)
           .checkActiveStreak(GoalType.hydration);
@@ -468,6 +479,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
             newGoal.metric,
           );
+      ref.invalidate(checkFastingGoalProvider);
       ref.invalidateSelf();
     } else if (newGoal is HydrationGoalModel) {
       await ref
@@ -479,6 +491,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
+      ref.invalidate(checkHydrationGoalProvider);
     } else if (newGoal is WeightGoalModel) {
       await ref
           .read(gDaoProvider)
@@ -489,6 +502,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
+      ref.invalidate(checkWeightGoalProvider);
     } else {
       await ref
           .read(gDaoProvider)
@@ -504,6 +518,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   Future<void> changeGoal(BasicGoal changedGoal) async {
     await ref.read(gDaoProvider).updateGoal(changedGoal, session!.userId);
     ref.invalidateSelf();
+    if (changedGoal is WeightGoalModel) ref.invalidate(checkWeightGoalProvider);
   }
 
   Future<void> finishGoal(int goalID) {

@@ -20,7 +20,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider);
-
+    final checkGoal = ref.watch(checkFastingGoalProvider);
     // ref.read(fDaoProvider).dummyData();
 
     // curProgress(ref);

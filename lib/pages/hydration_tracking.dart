@@ -45,6 +45,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
   Widget build(BuildContext context) {
     final session = ref.read(userSessionProvider).value;
     // final watching = ref.watch(watchHydrationProvider(DateTime.now()));
+    final goalChecker = ref.watch(checkHydrationGoalProvider);
 
     return Scaffold(
       appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
@@ -56,6 +57,26 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
             Text(
               'Hydration Motivation',
               style: TextStyle(fontSize: TextSizing.medium),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: goalChecker.when(data: (goal) {
+                final model = goal == -1 ? 0.0 : goal;
+                return SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: LiquidCircularProgressIndicator(
+                          value: model,
+                          valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
+                          backgroundColor: Colors.white,
+                          // borderColor: Colors.red,
+                          // borderWidth: 5.0,
+                          direction: Axis.vertical,
+                          center: Text("Get drinking!"),
+                          // shapePath: buildBottlePath(const Size(100, 180)),
+                        ),
+                  );
+              }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
             Padding(
               padding: const EdgeInsets.all(15),

@@ -76,7 +76,15 @@ final isFastingProvider = StreamProvider<bool>((ref) {
 });
 
 final checkWeightGoalProvider = FutureProvider<double>((ref) {
-  return ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
+  return ref.watch(asyncGoalsProvider.notifier).checkWeightGoal();
+});
+
+final checkHydrationGoalProvider = FutureProvider<double>((ref) {
+  return ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal();
+});
+
+final checkFastingGoalProvider = FutureProvider<double>((ref) {
+  return ref.watch(asyncGoalsProvider.notifier).checkFastingGoal();
 });
 
 void main() async {
