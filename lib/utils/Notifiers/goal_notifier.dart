@@ -257,10 +257,12 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     late bool lastWeekComplete;
 
     if (goal.metric == MetricType.hours) {
+      final lastDur = await ref.read(fDaoProvider).getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+      int numLastComplete = lastDur.where((d) => d >= goal.threshold * 60).length;
+      lastWeekComplete = numLastComplete == 7;
+
       final curDur = await ref.read(fDaoProvider).getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
-      lastWeekComplete = numComplete == 7;
-      
       percent = numComplete / 7;
     } else if (goal.metric == MetricType.days) {
       final weekDays = await ref

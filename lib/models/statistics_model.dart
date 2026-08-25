@@ -55,4 +55,6 @@ class StatisticsModel {
   //! For below: - is early, + is late overall
   int curStartDeviation() => curFasts.lateStartCount - curFasts.earlyStartCount;
   int curEndDeviation() => curFasts.lateEndCount - curFasts.earlyEndCount;
+
+  
 }
