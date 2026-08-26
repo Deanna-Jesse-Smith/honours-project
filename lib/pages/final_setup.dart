@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -143,7 +144,8 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                     );
                 ref.read(wDaoProvider).logWeight(id, DateTime.now(), double.parse(widget.weight));
                 
-                FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+                await NotificationSystem.requestPermission();
+                
                 ref.invalidate(userSessionProvider);
                 ref.invalidate(asyncConcernsProvider);
 

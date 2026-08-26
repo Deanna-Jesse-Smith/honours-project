@@ -22,16 +22,33 @@ class _StartPageState extends State<StartPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
-            const Text('Welcome!', style: TextStyle(fontSize: TextSizing.large),),
-            const Text('To your Intermittent Fasting Support app!', style: TextStyle(fontSize: TextSizing.large)),
+            const Text(
+              'Welcome!',
+              style: TextStyle(fontSize: TextSizing.large),
+            ),
+            const Text(
+              'To your Intermittent Fasting Support app!',
+              style: TextStyle(fontSize: TextSizing.large),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: TextField(controller: controller, autofocus: true, style: TextStyle(fontSize: TextSizing.medium),),
+              child: TextField(
+                controller: controller,
+                autofocus: true,
+                style: TextStyle(fontSize: TextSizing.medium),
+                textCapitalization: TextCapitalization.sentences,
+              ),
             ),
             SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => hasExperience = value!)),
+              child: CheckboxListTile(
+                title: const Text(
+                  'Do you have any prior Intermittent Fasting experience?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                value: hasExperience,
+                onChanged: ((value) => setState(() => hasExperience = value!)),
               ),
             ),
             ElevatedButton(
@@ -40,8 +57,10 @@ class _StartPageState extends State<StartPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          SetupUser(name: controller.text, experience: hasExperience),
+                      builder: (context) => SetupUser(
+                        name: controller.text,
+                        experience: hasExperience,
+                      ),
                     ),
                   );
                 } else {

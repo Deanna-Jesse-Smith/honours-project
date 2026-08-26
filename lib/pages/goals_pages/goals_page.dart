@@ -30,6 +30,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   late BasicGoal curGoal;
   late Future<BasicStreak?> curStreak;
   final TextEditingController goalController = TextEditingController();
+  final focusNode = FocusNode();
   bool isLogOnly = true;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =
@@ -42,11 +43,17 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   @override
   void initState() {
+    super.initState();
+
     type = widget.type;
 
     initFutures();
 
-    super.initState();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        goalController.selection = TextSelection(baseOffset: 0, extentOffset: goalController.text.length);
+      }
+    });
   }
 
   void initFutures() async {
@@ -283,6 +290,7 @@ debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
                   TextField(
                     style: TextStyle(fontSize: TextSizing.medium),
                     controller: goalController,
+                    focusNode: focusNode,
                     keyboardType: inputType,
                     decoration: InputDecoration(suffix: Text(suffixText)),
                     // onChanged: (value) => setState(() {

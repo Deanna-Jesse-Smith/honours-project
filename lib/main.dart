@@ -12,6 +12,7 @@ import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/goals_pages/reminder_page.dart';
 import 'package:testrun/pages/home.dart';
@@ -26,7 +27,6 @@ import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -89,6 +89,7 @@ final checkFastingGoalProvider = FutureProvider<double>((ref) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationSystem.initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -121,7 +122,7 @@ class MyApp extends ConsumerWidget {
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
     ref.read(asyncConcernsProvider);
-    tz.initializeTimeZones();
+    // tz.initializeTimeZones();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {

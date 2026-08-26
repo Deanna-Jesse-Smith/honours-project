@@ -29,9 +29,10 @@ class MyExpandableFAB extends ConsumerWidget {
           title: 'How many litres have you drank?',
         );
         if (newAmount != null) {
-          ref
+          await ref
               .read(hDaoProvider)
               .addHydration(session.userId, DateTime.now(), newAmount / 1000);
+              ref.invalidate(checkHydrationGoalProvider);
         }
       },
       onMealTapped: () async {
@@ -67,13 +68,14 @@ class MyExpandableFAB extends ConsumerWidget {
           title: 'Log Weight',
         );
         if (newAmount != null) {
-          ref
+          await ref
               .read(wDaoProvider)
               .insertWeight(
                 session.userId,
                 newAmount.toDouble(),
                 DateTime.now(),
               );
+              ref.invalidate(checkWeightGoalProvider);
         }
       },
     );

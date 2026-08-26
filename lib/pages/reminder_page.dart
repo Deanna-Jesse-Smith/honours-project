@@ -83,6 +83,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   @override
   Widget build(BuildContext context) {
     session = ref.watch(userSessionProvider).value!;
+    // testing();
     return Scaffold(
       appBar: AppBar(
         title: Text('Reminders', style: TextStyle(fontSize: TextSizing.large)),
@@ -253,6 +254,10 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
 
   bool isStart = false, isEnd = false, isMid = false;
 
+  // Future<void> testing() async {
+  //   await asyncReminder.testingNotifs();
+  // }
+
   Widget dailyFastReminder() {
     return Container(
       padding: EdgeInsets.all(10),
@@ -306,6 +311,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   }
 
   Widget weekdayFastReminder() {
+    final days = session.fastingForm == FastingForm.adf ? session.adfDaysSelected : session.fiveTwoDaysSelected;
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -314,9 +320,8 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             value: isStart,
             onChanged: (bool? value) => setState(() {
               isStart = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: DateTime(2026, 1, 1, 20, 00),
-                fastEnd: DateTime(2026, 1, 1, 6, 0),
+              asyncReminder.setWeeklyFastingReminders(
+                days: days,
                 startEnabled: isStart,
                 midpointEnabled: isMid,
                 endEnabled: isEnd,
@@ -328,9 +333,8 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             value: isMid,
             onChanged: (bool? value) => setState(() {
               isMid = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: DateTime(2026, 1, 1, 20, 00),
-                fastEnd: DateTime(2026, 1, 1, 6, 0),
+              asyncReminder.setWeeklyFastingReminders(
+                days: days,
                 startEnabled: isStart,
                 midpointEnabled: isMid,
                 endEnabled: isEnd,
@@ -342,9 +346,8 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             value: isEnd,
             onChanged: (bool? value) => setState(() {
               isEnd = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: DateTime(2026, 1, 1, 20, 00),
-                fastEnd: DateTime(2026, 1, 1, 6, 0),
+              asyncReminder.setWeeklyFastingReminders(
+                days: days,
                 startEnabled: isStart,
                 midpointEnabled: isMid,
                 endEnabled: isEnd,
@@ -367,6 +370,12 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         foodTime = time;
         foodText = time.format(context);
       });
+
+      // await asyncReminder.testingNotifs();
+
+      if (isNutrition) {
+        await asyncReminder.setFoodReminder(enabled: true, time: time);
+      }
     }
   }
 
@@ -377,6 +386,12 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         waterTime = time;
         waterText = time.format(context);
       });
+
+      // await asyncReminder.testingNotifs();
+
+      if (isHydration) {
+        await asyncReminder.setWaterReminder(enabled: true, time: time);
+      }
     }
   }
 }

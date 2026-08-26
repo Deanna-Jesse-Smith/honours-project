@@ -55,12 +55,20 @@ class Dialogs {
       text: initialVal?.toString() ?? '',
     );
 
+    final focusNode = FocusNode();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        contorller.selection = TextSelection(baseOffset: 0, extentOffset: contorller.text.length);
+      }
+    });
+
     final input = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title),
         content: TextField(
           controller: contorller,
+          focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           autofocus: true,
           decoration: InputDecoration(suffixText: unit),

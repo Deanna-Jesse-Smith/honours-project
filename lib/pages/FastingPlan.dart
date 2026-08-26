@@ -180,7 +180,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         context,
         title: 'Are you sure?',
         message:
-            'Changing your fasting form will wipe your current fasting goal and/or streak.',
+            'Changing your fasting form will wipe your current fasting goal and/or streak, and your reminders.',
       );
     }
 

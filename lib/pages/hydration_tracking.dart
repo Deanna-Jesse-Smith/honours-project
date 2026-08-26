@@ -192,10 +192,10 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   title: 'How many cups have you drank?',
                 );
                 if (newAmount != null) {
-                  ref
+                  await ref
                       .read(hDaoProvider)
                       .addHydration(session.userId, DateTime.now(), newAmount / 1000);
-                      ref.invalidate(asyncGoalsProvider);
+                      ref.invalidate(checkHydrationGoalProvider);
                 }
               },
               child: Text('Log Hydration'),

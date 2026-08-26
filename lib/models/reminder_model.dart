@@ -5,6 +5,7 @@ import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tzd;
 
 const Map<GoalType, int> reminderKey = {
   GoalType.fasting: 1,
@@ -56,77 +57,96 @@ class CalculateReminderTimes {
     list.add(session.startTime.subtract(const Duration(minutes: 15)));
     list.add(session.startTime);
     Duration temp = session.startTime.difference(session.endTime);
-    
+
     list.add(session.endTime.subtract(const Duration(minutes: 15)));
     list.add(session.endTime);
     list.add(session.startTime.add(temp));
 
-    setNotification(GoalType.fasting.reminderID(index: 1),
-                      'Eating window ending soon!',
-                      'Your eating window ends in 15 minutes.',
-                      list[0],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
+    setNotification(
+      GoalType.fasting.reminderID(index: 1),
+      'Eating window ending soon!',
+      'Your eating window ends in 15 minutes.',
+      list[0],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
 
-                          setNotification(GoalType.fasting.reminderID(index: 2),
-                      'Eating window over!',
-                      'Your eating window is finished for today, fasting starts now.',
-                      list[1],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
-    setNotification(GoalType.fasting.reminderID(index: 2),
-                      'Eating window starting soon!',
-                      'Your eating window starts in 15 minutes.',
-                      list[2],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
-    setNotification(GoalType.fasting.reminderID(index: 3),
-                      'Eating window starting!',
-                      'Your eating window starts now.',
-                      list[3],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
-    setNotification(GoalType.fasting.reminderID(index: 4),
-                      'Eating window ending soon!',
-                      'Your eating window ends in 15 minutes.',
-                      list[4],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
-    setNotification(GoalType.fasting.reminderID(index: 5),
-                      'Halfway there',
-                      'You\'re halfway through your eating window.',
-                      list[5],
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          '');
+    setNotification(
+      GoalType.fasting.reminderID(index: 2),
+      'Eating window over!',
+      'Your eating window is finished for today, fasting starts now.',
+      list[1],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
+    setNotification(
+      GoalType.fasting.reminderID(index: 2),
+      'Eating window starting soon!',
+      'Your eating window starts in 15 minutes.',
+      list[2],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
+    setNotification(
+      GoalType.fasting.reminderID(index: 3),
+      'Eating window starting!',
+      'Your eating window starts now.',
+      list[3],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
+    setNotification(
+      GoalType.fasting.reminderID(index: 4),
+      'Eating window ending soon!',
+      'Your eating window ends in 15 minutes.',
+      list[4],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
+    setNotification(
+      GoalType.fasting.reminderID(index: 5),
+      'Halfway there',
+      'You\'re halfway through your eating window.',
+      list[5],
+      'fasting_channel',
+      'Fasting Reminders',
+      '',
+    );
   }
 
   // static List<DateTime> getADFtimes(UserSessionData session) {
-    
+
   // }
 
-  static void setNotification(int id, String title, String body, DateTime date, String channelID, String channelName, String description) {
+  static void setNotification(
+    int id,
+    String title,
+    String body,
+    DateTime date,
+    String channelID,
+    String channelName,
+    String description,
+  ) {
     FlutterLocalNotificationsPlugin().zonedSchedule(
-                      id: GoalType.fasting.reminderID(index: id),
-                      title: title,
-                      body: body,
-                      scheduledDate: tz.TZDateTime.from(date, tz.local),
-                      notificationDetails: const NotificationDetails(
-                        android: AndroidNotificationDetails(
-                          'fasting_channel',
-                          'Fasting Reminders',
-                          importance: Importance.max,
-                          priority: Priority.high,
-                        ),
-                      ),
-                      androidScheduleMode:
-                          AndroidScheduleMode.inexactAllowWhileIdle,
-                    );
+      id: GoalType.fasting.reminderID(index: id),
+      title: title,
+      body: body,
+      scheduledDate: tz.TZDateTime.from(date, tz.local),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'fasting_channel',
+          'Fasting Reminders',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
   }
 }
 
@@ -138,7 +158,30 @@ extension TimeOfDayToDateTime on TimeOfDay {
 }
 
 class NotificationSystem {
-  static final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin plugin =
+      FlutterLocalNotificationsPlugin();
+
+  static Future<void> initialize() async {
+    tzd.initializeTimeZones();
+
+    tz.setLocalLocation(tz.getLocation('Africa/Johannesburg'));
+
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+    const settings = InitializationSettings(android: androidSettings);
+    await plugin.initialize(settings: settings);
+  }
+
+  static Future<void> requestPermission() async {
+    final android = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    await android?.requestNotificationsPermission();
+
+    await android?.requestExactAlarmsPermission();
+  }
 
   static Future<void> schedule({
     required int id,
@@ -148,9 +191,9 @@ class NotificationSystem {
   }) async {
     final scheduled = tz.TZDateTime.from(date, tz.local);
     debugPrint('System time: ${DateTime.now()}');
-debugPrint('TZ local: ${tz.local}');
-debugPrint('Input date: $date');
-debugPrint('Scheduled date: $scheduled');
+    debugPrint('TZ local: ${tz.local}');
+    debugPrint('Input date: $date');
+    debugPrint('Scheduled date: $scheduled');
     await plugin.zonedSchedule(
       id: id,
       title: title,
@@ -164,10 +207,44 @@ debugPrint('Scheduled date: $scheduled');
           priority: Priority.high,
         ),
       ),
-      androidScheduleMode:
-          AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
+
+  //   static Future<void> testNotification() async {
+  //   final scheduled = tz.TZDateTime.now(tz.local).add(
+  //     const Duration(seconds: 10),
+  //   );
+
+  //       debugPrint('System time: ${DateTime.now()}');
+  // debugPrint('TZ local: ${tz.local}');
+  // debugPrint('Scheduled date: $scheduled');
+  //   debugPrint('NOW: ${tz.TZDateTime.now(tz.local)}');
+  //   debugPrint('TEST SCHEDULED: $scheduled');
+
+  //   await plugin.zonedSchedule(
+  //     id: 999999,
+  //     title: 'Test notification',
+  //     body: 'If you see this, scheduled notifications work.',
+  //     scheduledDate: scheduled,
+  //     notificationDetails: const NotificationDetails(
+  //       android: AndroidNotificationDetails(
+  //         'logging_channel',
+  //         'Logging Reminders',
+  //         importance: Importance.high,
+  //         priority: Priority.high,
+  //       ),
+  //     ),
+  //     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+  //   );
+
+  //   final pending = await plugin.pendingNotificationRequests();
+
+  //   debugPrint(
+  //     'Pending count: ${pending.length}',
+  //   );
+  // }
 
   static Future<void> cancel(int id) async {
     await plugin.cancel(id: id);
@@ -175,10 +252,15 @@ debugPrint('Scheduled date: $scheduled');
 
   static Future<int> scheduleMealReminders({
     required int userID,
-    required TimeOfDay time
+    required TimeOfDay time,
   }) async {
     int id = notificationId(userID, ReminderType.foodLog);
-    await scheduleDaily(id: id, title: 'Log your food', body: 'Remember to log what you ate today.', time: time);
+    await scheduleDaily(
+      id: id,
+      title: 'Log your food',
+      body: 'Remember to log what you ate today.',
+      time: time,
+    );
     return id;
   }
 
@@ -192,94 +274,178 @@ debugPrint('Scheduled date: $scheduled');
 
   static Future<int> scheduleHydrationReminders({
     required int userID,
-    required TimeOfDay time
+    required TimeOfDay time,
   }) async {
     int id = notificationId(userID, ReminderType.waterLog);
-    await scheduleDaily(id: id, title: 'Log your water', body: 'Remember to log what you drank today.', time: time);
+    await scheduleDaily(
+      id: id,
+      title: 'Log your water',
+      body: 'Remember to log what you drank today.',
+      time: time,
+    );
     return id;
   }
 
   static Future<void> scheduleDaily({
-  required int id,
-  required String title,
-  required String body,
-  required TimeOfDay time,
-}) async {
-  
-  final now = tz.TZDateTime.now(tz.local);
+    required int id,
+    required String title,
+    required String body,
+    required TimeOfDay time,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
 
-  var scheduled = tz.TZDateTime(
-    tz.local,
-    now.year,
-    now.month,
-    now.day,
-    time.hour,
-    time.minute,
-  );
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
 
     debugPrint('System time: ${DateTime.now()}');
-debugPrint('TZ local: ${tz.local}');
-// debugPrint('Input date: $date');
-debugPrint('Scheduled date: $scheduled');
+    debugPrint('TZ local: ${tz.local}');
+    // debugPrint('Input date: $date');
+    debugPrint('Scheduled date: $scheduled');
 
-  if (scheduled.isBefore(now)) {
-    scheduled = scheduled.add(const Duration(days: 1));
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
+    debugPrint('NOW: $now');
+    debugPrint('SCHEDULED: $scheduled');
+
+    await plugin.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduled,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'logging_channel',
+          'Logging Reminders',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+
+    final pending = await plugin.pendingNotificationRequests();
+
+    for (final notification in pending) {
+      debugPrint(
+        'Pending notification: '
+        'id=${notification.id}, '
+        'title=${notification.title}, '
+        'body=${notification.body}',
+      );
+    }
   }
 
-  await plugin.zonedSchedule(
-    id: id,
-    title: title,
-    body: body,
-    scheduledDate: scheduled,
-    notificationDetails: const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'logging_channel',
-        'Logging Reminders',
-        importance: Importance.high,
-        priority: Priority.high,
-      ),
-    ),
-    androidScheduleMode:
-        AndroidScheduleMode.inexactAllowWhileIdle,
-    matchDateTimeComponents: DateTimeComponents.time,
-  );
-}
-
-static Future<void> scheduleFastingReminders({
+  static Future<void> scheduleFastingRemindersNONTRE({
     required int userID,
     required DateTime fastStart,
+    required DateTime fastMid,
+    required DateTime fastEnd,
+    required bool startEnabled,
+    required bool midpointEnabled,
+    required bool endEnabled,
+  }) async {
+    if (startEnabled) {
+      schedule(
+        id: notificationId(userID, ReminderType.fastStart),
+        title: 'Eating window starting soon!',
+        body: 'Your eating window starts in 15 minutes.',
+        date: fastStart,
+      );
+    } else {
+      cancel(notificationId(userID, ReminderType.fastStart));
+    }
+    if (midpointEnabled) {
+      schedule(
+        id: notificationId(userID, ReminderType.fastMidpoint),
+        title: 'Eating window halfway through!',
+        body: 'You\'re halfway through your eating window.',
+        date: fastMid,
+      );
+    } else {
+      cancel(notificationId(userID, ReminderType.fastMidpoint));
+    }
+    if (endEnabled) {
+      schedule(
+        id: notificationId(userID, ReminderType.fastEnd),
+        title: 'Eating window ending soon!',
+        body: 'Your eating window ends in 15 minutes.',
+        date: fastEnd,
+      );
+    } else {
+      cancel(notificationId(userID, ReminderType.fastEnd));
+    }
+  }
+
+  static Future<void> scheduleFastingRemindersTRE({
+    required int userID,
+    required DateTime fastStart,
+    required DateTime fastMid,
     required DateTime fastEnd,
     required bool startEnabled,
     required bool midpointEnabled,
     required bool endEnabled,
   }) async {
     final startReminder = fastStart.subtract(const Duration(minutes: 15));
-    final midpoint = fastStart.add(fastEnd.difference(fastStart) ~/ 2);
-    final endReminder = fastEnd;
+    final endReminder = fastEnd.subtract(const Duration(minutes: 15));
+
+    final startTime = TimeOfDay.fromDateTime(startReminder);
+    final midTime = TimeOfDay.fromDateTime(fastMid);
+    final endTime = TimeOfDay.fromDateTime(endReminder);
 
     if (startEnabled) {
-      schedule(id: notificationId(userID, ReminderType.fastStart), title: 'Eating window starting soon!',
-                      body: 'Your eating window starts in 15 minutes.', date: startReminder);
+      scheduleDaily(
+        id: notificationId(userID, ReminderType.fastStart),
+        title: 'Eating window starting soon!',
+        body: 'Your eating window starts in 15 minutes.',
+        time: startTime,
+      );
     } else {
       cancel(notificationId(userID, ReminderType.fastStart));
     }
     if (midpointEnabled) {
-      schedule(id: notificationId(userID, ReminderType.fastMidpoint), title: 'Eating window halfway through!',
-                      body: 'You\'re halfway through your eating window.', date: midpoint);
+      scheduleDaily(
+        id: notificationId(userID, ReminderType.fastMidpoint),
+        title: 'Eating window halfway through!',
+        body: 'You\'re halfway through your eating window.',
+        time: midTime,
+      );
     } else {
       cancel(notificationId(userID, ReminderType.fastMidpoint));
     }
     if (endEnabled) {
-      schedule(id: notificationId(userID, ReminderType.fastEnd), title: 'Eating window ending soon!',
-                      body: 'Your eating window ends in 15 minutes.', date: endReminder);
+      scheduleDaily(
+        id: notificationId(userID, ReminderType.fastEnd),
+        title: 'Eating window ending soon!',
+        body: 'Your eating window ends in 15 minutes.',
+        time: endTime,
+      );
     } else {
       cancel(notificationId(userID, ReminderType.fastEnd));
     }
   }
 
+  static Future<void> cancelAllFasting(int userID) async {
+    cancel(notificationId(userID, ReminderType.fastStart));
+    cancel(notificationId(userID, ReminderType.fastMidpoint));
+    cancel(notificationId(userID, ReminderType.fastEnd));
+  }
+
+  static int fastingNotificationId(int userID, int dayOfWeek, ReminderType type) {
+    return userID * 200 + dayOfWeek * 10 + type.index;
+  }
+
   static int notificationId(int userID, ReminderType type) {
-  return userID * 100 + type.index;
-}
+    return userID * 100 + type.index;
+  }
 }
 
 enum ReminderType {

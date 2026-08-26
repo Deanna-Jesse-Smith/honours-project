@@ -6,6 +6,7 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
 
 @riverpod
@@ -21,31 +22,32 @@ class AsyncReminder extends AsyncNotifier<NotificationSystem> {
     required bool enabled,
     required TimeOfDay time,
   }) async {
-    await ref
-        .read(rDaoProvider)
-        .saveReminder(
-          ReminderCompanion(
-            userID: Value(session!.userId),
-            type: Value(ReminderType.foodLog),
-            isEnabled: Value(true),
-            time: Value(
-              time.convertToDateTime(
-                DateTime(2026, 1, 1, time.hour, time.minute),
+    if (enabled) {
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.foodLog),
+              isEnabled: Value(enabled),
+              time: Value(
+                time.convertToDateTime(
+                  DateTime(2026, 1, 1, time.hour, time.minute),
+                ),
               ),
             ),
-          ),
-        );
-
-    if (enabled) {
-          debugPrint('Inside reminder en');
-      NotificationSystem.scheduleMealReminders(
+          );
+      debugPrint('Inside reminder en');
+      await NotificationSystem.scheduleMealReminders(
         userID: session!.userId,
         time: time,
       );
     } else {
-          debugPrint('Inside reminder dis');
-      NotificationSystem.cancelMealReminder(session!.userId);
-      ref.read(rDaoProvider).deleteReminder(session!.userId, ReminderType.foodLog);
+      debugPrint('Inside reminder dis');
+      await NotificationSystem.cancelMealReminder(session!.userId);
+      await ref
+          .read(rDaoProvider)
+          .deleteReminder(session!.userId, ReminderType.foodLog);
     }
   }
 
@@ -53,92 +55,159 @@ class AsyncReminder extends AsyncNotifier<NotificationSystem> {
     required bool enabled,
     required TimeOfDay time,
   }) async {
-    await ref
-        .read(rDaoProvider)
-        .saveReminder(
-          ReminderCompanion(
-            userID: Value(session!.userId),
-            type: Value(ReminderType.waterLog),
-            isEnabled: Value(true),
-            time: Value(
-              time.convertToDateTime(
-                DateTime(2026, 1, 1, time.hour, time.minute),
+    if (enabled) {
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.waterLog),
+              isEnabled: Value(enabled),
+              time: Value(
+                time.convertToDateTime(
+                  DateTime(2026, 1, 1, time.hour, time.minute),
+                ),
               ),
             ),
-          ),
-        );
-
-    if (enabled) {
-      NotificationSystem.scheduleHydrationReminders(
+          );
+      await NotificationSystem.scheduleHydrationReminders(
         userID: session!.userId,
         time: time,
       );
     } else {
-      NotificationSystem.cancelWaterReminder(session!.userId);
-      ref.read(rDaoProvider).deleteReminder(session!.userId, ReminderType.waterLog);
+      await NotificationSystem.cancelWaterReminder(session!.userId);
+      await ref
+          .read(rDaoProvider)
+          .deleteReminder(session!.userId, ReminderType.waterLog);
     }
   }
 
+  Future<void> setWeeklyFastingReminders({
+    required List<int> days,
+    required bool startEnabled,
+    required bool midpointEnabled,
+    required bool endEnabled,
+  }) async {
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastStart),
+              isEnabled: Value(startEnabled),
+              time: Value(DateTime(2026, 1, 1, 20)),
+            ),
+          );
+
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastEnd),
+              isEnabled: Value(endEnabled),
+              time: Value(DateTime(2026, 1, 1, 6)),
+            ),
+          );
+
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastMidpoint),
+              isEnabled: Value(midpointEnabled),
+              time: Value(DateTime(2026, 1, 1, 12, 30)),
+            ),
+          );
+
+    for (final day in days) {
+      DateTime? temp = getFullDay(day);
+
+      DateTime start = temp
+          .subtract(const Duration(days: 1))
+          .copyWith(hour: 20);
+      DateTime mid = temp.copyWith(hour: 12, minute: 30);
+      DateTime end = temp.add(const Duration(days: 1)).copyWith(hour: 6);
+
+      NotificationSystem.scheduleFastingRemindersNONTRE(
+        userID: session!.userId,
+        fastStart: start,
+        fastMid: mid,
+        fastEnd: end,
+        startEnabled: startEnabled,
+        midpointEnabled: midpointEnabled,
+        endEnabled: endEnabled,
+      );
+    }
+  }
+
+  DateTime getFullDay(int dayOfWeek) {
+    dayOfWeek++;
+    DateTime now = DateTime.now();
+
+    final diff = (dayOfWeek - now.weekday) % 7;
+
+    return DateUtils.dateOnly(now.add(Duration(days: diff)));
+  }
+
   Future<void> setFastingReminders({
-   required DateTime fastStart,
+    required DateTime fastStart,
     required DateTime fastEnd,
     required bool startEnabled,
     required bool midpointEnabled,
     required bool endEnabled,
   }) async {
+    await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastStart),
+              isEnabled: Value(startEnabled),
+              time: Value(fastStart.subtract(const Duration(minutes: 15))),
+            ),
+          );
+    
 
-    if (startEnabled) {
-      await ref
-        .read(rDaoProvider)
-        .saveReminder(
-          ReminderCompanion(
-            userID: Value(session!.userId),
-            type: Value(ReminderType.fastStart),
-            isEnabled: Value(true),
-            time: Value(
-              fastStart),
-              ),
-            );
-    }
+    await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastEnd),
+              isEnabled: Value(endEnabled),
+              time: Value(fastEnd.subtract(const Duration(minutes: 15))),
+            ),
+          );
+    
+    final midpoint = fastStart.add(fastEnd.difference(fastStart) ~/ 2);
+    await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.fastMidpoint),
+              isEnabled: Value(midpointEnabled),
+              time: Value(midpoint),
+            ),
+          );
+    
 
-    if (endEnabled) {
-      await ref
-        .read(rDaoProvider)
-        .saveReminder(
-          ReminderCompanion(
-            userID: Value(session!.userId),
-            type: Value(ReminderType.fastEnd),
-            isEnabled: Value(true),
-            time: Value(
-              fastEnd),
-              ),
-            );
-    }
-
-    if (midpointEnabled) {
-      final midpoint = fastStart.add(fastEnd.difference(fastStart) ~/ 2);
-      await ref
-        .read(rDaoProvider)
-        .saveReminder(
-          ReminderCompanion(
-            userID: Value(session!.userId),
-            type: Value(ReminderType.fastMidpoint),
-            isEnabled: Value(true),
-            time: Value(
-              midpoint),
-              ),
-            );
-    }
-
-    NotificationSystem.scheduleFastingReminders(
+    await NotificationSystem.scheduleFastingRemindersTRE(
       userID: session!.userId,
       fastStart: fastStart,
       fastEnd: fastEnd,
+      fastMid: midpoint,
       startEnabled: startEnabled,
       midpointEnabled: midpointEnabled,
       endEnabled: endEnabled,
     );
   }
+
+  // Future<void> testingNotifs() async {
+  //   await NotificationSystem.testNotification();
+  // }
 
   // Future<void> interventionNotification() {
 

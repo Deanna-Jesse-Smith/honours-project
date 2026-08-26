@@ -42,9 +42,34 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     text: '1',
   );
 
+  final focusNodeHeight = FocusNode(), focusNodeWeight = FocusNode(), focusNodeDuration = FocusNode();
+
   bool isSaving = false;
 
   Experience exp = Experience.beginner;
+
+  @override 
+  void initState() {
+    super.initState();
+
+    focusNodeHeight.addListener(() {
+      if (focusNodeHeight.hasFocus) {
+        heightController.selection = TextSelection(baseOffset: 0, extentOffset: heightController.text.length);
+      }
+    });
+
+    focusNodeWeight.addListener(() {
+      if (focusNodeWeight.hasFocus) {
+        weightController.selection = TextSelection(baseOffset: 0, extentOffset: weightController.text.length);
+      }
+    });
+
+    focusNodeDuration.addListener(() {
+      if (focusNodeDuration.hasFocus) {
+        durationController.selection = TextSelection(baseOffset: 0, extentOffset: durationController.text.length);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -121,6 +146,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                   width: 80,
                   child: TextField(
                     controller: heightController,
+                    focusNode: focusNodeHeight,
                     keyboardType: TextInputType.numberWithOptions(
                       decimal: false,
                     ),
@@ -142,6 +168,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                   width: 80,
                   child: TextField(
                     controller: weightController,
+                    focusNode: focusNodeWeight,
                     keyboardType: TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -368,6 +395,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           const Text('For what duration?'),
           TextField(
             controller: durationController,
+            focusNode: focusNodeDuration,
             keyboardType: TextInputType.numberWithOptions(
               decimal: false,
               signed: false,

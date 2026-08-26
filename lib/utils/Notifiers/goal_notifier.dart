@@ -253,72 +253,120 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     DateTime today = DateTime.now();
     late double percent;
     final curWeek = bookendWeek();
-    final lastWeek = (curWeek.$1.subtract(const Duration(days: 7)), curWeek.$2.subtract(const Duration(days: 7)));
+    final lastWeek = (
+      curWeek.$1.subtract(const Duration(days: 7)),
+      curWeek.$2.subtract(const Duration(days: 7)),
+    );
     late bool lastWeekComplete;
+    bool alreadyEvaluated = false;
+    if (evalDay == lastWeek.$2) {
+      alreadyEvaluated = true;
+    }
 
     if (goal.metric == MetricType.hours) {
-      final lastDur = await ref.read(fDaoProvider).getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
-      int numLastComplete = lastDur.where((d) => d >= goal.threshold * 60).length;
-      lastWeekComplete = numLastComplete == 7;
+      if (!alreadyEvaluated) {
+        final lastDur = await ref
+            .read(fDaoProvider)
+            .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+        int numLastComplete = lastDur
+            .where((d) => d >= goal.threshold * 60)
+            .length;
+        lastWeekComplete = numLastComplete == 7;
+      }
 
-      final curDur = await ref.read(fDaoProvider).getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+      final curDur = await ref
+          .read(fDaoProvider)
+          .getWeeksDuration(session!.userId, curWeek.$1, curWeek.$2);
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
       percent = numComplete / 7;
     } else if (goal.metric == MetricType.days) {
-      final weekDays = await ref
-          .read(fDaoProvider)
-          .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
-          .length;
+      if (!alreadyEvaluated) {
+        final weekDays = await ref
+            .read(fDaoProvider)
+            .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
+            .length;
 
-      if (weekDays >= goal.threshold) {
-        lastWeekComplete = true;
+        if (weekDays >= goal.threshold) {
+          lastWeekComplete = true;
+        }
       }
 
       final curWeekDays = await ref
           .read(fDaoProvider)
           .findFastsInRange(session!.userId, curWeek.$1, curWeek.$2)
           .length;
-      return (curWeekDays / goal.threshold).clamp(0.0, 1.0);
+      percent = (curWeekDays / goal.threshold).clamp(0.0, 1.0);
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
-      List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
-      daysList.removeWhere((d) => d == null);
 
-      if (daysList.isEmpty) {
-        lastWeekComplete = false;
-      }
+      if (!alreadyEvaluated) {
+        bool tempResult = false;
+        for (final day in fiveTwoDays) {
+          final date = lastWeek.$1.add(Duration(days: day));
+          bool wasCompleted = await ref
+              .read(nDaoProvider)
+              .isFiveTwoDay(date, date.add(const Duration(days: 1)));
 
-      bool resultt = false;
-      for (final day in daysList) {
-        DateTime temp = day!.add(const Duration(days: 1));
-        bool complete = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
-
-        if (!complete) {
-          resultt = false;
-          break;
+          if (!wasCompleted) {
+            tempResult = false;
+            break;
+          }
         }
+        lastWeekComplete = tempResult;
       }
-      lastWeekComplete = resultt;
+
+      int numCompleted = 0;
+      for (final day in fiveTwoDays) {
+        final date = lastWeek.$1.add(Duration(days: day));
+        bool wasCompleted = await ref
+            .read(nDaoProvider)
+            .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+
+        if (wasCompleted) numCompleted++;
+      }
+
+      percent = (numCompleted / fiveTwoDays.length).clamp(0.0, 1.0);
+
+      // List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
+      // daysList.removeWhere((d) => d == null);
+
+      // if (daysList.isEmpty) {
+      //   lastWeekComplete = false;
+      // }
+
+      // bool resultt = false;
+      // for (final day in daysList) {
+      //   DateTime temp = day!.add(const Duration(days: 1));
+      //   bool complete = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
+
+      //   if (!complete) {
+      //     resultt = false;
+      //     break;
+      //   }
+      // }
+      // lastWeekComplete = resultt;
     }
 
-    if (lastWeekComplete) {
-      BasicStreak? curStreak = await ref
-          .read(gDaoProvider)
-          .checkActiveStreak(GoalType.fasting);
+    if (!alreadyEvaluated) {
+      if (lastWeekComplete) {
+        BasicStreak? curStreak = await ref
+            .read(gDaoProvider)
+            .checkActiveStreak(GoalType.fasting);
 
-      if (curStreak == null) {
-        await ref.read(gDaoProvider).insertStreak(goalID, today);
+        if (curStreak == null) {
+          await ref.read(gDaoProvider).insertStreak(goalID, today);
+        } else {
+          curStreak.lastEval = DateUtils.dateOnly(today);
+          await ref.read(gDaoProvider).updateStreak(curStreak);
+        }
       } else {
-        curStreak.lastEval = DateUtils.dateOnly(today);
-        await ref.read(gDaoProvider).updateStreak(curStreak);
-      }
-    } else {
-      BasicStreak? curStreak = await ref
-          .read(gDaoProvider)
-          .checkActiveStreak(GoalType.fasting);
+        BasicStreak? curStreak = await ref
+            .read(gDaoProvider)
+            .checkActiveStreak(GoalType.fasting);
 
-      if (curStreak != null) {
-        await ref.read(gDaoProvider).breakStreak(curStreak);
+        if (curStreak != null) {
+          await ref.read(gDaoProvider).breakStreak(curStreak);
+        }
       }
     }
 
