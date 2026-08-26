@@ -178,7 +178,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => GoalsPage(type: GoalType.weight),
+                  builder: (context) => GoalsPage(type: GoalType.weight, startWeight: curWeight,),
                 ),
               ),
               child: Text(

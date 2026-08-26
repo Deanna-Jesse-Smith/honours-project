@@ -21,6 +21,8 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(userSessionProvider);
     final checkGoal = ref.watch(checkFastingGoalProvider);
+    final checkStatus = ref.watch(checkFastingStatusProvider);
+    final checkProgress = ref.watch(checkFastingProgressProvider);
     // ref.read(fDaoProvider).dummyData();
 
     // curProgress(ref);
@@ -45,23 +47,9 @@ class HomePage extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.all(15),
-              child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkFastingGoal(),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return const Text('No ongoing Fasting goal');
-                  }
-
-                  final model = asyncSnapshot.data;
-
-                  if (model == null || model == -1) {
-                    return const Text('No ongoing Fasting goal');
-                  }
-                  //! Calculate the progress here somehow
-
-                  debugPrint('In Goals');
-
-                  return LinearPercentIndicator(
+              child: checkGoal.when(data: (goal) {
+                final model = goal > -1 ? goal : 0.0;
+    return LinearPercentIndicator(
                     percent: model,
                     lineHeight: 12,
                     width: MediaQuery.of(context).size.width - 80,
@@ -71,8 +59,35 @@ class HomePage extends ConsumerWidget {
                     backgroundColor: Colors.yellow,
                     barRadius: Radius.circular(10),
                   );
-                },
-              ),
+              }, error: (e, _) => Text(e.toString()), loading: () => const SizedBox.shrink()),
+              // child: FutureBuilder(
+              //   future: ref.watch(asyncGoalsProvider.notifier).checkFastingGoal(),
+              //   builder: (context, asyncSnapshot) {
+              //     if (!asyncSnapshot.hasData) {
+              //       return const Text('No ongoing Fasting goal');
+              //     }
+
+              //     final model = asyncSnapshot.data;
+
+              //     if (model == null || model == -1) {
+              //       return const Text('No ongoing Fasting goal');
+              //     }
+              //     //! Calculate the progress here somehow
+
+              //     debugPrint('In Goals');
+
+              //     return LinearPercentIndicator(
+              //       percent: model,
+              //       lineHeight: 12,
+              //       width: MediaQuery.of(context).size.width - 80,
+              //       animation: true,
+              //       animationDuration: 2000,
+              //       progressColor: Colors.amber,
+              //       backgroundColor: Colors.yellow,
+              //       barRadius: Radius.circular(10),
+              //     );
+              //   },
+              // ),
             ),
             StreamBuilder(
               stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
@@ -93,38 +108,46 @@ class HomePage extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.all(30),
-              child: FutureBuilder(
-                future: ref.read(asyncFatingNotifier.notifier).refreshProgress(),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData || asyncSnapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  final perc = asyncSnapshot.data!;
-
-                  return CircularPercentIndicator(
+              // child: FutureBuilder(
+              //   future: ref.read(asyncFatingNotifier.notifier).refreshProgress(),
+              //   builder: (context, asyncSnapshot) {
+              //     if (!asyncSnapshot.hasData || asyncSnapshot.connectionState == ConnectionState.waiting) {
+              //       return const CircularProgressIndicator();
+              //     }
+              //     final perc = asyncSnapshot.data!;
+              child: checkProgress.when(data: (perc) {
+                return CircularPercentIndicator(
                     radius: 100,
                     percent: perc.percentage,
                     lineWidth: 40,
                     header: Padding(
                       padding: EdgeInsets.only(bottom: 10),
-                      child: FutureBuilder(
-                        future: ref
-                            .read(asyncFatingNotifier.notifier)
-                            .refreshFastingStatus(),
-                        builder: (context, asyncSnapshot) {
-                          if (!asyncSnapshot.hasData) {
-                            return const CircularProgressIndicator();
-                          }
-                          final status = asyncSnapshot.data!;
+                      child: checkStatus.when(data: (status) {
                           return Text(
                             status.homeReminder,
-                            // "You're only an hour away from the end",
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: TextSizing.small),
                           );
-                        },
-                      ),
+                      }, error: (e, _) => Text(e.toString()), loading: () => SizedBox.shrink()),
+                      // child: FutureBuilder(
+                      //   future: ref
+                      //       .read(asyncFatingNotifier.notifier)
+                      //       .refreshFastingStatus(),
+                      //   builder: (context, asyncSnapshot) {
+                      //     if (!asyncSnapshot.hasData) {
+                      //       return const CircularProgressIndicator();
+                      //     }
+                      //     final status = asyncSnapshot.data!;
+                      //     return Text(
+                      //       status.homeReminder,
+                      //       // "You're only an hour away from the end",
+                      //       maxLines: 2,
+                      //       textAlign: TextAlign.center,
+                      //       style: TextStyle(fontSize: TextSizing.small),
+                      //     );
+                      //   },
+                      // ),
                     ),
                     center: Text('${perc.remaining.inHours}h ${perc.remaining.inMinutes % 60}m', style: TextStyle(fontSize: TextSizing.small),),
                     progressColor: Colors.lightBlueAccent,
@@ -132,9 +155,12 @@ class HomePage extends ConsumerWidget {
                     circularStrokeCap: CircularStrokeCap.round,
                     animationDuration: 500,
                   );
-                }
+              }, error: (e, _) => Text(e.toString()), loading: () => SizedBox.shrink()),
+
+                  
+                // }
               ),
-            ),
+            // ),
           ],
         ),
       ),

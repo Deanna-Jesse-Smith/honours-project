@@ -10,6 +10,8 @@ import 'package:testrun/database/daos/hydration_dao.dart';
 import 'package:testrun/database/daos/user_dao.dart';
 import 'package:testrun/database/daos/weight_dao.dart';
 import 'package:testrun/database/database.dart';
+import 'package:testrun/models/fasting_model.dart';
+import 'package:testrun/models/fasting_schedule.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
@@ -24,6 +26,7 @@ import 'package:testrun/pages/step_count.dart';
 import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/pages/weight_tracking.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -85,6 +88,14 @@ final checkHydrationGoalProvider = FutureProvider<double>((ref) {
 
 final checkFastingGoalProvider = FutureProvider<double>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkFastingGoal();
+});
+
+final checkFastingStatusProvider = FutureProvider<FastingStatus>((ref) {
+  return ref.watch(asyncFatingNotifier.notifier).refreshFastingStatus();
+});
+
+final checkFastingProgressProvider = FutureProvider<FastingProgress>((ref) {
+  return ref.watch(asyncFatingNotifier.notifier).refreshProgress();
 });
 
 void main() async {

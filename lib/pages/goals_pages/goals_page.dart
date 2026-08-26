@@ -14,10 +14,12 @@ import 'package:testrun/widgets/dialogs.dart';
 class GoalsPage extends ConsumerStatefulWidget {
   final GoalType type;
   final MetricType mType;
+  final double? startWeight;
   const GoalsPage({
     super.key,
     required this.type,
-    this.mType = MetricType.hours,
+    this.mType = MetricType.hours, 
+    this.startWeight,
   });
 
   @override
@@ -162,7 +164,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         MetricType.kg,
         DateTime.now(),
         false,
-        startWeight: 0,
+        startWeight: widget.startWeight!,
       ),
       GoalType.hydration => HydrationGoalModel(
         -1,
