@@ -78,44 +78,44 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   );
               }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal(),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return Text('No ongoing goal');
-                  }
+            // Padding(
+            //   padding: const EdgeInsets.all(15),
+            //   child: FutureBuilder(
+            //     future: ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal(),
+            //     builder: (context, asyncSnapshot) {
+            //       if (!asyncSnapshot.hasData) {
+            //         return Text('No ongoing goal');
+            //       }
 
-                  final model = asyncSnapshot.data;
+            //       final model = asyncSnapshot.data;
 
-                  if (model == null || model == -1) {
-                    return Text('No ongoing goal');
-                  }
+            //       if (model == null || model == -1) {
+            //         return Text('No ongoing goal');
+            //       }
 
-                  // if (model.isComplete) {
-                  //   goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
+            //       // if (model.isComplete) {
+            //       //   goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
 
-                  //   //! whatever happens when a goal is completed
-                  // }
+            //       //   //! whatever happens when a goal is completed
+            //       // }
 
-                  return SizedBox(
-                    width: 150,
-                    height: 150,
-                    child: LiquidCircularProgressIndicator(
-                          value: model,
-                          valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
-                          backgroundColor: Colors.white,
-                          // borderColor: Colors.red,
-                          // borderWidth: 5.0,
-                          direction: Axis.vertical,
-                          center: Text("Get drinking!"),
-                          // shapePath: buildBottlePath(const Size(100, 180)),
-                        ),
-                  );
-                },
-              ),
-            ),
+            //       return SizedBox(
+            //         width: 150,
+            //         height: 150,
+            //         child: LiquidCircularProgressIndicator(
+            //               value: model,
+            //               valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
+            //               backgroundColor: Colors.white,
+            //               // borderColor: Colors.red,
+            //               // borderWidth: 5.0,
+            //               direction: Axis.vertical,
+            //               center: Text("Get drinking!"),
+            //               // shapePath: buildBottlePath(const Size(100, 180)),
+            //             ),
+            //       );
+            //     },
+            //   ),
+            // ),
             StreamBuilder(
               stream: ref.watch(gDaoProvider).getActiveHydrationStreak(),
               builder: (context, asyncSnapshot) {

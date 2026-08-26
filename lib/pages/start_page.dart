@@ -31,7 +31,7 @@ class _StartPageState extends State<StartPage> {
             SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => hasExperience = !hasExperience)),
+              child: CheckboxListTile(title: const Text('Do you have any prior Intermittent Fasting experience?', style: TextStyle(fontSize: TextSizing.medium)),value: hasExperience, onChanged: ((value) => setState(() => hasExperience = value!)),
               ),
             ),
             ElevatedButton(

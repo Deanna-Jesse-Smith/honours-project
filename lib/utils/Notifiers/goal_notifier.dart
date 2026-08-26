@@ -481,7 +481,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
             newGoal.metric,
           );
-      ref.invalidate(checkFastingGoalProvider);
+      // ref.invalidate(checkFastingGoalProvider);
       ref.invalidateSelf();
     } else if (newGoal is HydrationGoalModel) {
       await ref
@@ -493,7 +493,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
-      ref.invalidate(checkHydrationGoalProvider);
+      // ref.invalidate(checkHydrationGoalProvider);
     } else if (newGoal is WeightGoalModel) {
       await ref
           .read(gDaoProvider)
@@ -504,7 +504,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
-      ref.invalidate(checkWeightGoalProvider);
+      // ref.invalidate(checkWeightGoalProvider);
     } else {
       await ref
           .read(gDaoProvider)
