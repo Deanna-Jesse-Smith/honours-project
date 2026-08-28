@@ -6146,6 +6146,33 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<UnlockType?>($StreaksTable.$converterunlockTypen);
+  static const VerificationMeta _curEvalPeriodMeta = const VerificationMeta(
+    'curEvalPeriod',
+  );
+  @override
+  late final GeneratedColumn<DateTime> curEvalPeriod =
+      GeneratedColumn<DateTime>(
+        'cur_eval_period',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        defaultValue: currentDate,
+      );
+  static const VerificationMeta _lastEvalEndMeta = const VerificationMeta(
+    'lastEvalEnd',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastEvalEnd = GeneratedColumn<DateTime>(
+    'last_eval_end',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: DateTimeExpressions(
+      currentDate,
+    ).modify(DateTimeModifier.days(-1)),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     streakID,
@@ -6154,6 +6181,8 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
     startDate,
     endDate,
     unlockType,
+    curEvalPeriod,
+    lastEvalEnd,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6202,6 +6231,24 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
         endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
       );
     }
+    if (data.containsKey('cur_eval_period')) {
+      context.handle(
+        _curEvalPeriodMeta,
+        curEvalPeriod.isAcceptableOrUnknown(
+          data['cur_eval_period']!,
+          _curEvalPeriodMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_eval_end')) {
+      context.handle(
+        _lastEvalEndMeta,
+        lastEvalEnd.isAcceptableOrUnknown(
+          data['last_eval_end']!,
+          _lastEvalEndMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6237,6 +6284,14 @@ class $StreaksTable extends Streaks with TableInfo<$StreaksTable, Streak> {
           data['${effectivePrefix}unlock_type'],
         ),
       ),
+      curEvalPeriod: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cur_eval_period'],
+      )!,
+      lastEvalEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_eval_end'],
+      )!,
     );
   }
 
@@ -6258,6 +6313,8 @@ class Streak extends DataClass implements Insertable<Streak> {
   final DateTime startDate;
   final DateTime? endDate;
   final UnlockType? unlockType;
+  final DateTime curEvalPeriod;
+  final DateTime lastEvalEnd;
   const Streak({
     required this.streakID,
     required this.goalID,
@@ -6265,6 +6322,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     required this.startDate,
     this.endDate,
     this.unlockType,
+    required this.curEvalPeriod,
+    required this.lastEvalEnd,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6281,6 +6340,8 @@ class Streak extends DataClass implements Insertable<Streak> {
         $StreaksTable.$converterunlockTypen.toSql(unlockType),
       );
     }
+    map['cur_eval_period'] = Variable<DateTime>(curEvalPeriod);
+    map['last_eval_end'] = Variable<DateTime>(lastEvalEnd);
     return map;
   }
 
@@ -6296,6 +6357,8 @@ class Streak extends DataClass implements Insertable<Streak> {
       unlockType: unlockType == null && nullToAbsent
           ? const Value.absent()
           : Value(unlockType),
+      curEvalPeriod: Value(curEvalPeriod),
+      lastEvalEnd: Value(lastEvalEnd),
     );
   }
 
@@ -6313,6 +6376,8 @@ class Streak extends DataClass implements Insertable<Streak> {
       unlockType: $StreaksTable.$converterunlockTypen.fromJson(
         serializer.fromJson<String?>(json['unlockType']),
       ),
+      curEvalPeriod: serializer.fromJson<DateTime>(json['curEvalPeriod']),
+      lastEvalEnd: serializer.fromJson<DateTime>(json['lastEvalEnd']),
     );
   }
   @override
@@ -6327,6 +6392,8 @@ class Streak extends DataClass implements Insertable<Streak> {
       'unlockType': serializer.toJson<String?>(
         $StreaksTable.$converterunlockTypen.toJson(unlockType),
       ),
+      'curEvalPeriod': serializer.toJson<DateTime>(curEvalPeriod),
+      'lastEvalEnd': serializer.toJson<DateTime>(lastEvalEnd),
     };
   }
 
@@ -6337,6 +6404,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
     Value<UnlockType?> unlockType = const Value.absent(),
+    DateTime? curEvalPeriod,
+    DateTime? lastEvalEnd,
   }) => Streak(
     streakID: streakID ?? this.streakID,
     goalID: goalID ?? this.goalID,
@@ -6344,6 +6413,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     startDate: startDate ?? this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
     unlockType: unlockType.present ? unlockType.value : this.unlockType,
+    curEvalPeriod: curEvalPeriod ?? this.curEvalPeriod,
+    lastEvalEnd: lastEvalEnd ?? this.lastEvalEnd,
   );
   Streak copyWithCompanion(StreaksCompanion data) {
     return Streak(
@@ -6357,6 +6428,12 @@ class Streak extends DataClass implements Insertable<Streak> {
       unlockType: data.unlockType.present
           ? data.unlockType.value
           : this.unlockType,
+      curEvalPeriod: data.curEvalPeriod.present
+          ? data.curEvalPeriod.value
+          : this.curEvalPeriod,
+      lastEvalEnd: data.lastEvalEnd.present
+          ? data.lastEvalEnd.value
+          : this.lastEvalEnd,
     );
   }
 
@@ -6368,7 +6445,9 @@ class Streak extends DataClass implements Insertable<Streak> {
           ..write('streakProgress: $streakProgress, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('unlockType: $unlockType')
+          ..write('unlockType: $unlockType, ')
+          ..write('curEvalPeriod: $curEvalPeriod, ')
+          ..write('lastEvalEnd: $lastEvalEnd')
           ..write(')'))
         .toString();
   }
@@ -6381,6 +6460,8 @@ class Streak extends DataClass implements Insertable<Streak> {
     startDate,
     endDate,
     unlockType,
+    curEvalPeriod,
+    lastEvalEnd,
   );
   @override
   bool operator ==(Object other) =>
@@ -6391,7 +6472,9 @@ class Streak extends DataClass implements Insertable<Streak> {
           other.streakProgress == this.streakProgress &&
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
-          other.unlockType == this.unlockType);
+          other.unlockType == this.unlockType &&
+          other.curEvalPeriod == this.curEvalPeriod &&
+          other.lastEvalEnd == this.lastEvalEnd);
 }
 
 class StreaksCompanion extends UpdateCompanion<Streak> {
@@ -6401,6 +6484,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
   final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
   final Value<UnlockType?> unlockType;
+  final Value<DateTime> curEvalPeriod;
+  final Value<DateTime> lastEvalEnd;
   const StreaksCompanion({
     this.streakID = const Value.absent(),
     this.goalID = const Value.absent(),
@@ -6408,6 +6493,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.unlockType = const Value.absent(),
+    this.curEvalPeriod = const Value.absent(),
+    this.lastEvalEnd = const Value.absent(),
   });
   StreaksCompanion.insert({
     this.streakID = const Value.absent(),
@@ -6416,6 +6503,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.unlockType = const Value.absent(),
+    this.curEvalPeriod = const Value.absent(),
+    this.lastEvalEnd = const Value.absent(),
   }) : goalID = Value(goalID);
   static Insertable<Streak> custom({
     Expression<int>? streakID,
@@ -6424,6 +6513,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
     Expression<String>? unlockType,
+    Expression<DateTime>? curEvalPeriod,
+    Expression<DateTime>? lastEvalEnd,
   }) {
     return RawValuesInsertable({
       if (streakID != null) 'streak_i_d': streakID,
@@ -6432,6 +6523,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
       if (unlockType != null) 'unlock_type': unlockType,
+      if (curEvalPeriod != null) 'cur_eval_period': curEvalPeriod,
+      if (lastEvalEnd != null) 'last_eval_end': lastEvalEnd,
     });
   }
 
@@ -6442,6 +6535,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
     Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
     Value<UnlockType?>? unlockType,
+    Value<DateTime>? curEvalPeriod,
+    Value<DateTime>? lastEvalEnd,
   }) {
     return StreaksCompanion(
       streakID: streakID ?? this.streakID,
@@ -6450,6 +6545,8 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       unlockType: unlockType ?? this.unlockType,
+      curEvalPeriod: curEvalPeriod ?? this.curEvalPeriod,
+      lastEvalEnd: lastEvalEnd ?? this.lastEvalEnd,
     );
   }
 
@@ -6476,6 +6573,12 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
         $StreaksTable.$converterunlockTypen.toSql(unlockType.value),
       );
     }
+    if (curEvalPeriod.present) {
+      map['cur_eval_period'] = Variable<DateTime>(curEvalPeriod.value);
+    }
+    if (lastEvalEnd.present) {
+      map['last_eval_end'] = Variable<DateTime>(lastEvalEnd.value);
+    }
     return map;
   }
 
@@ -6487,7 +6590,9 @@ class StreaksCompanion extends UpdateCompanion<Streak> {
           ..write('streakProgress: $streakProgress, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
-          ..write('unlockType: $unlockType')
+          ..write('unlockType: $unlockType, ')
+          ..write('curEvalPeriod: $curEvalPeriod, ')
+          ..write('lastEvalEnd: $lastEvalEnd')
           ..write(')'))
         .toString();
   }
@@ -15614,6 +15719,8 @@ typedef $$StreaksTableCreateCompanionBuilder =
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
       Value<UnlockType?> unlockType,
+      Value<DateTime> curEvalPeriod,
+      Value<DateTime> lastEvalEnd,
     });
 typedef $$StreaksTableUpdateCompanionBuilder =
     StreaksCompanion Function({
@@ -15623,6 +15730,8 @@ typedef $$StreaksTableUpdateCompanionBuilder =
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
       Value<UnlockType?> unlockType,
+      Value<DateTime> curEvalPeriod,
+      Value<DateTime> lastEvalEnd,
     });
 
 final class $$StreaksTableReferences
@@ -15680,6 +15789,16 @@ class $$StreaksTableFilterComposer
   get unlockType => $composableBuilder(
     column: $table.unlockType,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get curEvalPeriod => $composableBuilder(
+    column: $table.curEvalPeriod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastEvalEnd => $composableBuilder(
+    column: $table.lastEvalEnd,
+    builder: (column) => ColumnFilters(column),
   );
 
   $$GoalsTableFilterComposer get goalID {
@@ -15740,6 +15859,16 @@ class $$StreaksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get curEvalPeriod => $composableBuilder(
+    column: $table.curEvalPeriod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastEvalEnd => $composableBuilder(
+    column: $table.lastEvalEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$GoalsTableOrderingComposer get goalID {
     final $$GoalsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15792,6 +15921,16 @@ class $$StreaksTableAnnotationComposer
         column: $table.unlockType,
         builder: (column) => column,
       );
+
+  GeneratedColumn<DateTime> get curEvalPeriod => $composableBuilder(
+    column: $table.curEvalPeriod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastEvalEnd => $composableBuilder(
+    column: $table.lastEvalEnd,
+    builder: (column) => column,
+  );
 
   $$GoalsTableAnnotationComposer get goalID {
     final $$GoalsTableAnnotationComposer composer = $composerBuilder(
@@ -15851,6 +15990,8 @@ class $$StreaksTableTableManager
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
+                Value<DateTime> curEvalPeriod = const Value.absent(),
+                Value<DateTime> lastEvalEnd = const Value.absent(),
               }) => StreaksCompanion(
                 streakID: streakID,
                 goalID: goalID,
@@ -15858,6 +15999,8 @@ class $$StreaksTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 unlockType: unlockType,
+                curEvalPeriod: curEvalPeriod,
+                lastEvalEnd: lastEvalEnd,
               ),
           createCompanionCallback:
               ({
@@ -15867,6 +16010,8 @@ class $$StreaksTableTableManager
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<UnlockType?> unlockType = const Value.absent(),
+                Value<DateTime> curEvalPeriod = const Value.absent(),
+                Value<DateTime> lastEvalEnd = const Value.absent(),
               }) => StreaksCompanion.insert(
                 streakID: streakID,
                 goalID: goalID,
@@ -15874,6 +16019,8 @@ class $$StreaksTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 unlockType: unlockType,
+                curEvalPeriod: curEvalPeriod,
+                lastEvalEnd: lastEvalEnd,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -347,28 +348,54 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       // lastWeekComplete = resultt;
     }
 
-    if (!alreadyEvaluated) {
-      if (lastWeekComplete) {
-        BasicStreak? curStreak = await ref
+    BasicStreak? curStreak = await ref
             .read(gDaoProvider)
             .checkActiveStreak(GoalType.fasting);
 
-        if (curStreak == null) {
-          await ref.read(gDaoProvider).insertStreak(goalID, today);
-        } else {
-          curStreak.lastEval = DateUtils.dateOnly(today);
-          await ref.read(gDaoProvider).updateStreak(curStreak);
-        }
-      } else {
-        BasicStreak? curStreak = await ref
-            .read(gDaoProvider)
-            .checkActiveStreak(GoalType.fasting);
-
-        if (curStreak != null) {
+    if (curStreak != null) {
+        if ((today.isAfter(curStreak.curPeriod) || DateUtils.isSameDay(today, curStreak.curPeriod)) && today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
+          if (DateUtils.dateOnly(
+            today,
+          ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+            if (percent == 1) {
+              curStreak.curPeriod = DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7)));
+              curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
+              await ref.read(gDaoProvider).updateStreak(curStreak);
+            }
+          }
+        } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
           await ref.read(gDaoProvider).breakStreak(curStreak);
         }
+      } else {
+        if (percent == 1) {
+          await ref
+              .read(gDaoProvider)
+              .insertStreak(goalID, today, DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))), curWeek.$2);
+        }
       }
-    }
+
+    // if (!alreadyEvaluated) {
+    //   if (lastWeekComplete) {
+    //     BasicStreak? curStreak = await ref
+    //         .read(gDaoProvider)
+    //         .checkActiveStreak(GoalType.fasting);
+
+    //     if (curStreak == null) {
+    //       await ref.read(gDaoProvider).insertStreak(goalID, today, curWeek.$2);
+    //     } else {
+    //       curStreak.lastEval = DateUtils.dateOnly(today);
+    //       await ref.read(gDaoProvider).updateStreak(curStreak);
+    //     }
+    //   } else {
+    //     BasicStreak? curStreak = await ref
+    //         .read(gDaoProvider)
+    //         .checkActiveStreak(GoalType.fasting);
+
+    //     if (curStreak != null) {
+    //       await ref.read(gDaoProvider).breakStreak(curStreak);
+    //     }
+    //   }
+    // }
 
     return percent;
   }
@@ -405,7 +432,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return 0.0;
     }
     int goalID = goal.goalID;
-    DateTime evalDay = goal.lastEval;
     DateTime today = DateTime.now();
     late double percent;
 
@@ -418,94 +444,124 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else {
       debugPrint('Water: $curWater');
       percent = (curWater / goal.threshold).clamp(0.0, 1.0);
-      if (!goal.isComplete &&
-          percent == 1 &&
-          !DateUtils.isSameDay(evalDay, today)) {
-        BasicStreak? curStreak = await ref
-            .read(gDaoProvider)
-            .checkActiveStreak(GoalType.hydration);
 
-        if (curStreak == null) {
-          await ref.read(gDaoProvider).insertStreak(goalID, today);
-          return percent;
-        } else {
-          curStreak.lastEval = DateUtils.dateOnly(today);
-          await ref.read(gDaoProvider).updateStreak(curStreak);
-          return percent;
-        }
-      }
-
-      if (percent == 1) {
-        BasicStreak? curStreak = await ref
-            .read(gDaoProvider)
-            .checkActiveStreak(GoalType.hydration);
-
-        if (curStreak != null) {
-          final expectedDay = DateUtils.dateOnly(
-            curStreak.start,
-          ).add(Duration(days: curStreak.daysProgress));
-
-          if (DateUtils.isSameDay(today, expectedDay)) {
-            curStreak.lastEval = today;
-
-            await ref.read(gDaoProvider).updateStreak(curStreak);
-          } else if (!DateUtils.isSameDay(
-            today.add(const Duration(days: 1)),
-            expectedDay,
-          )) {
-            await ref.read(gDaoProvider).breakStreak(curStreak);
-
-            await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
-          }
-        } else {
-          await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
-        }
-      }
-    }
-
-    final evalDiff = DateUtils.dateOnly(
-      today,
-    ).difference(DateUtils.dateOnly(evalDay)).inDays;
-    if (evalDiff > 1) {
       BasicStreak? curStreak = await ref
           .read(gDaoProvider)
           .checkActiveStreak(GoalType.hydration);
+
       if (curStreak != null) {
-        await ref.read(gDaoProvider).breakStreak(curStreak);
-      }
-    }
-
-    return percent;
-  }
-
-  Future<void> updateStreak(GoalType type, int goalID, bool result) async {
-    BasicStreak? curStreak = await ref
-        .read(gDaoProvider)
-        .checkActiveStreak(type);
-
-    final today = DateUtils.dateOnly(DateTime.now());
-
-    if (curStreak == null && result) {
-      await ref.read(gDaoProvider).insertStreak(goalID, today);
-    } else if (curStreak != null) {
-      curStreak.lastEval = DateUtils.dateOnly(today);
-
-      if (result) {
-        final expected = DateUtils.dateOnly(
-          curStreak.start,
-        ).add(Duration(days: curStreak.daysProgress));
-
-        if (DateUtils.isSameDay(today, expected.subtract(Duration(days: 1))) ||
-            DateUtils.isSameDay(today, expected)) {
-          await ref.read(gDaoProvider).updateStreak(curStreak);
-        } else {
+        if (DateUtils.isSameDay(today, curStreak.curPeriod)) {
+          if (DateUtils.dateOnly(
+            today,
+          ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+            if (percent == 1) {
+              curStreak.curPeriod = DateUtils.dateOnly(
+                today.add(const Duration(days: 1)),
+              );
+              curStreak.lastPeriod = DateUtils.dateOnly(today);
+              await ref.read(gDaoProvider).updateStreak(curStreak);
+            }
+          }
+        } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
           await ref.read(gDaoProvider).breakStreak(curStreak);
         }
       } else {
-        await ref.read(gDaoProvider).breakStreak(curStreak);
+        if (percent == 1) {
+          await ref
+              .read(gDaoProvider)
+              .insertStreak(goalID, today, today.add(const Duration(days: 1)), today);
+        }
       }
+
+      //   if (!goal.isComplete &&
+      //       percent == 1 &&
+      //       !DateUtils.isSameDay(evalDay, today)) {
+      //     BasicStreak? curStreak = await ref
+      //         .read(gDaoProvider)
+      //         .checkActiveStreak(GoalType.hydration);
+
+      //     if (curStreak == null) {
+      //       await ref.read(gDaoProvider).insertStreak(goalID, today);
+      //       return percent;
+      //     } else {
+      //       curStreak.lastEval = DateUtils.dateOnly(today);
+      //       await ref.read(gDaoProvider).updateStreak(curStreak);
+      //       return percent;
+      //     }
+      //   }
+
+      //   if (percent == 1) {
+      //     BasicStreak? curStreak = await ref
+      //         .read(gDaoProvider)
+      //         .checkActiveStreak(GoalType.hydration);
+
+      //     if (curStreak != null) {
+      //       final expectedDay = DateUtils.dateOnly(
+      //         curStreak.start,
+      //       ).add(Duration(days: curStreak.daysProgress));
+
+      //       if (DateUtils.isSameDay(today, expectedDay)) {
+      //         curStreak.lastEval = today;
+
+      //         await ref.read(gDaoProvider).updateStreak(curStreak);
+      //       } else if (!DateUtils.isSameDay(
+      //         today.add(const Duration(days: 1)),
+      //         expectedDay,
+      //       )) {
+      //         await ref.read(gDaoProvider).breakStreak(curStreak);
+
+      //         await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
+      //       }
+      //     } else {
+      //       await ref.read(gDaoProvider).insertStreak(goal.goalID, today);
+      //     }
+      //   }
+      // }
+
+      // final evalDiff = DateUtils.dateOnly(
+      //   today,
+      // ).difference(DateUtils.dateOnly(evalDay)).inDays;
+      // if (evalDiff > 1) {
+      //   BasicStreak? curStreak = await ref
+      //       .read(gDaoProvider)
+      //       .checkActiveStreak(GoalType.hydration);
+      //   if (curStreak != null) {
+      //     await ref.read(gDaoProvider).breakStreak(curStreak);
+      //   }
+      // }
+
+      return percent;
     }
   }
+
+  // Future<void> updateStreak(GoalType type, int goalID, bool result) async {
+  //   BasicStreak? curStreak = await ref
+  //       .read(gDaoProvider)
+  //       .checkActiveStreak(type);
+
+  //   final today = DateUtils.dateOnly(DateTime.now());
+
+  //   if (curStreak == null && result) {
+  //     await ref.read(gDaoProvider).insertStreak(goalID, today);
+  //   } else if (curStreak != null) {
+  //     curStreak.lastEval = DateUtils.dateOnly(today);
+
+  //     if (result) {
+  //       final expected = DateUtils.dateOnly(
+  //         curStreak.start,
+  //       ).add(Duration(days: curStreak.daysProgress));
+
+  //       if (DateUtils.isSameDay(today, expected.subtract(Duration(days: 1))) ||
+  //           DateUtils.isSameDay(today, expected)) {
+  //         await ref.read(gDaoProvider).updateStreak(curStreak);
+  //       } else {
+  //         await ref.read(gDaoProvider).breakStreak(curStreak);
+  //       }
+  //     } else {
+  //       await ref.read(gDaoProvider).breakStreak(curStreak);
+  //     }
+  //   }
+  // }
 
   Future<int> checkStreak(GoalType type, double curState) async {
     BasicStreak? curStreak = await ref

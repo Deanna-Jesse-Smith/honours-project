@@ -184,6 +184,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       start: streakRow.startDate,
       end: streakRow.endDate,
       daysProgress: streakRow.streakProgress,
+      curPeriod: streakRow.curEvalPeriod,
+      lastPeriod: streakRow.lastEvalEnd,
     );
   }
 
@@ -272,6 +274,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       start: streakRow.startDate,
       end: streakRow.endDate,
       daysProgress: streakRow.streakProgress,
+      curPeriod: streakRow.curEvalPeriod,
+      lastPeriod: streakRow.lastEvalEnd,
     );
   }
 
@@ -311,6 +315,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       start: streakRow.startDate,
       end: streakRow.endDate,
       daysProgress: streakRow.streakProgress,
+      curPeriod: streakRow.curEvalPeriod,
+      lastPeriod: streakRow.lastEvalEnd,
     );
   }
 
@@ -350,6 +356,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       start: streakRow.startDate,
       end: streakRow.endDate,
       daysProgress: streakRow.streakProgress,
+      curPeriod: streakRow.curEvalPeriod,
+      lastPeriod: streakRow.lastEvalEnd,
     );
   }
 
@@ -388,6 +396,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         start: streakRow.startDate,
         end: streakRow.endDate,
         daysProgress: streakRow.streakProgress,
+      curPeriod: streakRow.curEvalPeriod,
+      lastPeriod: streakRow.lastEvalEnd,
       );
       nutritionStreaks.add(temp);
     }

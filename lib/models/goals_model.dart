@@ -39,13 +39,16 @@ mixin BasicStreak on BasicGoal {
   late final DateTime? end;
   late final UnlockType unlockType;
   late bool isComplete;
+  late final DateTime curPeriod, lastPeriod;
 
-  void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress) {
+  void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress, DateTime curPeriod, DateTime lastPeriod) {
     this.streakID = streakID;
     unlockType = type;
     this.start = start;
     this.end = end;
     this.daysProgress = daysProgress;
+    this.curPeriod = curPeriod;
+    this.lastPeriod = lastPeriod;
   }
 
   int calculateProgress(double curState) {
@@ -78,8 +81,8 @@ class FastingGoalModel extends BasicGoal {
 }
 
 class FastingStreak extends FastingGoalModel with BasicStreak {
-  FastingStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
-    setStreakData(streakID, type, start, end, daysProgress);
+  FastingStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress, required DateTime curPeriod, required DateTime lastPeriod}) {
+    setStreakData(streakID, type, start, end, daysProgress, curPeriod, lastPeriod);
   }
 }
 
@@ -111,8 +114,8 @@ class WeightGoalModel extends BasicGoal {
 }
 
 class WeightStreak extends WeightGoalModel with BasicStreak {
-  WeightStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required super.startWeight, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
-    setStreakData(streakID, type, start, end, daysProgress);
+  WeightStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required super.startWeight, required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress, required DateTime curPeriod, required DateTime lastPeriod}) {
+    setStreakData(streakID, type, start, end, daysProgress, curPeriod, lastPeriod);
   }
 }
 
@@ -142,8 +145,8 @@ class HydrationGoalModel extends BasicGoal {
 }
 
 class HydrationStreak extends HydrationGoalModel with BasicStreak {
-  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
-    setStreakData(streakID, type, start, end, daysProgress);
+  HydrationStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress, required DateTime curPeriod, required DateTime lastPeriod}) {
+    setStreakData(streakID, type, start, end, daysProgress, curPeriod, lastPeriod);
   }
 }
 
@@ -155,8 +158,8 @@ class NutritionGoalModel extends BasicGoal {
 }
 
 class NutritionStreak extends NutritionGoalModel with BasicStreak {
-  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress}) {
-    setStreakData(streakID, type, start, end, daysProgress);
+  NutritionStreak(super.goalID, super.threshold, super.progress, super.op, super.metric, super.lastEval, super.isComplete, {required int streakID, required UnlockType type, required DateTime start, required DateTime? end, required int daysProgress, required DateTime curPeriod, required DateTime lastPeriod}) {
+    setStreakData(streakID, type, start, end, daysProgress, curPeriod, lastPeriod);
   }
 }
 

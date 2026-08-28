@@ -62,6 +62,8 @@ class Streaks extends Table {
   DateTimeColumn get endDate => dateTime().nullable()();
   // TextColumn get streakType => textEnum<GoalType>()(); //! This doesn't really make sense to have I don't think? It's the same as GoalType, which is already stored in Goals
   TextColumn get unlockType => textEnum<UnlockType>().nullable()();
+  DateTimeColumn get curEvalPeriod => dateTime().withDefault(currentDate)();
+  DateTimeColumn get lastEvalEnd => dateTime().withDefault(currentDate.modify(DateTimeModifier.days(-1)))();
 }
 
 enum UnlockType { badge, achievement, feature }
