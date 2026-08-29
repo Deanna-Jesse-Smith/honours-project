@@ -22,10 +22,10 @@ class Dialogs {
           children: [
             const Icon(Icons.warning_amber_sharp, color: Colors.orange),
             const SizedBox(width: 8),
-            Expanded(child: Text(title)),
+            Expanded(child: Text(title, style: TextStyle(fontSize: TextSizing.medium), maxLines: 3,)),
           ],
         ),
-        content: Text(message),
+        content: Text(message, style: TextStyle(fontSize: TextSizing.medium), maxLines: 6,),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

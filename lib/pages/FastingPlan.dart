@@ -30,8 +30,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   late Future<FastingStreak?> curStreak;
   late FastingStreak? gottenStreak;
 
-  List<bool> adfDaysSelected = List.filled(7, false), ogADF = List.filled(7, false);
-  List<bool> fiveTwoDaysSelected = List.filled(7, false), ogFiveTwo = List.filled(7, false);
+  List<bool> adfDaysSelected = List.filled(7, false),
+      ogADF = List.filled(7, false);
+  List<bool> fiveTwoDaysSelected = List.filled(7, false),
+      ogFiveTwo = List.filled(7, false);
 
   static final List<DropdownMenuEntry<FastingForm>> entriess =
       UnmodifiableListView<DropdownMenuEntry<FastingForm>>(
@@ -53,21 +55,22 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     dropDownValuee = session!.fastingForm;
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
 
-    ogFiveTwo = intsToBools(
-      session.fiveTwoDaysSelected,
-      ogFiveTwo,
-    );
+    ogFiveTwo = intsToBools(session.fiveTwoDaysSelected, ogFiveTwo);
     fiveTwoDaysSelected = List<bool>.of(ogFiveTwo);
     ogADF = intsToBools(session.adfDaysSelected, ogADF);
     adfDaysSelected = List<bool>.of(ogADF);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.fasting);
+      final concern = await ref
+          .read(asyncConcernsProvider.notifier)
+          .getConcern(GoalType.fasting);
 
       if (!mounted) return;
 
       if (concern != null) {
-        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+        await ref
+            .read(asyncConcernsProvider.notifier)
+            .doConcernDialogue(concern, context);
       }
     });
   }
@@ -203,24 +206,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     // }
   }
 
-  // Column getCorrectLayout(UserSessionData session) {
-  //   if (dropDownValuee == FastingForm.adf) {
-  //     return createADF(session);
-  //   } else if (dropDownValuee == FastingForm.tre) {
-  //     return createTRE(session);
-  //   } else {
-  //     return create52(session);
-  //   }
-
-  //   // if (dropDownValue.toLowerCase() == 'adf') {
-  //   //   return createADF(session);
-  //   // } else if (dropDownValue.toLowerCase() == 'tre') {
-  //   //   return createTRE(session);
-  //   // } else {
-  //   //   return create52(session);
-  //   // }
-  // }
-
   List<bool> intsToBools(List<int> days, List<bool> list) {
     debugPrint('REINITIALISING 5:2 FROM SESSION');
     list.fillRange(0, 6, false);
@@ -236,17 +221,17 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   ];
 
   CustomCheckbox getBox(int index, List<bool> curList) {
-    debugPrint(
-      'Building checkbox: index=$index, selected=${curList[index]}, day=${daysOfWeek[index]}',
-    );
     return .new(
       isSelected: curList[index],
       dayOfWeek: daysOfWeek[index],
       onTap: (bool val) {
-        debugPrint('TAPPED index=${daysOfWeek[index]}, value=$val');
-        setState(() {
-          curList[index] = val;
-        });
+        final tempList = [...fiveTwoDaysSelected];
+        tempList[index] = val;
+        if (asyncFasting.validate52plan(tempList)) {
+          setState(() {
+            curList[index] = val;
+          });
+        }
       },
     );
   }
@@ -255,9 +240,13 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     isSelected: adfDaysSelected[index],
     dayOfWeek: daysOfWeek[index],
     onTap: (bool val) {
-      setState(() {
-        adfDaysSelected[index] = val;
-      });
+      final tempList = [...adfDaysSelected];
+      tempList[index] = val;
+      if (asyncFasting.validateADFplan(tempList)) {
+        setState(() {
+          adfDaysSelected[index] = val;
+        });
+      }
     },
   );
 
@@ -348,9 +337,24 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     }
   }
 
-  Column createTRE(UserSessionData session) {
-    final theme = Theme.of(context);
+  Future<void> giveWarning(FastingForm form) async {
+    late String title, message;
+    switch (form) {
+      case FastingForm.adf:
+        title = 'WARNING: Incompatible ADF Days Selected';
+        message = 'Only non-consecutive days can be selected.';
+      case FastingForm.tre:
+        title = 'WARNING: Incompatible Start and End Times Selected';
+        message = 'Reduce your planned fast time.';
+      case FastingForm.fiveTwo:
+        title = 'WARNING: Incompatible 5:2 Days Selected';
+        message = 'Only non-consecutive days can be selected.';
+    }
 
+    await Dialogs.dangerDialog(context, title: title, message: message);
+  }
+
+  Column createTRE(UserSessionData session) {
     start = TimeOfDay.fromDateTime(session.startTime);
     startText = start.format(context);
     end = TimeOfDay.fromDateTime(session.endTime);
@@ -445,23 +449,25 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   );
 
   List<Padding> getStreakProgress() {
-    return [Padding(
-          padding: EdgeInsets.all(15),
-          child: Text(
-            'Streak progress text',
-            style: TextStyle(fontSize: TextSizing.medium),
-          ),
+    return [
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: Text(
+          'Streak progress text',
+          style: TextStyle(fontSize: TextSizing.medium),
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: CustomWidgets().streakIndicator(
-            'Streak underway',
-            0.6,
-            Colors.orange,
-            Colors.amberAccent,
-            context,
-          ),
-        )];
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: CustomWidgets().streakIndicator(
+          'Streak underway',
+          0.6,
+          Colors.orange,
+          Colors.amberAccent,
+          context,
+        ),
+      ),
+    ];
   }
 
   Row chooseFastingPlan(UserSessionData session) {
