@@ -325,6 +325,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return (numCompleted / fiveTwoDays.length).clamp(0.0, 1.0);
     }
   }
+
   Future<double> checkFastingGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
@@ -431,30 +432,39 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
 
     BasicStreak? curStreak = await ref
-            .read(gDaoProvider)
-            .checkActiveStreak(GoalType.fasting);
+        .read(gDaoProvider)
+        .checkActiveStreak(GoalType.fasting);
 
     if (curStreak != null) {
-        if ((today.isAfter(curStreak.curPeriod) || DateUtils.isSameDay(today, curStreak.curPeriod)) && today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
-          if (DateUtils.dateOnly(
-            today,
-          ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
-            if (percent == 1) {
-              curStreak.curPeriod = DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7)));
-              curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
-              await ref.read(gDaoProvider).updateStreak(curStreak);
-            }
+      if ((today.isAfter(curStreak.curPeriod) ||
+              DateUtils.isSameDay(today, curStreak.curPeriod)) &&
+          today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
+        if (DateUtils.dateOnly(
+          today,
+        ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+          if (percent == 1) {
+            curStreak.curPeriod = DateUtils.dateOnly(
+              curWeek.$1.add(const Duration(days: 7)),
+            );
+            curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
+            await ref.read(gDaoProvider).updateStreak(curStreak);
           }
-        } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
-          await ref.read(gDaoProvider).breakStreak(curStreak);
         }
-      } else {
-        if (percent == 1) {
-          await ref
-              .read(gDaoProvider)
-              .insertStreak(goalID, today, DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))), curWeek.$2);
-        }
+      } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
+        await ref.read(gDaoProvider).breakStreak(curStreak);
       }
+    } else {
+      if (percent == 1) {
+        await ref
+            .read(gDaoProvider)
+            .insertStreak(
+              goalID,
+              today,
+              DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
+              curWeek.$2,
+            );
+      }
+    }
 
     // if (!alreadyEvaluated) {
     //   if (lastWeekComplete) {
@@ -482,11 +492,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
-  Future<double> checkWeightGoal() async {
+  Future<(double, double, double)> checkWeightGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveWeightGoal();
 
     if (goal == null) {
-      return -1;
+      return (-1.0, -1.0, -1.0);
     }
     int goalID = goal.goalID;
     late double percent;
@@ -498,17 +508,17 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     debugPrint('Weight: $curWeight');
     percent =
         ((goal.startWeight - curWeight) / (goal.startWeight - goal.threshold))
-            .clamp(0.0, 1.0);
+            .clamp(0.1, 1.0);
 
     if (percent == 1) {
       ref.read(gDaoProvider).setComplete(true, goalID);
     }
 
-    return percent;
+    return (goal.startWeight, percent, goal.threshold);
   }
 
   Future<double> checkHydrationGoalProgress() async {
-     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
+    final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
     if (goal == null) {
       return 0.0;
@@ -525,7 +535,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return (curWater / goal.threshold).clamp(0.0, 1.0);
     }
   }
-  
+
   Future<double> checkHydrationGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
@@ -572,8 +582,13 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         if (percent == 1) {
           await ref
               .read(gDaoProvider)
-              .insertStreak(goalID, today, today.add(const Duration(days: 1)), today);
-              ref.invalidate(checkHydrationStreakProvider);
+              .insertStreak(
+                goalID,
+                today,
+                today.add(const Duration(days: 1)),
+                today,
+              );
+          ref.invalidate(checkHydrationStreakProvider);
         }
       }
 
@@ -636,6 +651,13 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
       return percent;
     }
+  }
+
+  Future<void> addHydration(int newAmount) async {
+    await ref
+        .read(hDaoProvider)
+        .addHydration(session!.userId, DateTime.now(), newAmount / 1000);
+    await checkHydrationGoal();
   }
 
   // Future<void> updateStreak(GoalType type, int goalID, bool result) async {
@@ -711,8 +733,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.startWeight,
             newGoal.op,
           );
-      ref.invalidateSelf();
-      // ref.invalidate(checkWeightGoalProvider);
+      // ref.invalidateSelf();
+      ref.invalidate(checkWeightGoalProvider);
     } else {
       await ref
           .read(gDaoProvider)

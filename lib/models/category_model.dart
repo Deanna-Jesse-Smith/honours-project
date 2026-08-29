@@ -21,7 +21,7 @@ class BuildFAB {
   static List<FabButton> buildFab(WidgetRef ref, {required int index, required VoidCallback onWeightTapped, required VoidCallback onMealTapped, required VoidCallback onHydrationTapped}) {
     final isFasting = ref.watch(isFastingProvider);
     final actions = [
-    FabButton(title: isFasting.when(data: (isFast) => isFast ? 'Break my fast' : 'Start my fast', error: (_, _) => 'Error', loading: () => 'Loading'), colour: Colors.deepPurpleAccent, onPressed: () => ref.read(asyncFatingNotifier.notifier).toggleFast()),
+    FabButton(title: isFasting.when(data: (isFast) => isFast ? 'Break my fast' : 'Start my fast', error: (_, _) => 'Error', loading: () => 'Loading'), colour: Colors.deepPurpleAccent, onPressed: () => ref.read(asyncFatingNotifier.notifier).toggleFast().whenComplete(() => ref.invalidate(checkFastingGoalProvider))),
     FabButton(title: 'Log Weight', colour: Colors.green, onPressed: onWeightTapped),
     FabButton(title: 'Log Meal', colour: Colors.amber, onPressed: onMealTapped),
     FabButton(title: 'Log Hydration', colour: Colors.blue, onPressed: onHydrationTapped)

@@ -29,7 +29,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
   @override
   void initState() {
     super.initState();
-    // goalProgress = ref.read(asyncGoalsProvider.notifier).checkWeightGoal();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.weight);
@@ -63,7 +62,11 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ),
             Padding(padding: EdgeInsets.all(15),
             child: watchWeightGoal.when(data: (goal) {
-              final model = goal == -1 ? 0.0 : goal;
+              if (goal.$3 == -1) {
+                return const SizedBox.shrink();
+              }
+
+              final model = goal.$2 == -1 ? 0.0 : goal.$2;
               return Center(
                     child: LinearPercentIndicator(
                       percent: model,
@@ -73,53 +76,13 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                       animationDuration: 2000,
                       progressColor: Colors.amber,
                       backgroundColor: Colors.yellow,
-                      leading: Text('goal'),
-                      trailing: Text('start'),
+                      leading: Text('${goal.$1}'),
+                      trailing: Text('${goal.$3}'),
                       barRadius: Radius.circular(10),
                     ),
                   );
             }, error: (e, l) => Text(e.toString()), loading: () => Text('No Gaol'))
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(15),
-            //   child: FutureBuilder(
-            //     future: goalProgress,
-            //     builder: (context, asyncSnapshot) {
-            //       if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            //         return const CircularProgressIndicator();
-            //       }
-            //       if (asyncSnapshot.hasError) {
-            //         return Text('Unable to load goal: ${asyncSnapshot.error}');
-            //       }
-
-            //       final model = asyncSnapshot.data;
-
-            //       if (model == null || model == -1) {
-            //         return Text('No ongoing goal');
-            //       }
-            //       // model.calculateComplete(curWeight!);
-
-            //       // if (model.isComplete) {
-            //       //   ref.read(gDaoProvider).finishGoal(model.goalID, -1);
-
-            //       //   //! whatever happens when a goal is completed
-            //       // }
-            //       return Center(
-            //         child: LinearPercentIndicator(
-            //           percent: model,
-            //           lineHeight: 10,
-            //           width: MediaQuery.of(context).size.width * 0.6,
-            //           animation: true,
-            //           animationDuration: 2000,
-            //           progressColor: Colors.amber,
-            //           backgroundColor: Colors.black,
-            //           leading: Text('goal'),
-            //           trailing: Text('start'),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
               stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
@@ -164,17 +127,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
         Row(
           spacing: 30,
           children: [
-            //   ElevatedButton(
-            //   onPressed: () => {
-            //     Navigator.of(context).push(
-            //       MaterialPageRoute(builder: (context) => const FastingHistory()),
-            //     ),
-            //   },
-            //   child: Text(
-            //     'View Fasting History',
-            //     style: Theme.of(context).textTheme.displayMedium,
-            //   ),
-            // ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -189,25 +141,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
           ],
         ),
       ],
-      // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }
-
-  FutureOr<double> getLatestWeight(WidgetRef ref) async {
-    final latest = await ref.read(wDaoProvider).latestWeight(0);
-
-    return latest ?? 0;
-  }
-
-  // Future<double> getTodayHydration() async {
-  //   final todays = await getIt<HydrationDao>().getTodayHydration(userState.userID, DateTime.now());
-
-  //   double sum = 0;
-
-  //   for (var log in todays) {
-  //     sum += log.amount;
-  //   }
-
-  //   return sum;
-  // }
 }

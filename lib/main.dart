@@ -78,7 +78,7 @@ final isFastingProvider = StreamProvider<bool>((ref) {
   return dao.checkFastingStatus();
 });
 
-final checkWeightGoalProvider = FutureProvider<double>((ref) {
+final checkWeightGoalProvider = FutureProvider<(double, double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkWeightGoal();
 });
 

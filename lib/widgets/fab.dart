@@ -5,6 +5,7 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/category_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/nutrition_pages/meal_log.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
@@ -29,10 +30,7 @@ class MyExpandableFAB extends ConsumerWidget {
           title: 'How many litres have you drank?',
         );
         if (newAmount != null) {
-          await ref
-              .read(hDaoProvider)
-              .addHydration(session.userId, DateTime.now(), newAmount / 1000);
-              ref.invalidate(checkHydrationGoalProvider);
+          await ref.read(asyncGoalsProvider.notifier).addHydration(newAmount).whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
         }
       },
       onMealTapped: () async {
