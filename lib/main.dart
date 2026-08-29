@@ -83,11 +83,15 @@ final checkWeightGoalProvider = FutureProvider<double>((ref) {
 });
 
 final checkHydrationGoalProvider = FutureProvider<double>((ref) {
-  return ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal();
+  return ref.watch(asyncGoalsProvider.notifier).checkHydrationGoalProgress();
+});
+
+final checkHydrationStreakProvider = StreamProvider<int?>((ref) {
+  return ref.watch(gDaoProvider).getActiveHydrationStreak();
 });
 
 final checkFastingGoalProvider = FutureProvider<double>((ref) {
-  return ref.watch(asyncGoalsProvider.notifier).checkFastingGoal();
+  return ref.watch(asyncGoalsProvider.notifier).checkFastingGoalProgress();
 });
 
 final checkFastingStatusProvider = FutureProvider<FastingStatus>((ref) {

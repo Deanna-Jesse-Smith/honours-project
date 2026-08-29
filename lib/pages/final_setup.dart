@@ -153,7 +153,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 Navigator.pushNamed(context, '/');
               }
             },
-            child: const Text('Continue'),
+            child: const Text('Continue', style: TextStyle(fontSize: TextSizing.medium)),
           ),
         ],
       ),

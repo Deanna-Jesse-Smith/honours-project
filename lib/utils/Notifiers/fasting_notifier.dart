@@ -193,6 +193,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       );
     }
     ref.invalidateSelf();
+    ref.invalidate(checkFastingGoalProvider);
   }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {

@@ -85,12 +85,16 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       appBar: AppBar(title: const Text('Questionnaire'), centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
+          spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Forms of Intermittent Fasting',
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.left,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: Text(
+                'Forms of Intermittent Fasting',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: TextSizing.medium),
+                textAlign: TextAlign.left,
+              ),
             ),
             buildTextCard(
               'Time Restricted Eating',
@@ -104,79 +108,91 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               'Modified Fasting/5:2',
               'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
             ),
-            Text('Questions', style: TextStyle(fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text('Questions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: TextSizing.medium)),
+            ),
             if (widget.experience)
               buildWithExperience(), //? What form(s) of IF have you done before? And for how long (weeks)?
-            buildQuestion('Do you prefer metric or imperial?'),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  'When were you born?',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final DateTime? dateTime = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(3000),
-                    );
-                    if (dateTime != null) {
-                      setState(() {
-                        selectedDate = dateTime;
-                      });
-                    }
-                  },
-                  child: const Text('Select Birthday'),
-                ),
-              ],
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  'How tall are you?',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                SizedBox(
-                  width: 80,
-                  child: TextField(
-                    controller: heightController,
-                    focusNode: focusNodeHeight,
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: false,
-                    ),
-                    decoration: InputDecoration(suffixText: 'cm'),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'When were you born?',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                ),
-              ],
+                  ElevatedButton(
+                    onPressed: () async {
+                      final DateTime? dateTime = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(3000),
+                      );
+                      if (dateTime != null) {
+                        setState(() {
+                          selectedDate = dateTime;
+                        });
+                      }
+                    },
+                    child: const Text('Select Birthday'),
+                  ),
+                ],
+              ),
             ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  'How much do you weigh?',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                SizedBox(
-                  width: 80,
-                  child: TextField(
-                    controller: weightController,
-                    focusNode: focusNodeWeight,
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(suffixText: 'kg'),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // textBaseline: TextBaseline.alphabetic,
+                children: [
+                  const Text(
+                    'How tall are you?',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    width: 80,
+                    child: TextField(
+                      controller: heightController,
+                      focusNode: focusNodeHeight,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: false,
+                      ),
+                      decoration: InputDecoration(suffixText: 'cm'),
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'How much do you weigh?',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                  SizedBox(
+                    width: 80,
+                    child: TextField(
+                      controller: weightController,
+                      focusNode: focusNodeWeight,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(suffixText: 'kg'),
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             struggle(), //? What do you struggle most with: daily schedule change or a weekly change?
@@ -201,15 +217,18 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             ),
 
             if (obligationVisibility) getWeek(),
-            ElevatedButton(
-              onPressed: isSaving ? null : handleFinished,
-              child: isSaving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Finished'),
+
+            Center(
+              child: ElevatedButton(
+                onPressed: isSaving ? null : handleFinished,
+                child: isSaving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Finished', style: TextStyle(fontSize: TextSizing.medium)),
+              ),
             ),
 
             // What do you hope to achieve with IF?
@@ -373,6 +392,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
+        spacing: 10,
         children: [
           const Text(
             'What form(s) of intermittent fasting have you done before?',
@@ -425,6 +445,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
+        spacing: 10,
         children: [
           const Text(
             'What do you struggle more with?',
@@ -468,34 +489,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     );
   }
 
-  Widget buildQuestion(String title) {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Text(title),
-          RadioGroup<Measurement>(
-            groupValue: measurement,
-            onChanged: (Measurement? value) {
-              setState(() {
-                measurement = value;
-              });
-            },
-            child: Row(
-              children: [
-                SizedBox(width: 30),
-                Text('Metric'),
-                Radio<Measurement>(value: Measurement.metric),
-                const SizedBox(width: 12),
-                Text('Imperial'),
-                Radio<Measurement>(value: Measurement.imperial),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // class SetupUser extends ConsumerStatefulWidget {

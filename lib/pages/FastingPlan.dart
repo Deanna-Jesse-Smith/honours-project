@@ -389,23 +389,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             ),
           ],
         ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: Text(
-            'Streak progress text',
-            style: theme.textTheme.displayMedium,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(15),
-          child: CustomWidgets().streakIndicator(
-            'Streak underway',
-            0.6,
-            Colors.orange,
-            Colors.amberAccent,
-            context,
-          ),
-        ),
       ],
     );
   }
@@ -460,6 +443,26 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     ],
   );
+
+  List<Padding> getStreakProgress() {
+    return [Padding(
+          padding: EdgeInsets.all(15),
+          child: Text(
+            'Streak progress text',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: CustomWidgets().streakIndicator(
+            'Streak underway',
+            0.6,
+            Colors.orange,
+            Colors.amberAccent,
+            context,
+          ),
+        )];
+  }
 
   Row chooseFastingPlan(UserSessionData session) {
     return .new(

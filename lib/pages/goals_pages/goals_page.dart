@@ -122,7 +122,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('Save Changes'),
+          child: const Text('Save Changes', style: TextStyle(fontSize: TextSizing.medium)),
         ),
       ],
     );

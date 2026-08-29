@@ -106,22 +106,25 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
       drawer: MyNavigationDrawer(),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(
-                'Fasting (${session.fastingForm.label})',
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
-              Tooltip(
-                message: '',
-                triggerMode: TooltipTriggerMode.tap,
-                child: IconButton(
-                  onPressed: () => Dialogs.getFastResultHelp(context),
-                  icon: Icon(Icons.question_mark),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  'Fasting (${session.fastingForm.label})',
+                  style: TextStyle(fontSize: TextSizing.medium, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
+                Tooltip(
+                  message: '',
+                  triggerMode: TooltipTriggerMode.tap,
+                  child: IconButton(
+                    onPressed: () => Dialogs.getFastResultHelp(context),
+                    icon: Icon(Icons.question_mark),
+                  ),
+                ),
+              ],
+            ),
           ),
           if (session.fastingForm == FastingForm.tre)
             dailyFastReminder()

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -221,15 +220,15 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         }
       }
 
-      if (type != GoalType.weight) {
-        if (type == GoalType.fasting &&
-            !DateUtils.isSameDay(evalDay, week.$1)) {
-          await updateStreak(type, goalID, result);
-        } else if (type != GoalType.fasting &&
-            !DateUtils.isSameDay(evalDay, DateTime.now())) {
-          await updateStreak(type, goalID, result);
-        }
-      }
+      // if (type != GoalType.weight) {
+      //   if (type == GoalType.fasting &&
+      //       !DateUtils.isSameDay(evalDay, week.$1)) {
+      //     await updateStreak(type, goalID, result);
+      //   } else if (type != GoalType.fasting &&
+      //       !DateUtils.isSameDay(evalDay, DateTime.now())) {
+      //     await updateStreak(type, goalID, result);
+      //   }
+      // }
 
       if (result == true) {
         percent = 1;
@@ -243,6 +242,89 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
+  Future<double> checkFastingGoalProgress() async {
+    final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
+
+    if (goal == null) {
+      return 0.0;
+    }
+    DateTime evalDay = goal.lastEval;
+    final curWeek = bookendWeek();
+    final lastWeek = (
+      curWeek.$1.subtract(const Duration(days: 7)),
+      curWeek.$2.subtract(const Duration(days: 7)),
+    );
+    late bool lastWeekComplete;
+    bool alreadyEvaluated = false;
+    if (evalDay == lastWeek.$2) {
+      alreadyEvaluated = true;
+    }
+
+    if (goal.metric == MetricType.hours) {
+      if (!alreadyEvaluated) {
+        final lastDur = await ref
+            .read(fDaoProvider)
+            .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+        int numLastComplete = lastDur
+            .where((d) => d >= goal.threshold * 60)
+            .length;
+        lastWeekComplete = numLastComplete == 7;
+      }
+
+      final curDur = await ref
+          .read(fDaoProvider)
+          .getWeeksDuration(session!.userId, curWeek.$1, curWeek.$2);
+      int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
+      return numComplete / 7;
+    } else if (goal.metric == MetricType.days) {
+      if (!alreadyEvaluated) {
+        final weekDays = await ref
+            .read(fDaoProvider)
+            .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
+            .length;
+
+        if (weekDays >= goal.threshold) {
+          lastWeekComplete = true;
+        }
+      }
+
+      final curWeekDays = await ref
+          .read(fDaoProvider)
+          .findFastsInRange(session!.userId, curWeek.$1, curWeek.$2)
+          .length;
+      return (curWeekDays / goal.threshold).clamp(0.0, 1.0);
+    } else {
+      final fiveTwoDays = session!.fiveTwoDaysSelected;
+
+      if (!alreadyEvaluated) {
+        bool tempResult = false;
+        for (final day in fiveTwoDays) {
+          final date = lastWeek.$1.add(Duration(days: day));
+          bool wasCompleted = await ref
+              .read(nDaoProvider)
+              .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+
+          if (!wasCompleted) {
+            tempResult = false;
+            break;
+          }
+        }
+        lastWeekComplete = tempResult;
+      }
+
+      int numCompleted = 0;
+      for (final day in fiveTwoDays) {
+        final date = lastWeek.$1.add(Duration(days: day));
+        bool wasCompleted = await ref
+            .read(nDaoProvider)
+            .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+
+        if (wasCompleted) numCompleted++;
+      }
+
+      return (numCompleted / fiveTwoDays.length).clamp(0.0, 1.0);
+    }
+  }
   Future<double> checkFastingGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
@@ -425,6 +507,25 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
+  Future<double> checkHydrationGoalProgress() async {
+     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
+
+    if (goal == null) {
+      return 0.0;
+    }
+
+    final curWater = await ref
+        .read(hDaoProvider)
+        .getTodayHydration(session!.userId, DateTime.now());
+
+    if (curWater == null) {
+      return 0.0;
+    } else {
+      debugPrint('Water: $curWater');
+      return (curWater / goal.threshold).clamp(0.0, 1.0);
+    }
+  }
+  
   Future<double> checkHydrationGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
@@ -460,16 +561,19 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
               );
               curStreak.lastPeriod = DateUtils.dateOnly(today);
               await ref.read(gDaoProvider).updateStreak(curStreak);
+              ref.invalidate(checkHydrationStreakProvider);
             }
           }
         } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
           await ref.read(gDaoProvider).breakStreak(curStreak);
+          ref.invalidate(checkHydrationStreakProvider);
         }
       } else {
         if (percent == 1) {
           await ref
               .read(gDaoProvider)
               .insertStreak(goalID, today, today.add(const Duration(days: 1)), today);
+              ref.invalidate(checkHydrationStreakProvider);
         }
       }
 

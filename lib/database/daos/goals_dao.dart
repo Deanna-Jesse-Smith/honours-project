@@ -221,7 +221,10 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           ..where(goals.type.equalsValue(GoalType.hydration)));
 
     return streakRows.watchSingleOrNull().map(
-      (row) => row?.read(streaks.streakProgress),
+      (row) {
+        debugPrint("Streak Watching: ${row?.read(streaks.streakProgress)}");
+        return row?.read(streaks.streakProgress);
+      },
     );
   }
 
@@ -624,7 +627,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       GoalsCompanion(lastEvaluated: Value(model.lastEval), isComplete: Value(true)),
     );
     await (update(streaks)..where((g) => g.streakID.equals(model.streakID)))
-        .write(StreaksCompanion(streakProgress: Value(model.daysProgress + 1)));
+        .write(StreaksCompanion(streakProgress: Value(model.daysProgress + 1), curEvalPeriod: Value(model.curPeriod), lastEvalEnd: Value(model.lastPeriod)));
   }
 
   Future<void> updateEvaluation(int id, DateTime updated) {
@@ -633,7 +636,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
-  Future<void> insertStreak(int goalID, DateTime today) async  {
+  Future<void> insertStreak(int goalID, DateTime today, DateTime curPeriod, DateTime lastPeriod) async  {
     await (update(goals)..where((g) => g.goalID.equals(goalID))).write(
       GoalsCompanion(lastEvaluated: Value(today), isComplete: Value(true)),
     );
@@ -644,6 +647,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         startDate: Value(today),
         unlockType: Value(UnlockType.badge),
         streakProgress: Value(1),
+        curEvalPeriod: Value(curPeriod),
+        lastEvalEnd: Value(lastPeriod),
       ),
     );
   }

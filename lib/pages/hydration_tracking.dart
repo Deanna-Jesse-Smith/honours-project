@@ -25,9 +25,15 @@ class HydrationTracking extends ConsumerStatefulWidget {
 
 class HydrationTrackingState extends ConsumerState<HydrationTracking> {
 
+  // late AsyncValue<double> goalChecker;
+  // late AsyncValue<int?> streakChecker;
+
   @override
   void initState() {
     super.initState();
+
+    // goalChecker = ref.watch(checkHydrationGoalProvider);
+    // streakChecker = ref.watch(checkHydrationStreakProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
@@ -46,6 +52,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
     final session = ref.read(userSessionProvider).value;
     // final watching = ref.watch(watchHydrationProvider(DateTime.now()));
     final goalChecker = ref.watch(checkHydrationGoalProvider);
+    final streakChecker = ref.watch(checkHydrationStreakProvider);
 
     return Scaffold(
       appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
@@ -72,65 +79,33 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                           // borderColor: Colors.red,
                           // borderWidth: 5.0,
                           direction: Axis.vertical,
-                          center: Text("Get drinking!"),
                           // shapePath: buildBottlePath(const Size(100, 180)),
                         ),
                   );
               }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(15),
-            //   child: FutureBuilder(
-            //     future: ref.watch(asyncGoalsProvider.notifier).checkHydrationGoal(),
-            //     builder: (context, asyncSnapshot) {
-            //       if (!asyncSnapshot.hasData) {
-            //         return Text('No ongoing goal');
-            //       }
+            streakChecker.when(data: (streak) {
+              if (streak == null) {
+                return const SizedBox.shrink();
+              } else {
+                return Text('You\'re on a $streak day streak!', style: TextStyle(fontSize: TextSizing.medium),);
+              }
+            }, error: (e, _) => Text(e.toString()), loading: () => const CircularProgressIndicator()),
+            // StreamBuilder(
+            //   stream: ref.watch(gDaoProvider).getActiveHydrationStreak(),
+            //   builder: (context, asyncSnapshot) {
+            //     if (!asyncSnapshot.hasData) {
+            //       return const Text('No ongoing hydration streak');
+            //     }
+            //     final days = asyncSnapshot.data;
 
-            //       final model = asyncSnapshot.data;
+            //     if (days == null) {
+            //       return const SizedBox.shrink();
+            //     }
 
-            //       if (model == null || model == -1) {
-            //         return Text('No ongoing goal');
-            //       }
-
-            //       // if (model.isComplete) {
-            //       //   goalsNotifier.finishGoal(model.goalID, streakID: model.streakID);
-
-            //       //   //! whatever happens when a goal is completed
-            //       // }
-
-            //       return SizedBox(
-            //         width: 150,
-            //         height: 150,
-            //         child: LiquidCircularProgressIndicator(
-            //               value: model,
-            //               valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
-            //               backgroundColor: Colors.white,
-            //               // borderColor: Colors.red,
-            //               // borderWidth: 5.0,
-            //               direction: Axis.vertical,
-            //               center: Text("Get drinking!"),
-            //               // shapePath: buildBottlePath(const Size(100, 180)),
-            //             ),
-            //       );
-            //     },
-            //   ),
+            //     return Text('You\'re on a $days day streak!', style: TextStyle(fontSize: TextSizing.medium),);
+            //   },
             // ),
-            StreamBuilder(
-              stream: ref.watch(gDaoProvider).getActiveHydrationStreak(),
-              builder: (context, asyncSnapshot) {
-                if (!asyncSnapshot.hasData) {
-                  return const Text('No ongoing hydration streak');
-                }
-                final days = asyncSnapshot.data;
-
-                if (days == null) {
-                  return const SizedBox.shrink();
-                }
-
-                return Text('You\'re on a $days day streak!', style: TextStyle(fontSize: TextSizing.medium),);
-              },
-            ),
 
             SizedBox(
               width: 100,
