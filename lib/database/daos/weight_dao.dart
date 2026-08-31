@@ -13,17 +13,14 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
     DateTime date,
     double amount,
   ) {
-    return into(weightLog).insert(WeightLogCompanion(userID: Value(userID), date: Value(date), amount: Value(amount))
+    return into(weightLog).insert(WeightLogCompanion.insert(userID: userID, date: Value(date), amount: Value(amount))
     );
   }
 
-  Future<double> latestWeight(int userID) async { //! Convert to a stream later if I have the energy/time
-    final weight = await (select(weightLog)
-    ..orderBy([(u) => OrderingTerm.desc(u.userID)])
-    ..limit(1))
-    .getSingle();
-
-    return weight.amount;
+  Future<double> getLatestWeight(int userID) async {
+    final weightLogg = (selectOnly(weightLog)..addColumns([weightLog.amount]))..orderBy([OrderingTerm.desc(weightLog.date)])..limit(1);
+    final weight = await weightLogg.getSingle();
+    return weight.read(weightLog.amount)!;
   }
 
   Stream<double?> getCurWeight(int userID) {
@@ -34,7 +31,7 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
   }
 
   Future<int> insertWeight(int userID, double newWeight, DateTime today) async {
-    final insert = await into(weightLog).insert(WeightLogCompanion(userID: Value(userID), date: Value(today), amount: Value(newWeight)));
+    final insert = await into(weightLog).insert(WeightLogCompanion.insert(userID: userID, date: Value(today), amount: Value(newWeight)));
     return insert;
   }
 }

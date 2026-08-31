@@ -14,6 +14,9 @@ class StepCounts extends StatefulWidget {
 
 //! Temporarily here for me to change when I get to this part of the project
 class _StepCountState extends State<StepCounts> {
+
+  int? startSteps;
+  int todaySteps = 0;
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '?';
@@ -23,6 +26,13 @@ class _StepCountState extends State<StepCounts> {
     super.initState();
     initPlatformState();
   }
+
+  // void stepListener() {
+  //   Pedometer.stepCountStream.listen((StepCount event) {
+  //     startSteps ??= event.steps;
+  //     todaySteps = event.steps - startSteps!;
+  //   });
+  // }
 
   void onStepCount(StepCount event) {
     FlutterLogs.logInfo("Event", "StepCount", event.toString());

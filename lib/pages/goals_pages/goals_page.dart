@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
@@ -18,7 +17,7 @@ class GoalsPage extends ConsumerStatefulWidget {
   const GoalsPage({
     super.key,
     required this.type,
-    this.mType = MetricType.hours, 
+    this.mType = MetricType.hours,
     this.startWeight,
   });
 
@@ -28,9 +27,8 @@ class GoalsPage extends ConsumerStatefulWidget {
 
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   late GoalType type;
-  late String title;
+  late String title, description, bestStreak;
   late BasicGoal curGoal;
-  late Future<BasicStreak?> curStreak;
   final TextEditingController goalController = TextEditingController();
   final focusNode = FocusNode();
   bool isLogOnly = true;
@@ -47,19 +45,36 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   void initState() {
     super.initState();
 
-    type = widget.type;
-
-    initFutures();
-
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
-        goalController.selection = TextSelection(baseOffset: 0, extentOffset: goalController.text.length);
+        goalController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: goalController.text.length,
+        );
       }
     });
-  }
 
-  void initFutures() async {
-    curStreak = ref.watch(gDaoProvider).checkActiveStreak(type);
+    type = widget.type;
+
+    final outcome = ref.read(bestStreakProvider(type));
+
+    bestStreak = outcome.when(data: (streak) {
+      if (streak == null) {
+        return '\n\nYou have no streaks of this type recorded.';
+      }
+      return '\n\nYour best streak is $streak days';
+    }, error: (e, _) => '', loading: () => '');
+
+    description = switch (type) {
+      GoalType.fasting =>
+        'A TRE fasting goal is the minimum number of hours you can aim to reach each day of the week.\n\nAn ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.',
+      GoalType.weight =>
+        'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
+      GoalType.hydration => 'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+      GoalType.nutrition => 'Your nutrition goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+    };
+
+    description += bestStreak;
   }
 
   @override
@@ -88,41 +103,36 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             }
           },
         ),
-        actions: [
-          Tooltip(
-            message: '',
-            triggerMode: TooltipTriggerMode.tap,
-            child: IconButton(
-              onPressed: () => Dialogs.getFastResultHelp(context),
-              icon: Icon(Icons.question_mark),
-            ),
-          ),
-        ],
       ),
       // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const Text(
-            'Giving a description of the goal system and how it works',
-            style: TextStyle(fontSize: TextSizing.small),
+          Text(
+            description,
+            style: TextStyle(fontSize: TextSizing.medium),
             textAlign: TextAlign.center,
           ),
           goalInfo(),
         ],
       ),
       persistentFooterButtons: [
-        ElevatedButton(
-          onPressed: () async {
-            await saveChanges();
-
-            if (!mounted) {
-              return;
-            } else if (mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          child: const Text('Save Changes', style: TextStyle(fontSize: TextSizing.medium)),
+        Center(
+          child: OutlinedButton(
+            onPressed: () async {
+              await saveChanges();
+          
+              if (!mounted) {
+                return;
+              } else if (mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text(
+              'Save Changes',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
+          ),
         ),
       ],
     );
@@ -134,6 +144,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       await ref.read(asyncGoalsProvider.notifier).insertGoal(curGoal);
     } else {
       await ref.read(asyncGoalsProvider.notifier).changeGoal(curGoal);
+    }
+
+    if (curGoal is HydrationGoalModel) {
+      ref.invalidate(checkHydrationGoalProvider);
+    } else if (curGoal is WeightGoalModel) {
+      ref.invalidate(checkWeightGoalProvider);
+    } else if (curGoal is FastingGoalModel) {
+      ref.invalidate(checkFastingGoalProvider);
     }
   }
 
@@ -154,7 +172,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         GoalOperator.greaterThan,
         widget.mType,
         DateTime.now(),
-        false
+        false,
       ),
       GoalType.weight => WeightGoalModel(
         -1,
@@ -192,15 +210,15 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       future: ref.watch(gDaoProvider).findActiveGoal(type),
       builder: (context, asyncSnapshot) {
         debugPrint('connectionState: ${asyncSnapshot.connectionState}');
-  debugPrint('hasData: ${asyncSnapshot.hasData}');
-  debugPrint('data: ${asyncSnapshot.data}');
-  debugPrint('error: ${asyncSnapshot.error}');
-  debugPrint('hasError: ${asyncSnapshot.hasError}');
-  debugPrint('FUTURE BUILDER BUILD: ${asyncSnapshot.connectionState}');
-debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
-  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-    return const CircularProgressIndicator();
-  }
+        debugPrint('hasData: ${asyncSnapshot.hasData}');
+        debugPrint('data: ${asyncSnapshot.data}');
+        debugPrint('error: ${asyncSnapshot.error}');
+        debugPrint('hasError: ${asyncSnapshot.hasError}');
+        debugPrint('FUTURE BUILDER BUILD: ${asyncSnapshot.connectionState}');
+        debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
         BasicGoal? goal = asyncSnapshot.data;
 
         if (goal == null) {
@@ -251,9 +269,6 @@ debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
           case BasicStreak():
             // TODO: Handle this case.
             throw UnimplementedError();
-          case null:
-            // TODO: Handle this case.
-            throw UnimplementedError();
         }
       },
     );
@@ -270,7 +285,6 @@ debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 40,
         children: [
-          //* Progress bar
           Text(type.goalText, style: TextStyle(fontSize: TextSizing.medium)),
           Table(
             children: [
@@ -310,72 +324,6 @@ debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
           Text(goalText, style: TextStyle(fontSize: TextSizing.medium)),
         ],
       ),
-    );
-  }
-
-  FutureBuilder streakInfo() {
-    return FutureBuilder(
-      future: curStreak,
-      builder: (context, asyncSnapshot) {
-        if (!asyncSnapshot.hasData) {
-          return Text('Add Streak?');
-        }
-        BasicStreak? streak = asyncSnapshot.data;
-
-        if (streak == null) {
-          if (widget.type == GoalType.weight) {
-            return Text('You cannot have a weight streak, only a weight goal.');
-          }
-          return Text('Add Streak?');
-        }
-
-        return Card(
-          child: Column(
-            children: [
-              CheckboxListTile(
-                value: isLogOnly,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isLogOnly = value!;
-                  });
-                },
-                title: Text('Track Logs only'),
-              ), //! make this only editable on streak creation
-              Text('Days on Streak: ${streak.daysProgress}'),
-              Text('Started on: ${DateFormat.yMEd().format(streak.start)}'),
-            ],
-          ),
-        );
-
-        // switch (streak) {
-        //   case FastingStreak streak:
-        //     throw UnimplementedError();
-        //   case WeightStreak streak:
-        //     // TODO: Handle this case.
-        //     throw UnimplementedError();
-        //   case HydrationStreak streak:
-        //     return Card(
-        //       child: Column(
-        //         children: [
-        //           CheckboxListTile(value: isLogOnly, onChanged: (bool? value) {
-        //             setState(() {
-        //               isLogOnly = value!;
-        //             });
-        //           },
-        //           title: Text('Track Logs only')), //! make this only editable on streak creation
-        //           Text('Days on Streak: ${streak.daysProgress}'),
-        //           Text('Started on: ${DateFormat.yMEd().format(streak.start)}'),
-        //         ],
-        //       )
-        //     );
-        //   case NutritionStreak streak:
-        //     // TODO: Handle this case.
-        //     throw UnimplementedError();
-        //   case BasicStreak streak:
-        //     // TODO: Handle this case.
-        //     throw UnimplementedError();
-        // }
-      },
     );
   }
 

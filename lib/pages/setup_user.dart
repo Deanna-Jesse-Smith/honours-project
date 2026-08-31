@@ -1,9 +1,6 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
-import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/final_setup.dart';
@@ -197,37 +194,43 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
             struggle(), //? What do you struggle most with: daily schedule change or a weekly change?
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: 250,
-                  child: const Text(
-                    'Do you eat meals with family or friends regularly?',
-                    style: TextStyle(fontSize: TextSizing.medium),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: const Text(
+                      'Do you eat meals with family or friends regularly?',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
                   ),
-                ),
-                Checkbox(
-                  value: obligationVisibility,
-                  onChanged: (value) {
-                    setState(() => obligationVisibility = value ?? false);
-                  },
-                ),
-              ],
+                  Checkbox(
+                    value: obligationVisibility,
+                    onChanged: (value) {
+                      setState(() => obligationVisibility = value ?? false);
+                    },
+                  ),
+                ],
+              ),
             ),
 
             if (obligationVisibility) getWeek(),
 
             Center(
-              child: ElevatedButton(
-                onPressed: isSaving ? null : handleFinished,
-                child: isSaving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Finished', style: TextStyle(fontSize: TextSizing.medium)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: isSaving ? null : handleFinished,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Finished', style: TextStyle(fontSize: TextSizing.medium)),
+                ),
               ),
             ),
 
@@ -276,7 +279,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             builder: (context) => FinalSetup(
               almost: tempUser,
               obligations: temp,
-              rs: rs,
+              options: rs.getRecs(),
               weight: weightController.text,
             ),
           ),
@@ -323,12 +326,16 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 setState(() => obligationTimes.add(TimeOfDay.now())),
             child: const Text(
               '+',
-              style: TextStyle(fontSize: TextSizing.large),
+              style: TextStyle(fontSize: TextSizing.large,),
             ),
           ),
       ],
     );
   }
+
+  // Future<void> createObligationMeal() {
+
+  // }
 
   static const int mealCap = 3;
   List<TimeOfDay> obligationTimes = [
@@ -392,10 +399,11 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
           const Text(
-            'What form(s) of intermittent fasting have you done before?',
+            'What form(s) of intermittent fasting have you done before?', style: TextStyle(fontSize: TextSizing.medium),
           ),
           SegmentedButton<FastingForm>(
             segments: FastingForm.values.map((ff) {
@@ -411,16 +419,26 @@ class _SetupUserState extends ConsumerState<SetupUser> {
               });
             },
             multiSelectionEnabled: true,
+            emptySelectionAllowed: true,
           ),
-          const Text('For what duration?'),
-          TextField(
-            controller: durationController,
-            focusNode: focusNodeDuration,
-            keyboardType: TextInputType.numberWithOptions(
-              decimal: false,
-              signed: false,
-            ),
-            decoration: InputDecoration(suffixText: 'weeks'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('For what duration?', style: TextStyle(fontSize: TextSizing.medium)),
+              SizedBox(
+                width: 80,
+                child: TextField(
+                            controller: durationController,
+                            focusNode: focusNodeDuration,
+                            keyboardType: TextInputType.numberWithOptions(
+                decimal: false,
+                signed: false,
+                            ),
+                            decoration: InputDecoration(suffixText: 'weeks'),
+                            style: TextStyle(fontSize: TextSizing.medium)
+                          ),
+              ),
+            ],
           ),
         ],
       ),
@@ -445,6 +463,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
           const Text(

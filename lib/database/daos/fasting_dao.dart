@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
 import '../database.dart';
@@ -49,7 +50,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return fast?.read(fastLog.startDateTime);
   }
 
-  Future<int> breakFast(
+  Future<void> breakFast(
     int userID,
     DateTime endTime,
     DateTime expectedEnd,
@@ -69,7 +70,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
               ..limit(1))
             .getSingle();
 
-    return (update(
+    await (update(
       fastLog,
     )..where((f) => f.fastLogID.equals(curLog.fastLogID))).write(
       FastLogCompanion(
@@ -77,6 +78,13 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         fastResult: Value('${curLog.fastResult},${result.name}'),
       ),
     );
+
+    final count = await (select(fastLog)).get();
+
+    for (FastLogData fast in count) {
+      debugPrint(fast.toString());
+    }
+    debugPrint('Fasts number: ${count.length}');
   }
 
   Future<bool> isFasting() async {
@@ -100,7 +108,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
   }
 
   Stream<List<FastLogData>> findFastsInRange(
-    int userID,
+    // int userID,
     DateTime start,
     DateTime end,
   ) {
@@ -108,7 +116,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         (select(fastLog)
               ..where(
                 (u) =>
-                    u.userID.equals(userID) &
+                    // u.userID.equals(userID) &
                     u.startDateTime.isSmallerOrEqualValue(
                       end,
                     ) & // fasts that start before the end of the range
@@ -119,6 +127,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
               )
               ..orderBy([(f) => OrderingTerm.asc(f.startDateTime)]))
             .watch();
+    testing();
 
     return history;
   }
@@ -189,14 +198,14 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return avg;
   }
 
-  // Future<void> testing() async {
-  //   final count = await (select(fastLog)).get();
+  Future<void> testing() async {
+    final count = await (select(fastLog)).get();
 
-  //   for (FastLogData fast in count) {
-  //     debugPrint(fast.toString());
-  //   }
-  //   debugPrint('User number: ${count.length}');
-  // }
+    for (FastLogData fast in count) {
+      debugPrint(fast.toString());
+    }
+    debugPrint('Fasts number: ${count.length}');
+  }
 
   void deleteAll() {
     fastLog.deleteAll();
@@ -207,9 +216,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 6, 20, 20, 15)),
         endDateTime: Value(DateTime(2026, 6, 21, 12, 20)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -220,6 +230,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         fastResult: Value('earlyStart,lateEnd'),
         startDateTime: Value(DateTime(2026, 6, 21, 19, 55)),
         endDateTime: Value(DateTime(2026, 6, 22, 12, 5)),
+        fastResultSeverity: Value('30,40')
       ),
     );
 
@@ -230,6 +241,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         fastResult: Value('skipped'),
         startDateTime: Value(DateTime(2026, 6, 22, 20, 30)),
         endDateTime: Value(DateTime(2026, 6, 23, 12, 45)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -237,9 +249,11 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('earlyEnd'),
+        fastResult: Value('asPlanned,earlyEnd'),
         startDateTime: Value(DateTime(2026, 6, 23, 20, 5)),
         endDateTime: Value(DateTime(2026, 6, 24, 11, 55)),
+        fastResultSeverity: Value('0,40')
+
       ),
     );
 
@@ -247,9 +261,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('lateStart'),
+        fastResult: Value('lateStart,asPlanned'),
         startDateTime: Value(DateTime(2026, 6, 24, 20, 20)),
         endDateTime: Value(DateTime(2026, 6, 25, 12, 30)),
+        fastResultSeverity: Value('30,0')
       ),
     );
 
@@ -257,9 +272,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 6, 25, 21, 0)),
         endDateTime: Value(DateTime(2026, 6, 26, 13, 10)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -270,6 +286,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         fastResult: Value('earlyStart,lateEnd'),
         startDateTime: Value(DateTime(2026, 6, 26, 20, 40)),
         endDateTime: Value(DateTime(2026, 6, 27, 12, 50)),
+        fastResultSeverity: Value('30,40')
       ),
     );
 
@@ -280,6 +297,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         fastResult: Value('lateStart,earlyEnd'),
         startDateTime: Value(DateTime(2026, 6, 27, 20, 0)),
         endDateTime: Value(DateTime(2026, 6, 28, 12, 0)),
+        fastResultSeverity: Value('30,40')
       ),
     );
 
@@ -297,9 +315,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 6, 29, 20, 35)),
         endDateTime: Value(DateTime(2026, 6, 30, 12, 40)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -307,9 +326,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 6, 30, 20, 0)),
         endDateTime: Value(DateTime(2026, 7, 1, 12, 10)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -317,9 +337,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 7, 1, 20, 20)),
         endDateTime: Value(DateTime(2026, 7, 2, 12, 30)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -327,9 +348,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 7, 2, 20, 45)),
         endDateTime: Value(DateTime(2026, 7, 3, 13, 0)),
+        fastResultSeverity: Value('0,0')
       ),
     );
 
@@ -337,9 +359,10 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned'),
+        fastResult: Value('asPlanned,asPlanned'),
         startDateTime: Value(DateTime(2026, 7, 3, 20, 10)),
         endDateTime: Value(DateTime(2026, 7, 4, 12, 15)),
+        fastResultSeverity: Value('0,0')
       ),
     );
   }

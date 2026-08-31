@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/reminder_model.dart';
+import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/utils/Notifiers/reminder_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
@@ -25,6 +27,8 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   final String weeklyReminder = '0';
   late AsyncReminder asyncReminder;
   late UserSessionData session;
+  late int? weightDay;
+  final List<bool> daySelected = List.filled(7, false);
 
   @override
   void initState() {
@@ -52,6 +56,16 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
       foodTime = TimeOfDay.fromDateTime(foodRem.time!);
     }
 
+    final weightRem = await ref
+        .read(rDaoProvider)
+        .getReminder(ReminderType.weight);
+    if (weightRem != null) {
+      weightDay = int.parse(weightRem.days!);
+      daySelected[weightDay!] = true;
+      isWeight = weightRem.isEnabled;
+      weightTime = TimeOfDay.fromDateTime(weightRem.time!);
+    }
+
     final startRem = await ref
         .read(rDaoProvider)
         .getReminder(ReminderType.fastStart);
@@ -77,6 +91,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
     setState(() {
       waterText = waterTime.format(context);
       foodText = foodTime.format(context);
+      weightText = weightTime.format(context);
     });
   }
 
@@ -104,154 +119,180 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         ],
       ),
       drawer: MyNavigationDrawer(),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Text(
+                'Fasting (${session.fastingForm.label})',
+                style: TextStyle(fontSize: TextSizing.large),
+              ),
+            ),
+            if (session.fastingForm == FastingForm.tre)
+              dailyFastReminder()
+            else
+              weekdayFastReminder(),
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: const Text(
+                'Hydration  (Daily)',
+                style: TextStyle(fontSize: TextSizing.large),
+              ),
+            ),
+            Row(
               children: [
-                Text(
-                  'Fasting (${session.fastingForm.label})',
-                  style: TextStyle(fontSize: TextSizing.medium, fontWeight: FontWeight.bold),
-                ),
-                Tooltip(
-                  message: '',
-                  triggerMode: TooltipTriggerMode.tap,
-                  child: IconButton(
-                    onPressed: () => Dialogs.getFastResultHelp(context),
-                    icon: Icon(Icons.question_mark),
+                Expanded(
+                  child: CheckboxListTile(
+                    value: isHydration,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isHydration = value!;
+                        asyncReminder.setWaterReminder(
+                          enabled: isHydration,
+                          time: waterTime,
+                        );
+                      });
+                    },
+                    title: ElevatedButton(
+                      onPressed: selectWaterTime,
+                      child: Text(
+                        waterText,
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          if (session.fastingForm == FastingForm.tre)
-            dailyFastReminder()
-          else
-            weekdayFastReminder(),
-          const SizedBox(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Hydration', style: TextStyle(fontSize: TextSizing.medium)),
-              Tooltip(
-                message: '',
-                triggerMode: TooltipTriggerMode.tap,
-                child: IconButton(
-                  onPressed: () => Dialogs.getFastResultHelp(context),
-                  icon: Icon(Icons.question_mark),
-                ),
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: const Text(
+                'Weight (Weekly)',
+                style: TextStyle(fontSize: TextSizing.large),
               ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: CheckboxListTile(
-                  value: isHydration,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isHydration = value!;
-                      asyncReminder.setWaterReminder(
-                        enabled: isHydration,
-                        time: waterTime,
-                      );
-                    });
-                  },
-                  title: ElevatedButton(
-                    onPressed: selectWaterTime,
-                    child: Text(
-                      waterText,
-                      style: TextStyle(fontSize: TextSizing.medium),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: CheckboxListTile(
+                    value: isWeight,
+                    onChanged: (bool? value) {
+                      if (weightDay != null) {
+                        setState(() {
+                          isWeight = value!;
+                          asyncReminder.setWeightReminder(
+                            enabled: isWeight,
+                            time: waterTime,
+                            dayOfWeek: weightDay!,
+                          );
+                        });
+                      } else {
+                        Dialogs.dangerDialog(
+                          context,
+                          title: 'Invalid Selection',
+                          message:
+                              'One day of the week must be selected to create a weight reminder',
+                        );
+                      }
+                    },
+                    title: ElevatedButton(
+                      onPressed: selectWeightTime,
+                      child: Text(
+                        weightText,
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
                     ),
                   ),
                 ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(4, (c) => getBox(c)),
               ),
-            ],
-          ),
-          const SizedBox(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text('Weight', style: TextStyle(fontSize: TextSizing.medium)),
-              Tooltip(
-                message: '',
-                triggerMode: TooltipTriggerMode.tap,
-                child: IconButton(
-                  onPressed: () => Dialogs.getFastResultHelp(context),
-                  icon: Icon(Icons.question_mark),
-                ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(3, (c) => getBox(c + 4)),
               ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: CheckboxListTile(
-                  value: isWeight,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isWeight = value!;
-                    });
-                  },
-                  title: const Text('Have weekly weight reminder:'),
-                ),
+            ),
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: const Text(
+                'Food (Daily)',
+                style: TextStyle(fontSize: TextSizing.large),
               ),
-            ],
-          ),
-          const SizedBox(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text('Food', style: TextStyle(fontSize: TextSizing.medium)),
-              Tooltip(
-                message: '',
-                triggerMode: TooltipTriggerMode.tap,
-                child: IconButton(
-                  onPressed: () => Dialogs.getFastResultHelp(context),
-                  icon: Icon(Icons.question_mark),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: CheckboxListTile(
-                  value: isNutrition,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isNutrition = value!;
-                    });
-                    asyncReminder.setFoodReminder(
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: CheckboxListTile(
+                    value: isNutrition,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isNutrition = value!;
+                      });
+                      asyncReminder.setFoodReminder(
                         enabled: isNutrition,
                         time: foodTime,
                       );
-                  },
-                  title: ElevatedButton(
-                    onPressed: selectFoodTime,
-                    child: Text(
-                      foodText,
-                      style: TextStyle(fontSize: TextSizing.medium),
+                    },
+                    title: ElevatedButton(
+                      onPressed: selectFoodTime,
+                      child: Text(
+                        foodText,
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          // Row(children: [
-          //   const Text('Remind me at: '),
-          //   ElevatedButton(onPressed: () async {
-          //     final chosenTime = await Dialogs.showTimeInput(context);
+              ],
+            ),
+            // Row(children: [
+            //   const Text('Remind me at: '),
+            //   ElevatedButton(onPressed: () async {
+            //     final chosenTime = await Dialogs.showTimeInput(context);
 
-          //     if (chosenTime != null) {
+            //     if (chosenTime != null) {
 
-          //     }
-          //   }, child: child)
-          // ],)
-        ],
+            //     }
+            //   }, child: child)
+            // ],)
+          ],
+        ),
       ),
+    );
+  }
+
+  CustomCheckbox getBox(int index) {
+    return .new(
+      isSelected: daySelected[index],
+      dayOfWeek: daysOfWeek[index],
+      onTap: (bool val) {
+        final tempList = [...daySelected];
+        tempList[index] = val;
+        tempList.retainWhere((day) => day == true);
+        if (tempList.isEmpty) {
+          setState(() {
+            daySelected[index] = false;
+            weightDay = null;
+          });
+        } else if (tempList.length == 1) {
+          setState(() {
+            daySelected[index] = true;
+            weightDay = index;
+          });
+        }
+      },
     );
   }
 
@@ -262,59 +303,67 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   // }
 
   Widget dailyFastReminder() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          CheckboxListTile(
-            value: isStart,
-            onChanged: (bool? value) => setState(() {
-              isStart = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: session.startTime,
-                fastEnd: session.endTime,
-                startEnabled: isStart,
-                midpointEnabled: isMid,
-                endEnabled: isEnd,
-              );
-            }),
-            title: const Text('Fast starting soon (15 minutes before)'),
+    return Column(
+      children: [
+        CheckboxListTile(
+          value: isStart,
+          onChanged: (bool? value) => setState(() {
+            isStart = value!;
+            asyncReminder.setFastingReminders(
+              fastStart: session.startTime,
+              fastEnd: session.endTime,
+              startEnabled: isStart,
+              midpointEnabled: isMid,
+              endEnabled: isEnd,
+            );
+          }),
+          title: const Text(
+            'Fast starting soon (15 minutes before)',
+            style: TextStyle(fontSize: TextSizing.medium),
           ),
-          CheckboxListTile(
-            value: isMid,
-            onChanged: (bool? value) => setState(() {
-              isMid = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: session.startTime,
-                fastEnd: session.endTime,
-                startEnabled: isStart,
-                midpointEnabled: isMid,
-                endEnabled: isEnd,
-              );
-            }),
-            title: const Text('Halfway through fast'),
+        ),
+        CheckboxListTile(
+          value: isMid,
+          onChanged: (bool? value) => setState(() {
+            isMid = value!;
+            asyncReminder.setFastingReminders(
+              fastStart: session.startTime,
+              fastEnd: session.endTime,
+              startEnabled: isStart,
+              midpointEnabled: isMid,
+              endEnabled: isEnd,
+            );
+          }),
+          title: const Text(
+            'Halfway through fast',
+            style: TextStyle(fontSize: TextSizing.medium),
           ),
-          CheckboxListTile(
-            value: isEnd,
-            onChanged: (bool? value) => setState(() {
-              isEnd = value!;
-              asyncReminder.setFastingReminders(
-                fastStart: session.startTime,
-                fastEnd: session.endTime,
-                startEnabled: isStart,
-                midpointEnabled: isMid,
-                endEnabled: isEnd,
-              );
-            }),
-            title: const Text('Fast ending soon (15 minutes before)'),
+        ),
+        CheckboxListTile(
+          value: isEnd,
+          onChanged: (bool? value) => setState(() {
+            isEnd = value!;
+            asyncReminder.setFastingReminders(
+              fastStart: session.startTime,
+              fastEnd: session.endTime,
+              startEnabled: isStart,
+              midpointEnabled: isMid,
+              endEnabled: isEnd,
+            );
+          }),
+          title: const Text(
+            'Fast ending soon (15 minutes before)',
+            style: TextStyle(fontSize: TextSizing.medium),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget weekdayFastReminder() {
-    final days = session.fastingForm == FastingForm.adf ? session.adfDaysSelected : session.fiveTwoDaysSelected;
+    final days = session.fastingForm == FastingForm.adf
+        ? session.adfDaysSelected
+        : session.fiveTwoDaysSelected;
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -330,7 +379,10 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 endEnabled: isEnd,
               );
             }),
-            title: const Text('The night before (20:00)'),
+            title: const Text(
+              'The night before (20:00)',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
           ),
           CheckboxListTile(
             value: isMid,
@@ -343,7 +395,10 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 endEnabled: isEnd,
               );
             }),
-            title: const Text('Halfway through fast'),
+            title: const Text(
+              'Halfway through fast',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
           ),
           CheckboxListTile(
             value: isEnd,
@@ -356,15 +411,20 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 endEnabled: isEnd,
               );
             }),
-            title: const Text('The morning after (06:00)'),
+            title: const Text(
+              'The morning after (06:00)',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
           ),
         ],
       ),
     );
   }
 
-  TimeOfDay foodTime = TimeOfDay.now(), waterTime = TimeOfDay.now();
-  String foodText = '', waterText = '';
+  TimeOfDay foodTime = TimeOfDay.now(),
+      waterTime = TimeOfDay.now(),
+      weightTime = TimeOfDay.now();
+  String foodText = '', waterText = '', weightText = '';
 
   Future<void> selectFoodTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: foodTime);
@@ -394,6 +454,36 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
 
       if (isHydration) {
         await asyncReminder.setWaterReminder(enabled: true, time: time);
+      }
+    }
+  }
+
+  Future<void> selectWeightTime() async {
+    final time = await Dialogs.showTimeInput(context, initialTime: weightTime);
+    if (time != null) {
+      setState(() {
+        weightTime = time;
+        weightText = time.format(context);
+      });
+
+      // await asyncReminder.testingNotifs();
+
+      if (isWeight) {
+        if (weightDay != null) {
+          await asyncReminder.setWeightReminder(
+            enabled: true,
+            time: time,
+            dayOfWeek: weightDay!,
+          );
+        } else {
+          if (!mounted) return;
+          Dialogs.dangerDialog(
+            context,
+            title: 'Invalid Selection',
+            message:
+                'One day of the week must be selected to create a weight reminder',
+          );
+        }
       }
     }
   }

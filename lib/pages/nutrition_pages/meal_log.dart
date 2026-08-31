@@ -10,7 +10,6 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
-import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:path/path.dart' as p;
 

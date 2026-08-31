@@ -136,18 +136,14 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     return true;
   }
 
-  Future<bool> updateADF(List<int> days) async {
-    //! check if it is a healthy schedule
-    ref.read(uDaoProvider).updateADF(state.value!.userId, days);
+  Future<void> updateADF(List<int> days) async {
+    await ref.read(uDaoProvider).updateADF(state.value!.userId, days);
     ref.invalidateSelf();
-    return true;
   }
 
-  Future<bool> update52(List<int> days) async {
-    //! check if it is a healthy schedule
-    ref.read(uDaoProvider).update52(state.value!.userId, days);
+  Future<void> update52(List<int> days) async {
+    await ref.read(uDaoProvider).update52(state.value!.userId, days);
     ref.invalidateSelf();
-    return true;
   }
 }
 

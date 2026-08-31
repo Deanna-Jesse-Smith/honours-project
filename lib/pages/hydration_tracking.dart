@@ -1,15 +1,18 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:testrun/main.dart';
-import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/animated_liquid_progress.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -24,9 +27,13 @@ class HydrationTracking extends ConsumerStatefulWidget {
 
 class HydrationTrackingState extends ConsumerState<HydrationTracking> {
 
+  late ConfettiController controller;
+
   @override
   void initState() {
     super.initState();
+
+    controller = ConfettiController(duration: const Duration(seconds: 5));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
@@ -37,6 +44,12 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
         await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
       }
     });
+  }
+
+  @override void dispose() {
+    controller.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -60,19 +73,21 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(data: (goal) {
                 final model = goal == -1 ? 0.0 : goal;
-                return SizedBox(
-                    width: 150,
-                    height: 150,
-                    child: LiquidCircularProgressIndicator(
-                          value: model,
-                          valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
-                          backgroundColor: Colors.white,
-                          // borderColor: Colors.red,
-                          // borderWidth: 5.0,
-                          direction: Axis.vertical,
-                          // shapePath: buildBottlePath(const Size(100, 180)),
-                        ),
-                  );
+
+                return AnimatedLiquidProgress(progress: model);
+                // return SizedBox(
+                //     width: 150,
+                //     height: 150,
+                //     child: LiquidCircularProgressIndicator(
+                //           value: model,
+                //           valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
+                //           backgroundColor: Colors.white,
+                //           // borderColor: Colors.red,
+                //           // borderWidth: 5.0,
+                //           direction: Axis.vertical,
+                //           // shapePath: buildBottlePath(const Size(100, 180)),
+                //         ),
+                //   );
               }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
             streakChecker.when(data: (streak) {
@@ -90,14 +105,26 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               onPressed: () async {
                 final newAmount = await Dialogs.getSpinnerWaterInput(
                   context,
-                  title: 'How many cups have you drank?',
+                  title: 'How much water have you drank?',
                 );
                 if (newAmount != null) {
+                  controller.play();
                   await ref.read(asyncGoalsProvider.notifier).addHydration(newAmount).whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
                 }
               },
               child: Text('Log Hydration'),
             ),
+            Align(alignment: Alignment.center,
+            child: ConfettiWidget(confettiController: controller,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
+              ],
+            ),)
           ],
         ),
       ),
@@ -106,7 +133,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
       floatingActionButton: MyExpandableFAB(index: 4),
       persistentFooterButtons: [
         Row(
-          spacing: 30,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(
@@ -116,7 +143,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               ),
               child: Text(
                 'Goals/Streaks',
-                style: Theme.of(context).textTheme.displayMedium,
+                style: TextStyle(fontSize: TextSizing.medium,),
               ),
             ),
           ],
@@ -124,6 +151,30 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
       ],
       // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
+  }
+
+  Path drawStar(Size size) {
+    // Method to convert degrees to radians
+    double degToRad(double deg) => deg * (pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,10 +26,13 @@ class WeightTracking extends ConsumerStatefulWidget {
 
 class _WeightTrackingState extends ConsumerState<WeightTracking> {
   late Future<double> goalProgress;
+  late ConfettiController controller;
 
   @override
   void initState() {
     super.initState();
+    
+    controller = ConfettiController(duration: const Duration(seconds: 5));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.weight);
@@ -39,6 +43,12 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
         await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
       }
     });
+  }
+
+  @override void dispose() {
+    controller.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -67,13 +77,17 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               }
 
               final model = goal.$2 == -1 ? 0.0 : goal.$2;
+
+              if (model == 1) {
+                controller.play();
+              }
               return Center(
                     child: LinearPercentIndicator(
                       percent: model,
                       lineHeight: 10,
                       width: MediaQuery.of(context).size.width * 0.6,
                       animation: true,
-                      animationDuration: 2000,
+                      animationDuration: 1000,
                       progressColor: Colors.amber,
                       backgroundColor: Colors.yellow,
                       leading: Text('${goal.$1}'),
@@ -111,12 +125,22 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                         session.userId,
                         newAmount.toDouble(),
                         DateTime.now(),
-                      );
-                  ref.invalidate(checkWeightGoalProvider);
+                      ).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
                 }
               },
               child: Text('Log Weight'),
             ),
+            Align(alignment: Alignment.center,
+            child: ConfettiWidget(confettiController: controller,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
+              ],
+            ),)
           ],
         ),
       ),
@@ -125,7 +149,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
       floatingActionButton: MyExpandableFAB(index: 4),
       persistentFooterButtons: [
         Row(
-          spacing: 30,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(

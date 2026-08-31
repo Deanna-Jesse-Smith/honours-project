@@ -10,6 +10,7 @@ import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/dialogs.dart';
 
 @riverpod
 class AsyncFasting extends AsyncNotifier<FastingForm> {
@@ -59,6 +60,15 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     ref.invalidate(userSessionProvider);
   }
 
+  void changeDays(bool forADF, List<bool> days) {
+    final sessionNot = ref.read(userSessionProvider.notifier);
+    if (forADF) {
+      sessionNot.updateADF(boolsToInts(days));
+    } else {
+      sessionNot.update52(boolsToInts(days));
+    }
+  }
+
   Future<FastingStatus> refreshFastingStatus() async {
     final cur = ref.watch(userSessionProvider).value;
     if (cur == null) return FastingStatus.notFastingDay;
@@ -91,10 +101,12 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
   }
 
   bool validateADFplan(List<bool> daysADF) {
+    final intDaysADF = boolsToInts(daysADF);
     final availability = RecommendationSystem.validCombosHelper(
-      boolsToInts(daysADF),
+      intDaysADF,
       true,
     );
+    availability.removeWhere((a) => a.isEmpty || a.length != 3);
     if (availability.isEmpty) {
       return false;
     } else {
@@ -103,11 +115,17 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
   }
 
   bool validate52plan(List<bool> days52) {
+    final intDays52 = boolsToInts(days52);
+    // debugPrint('Raw: ${intDays52.toString()}');
     final availability = RecommendationSystem.validCombosHelper(
-      boolsToInts(days52),
+      intDays52,
       false,
     );
-    if (availability.isEmpty) {
+    availability.removeWhere((a) => a.isEmpty || a.length != 2);
+    // for (final av in availability) {
+    //   debugPrint('Option: ${av.toString()}');
+    // }
+    if (availability.length != 1) {
       return false;
     } else {
       return true;
@@ -181,19 +199,34 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     final fDao = ref.read(fDaoProvider);
 
     final lastFast = await fDao.isFasting();
+    DateTime today = DateTime.now();
 
     if (lastFast) {
-      await fDao.breakFast(cur.userId, cur.endTime, DateTime.now());
+      await fDao.breakFast(cur.userId, today, DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute));
+      fDao.testing();
     } else {
       await fDao.startFast(
         cur.userId,
         cur.fastingForm,
-        DateTime.now(),
-        cur.startTime,
+        today,
+        DateTime(today.year, today.month, today.day, cur.startTime.hour, cur.startTime.minute),
       );
     }
     ref.invalidateSelf();
   }
+
+  // Future<bool> isInEatingWindow(BuildContext context) async {
+  //   final fDao = ref.read(fDaoProvider);
+
+  //   final lastFast = await fDao.isFasting();
+
+  //   if (lastFast) {
+  //     if (!mounted)
+  //     final decision = Dialogs.dangerDialog(context, title: 'You are outside your eating window!', message: 'Are you sure you want to log a meal now?');
+
+  //   }
+  //   return false;
+  // }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {
     list.fillRange(0, 6, false);

@@ -1,7 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/database/tables/user_table.dart';
-import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
 
 class Reminder extends Table {

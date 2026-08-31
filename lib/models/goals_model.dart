@@ -38,7 +38,6 @@ mixin BasicStreak on BasicGoal {
   late final DateTime start;
   late final DateTime? end;
   late final UnlockType unlockType;
-  late bool isComplete;
   late final DateTime curPeriod, lastPeriod;
 
   void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress, DateTime curPeriod, DateTime lastPeriod) {

@@ -449,17 +449,18 @@ int scoreForm(FastingForm form) {
   }
 
   static List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
+    if (pool.isEmpty) return [];
     int cap = isADF ? 3 : 2;
 
     List<List<int>> validCombos(
       List<int> subpool,
-      int initDay,
+      int? initDay,
       List<List<int>> acc,
       List<int> cur,
     ) {
       if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
       List<List<int>> withDay = [], withoutDay = [];
-      if (initDay + 1 < subpool.first) {
+      if (initDay == null || initDay + 1 < subpool.first) {
         withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
         cur = [...cur, subpool.first];
         withDay = validCombos(subpool.sublist(1), subpool.first, acc, cur);
@@ -468,7 +469,7 @@ int scoreForm(FastingForm form) {
       }
       return [...withDay, ...withoutDay];
     }
-    return validCombos(pool.sublist(1), pool.first, [], []);
+    return validCombos(pool, null, [], []);
   }
 }
 

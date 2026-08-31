@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
@@ -14,14 +13,14 @@ import 'package:testrun/widgets/dialogs.dart';
 class FinalSetup extends ConsumerStatefulWidget {
   final User almost;
   final ObligationMeals obligations;
-  final RecommendationSystem rs;
+  final List<FastOption> options;
   final String weight;
 
   const FinalSetup({
     super.key,
     required this.almost,
     required this.obligations,
-    required this.rs,
+    required this.options,
     required this.weight,
   });
 
@@ -34,10 +33,14 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
   FastingForm selectedForm = FastingForm.tre;
   int scheduleSelected = -1;
 
+  @override void initState() {
+    super.initState();
+
+    selectedOption = widget.options.first;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final recs = widget.rs.getRecs();
-    selectedOption = recs.first;
 
     // List<TimeOfDay> testTRE = plans[0].treList;
     return Scaffold(
@@ -75,7 +78,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               },);
             },
             child: Column(
-              children: recs.map((option) {
+              children: widget.options.map((option) {
                 return RadioListTile<FastOption>(
                   value: option,
                   title: Text(option.label,

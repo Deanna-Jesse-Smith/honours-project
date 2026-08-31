@@ -6,7 +6,6 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
 
 @riverpod
@@ -79,6 +78,41 @@ class AsyncReminder extends AsyncNotifier<NotificationSystem> {
       await ref
           .read(rDaoProvider)
           .deleteReminder(session!.userId, ReminderType.waterLog);
+    }
+  }
+
+  Future<void> setWeightReminder({
+    required bool enabled,
+    required TimeOfDay time,
+    required int dayOfWeek
+  }) async {
+    if (enabled) {
+      await ref
+          .read(rDaoProvider)
+          .saveReminder(
+            ReminderCompanion(
+              userID: Value(session!.userId),
+              type: Value(ReminderType.weight),
+              isEnabled: Value(enabled),
+              time: Value(
+                time.convertToDateTime(
+                  DateTime(2026, 1, 1, time.hour, time.minute),
+                ),
+              ),
+              days: Value('$dayOfWeek')
+            ),
+          );
+      DateTime temp = getFullDay(dayOfWeek);
+      DateTime output = DateTime(temp.year, temp.month, temp.day, time.hour, time.minute);
+      await NotificationSystem.scheduleWeightReminders(
+        userID: session!.userId,
+        date: output,
+      );
+    } else {
+      await NotificationSystem.cancelWeightReminder(session!.userId);
+      await ref
+          .read(rDaoProvider)
+          .deleteReminder(session!.userId, ReminderType.weight);
     }
   }
 

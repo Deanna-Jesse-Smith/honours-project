@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/fasting_model.dart';

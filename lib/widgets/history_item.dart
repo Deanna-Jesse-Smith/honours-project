@@ -33,7 +33,7 @@ class HistoryItem {
     DateTime start = DateTime(today.year, today.month, 1);
     DateTime end = DateTime(today.year, today.month + 1, 0);
 
-    final test =  ref.watch(fDaoProvider).findFastsInRange(userID, start, end);
+    final test =  ref.watch(fDaoProvider).findFastsInRange(start, end);
 
     return StreamBuilder<List>(
       stream: test,

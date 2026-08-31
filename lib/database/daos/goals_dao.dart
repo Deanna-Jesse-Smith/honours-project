@@ -667,6 +667,13 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     insertWeightGoal(0, 58, 60, GoalOperator.lesserEqual);
   }
 
+  Future<int?> findBestStreak(GoalType type) async {
+    final countProgress = streaks.streakProgress.max();
+    final records = await (selectOnly(streaks)..join([innerJoin(goals, goals.goalID.equalsExp(streaks.goalID))])..addColumns([countProgress])..where(goals.type.equals(type.name))).getSingle();
+
+    return records.read(countProgress);
+  }
+
   Future<void> checkGoals() async {
     // createDummyGoals();
     debugPrint("Checking goals");

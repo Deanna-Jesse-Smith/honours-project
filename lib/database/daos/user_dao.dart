@@ -48,7 +48,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
 
   Future<void> testing() async {
     final count = await (select(users)).get();
-    print('User number: ' + count.length.toString());
+    debugPrint('User number: ${count.length}');
   }
 
   Future<String?> getName() async {

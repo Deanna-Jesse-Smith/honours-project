@@ -1,7 +1,5 @@
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:testrun/database/tables/goal_tables.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -286,6 +284,24 @@ class NotificationSystem {
     return id;
   }
 
+  static Future<void> cancelWeightReminder(int userID) {
+    return cancel(notificationId(userID, ReminderType.weight));
+  }
+
+  static Future<int> scheduleWeightReminders({
+    required int userID,
+    required DateTime date,
+  }) async {
+    int id = notificationId(userID, ReminderType.weight);
+    await schedule(
+      id: id,
+      title: 'Log your weight',
+      body: 'Remember to log what your current weight.',
+      date: date,
+    );
+    return id;
+  }
+
   static Future<void> scheduleDaily({
     required int id,
     required String title,
@@ -455,6 +471,7 @@ enum ReminderType {
   foodLog,
   waterLog,
   deEscalation,
+  weight
 }
 
 extension ReminderID on ReminderType {
@@ -465,5 +482,6 @@ extension ReminderID on ReminderType {
     ReminderType.foodLog => 4,
     ReminderType.waterLog => 5,
     ReminderType.deEscalation => 6,
+    ReminderType.weight => 7,
   };
 }

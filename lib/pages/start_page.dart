@@ -11,10 +11,11 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  bool hasExperience = false;
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController(text: '');
-    bool hasExperience = false;
+    
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(15),
@@ -37,6 +38,7 @@ class _StartPageState extends State<StartPage> {
                 autofocus: true,
                 style: TextStyle(fontSize: TextSizing.medium),
                 textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(hintText: 'Name:'),
               ),
             ),
             SizedBox(height: 50),

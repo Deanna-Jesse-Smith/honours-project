@@ -56,7 +56,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
 
     ogFiveTwo = intsToBools(session.fiveTwoDaysSelected, ogFiveTwo);
-    fiveTwoDaysSelected = List<bool>.of(ogFiveTwo);
+    // List<int> forTesting = [1,2,4];
+    // fiveTwoDaysSelected = List<bool>.of(intsToBools(forTesting, ogFiveTwo));
     ogADF = intsToBools(session.adfDaysSelected, ogADF);
     adfDaysSelected = List<bool>.of(ogADF);
 
@@ -108,10 +109,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ),
       persistentFooterButtons: [
-        Row(
-          // spacing: 30,
-          children: [
-            ElevatedButton(
+        TextButton(
               onPressed: () => {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -121,10 +119,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               },
               child: Text(
                 'View Fasting History',
-                style: Theme.of(context).textTheme.displayMedium,
+                style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => GoalsPage(type: GoalType.fasting),
@@ -132,11 +130,39 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               ),
               child: Text(
                 'Goals/Streaks',
-                style: Theme.of(context).textTheme.displayMedium,
+                style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),
-          ],
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   // spacing: 30,
+        //   children: [
+        //     ElevatedButton(
+        //       onPressed: () => {
+        //         Navigator.of(context).push(
+        //           MaterialPageRoute(
+        //             builder: (context) => const FastingHistory(),
+        //           ),
+        //         ),
+        //       },
+        //       child: Text(
+        //         'View Fasting History',
+        //         style: TextStyle(fontSize: TextSizing.medium),
+        //       ),
+        //     ),
+        //     ElevatedButton(
+        //       onPressed: () => Navigator.of(context).push(
+        //         MaterialPageRoute(
+        //           builder: (context) => GoalsPage(type: GoalType.fasting),
+        //         ),
+        //       ),
+        //       child: Text(
+        //         'Goals/Streaks',
+        //         style: TextStyle(fontSize: TextSizing.medium),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
@@ -159,51 +185,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       session.fiveTwoDaysSelected,
       fiveTwoDaysSelected,
     );
-  }
-
-  void changePlan() async {
-    AsyncFasting asyncFasting = ref.read(asyncFatingNotifier.notifier);
-    final session = ref.read(userSessionProvider).value;
-    bool changed = false;
-
-    if (dropDownValuee == FastingForm.adf) {
-      if (!listEquals(ogADF, adfDaysSelected)) {
-        final isValid = asyncFasting.validateADFplan(adfDaysSelected);
-      }
-    } else if (dropDownValuee == FastingForm.fiveTwo) {
-      if (!listEquals(ogFiveTwo, fiveTwoDaysSelected)) {
-        final isValid = asyncFasting.validate52plan(fiveTwoDaysSelected);
-      }
-    } else {
-      // if (start)
-    }
-
-    if (dropDownValuee != session!.fastingForm) {
-      final decision = await Dialogs.dangerDialog(
-        context,
-        title: 'Are you sure?',
-        message:
-            'Changing your fasting form will wipe your current fasting goal and/or streak, and your reminders.',
-      );
-    }
-
-    // if (asyncFasting.validatePlan(
-    //   dropDownValuee,
-    //   start,
-    //   end,
-    //   fiveTwoDaysSelected,
-    //   adfDaysSelected,
-    // )) {
-    //   asyncFasting.handleChangingForms(
-    //     dropDownValuee,
-    //     start,
-    //     end,
-    //     fiveTwoDaysSelected,
-    //     adfDaysSelected,
-    //   );
-    // } else {
-
-    // }
   }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {
@@ -230,7 +211,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         if (asyncFasting.validate52plan(tempList)) {
           setState(() {
             curList[index] = val;
+            asyncFasting.changeDays(false, curList);
           });
+        } else {
+          planDecision(tempList, false);
         }
       },
     );
@@ -245,10 +229,50 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       if (asyncFasting.validateADFplan(tempList)) {
         setState(() {
           adfDaysSelected[index] = val;
+          asyncFasting.changeDays(true, adfDaysSelected);
         });
+      } else {
+        planDecision(tempList, true);
       }
     },
   );
+
+  Future<void> planDecision(List<bool> list, bool isADF) async {
+    String text = isADF ? 'You should have 3 non-consecutive fasting days selected' : 'You should have 2 non-consecutive fasting days selected';
+    final decision = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Center(child: Text('Invalid Fasting Days Selected', style: TextStyle(fontSize: TextSizing.medium),)),
+        content: Text(text, style: TextStyle(fontSize: TextSizing.small)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Rescind last selection'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: Text('Continue with selection'),
+          ),
+        ],
+      ),
+    );
+
+    if (decision != null && decision) {
+      asyncFasting.changeDays(isADF, list);
+
+      if (isADF) {
+        setState(() {
+          adfDaysSelected = List<bool>.from(list);
+        });
+      } else {
+        setState(() {
+          fiveTwoDaysSelected = List<bool>.from(list);
+        });
+      }
+    }
+  }
 
   Column create52(UserSessionData session) => Column(
     children: [

@@ -38,7 +38,7 @@ final fastsInMonthProvider = StreamProvider.autoDispose
       StatisticsModel,
       ({int userID, FastingForm curForm, DateTime start, DateTime end})
     >((ref, params) {
-      final repo = ref.watch(fDaoProvider).findFastsInRange(1, params.start, params.end);
+      final repo = ref.watch(fDaoProvider).findFastsInRange(params.start, params.end);
 
       return repo.map(
         (fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm),
@@ -54,17 +54,19 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
   late Stream<StatisticsModel> sms;
   late Stream<List<FastLogData>> fasts;
+  // late UserSessionData session;
 
   @override
   void initState() {
     DateTime focusMonth = DateTime(thisYear, thisMonth + 1);
     start = DateTime(focusMonth.year, focusMonth.month, 1);
-    end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
-    daysInMonth = end.day;
-    // firstWeekday = start.weekday % 7;
+    
+    daysInMonth = DateUtils.getDaysInMonth(focusMonth.year, focusMonth.month);
+    end = DateTime(focusMonth.year, focusMonth.month, daysInMonth, 23, 59, 59);
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
 
+    // session = ref.watch(userSessionProvider).value!;
     resetStreams();
     super.initState();
   }
@@ -73,7 +75,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     final session = ref.watch(userSessionProvider).value;
     data = ref
         .watch(fDaoProvider)
-        .findFastsInRange(1, start, end);
+        .findFastsInRange(start, end);
 
     sms = data.map(
       (convert) =>
@@ -257,7 +259,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
       DateTime focusMonth = DateTime(curYear, curMonth + 1);
       start = DateTime(focusMonth.year, focusMonth.month, 1);
       end = DateTime(focusMonth.year, focusMonth.month + 1, 0);
-      daysInMonth = end.day;
+      daysInMonth = DateUtils.getDaysInMonth(focusMonth.year, focusMonth.month);
       firstWeekday = start.weekday - 1;
       totalCells = firstWeekday + daysInMonth;
 
@@ -335,10 +337,11 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
       //     ),
       stream: ref
           .watch(fDaoProvider)
-          .findFastsInRange(1, start, end),
+          .findFastsInRange(start, end),
       builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.connectionState == ConnectionState.waiting)
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
+        }
         final fasts = asyncSnapshot.data!;
 
         // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);

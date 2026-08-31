@@ -96,7 +96,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         } else if (goal.metric == MetricType.days) {
           final weekDays = await ref
               .read(fDaoProvider)
-              .findFastsInRange(0, week.$1, week.$2)
+              .findFastsInRange(week.$1, week.$2)
               .length;
 
           if (weekDays >= goal.threshold) {
@@ -142,12 +142,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
         goalID = goal.goalID;
         evalDay = goal.lastEval;
-        final curWeight = await ref.read(wDaoProvider).latestWeight(0);
-
-        if (curWeight == null) {
-          result = false;
-          break;
-        }
+        final curWeight = await ref.read(wDaoProvider).getLatestWeight(0);
 
         result = goal.calculateComplete(curWeight);
         percent = goal.progress;
@@ -280,7 +275,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       if (!alreadyEvaluated) {
         final weekDays = await ref
             .read(fDaoProvider)
-            .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
+            .findFastsInRange(lastWeek.$1, lastWeek.$2)
             .length;
 
         if (weekDays >= goal.threshold) {
@@ -290,7 +285,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
       final curWeekDays = await ref
           .read(fDaoProvider)
-          .findFastsInRange(session!.userId, curWeek.$1, curWeek.$2)
+          .findFastsInRange(curWeek.$1, curWeek.$2)
           .length;
       return (curWeekDays / goal.threshold).clamp(0.0, 1.0);
     } else {
@@ -367,7 +362,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       if (!alreadyEvaluated) {
         final weekDays = await ref
             .read(fDaoProvider)
-            .findFastsInRange(session!.userId, lastWeek.$1, lastWeek.$2)
+            .findFastsInRange(lastWeek.$1, lastWeek.$2)
             .length;
 
         if (weekDays >= goal.threshold) {
@@ -377,7 +372,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
       final curWeekDays = await ref
           .read(fDaoProvider)
-          .findFastsInRange(session!.userId, curWeek.$1, curWeek.$2)
+          .findFastsInRange(curWeek.$1, curWeek.$2)
           .length;
       percent = (curWeekDays / goal.threshold).clamp(0.0, 1.0);
     } else {
@@ -503,9 +498,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
     final curWeight = await ref
         .read(wDaoProvider)
-        .latestWeight(session!.userId);
+        .getLatestWeight(session!.userId);
 
-    debugPrint('Weight: $curWeight');
     percent =
         ((goal.startWeight - curWeight) / (goal.startWeight - goal.threshold))
             .clamp(0.1, 1.0);
@@ -733,8 +727,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.startWeight,
             newGoal.op,
           );
-      // ref.invalidateSelf();
-      ref.invalidate(checkWeightGoalProvider);
+      ref.invalidateSelf();
+      // ref.invalidate(checkWeightGoalProvider);
     } else {
       await ref
           .read(gDaoProvider)

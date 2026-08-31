@@ -101,6 +101,19 @@ final checkFastingStatusProvider = FutureProvider<FastingStatus>((ref) {
 final checkFastingProgressProvider = FutureProvider<FastingProgress>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshProgress();
 });
+final bestStreakProvider = FutureProvider.family<int?, GoalType>(
+  (ref, type) {
+    return ref.read(gDaoProvider).findBestStreak(type);
+  },
+);
+
+final fastsInRangProvider = StreamProvider.family<List<FastLogData>, (DateTime, DateTime)>(
+  (ref, dates) {
+    return ref
+        .watch(fDaoProvider)
+        .findFastsInRange(dates.$1, dates.$2);
+  },
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -134,7 +147,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // insert(ref);
-    // ref.read(fDaoProvider).dummyData();
+    ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
     ref.read(asyncConcernsProvider);
     // tz.initializeTimeZones();
