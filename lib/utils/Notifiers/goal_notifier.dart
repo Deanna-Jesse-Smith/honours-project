@@ -64,174 +64,28 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return DateUtils.dateOnly(start);
   }
 
-  Future<double> checkGoal(GoalType type) async {
-    final session = ref.read(userSessionProvider).value;
-    final week = bookendWeek();
+  Future<double> checkNutritionGoalPercent() async {
+    final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
+    double percent = 0;
+    final curWeek = bookendWeek();
+    final lastWeek = (
+      curWeek.$1.subtract(const Duration(days: 7)),
+      curWeek.$2.subtract(const Duration(days: 7)),
+    );
 
-    late bool? result;
-    double percent = -1.0;
-    int goalID = -1;
-    late DateTime evalDay;
-    bool isComplete = false;
+    if (goal == null) {
+      percent = 0.0;
+    } else {
+      final mealCounts = await ref
+          .read(nDaoProvider)
+          .countMealsInRange(lastWeek.$1, lastWeek.$2);
 
-    switch (type) {
-      case GoalType.fasting:
-        final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
-
-        if (goal == null) {
-          result = null;
-          break;
-        }
-        goalID = goal.goalID;
-        evalDay = goal.lastEval;
-
-        if (goal.metric == MetricType.hours) {
-          final curDur = await ref.read(fDaoProvider).getCurDuration(0);
-          if (curDur >= (goal.threshold * 60)) {
-            result = true;
-            break;
-          }
-          percent = curDur == 0 ? 0 : curDur / (goal.threshold * 60);
-          result = false;
-        } else if (goal.metric == MetricType.days) {
-          final weekDays = await ref
-              .read(fDaoProvider)
-              .findFastsInRange(week.$1, week.$2)
-              .length;
-
-          if (weekDays >= goal.threshold) {
-            result = true;
-            break;
-          }
-          result = false;
-          percent = weekDays / goal.threshold;
-        } else {
-          final fiveTwoDays = session!.fiveTwoDaysSelected;
-          List<DateTime?> daysList = fiveTwoDays
-              .map((d) => getFullDay(d))
-              .toList();
-          // daysList.removeWhere((d) => d == null);
-
-          if (daysList.isEmpty) {
-            result = false;
-            break;
-          }
-
-          bool resultt = false;
-          for (final day in daysList) {
-            DateTime temp = day!.add(const Duration(days: 1));
-            bool complete = await ref
-                .read(nDaoProvider)
-                .isFiveTwoDay(day, temp);
-
-            if (!complete) {
-              resultt = false;
-              break;
-            }
-          }
-
-          result = resultt;
-        }
-      case GoalType.weight:
-        final goal = await ref.read(gDaoProvider).findActiveWeightGoal();
-
-        if (goal == null) {
-          result = null;
-          break;
-        }
-
-        goalID = goal.goalID;
-        evalDay = goal.lastEval;
-        final curWeight = await ref.read(wDaoProvider).getLatestWeight(0);
-
-        result = goal.calculateComplete(curWeight);
-        percent = goal.progress;
-      case GoalType.hydration:
-        final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
-
-        final curWater = await ref
-            .read(hDaoProvider)
-            .getTodayHydration(0, DateTime.now());
-
-        if (goal == null) {
-          result = null;
-          percent = curWater == null ? 0 : curWater / 1;
-          break;
-        }
-        goalID = goal.goalID;
-        evalDay = goal.lastEval;
-        isComplete = goal.isComplete;
-
-        if (curWater == null) {
-          debugPrint('Water: null');
-          result = false;
-          percent = 0.0;
-        } else {
-          debugPrint('Water: $curWater');
-          result = goal.calculateComplete(curWater);
-          percent = curWater / goal.threshold;
-        }
-
-      case GoalType.nutrition:
-        final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
-
-        if (goal == null) {
-          result = null;
-          break;
-        }
-        goalID = goal.goalID;
-        evalDay = goal.lastEval;
-
-        final mealCounts = await ref
-            .read(nDaoProvider)
-            .countMealsInRange(week.$1, week.$2);
-
-        result = mealCounts.length < 7
-            ? false
-            : mealCounts.every((v) => v >= goal.threshold);
-    }
-
-    if (result != null) {
-      if (type == GoalType.hydration) {
-        DateTime today = DateTime.now();
-        if (DateUtils.isSameDay(evalDay, today)) {
-        } else if (isComplete &&
-            DateUtils.isSameDay(
-              evalDay,
-              today.subtract(const Duration(days: 1)),
-            )) {
-          BasicStreak? curStreak = await ref
-              .read(gDaoProvider)
-              .checkActiveStreak(type);
-          curStreak!.lastEval = DateUtils.dateOnly(today);
-          await ref.read(gDaoProvider).updateStreak(curStreak);
-        } else if (today.compareTo(evalDay) > 1) {
-          BasicStreak? curStreak = await ref
-              .read(gDaoProvider)
-              .checkActiveStreak(type);
-          if (curStreak != null) {
-            await ref.read(gDaoProvider).breakStreak(curStreak);
-          }
-        }
-      }
-
-      // if (type != GoalType.weight) {
-      //   if (type == GoalType.fasting &&
-      //       !DateUtils.isSameDay(evalDay, week.$1)) {
-      //     await updateStreak(type, goalID, result);
-      //   } else if (type != GoalType.fasting &&
-      //       !DateUtils.isSameDay(evalDay, DateTime.now())) {
-      //     await updateStreak(type, goalID, result);
-      //   }
-      // }
-
-      if (result == true) {
-        percent = 1;
-        ref.read(gDaoProvider).setComplete(true, goalID);
-      } else {
-        percent = percent.clamp(0.0, 1.0);
-        if (goalID > -1) ref.read(gDaoProvider).setComplete(false, goalID);
-      }
+      percent =
+          mealCounts.fold(
+            0,
+            (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
+          ) /
+          7;
     }
 
     return percent;

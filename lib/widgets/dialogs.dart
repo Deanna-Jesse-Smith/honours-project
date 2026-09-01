@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/models/concerns_model.dart';
@@ -20,7 +21,7 @@ class Dialogs {
         title: Row(
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.warning_amber_sharp, color: Colors.orange),
+            const Icon(Icons.warning_amber_sharp, color: Colors.orange, size: 50,),
             const SizedBox(width: 8),
             Expanded(child: Text(title, style: TextStyle(fontSize: TextSizing.medium), maxLines: 3,)),
           ],
@@ -198,22 +199,22 @@ class Dialogs {
       context: context,
       builder: (context) => AlertDialog(
         title: Center(child: Text('How would you like to log your meal?')),
-        content: Text('You can:'),
+        content: Text('You can:', style: TextStyle(fontSize: TextSizing.medium),),
         actions: [
           TextButton(
             onPressed: () {
               // ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), LogMethod.quick);
               Navigator.pop(context, LogMethod.quick);
             },
-            child: Text('Log that I ate'),
+            child: Text('Log that I ate', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, LogMethod.repeat),
-            child: Text('Repeat yesterday'),
+            child: Text('Repeat yesterday', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, LogMethod.full),
-            child: Text('Log Full Meal'),
+            child: Text('Log Full Meal', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
           ),
         ],
       ),
@@ -292,25 +293,28 @@ class Dialogs {
     }
     return output;
   }
+
+  static Future<void> goalComplete(BuildContext context, String title, String text, ConfettiController controller) async {
+
+      final output = await showDialog(context: context, builder: (context) => AlertDialog(
+        title: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.health_and_safety, color: Colors.red),
+            const SizedBox(width: 8),
+            Expanded(child: Text(title, style: TextStyle(fontSize: TextSizing.large),)),
+          ],
+        ),
+        content: Column(children: [
+          Flexible(child: Text(text, style: TextStyle(fontSize: TextSizing.medium),)),
+        ],),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      ));
+      return output;
+    }
 }
-
-
-  //   Future<String?> openDialog(BuildContext context) => showDialog<String?>(  // final thing = await openDialog();
-  //   context: context, 
-  //   builder: (context) => AlertDialog(
-  //     title: Text('Title'),
-  //     content: TextField(
-  //       keyboardType: TextInputType.number        ,
-  //       decoration: InputDecoration(hintText: 'Spinner'), 
-  //       controller: controller,
-  //       onSubmitted: (_) => closed(),
-  //       ),
-  //     actions: [
-  //       TextButton(onPressed: closed, child: Text('Press'))
-  //       // WheelPicker(
-  //       //   builder: (context, index) => Text('$index'),
-
-  //       //   )
-  //     ],
-  //   )
-  //   );

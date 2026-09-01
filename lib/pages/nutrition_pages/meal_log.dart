@@ -42,12 +42,17 @@ class _MealLogState extends ConsumerState<MealLog> {
   void initState() {
     super.initState();
 
-    strMealTime = TimeOfDay.now().format(context);
-
     dropDownValuee = MealCategory.snack;
 
     nDao = ref.watch(nDaoProvider);
     // makeMeal();
+  }
+
+  @override @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    strMealTime = TimeOfDay.fromDateTime(mealTime).format(context);
   }
 
   // void makeMeal() async {
@@ -292,7 +297,8 @@ class _MealLogState extends ConsumerState<MealLog> {
 
     final File image = await File(temp.path).copy(newPath);
 
-    imagePath = image.path;
+    setState(() => imagePath = image.path);
+    // imagePath = image.path;
     // final getPicture = await picture.retrieveLostData();
     // if (getPicture.isEmpty) {
     //   return;
