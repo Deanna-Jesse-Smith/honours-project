@@ -38,7 +38,7 @@ mixin BasicStreak on BasicGoal {
   late final DateTime start;
   late final DateTime? end;
   late final UnlockType unlockType;
-  late final DateTime curPeriod, lastPeriod;
+  late DateTime curPeriod, lastPeriod;
 
   void setStreakData(int streakID, UnlockType type, DateTime start, DateTime? end, int daysProgress, DateTime curPeriod, DateTime lastPeriod) {
     this.streakID = streakID;

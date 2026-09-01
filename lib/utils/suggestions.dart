@@ -458,7 +458,9 @@ int scoreForm(FastingForm form) {
       List<List<int>> acc,
       List<int> cur,
     ) {
-      if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
+      if (subpool.isEmpty || cur.length >= cap) {
+        return [...acc, cur];
+      }
       List<List<int>> withDay = [], withoutDay = [];
       if (initDay == null || initDay + 1 < subpool.first) {
         withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
@@ -469,7 +471,14 @@ int scoreForm(FastingForm form) {
       }
       return [...withDay, ...withoutDay];
     }
-    return validCombos(pool, null, [], []);
+    final combinations = validCombos(pool, null, [], []);
+
+    final output = combinations.where((combo) {
+      // final set = combo.toSet();
+      // return combo.every((c) => !set.contains((c + 1) % 7));
+      return !(combo.contains(0) && combo.contains(6));
+    }).toList();
+    return output;
   }
 }
 
@@ -593,7 +602,7 @@ class RecommendFast {
   Suggestion adfEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> combinations = validCombosHelper(getAvailable, true);
+    List<List<int>> combinations =RecommendationSystem.validCombosHelper(getAvailable, true);
 
     adfList = combinations;
 
@@ -603,7 +612,7 @@ class RecommendFast {
   Suggestion fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> pairs = validCombosHelper(getAvailable, false);
+    List<List<int>> pairs = RecommendationSystem.validCombosHelper(getAvailable, false);
 
     String selectionDays =
         'It is then recommended you pick from the following combinations for your fasting days:';
@@ -649,29 +658,43 @@ class RecommendFast {
     return availableDays;
   }
 
-  List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
-    int cap = isADF ? 3 : 2;
+  // List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
+  //   int cap = isADF ? 3 : 2;
 
-    List<List<int>> validCombos(
-      List<int> subpool,
-      int initDay,
-      List<List<int>> acc,
-      List<int> cur,
-    ) {
-      if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
-      List<List<int>> withDay = [], withoutDay = [];
-      if (initDay + 1 < subpool.first) {
-        withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
-        cur = [...cur, subpool.first];
-        withDay = validCombos(subpool.sublist(1), subpool.first, acc, cur);
-      } else {
-        withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
-      }
-      return [...withDay, ...withoutDay];
-    }
+  //   List<List<int>> validCombos(
+  //     List<int> subpool,
+  //     int initDay,
+  //     List<List<int>> acc,
+  //     List<int> cur,
+  //   ) {
+  //     if (subpool.isEmpty || cur.length >= cap) return [...acc, cur];
+  //     List<List<int>> withDay = [], withoutDay = [];
+  //     if (initDay + 1 < subpool.first) {
+  //       withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
+  //       cur = [...cur, subpool.first];
+  //       withDay = validCombos(subpool.sublist(1), subpool.first, acc, cur);
+  //     } else {
+  //       withoutDay = validCombos(subpool.sublist(1), initDay, acc, cur);
+  //     }
+  //     return [...withDay, ...withoutDay];
+  //   }
 
-    return validCombos(pool.sublist(1), pool.first, [], []);
-  }
+  //   final combinations = validCombos(pool.sublist(1), pool.first, [], []);
+  //   final output = combinations.where((combo) {
+  //     // final set = combo.toSet();
+  //     // return combo.every((c) => !set.contains((c + 1) % 7));
+  //     // return !(combo.contains(0) && combo.contains(6));
+  //     final hasZero = combo.contains(0);
+  // final hasSix = combo.contains(6);
+  // final valid = !(hasZero && hasSix);
+
+  // debugPrint('$combo: hasZero=$hasZero, hasSix=$hasSix, valid=$valid');
+
+  // return valid;
+  //   }).toList();
+  //   debugPrint('OUTPUT: $output');
+  //   return output;
+  // }
 
   List<int> makeCombo(int day, List<int> subpool) {
     if (subpool.isEmpty) return [day];

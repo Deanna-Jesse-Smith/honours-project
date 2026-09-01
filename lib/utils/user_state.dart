@@ -77,17 +77,13 @@ class UserSessionData {
 class UserSession extends AsyncNotifier<UserSessionData?> {
   @override
   Future<UserSessionData?> build() async {
-    debugPrint('session start');
     final uDao = ref.watch(uDaoProvider);
-    debugPrint('session watching');
     final fDao = ref.watch(fDaoProvider);
 
     final user = await uDao.getUser();
     if (user == null) {
-      debugPrint('session null');
       return null;
     }
-    debugPrint('session not null');
 
     final isFasting = await fDao.isFasting();
   
@@ -105,7 +101,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       experience: user.experience,
       height: user.height,
     );
-
   }
 
   UserSessionData copy(

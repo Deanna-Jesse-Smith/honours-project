@@ -40,6 +40,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     String? path,
     String? comment,
     LogMethod logMethod,
+    DateTime date,
   ) async {
     final insertion = await (into(foodLog).insert(
       FoodLogCompanion.insert(
@@ -47,6 +48,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         comment: Value(comment),
         path: path != null ? Value(path) : Value(''),
         logMethod: logMethod,
+        logDate: Value(date)
       ),
     ));
     debugPrint('Food Insertion: $insertion');
@@ -73,6 +75,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         comment: Value(data.comment),
         path: Value(data.path),
         logMethod: data.logMethod,
+        logDate: Value(DateTime.now())
       ),
     );
   }

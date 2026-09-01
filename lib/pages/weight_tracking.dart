@@ -65,6 +65,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               'Weight Motivation',
@@ -84,14 +85,16 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               return Center(
                     child: LinearPercentIndicator(
                       percent: model,
-                      lineHeight: 10,
+                      lineHeight: 15,
                       width: MediaQuery.of(context).size.width * 0.6,
                       animation: true,
                       animationDuration: 1000,
                       progressColor: Colors.amber,
                       backgroundColor: Colors.yellow,
-                      leading: Text('${goal.$1}'),
-                      trailing: Text('${goal.$3}'),
+                      leading: Text('${goal.$1}',
+                style: TextStyle(fontSize: TextSizing.small),),
+                      trailing: Text('${goal.$3}',
+                style: TextStyle(fontSize: TextSizing.small),),
                       barRadius: Radius.circular(10),
                     ),
                   );

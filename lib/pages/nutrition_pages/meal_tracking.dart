@@ -23,6 +23,9 @@ class MealTracking extends ConsumerWidget {
     DateTime start = end.subtract(const Duration(days: 31));
     end = end.add(const Duration(days: 1));
 
+    final goalChecker = ref.watch(checkNutritionGoalProvider);
+    final streakChecker = ref.watch(checkNutritionStreakProvider);
+
     // if (start.day - 3 < 0) {
     //   int tempMonth = start.month - 1;
     //   int tempYear = start.year;
@@ -48,16 +51,10 @@ class MealTracking extends ConsumerWidget {
         children: [
           Padding(
               padding: const EdgeInsets.all(15),
-              child: FutureBuilder(
-                future: ref.watch(asyncGoalsProvider.notifier).checkGoal(GoalType.nutrition),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return Text('No ongoing goal');
-                  }
+              child: goalChecker.when(data: (goal) {
+                final model = goal == -1 ? 0.0 : goal;
 
-                  final model = asyncSnapshot.data;
-
-                  if (model == null || model == -1) {
+                  if (model == -1) {
                     return Text('No ongoing goal');
                   }
 
@@ -70,26 +67,15 @@ class MealTracking extends ConsumerWidget {
                     progressColor: Colors.amber,
                     backgroundColor: Colors.black,
                   );
-                }
-              ),
+              }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
-          StreamBuilder(
-                stream: ref.watch(gDaoProvider).getActiveFoodStreak(),
-                builder: (context, asyncSnapshot) {
-                  if (!asyncSnapshot.hasData) {
-                    return const Text('No ongoing Fasting streak');
-                  }
-
-                  final days = asyncSnapshot.data;
-
-                  if (days == null) {
-                    return const SizedBox.shrink();
-                  }
-                  //! Calculate the progress here somehow
-
-                  return Text('You\'re on a $days streak!');
-                }
-              ),
+          streakChecker.when(data: (streak) {
+              if (streak == null) {
+                return const SizedBox.shrink();
+              } else {
+                return Text('You\'re on a $streak day streak!', style: TextStyle(fontSize: TextSizing.medium),);
+              }
+            }, error: (e, _) => Text(e.toString()), loading: () => const CircularProgressIndicator()),
           StreamBuilder(
             stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
             builder: (context, snapshot) {

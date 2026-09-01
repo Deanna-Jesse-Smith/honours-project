@@ -215,18 +215,25 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     ref.invalidateSelf();
   }
 
-  // Future<bool> isInEatingWindow(BuildContext context) async {
-  //   final fDao = ref.read(fDaoProvider);
+  Future<bool> isInEatingWindow(BuildContext context) async {
+    final cur = ref.read(userSessionProvider).value;
+    if (cur == null) return false;
 
-  //   final lastFast = await fDao.isFasting();
+    final fDao = ref.read(fDaoProvider);
 
-  //   if (lastFast) {
-  //     if (!mounted)
-  //     final decision = Dialogs.dangerDialog(context, title: 'You are outside your eating window!', message: 'Are you sure you want to log a meal now?');
+    final lastFast = await fDao.isFasting();
 
-  //   }
-  //   return false;
-  // }
+    if (lastFast) {
+      // if (!mounted)
+      final decision = await Dialogs.dangerDialog(context, title: 'You are outside your eating window!', message: 'Are you sure you want to log a meal now? Your fast will be broken if you do');
+
+      if (decision) {
+        DateTime today = DateTime.now();
+        await fDao.breakFast(cur.userId, today, DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute));
+      }
+    }
+    return false;
+  }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {
     list.fillRange(0, 6, false);

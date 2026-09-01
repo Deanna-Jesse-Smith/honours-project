@@ -237,6 +237,71 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
+  Future<double> checkNutritionGoal() async {
+    final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
+    double percent = 0;
+    int goalID = -1;
+    final curWeek = bookendWeek();
+    final lastWeek = (
+      curWeek.$1.subtract(const Duration(days: 7)),
+      curWeek.$2.subtract(const Duration(days: 7)),
+    );
+    DateTime today = DateTime.now();
+
+    if (goal == null) {
+      percent = 0.0;
+    } else {
+      goalID = goal.goalID;
+
+      final mealCounts = await ref
+          .read(nDaoProvider)
+          .countMealsInRange(lastWeek.$1, lastWeek.$2);
+
+      percent =
+          mealCounts.fold(
+            0,
+            (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
+          ) /
+          7;
+    }
+
+    BasicStreak? curStreak = await ref
+        .read(gDaoProvider)
+        .checkActiveStreak(GoalType.nutrition);
+
+    if (curStreak != null) {
+      if ((today.isAfter(curStreak.curPeriod) ||
+              DateUtils.isSameDay(today, curStreak.curPeriod)) &&
+          today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
+        if (DateUtils.dateOnly(
+          today,
+        ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+          if (percent == 1) {
+            curStreak.curPeriod = DateUtils.dateOnly(
+              curWeek.$1.add(const Duration(days: 7)),
+            );
+            curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
+            await ref.read(gDaoProvider).updateStreak(curStreak);
+          }
+        }
+      } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
+        await ref.read(gDaoProvider).breakStreak(curStreak);
+      }
+    } else {
+      if (percent == 1) {
+        await ref
+            .read(gDaoProvider)
+            .insertStreak(
+              goalID,
+              today,
+              DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
+              curWeek.$2,
+            );
+      }
+    }
+    return percent;
+  }
+
   Future<double> checkFastingGoalProgress() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 

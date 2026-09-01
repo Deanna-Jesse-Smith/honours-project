@@ -62,17 +62,11 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<User?> getUser() async {
-    debugPrint('getting');
     final lastUser =
         await (select(users)
               ..orderBy([(u) => OrderingTerm.desc(u.userID)])
               ..limit(1))
             .getSingleOrNull();
-            debugPrint('got');
-    final count = await (select(users)).get();
-    debugPrint('uDao: User number: ${count.length}');
-    debugPrint(lastUser.toString());
-
     return lastUser;
   }
 

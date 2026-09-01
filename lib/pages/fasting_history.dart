@@ -4,6 +4,7 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/statistics_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -51,6 +52,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   Stream<List<FastLogData>> data = Stream.empty();
   Stream<StatisticsModel> sm = Stream.empty();
   late DateTime start, end;
+  late String bestStreak;
 
   late Stream<StatisticsModel> sms;
   late Stream<List<FastLogData>> fasts;
@@ -67,6 +69,17 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     totalCells = firstWeekday + daysInMonth;
 
     // session = ref.watch(userSessionProvider).value!;
+
+    final outcome = ref.read(bestStreakProvider(GoalType.fasting));
+
+    bestStreak = outcome.when(data: (streak) {
+      if (streak == null) {
+        return '\n\nYou have no fasting streaks recorded.';
+      }
+      return '\n\nYour best streak is $streak days';
+    }, error: (e, _) => '', loading: () => '');
+
+
     resetStreams();
     super.initState();
   }
@@ -229,11 +242,12 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
               debugPrint('SMS rebuild ${sm.getLength()}');
               return Column(
                 children: [
+                  Text(bestStreak, style: TextStyle(fontSize: TextSizing.medium),),
                   Text(
                     'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)}',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  Text('Longest Fast: ${sm.getLongest().inMinutes / 60} hours'),
+                  Text('Longest Fast: ${sm.getLongest().inMinutes / 60} hours', style: TextStyle(fontSize: TextSizing.medium),),
                 ],
               );
             },

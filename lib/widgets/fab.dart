@@ -126,7 +126,7 @@ class MyExpandableFAB extends ConsumerWidget {
             if (newLog == LogMethod.quick) {
               await ref
                   .read(nDaoProvider)
-                  .insertFoodLog(MealCategory.quick, null, null, newLog);
+                  .insertFoodLog(MealCategory.quick, null, null, newLog, DateTime.now());
             } else if (newLog == LogMethod.full) {
               if (!context.mounted) return;
               Navigator.of(

@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/main.dart';
-import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -43,6 +42,8 @@ class _MealLogState extends ConsumerState<MealLog> {
   void initState() {
     super.initState();
 
+    strMealTime = TimeOfDay.now().format(context);
+
     dropDownValuee = MealCategory.snack;
 
     nDao = ref.watch(nDaoProvider);
@@ -77,66 +78,170 @@ class _MealLogState extends ConsumerState<MealLog> {
       body: Column(
         spacing: 20.0,
         children: [
-          Table(
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: [
-              TableRow(
-                children: [
-                  Text('What meal is this?'),
-                  DropdownMenu<MealCategory>(
-                    initialSelection: dropDownValuee,
-                    dropdownMenuEntries: entriess,
-                    onSelected: (MealCategory? value) {
-                      setState(() {
-                        dropDownValuee = value!;
-                      });
-                    },
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'What meal is this?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                DropdownMenu<MealCategory>(
+                  initialSelection: dropDownValuee,
+                  dropdownMenuEntries: entriess,
+                  textStyle: TextStyle(fontSize: TextSizing.medium),
+                  onSelected: (MealCategory? value) {
+                    setState(() {
+                      dropDownValuee = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'What time did you eat?',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                ElevatedButton(
+                  onPressed: selectMealTime,
+                  child: Text(
+                    strMealTime,
+                    style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Text('Comments on meal (optional):'),
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Text('Picture (optional):'),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => selectImage(ImageSource.gallery),
-                        icon: Icon(Icons.image),
-                      ),
-                      IconButton(
-                        onPressed: () => selectImage(ImageSource.camera),
-                        icon: Icon(Icons.camera_alt),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              if (imagePath.isNotEmpty)
-                TableRow(
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Comments on meal (optional):',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Picture (optional):',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.file(
-                        File(imagePath),
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                      ),
+                    IconButton(
+                      onPressed: () => selectImage(ImageSource.gallery),
+                      icon: Icon(Icons.image),
                     ),
-                    SizedBox.shrink(),
+                    IconButton(
+                      onPressed: () => selectImage(ImageSource.camera),
+                      icon: Icon(Icons.camera_alt),
+                    ),
                   ],
                 ),
-            ],
+              ],
+            ),
           ),
+          if (imagePath.isNotEmpty)
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    File(imagePath),
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox.shrink(),
+              ],
+            ),
+          // Table(
+          //   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          //   border: TableBorder.all(width: 10),
+          //   children: [
+          //     TableRow(
+          //       children: [
+          //         const Text('What meal is this?', style: TextStyle(fontSize: TextSizing.medium),),
+          //         DropdownMenu<MealCategory>(
+          //           initialSelection: dropDownValuee,
+          //           dropdownMenuEntries: entriess,
+          //           textStyle: TextStyle(fontSize: TextSizing.medium),
+          //           onSelected: (MealCategory? value) {
+          //             setState(() {
+          //               dropDownValuee = value!;
+          //             });
+          //           },
+          //         ),
+          //       ],
+          //     ),
+          //     TableRow(children: [
+          //       const Text('What time did you eat?', style: TextStyle(fontSize: TextSizing.medium),),
+          //       ElevatedButton(onPressed: selectMealTime, child: Text(strMealTime, style: TextStyle(fontSize: TextSizing.medium),))
+          //     ]),
+          //     TableRow(
+          //       children: [
+          //         const Text('Comments on meal (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+          //         TextField(
+          //           controller: controller,
+          //           decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+          //           style: TextStyle(fontSize: TextSizing.medium),
+          //         ),
+          //       ],
+          //     ),
+          //     TableRow(
+          //       children: [
+          //         const Text('Picture (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+          //         Row(
+          //           children: [
+          //             IconButton(
+          //               onPressed: () => selectImage(ImageSource.gallery),
+          //               icon: Icon(Icons.image),
+          //             ),
+          //             IconButton(
+          //               onPressed: () => selectImage(ImageSource.camera),
+          //               icon: Icon(Icons.camera_alt),
+          //             ),
+          //           ],
+          //         ),
+          //       ],
+          //     ),
+          //     if (imagePath.isNotEmpty)
+          //       TableRow(
+          //         children: [
+          //           ClipRRect(
+          //             borderRadius: BorderRadius.circular(10),
+          //             child: Image.file(
+          //               File(imagePath),
+          //               width: 120,
+          //               height: 120,
+          //               fit: BoxFit.cover,
+          //             ),
+          //           ),
+          //           SizedBox.shrink(),
+          //         ],
+          //       ),
+          //   ],
+          // ),
           ElevatedButton(
             onPressed: () async {
               bool decision = await Dialogs.dangerDialog(
@@ -149,20 +254,26 @@ class _MealLogState extends ConsumerState<MealLog> {
               }
               save();
             },
-            child: const Text('Save meal'),
+            child: const Text(
+              'Save meal',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void save() {
-    nDao.insertFoodLog(
+  void save() async {
+    await nDao.insertFoodLog(
       dropDownValuee,
       imagePath,
       controller.text,
       LogMethod.full,
+      mealTime,
     );
+
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 
@@ -196,8 +307,9 @@ class _MealLogState extends ConsumerState<MealLog> {
     final time = await Dialogs.showTimeInput(context);
     if (time != null) {
       setState(() {
-        mealTime = DateUtils.dateOnly(DateTime.now());
-        mealTime.add(timeOfDayToDuration(time));
+        // mealTime = DateUtils.dateOnly(DateTime.now());
+        // mealTime.add(timeOfDayToDuration(time));
+        mealTime = mealTime.copyWith(hour: time.hour, minute: time.minute);
         strMealTime = time.format(context);
       });
     }
