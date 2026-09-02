@@ -9126,6 +9126,310 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
   }
 }
 
+class $StepsLogTable extends StepsLog
+    with TableInfo<$StepsLogTable, StepsLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StepsLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _stepIDMeta = const VerificationMeta('stepID');
+  @override
+  late final GeneratedColumn<int> stepID = GeneratedColumn<int>(
+    'step_i_d',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDate,
+  );
+  static const VerificationMeta _startingStepCountMeta = const VerificationMeta(
+    'startingStepCount',
+  );
+  @override
+  late final GeneratedColumn<int> startingStepCount = GeneratedColumn<int>(
+    'starting_step_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+    'steps',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    stepID,
+    date,
+    startingStepCount,
+    steps,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'steps_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StepsLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('step_i_d')) {
+      context.handle(
+        _stepIDMeta,
+        stepID.isAcceptableOrUnknown(data['step_i_d']!, _stepIDMeta),
+      );
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    }
+    if (data.containsKey('starting_step_count')) {
+      context.handle(
+        _startingStepCountMeta,
+        startingStepCount.isAcceptableOrUnknown(
+          data['starting_step_count']!,
+          _startingStepCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('steps')) {
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {stepID};
+  @override
+  StepsLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StepsLogData(
+      stepID: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}step_i_d'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      startingStepCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}starting_step_count'],
+      )!,
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      )!,
+    );
+  }
+
+  @override
+  $StepsLogTable createAlias(String alias) {
+    return $StepsLogTable(attachedDatabase, alias);
+  }
+}
+
+class StepsLogData extends DataClass implements Insertable<StepsLogData> {
+  final int stepID;
+  final DateTime date;
+  final int startingStepCount;
+  final int steps;
+  const StepsLogData({
+    required this.stepID,
+    required this.date,
+    required this.startingStepCount,
+    required this.steps,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['step_i_d'] = Variable<int>(stepID);
+    map['date'] = Variable<DateTime>(date);
+    map['starting_step_count'] = Variable<int>(startingStepCount);
+    map['steps'] = Variable<int>(steps);
+    return map;
+  }
+
+  StepsLogCompanion toCompanion(bool nullToAbsent) {
+    return StepsLogCompanion(
+      stepID: Value(stepID),
+      date: Value(date),
+      startingStepCount: Value(startingStepCount),
+      steps: Value(steps),
+    );
+  }
+
+  factory StepsLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StepsLogData(
+      stepID: serializer.fromJson<int>(json['stepID']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      startingStepCount: serializer.fromJson<int>(json['startingStepCount']),
+      steps: serializer.fromJson<int>(json['steps']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'stepID': serializer.toJson<int>(stepID),
+      'date': serializer.toJson<DateTime>(date),
+      'startingStepCount': serializer.toJson<int>(startingStepCount),
+      'steps': serializer.toJson<int>(steps),
+    };
+  }
+
+  StepsLogData copyWith({
+    int? stepID,
+    DateTime? date,
+    int? startingStepCount,
+    int? steps,
+  }) => StepsLogData(
+    stepID: stepID ?? this.stepID,
+    date: date ?? this.date,
+    startingStepCount: startingStepCount ?? this.startingStepCount,
+    steps: steps ?? this.steps,
+  );
+  StepsLogData copyWithCompanion(StepsLogCompanion data) {
+    return StepsLogData(
+      stepID: data.stepID.present ? data.stepID.value : this.stepID,
+      date: data.date.present ? data.date.value : this.date,
+      startingStepCount: data.startingStepCount.present
+          ? data.startingStepCount.value
+          : this.startingStepCount,
+      steps: data.steps.present ? data.steps.value : this.steps,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepsLogData(')
+          ..write('stepID: $stepID, ')
+          ..write('date: $date, ')
+          ..write('startingStepCount: $startingStepCount, ')
+          ..write('steps: $steps')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(stepID, date, startingStepCount, steps);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StepsLogData &&
+          other.stepID == this.stepID &&
+          other.date == this.date &&
+          other.startingStepCount == this.startingStepCount &&
+          other.steps == this.steps);
+}
+
+class StepsLogCompanion extends UpdateCompanion<StepsLogData> {
+  final Value<int> stepID;
+  final Value<DateTime> date;
+  final Value<int> startingStepCount;
+  final Value<int> steps;
+  const StepsLogCompanion({
+    this.stepID = const Value.absent(),
+    this.date = const Value.absent(),
+    this.startingStepCount = const Value.absent(),
+    this.steps = const Value.absent(),
+  });
+  StepsLogCompanion.insert({
+    this.stepID = const Value.absent(),
+    this.date = const Value.absent(),
+    this.startingStepCount = const Value.absent(),
+    this.steps = const Value.absent(),
+  });
+  static Insertable<StepsLogData> custom({
+    Expression<int>? stepID,
+    Expression<DateTime>? date,
+    Expression<int>? startingStepCount,
+    Expression<int>? steps,
+  }) {
+    return RawValuesInsertable({
+      if (stepID != null) 'step_i_d': stepID,
+      if (date != null) 'date': date,
+      if (startingStepCount != null) 'starting_step_count': startingStepCount,
+      if (steps != null) 'steps': steps,
+    });
+  }
+
+  StepsLogCompanion copyWith({
+    Value<int>? stepID,
+    Value<DateTime>? date,
+    Value<int>? startingStepCount,
+    Value<int>? steps,
+  }) {
+    return StepsLogCompanion(
+      stepID: stepID ?? this.stepID,
+      date: date ?? this.date,
+      startingStepCount: startingStepCount ?? this.startingStepCount,
+      steps: steps ?? this.steps,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (stepID.present) {
+      map['step_i_d'] = Variable<int>(stepID.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (startingStepCount.present) {
+      map['starting_step_count'] = Variable<int>(startingStepCount.value);
+    }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepsLogCompanion(')
+          ..write('stepID: $stepID, ')
+          ..write('date: $date, ')
+          ..write('startingStepCount: $startingStepCount, ')
+          ..write('steps: $steps')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9158,6 +9462,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $ReminderTable reminder = $ReminderTable(this);
   late final $FoodLogTable foodLog = $FoodLogTable(this);
+  late final $StepsLogTable stepsLog = $StepsLogTable(this);
   late final Index foodName = Index(
     'foodName',
     'CREATE INDEX foodName ON food (name)',
@@ -9187,6 +9492,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this as AppDatabase,
   );
   late final ReminderDao reminderDao = ReminderDao(this as AppDatabase);
+  late final StepsDao stepsDao = StepsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9214,6 +9520,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     achievements,
     reminder,
     foodLog,
+    stepsLog,
     foodName,
     mealRecipeKey,
     mealFoodKey,
@@ -18040,6 +18347,183 @@ typedef $$FoodLogTableProcessedTableManager =
       FoodLogData,
       PrefetchHooks Function()
     >;
+typedef $$StepsLogTableCreateCompanionBuilder =
+    StepsLogCompanion Function({
+      Value<int> stepID,
+      Value<DateTime> date,
+      Value<int> startingStepCount,
+      Value<int> steps,
+    });
+typedef $$StepsLogTableUpdateCompanionBuilder =
+    StepsLogCompanion Function({
+      Value<int> stepID,
+      Value<DateTime> date,
+      Value<int> startingStepCount,
+      Value<int> steps,
+    });
+
+class $$StepsLogTableFilterComposer
+    extends Composer<_$AppDatabase, $StepsLogTable> {
+  $$StepsLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get stepID => $composableBuilder(
+    column: $table.stepID,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startingStepCount => $composableBuilder(
+    column: $table.startingStepCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StepsLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $StepsLogTable> {
+  $$StepsLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get stepID => $composableBuilder(
+    column: $table.stepID,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startingStepCount => $composableBuilder(
+    column: $table.startingStepCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StepsLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StepsLogTable> {
+  $$StepsLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get stepID =>
+      $composableBuilder(column: $table.stepID, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<int> get startingStepCount => $composableBuilder(
+    column: $table.startingStepCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get steps =>
+      $composableBuilder(column: $table.steps, builder: (column) => column);
+}
+
+class $$StepsLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StepsLogTable,
+          StepsLogData,
+          $$StepsLogTableFilterComposer,
+          $$StepsLogTableOrderingComposer,
+          $$StepsLogTableAnnotationComposer,
+          $$StepsLogTableCreateCompanionBuilder,
+          $$StepsLogTableUpdateCompanionBuilder,
+          (
+            StepsLogData,
+            BaseReferences<_$AppDatabase, $StepsLogTable, StepsLogData>,
+          ),
+          StepsLogData,
+          PrefetchHooks Function()
+        > {
+  $$StepsLogTableTableManager(_$AppDatabase db, $StepsLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StepsLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StepsLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StepsLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> stepID = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<int> startingStepCount = const Value.absent(),
+                Value<int> steps = const Value.absent(),
+              }) => StepsLogCompanion(
+                stepID: stepID,
+                date: date,
+                startingStepCount: startingStepCount,
+                steps: steps,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> stepID = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<int> startingStepCount = const Value.absent(),
+                Value<int> steps = const Value.absent(),
+              }) => StepsLogCompanion.insert(
+                stepID: stepID,
+                date: date,
+                startingStepCount: startingStepCount,
+                steps: steps,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StepsLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StepsLogTable,
+      StepsLogData,
+      $$StepsLogTableFilterComposer,
+      $$StepsLogTableOrderingComposer,
+      $$StepsLogTableAnnotationComposer,
+      $$StepsLogTableCreateCompanionBuilder,
+      $$StepsLogTableUpdateCompanionBuilder,
+      (
+        StepsLogData,
+        BaseReferences<_$AppDatabase, $StepsLogTable, StepsLogData>,
+      ),
+      StepsLogData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18087,4 +18571,6 @@ class $AppDatabaseManager {
       $$ReminderTableTableManager(_db, _db.reminder);
   $$FoodLogTableTableManager get foodLog =>
       $$FoodLogTableTableManager(_db, _db.foodLog);
+  $$StepsLogTableTableManager get stepsLog =>
+      $$StepsLogTableTableManager(_db, _db.stepsLog);
 }
