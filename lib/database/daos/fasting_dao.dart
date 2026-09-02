@@ -33,8 +33,8 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         userID: userID,
         formIF: form,
         startDateTime: Value(startTime),
-        fastResult: Value(result.name),
-        fastResultSeverity: Value(severity.toString()),
+        earlyFastResult: result,
+        earlyResultSeverity: Value(severity),
       ),
     );
   }
@@ -75,7 +75,8 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     )..where((f) => f.fastLogID.equals(curLog.fastLogID))).write(
       FastLogCompanion(
         endDateTime: Value(endTime),
-        fastResult: Value('${curLog.fastResult},${result.name}'),
+        lateFastResult: Value(result),
+        lateResultSeverity: Value(severity),
       ),
     );
 
@@ -216,10 +217,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 6, 20, 20, 15)),
         endDateTime: Value(DateTime(2026, 6, 21, 12, 20)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -227,10 +230,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('earlyStart,lateEnd'),
+        earlyFastResult: FastResult.earlyStart,
+        lateFastResult: Value(FastResult.lateEnd),
         startDateTime: Value(DateTime(2026, 6, 21, 19, 55)),
         endDateTime: Value(DateTime(2026, 6, 22, 12, 5)),
-        fastResultSeverity: Value('30,40')
+        earlyResultSeverity: Value(30),
+        lateResultSeverity: Value(40),
       ),
     );
 
@@ -238,10 +243,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('skipped'),
+        earlyFastResult: FastResult.skipped,
+        lateFastResult: Value(FastResult.skipped),
         startDateTime: Value(DateTime(2026, 6, 22, 20, 30)),
         endDateTime: Value(DateTime(2026, 6, 23, 12, 45)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -249,10 +256,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,earlyEnd'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.earlyEnd),
         startDateTime: Value(DateTime(2026, 6, 23, 20, 5)),
         endDateTime: Value(DateTime(2026, 6, 24, 11, 55)),
-        fastResultSeverity: Value('0,40')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(40),
 
       ),
     );
@@ -261,10 +270,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('lateStart,asPlanned'),
+        earlyFastResult: FastResult.lateEnd,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 6, 24, 20, 20)),
         endDateTime: Value(DateTime(2026, 6, 25, 12, 30)),
-        fastResultSeverity: Value('30,0')
+        earlyResultSeverity: Value(30),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -272,10 +283,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 6, 25, 21, 0)),
         endDateTime: Value(DateTime(2026, 6, 26, 13, 10)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -283,10 +296,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('earlyStart,lateEnd'),
+        earlyFastResult: FastResult.earlyStart,
+        lateFastResult: Value(FastResult.lateEnd),
         startDateTime: Value(DateTime(2026, 6, 26, 20, 40)),
         endDateTime: Value(DateTime(2026, 6, 27, 12, 50)),
-        fastResultSeverity: Value('30,40')
+        earlyResultSeverity: Value(30),
+        lateResultSeverity: Value(40),
       ),
     );
 
@@ -294,10 +309,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('lateStart,earlyEnd'),
+        earlyFastResult: FastResult.lateStart,
+        lateFastResult: Value(FastResult.earlyEnd),
         startDateTime: Value(DateTime(2026, 6, 27, 20, 0)),
         endDateTime: Value(DateTime(2026, 6, 28, 12, 0)),
-        fastResultSeverity: Value('30,40')
+        earlyResultSeverity: Value(30),
+        lateResultSeverity: Value(40),
       ),
     );
 
@@ -305,9 +322,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('skipped'),
+        earlyFastResult: FastResult.skipped,
+        lateFastResult: Value(FastResult.skipped),
         startDateTime: Value(DateTime(2026, 6, 28, 20, 10)),
         endDateTime: Value(DateTime(2026, 6, 29, 12, 25)),
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -315,10 +335,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 6, 29, 20, 35)),
         endDateTime: Value(DateTime(2026, 6, 30, 12, 40)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -326,10 +348,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 6, 30, 20, 0)),
         endDateTime: Value(DateTime(2026, 7, 1, 12, 10)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -337,10 +361,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 7, 1, 20, 20)),
         endDateTime: Value(DateTime(2026, 7, 2, 12, 30)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -348,10 +374,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 7, 2, 20, 45)),
         endDateTime: Value(DateTime(2026, 7, 3, 13, 0)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
 
@@ -359,10 +387,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
-        fastResult: Value('asPlanned,asPlanned'),
+        earlyFastResult: FastResult.asPlanned,
+        lateFastResult: Value(FastResult.asPlanned),
         startDateTime: Value(DateTime(2026, 7, 3, 20, 10)),
         endDateTime: Value(DateTime(2026, 7, 4, 12, 15)),
-        fastResultSeverity: Value('0,0')
+        earlyResultSeverity: Value(0),
+        lateResultSeverity: Value(0),
       ),
     );
   }

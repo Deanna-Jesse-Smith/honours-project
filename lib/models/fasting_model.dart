@@ -7,17 +7,19 @@ class DummyUser {
   final FastingForm form;
   final DateTime typicalStart, typicalEnd;
 
-  DummyUser(this.adfDaysSelected, this.form, this.typicalStart, this.typicalEnd);
+  DummyUser(
+    this.adfDaysSelected,
+    this.form,
+    this.typicalStart,
+    this.typicalEnd,
+  );
 }
 
 class FastingInterval {
   final DateTime start;
   final DateTime end;
 
-  const FastingInterval({
-    required this.start,
-    required this.end,
-  });
+  const FastingInterval({required this.start, required this.end});
 
   bool contains(DateTime time) {
     return !time.isBefore(start) && time.isBefore(end);
@@ -30,29 +32,16 @@ abstract class FastingScheduleCalculator {
   /// Returns the scheduled fasting interval associated with [date].
   ///
   /// Returns null when there is no scheduled fast for that date.
-  FastingInterval? intervalFor(
-    DateTime date,
-    DummyUser user,
-  );
+  FastingInterval? intervalFor(DateTime date, DummyUser user);
 }
 
 class TRECalculator implements FastingScheduleCalculator {
   @override
-  FastingInterval intervalFor(
-    DateTime date,
-    DummyUser user,
-  ) {
-    final day = DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+  FastingInterval intervalFor(DateTime date, DummyUser user) {
+    final day = DateTime(date.year, date.month, date.day);
 
     final start = day.add(
-      Duration(
-        hours: user.typicalEnd.hour,
-        minutes: user.typicalEnd.minute,
-      ),
+      Duration(hours: user.typicalEnd.hour, minutes: user.typicalEnd.minute),
     );
 
     DateTime end = day.add(
@@ -67,36 +56,24 @@ class TRECalculator implements FastingScheduleCalculator {
       end = end.add(const Duration(days: 1));
     }
 
-    return FastingInterval(
-      start: start,
-      end: end,
-    );
+    return FastingInterval(start: start, end: end);
   }
 }
 
 class WeekdayBasedCalculator implements FastingScheduleCalculator {
   final Duration fastDuration;
 
-  const WeekdayBasedCalculator({
-    required this.fastDuration,
-  });
+  const WeekdayBasedCalculator({required this.fastDuration});
 
   @override
-  FastingInterval? intervalFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  FastingInterval? intervalFor(DateTime date, DummyUser user) {
     final dayIndex = date.weekday - 1; // Monday = 0
 
     if (!user.adfDaysSelected.contains(dayIndex)) {
       return null;
     }
 
-    final day = DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+    final day = DateTime(date.year, date.month, date.day);
 
     final start = day.add(
       Duration(
@@ -105,10 +82,7 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
       ),
     );
 
-    return FastingInterval(
-      start: start,
-      end: start.add(fastDuration),
-    );
+    return FastingInterval(start: start, end: start.add(fastDuration));
   }
 }
 
@@ -118,41 +92,24 @@ FastingScheduleCalculator calculatorFor(FastingForm form) {
       return TRECalculator();
 
     case FastingForm.adf:
-      return const WeekdayBasedCalculator(
-        fastDuration: Duration(hours: 36),
-      );
+      return const WeekdayBasedCalculator(fastDuration: Duration(hours: 36));
 
     case FastingForm.fiveTwo:
-      return const WeekdayBasedCalculator(
-        fastDuration: Duration(hours: 24),
-      );
+      return const WeekdayBasedCalculator(fastDuration: Duration(hours: 24));
   }
 }
 
-FastingInterval? findRelevantInterval(
-  DateTime now,
-  DummyUser user,
-) {
+FastingInterval? findRelevantInterval(DateTime now, DummyUser user) {
   final calculator = calculatorFor(user.form);
 
-  final today = DateTime(
-    now.year,
-    now.month,
-    now.day,
-  );
+  final today = DateTime(now.year, now.month, now.day);
 
   // Check yesterday first because its fast may still be active.
-  final yesterday = today.subtract(
-    const Duration(days: 1),
-  );
+  final yesterday = today.subtract(const Duration(days: 1));
 
-  final yesterdayInterval = calculator.intervalFor(
-    yesterday,
-    user,
-  );
+  final yesterdayInterval = calculator.intervalFor(yesterday, user);
 
-  if (yesterdayInterval != null &&
-      now.isBefore(yesterdayInterval.end)) {
+  if (yesterdayInterval != null && now.isBefore(yesterdayInterval.end)) {
     return yesterdayInterval;
   }
 
@@ -164,10 +121,7 @@ FastingStatus determineFastingStatus({
   required DummyUser user,
   required DateTime? activeLogStart,
 }) {
-  final interval = findRelevantInterval(
-    now,
-    user,
-  );
+  final interval = findRelevantInterval(now, user);
 
   if (interval == null) {
     return FastingStatus.notFastingDay;
@@ -299,8 +253,7 @@ extension FastResultHistory on FastResult {
     FastResult.lateEnd => 'You ended this fast over half an hour late',
     FastResult.earlyEnd => 'You ended this fast over half an hour early',
     FastResult.skipped => 'You didn\'t fast on this day',
-    FastResult.interrupted =>
-      'This fast was interrupted part way through', //? Or maybe the user changed fasting methods in the middle of a fast?
+    FastResult.interrupted => 'This fast was interrupted part way through',
     FastResult.overate =>
       'You ate more than was recommended on a restrictive day',
     FastResult.underate => 'You ate less than was recommended',
@@ -326,32 +279,69 @@ class Fast {
 
 extension FastLogDataHelper on FastLogData {
   Duration? get duration {
-    if (endDateTime == null) return Duration();
-    return endDateTime?.difference(startDateTime);
+    if (endDateTime == null) return Duration.zero;
+    return endDateTime!.difference(startDateTime);
   }
 
-  Set<FastResult> get results {
-    List<String> strList = fastResult.split(',');
-    Set<FastResult> frList = {};
-    final converter = FastResultConverter();
+  bool get asPlanned =>
+      earlyFastResult == FastResult.asPlanned &&
+      lateFastResult == FastResult.asPlanned;
 
-    for (String res in strList) {
-      frList.add(converter.fromSql(res));
-    }
-    return frList;
-  }
+  bool get wasSkipped =>
+      earlyFastResult == FastResult.skipped ||
+      lateFastResult == FastResult.skipped;
 
-  bool get asPlanned => results.length == 1 && results.contains(FastResult.asPlanned);
+  bool get wasInterrupted =>
+      earlyFastResult == FastResult.interrupted ||
+      lateFastResult == FastResult.interrupted;
 }
 
 extension FastListHelper on List<FastLogData> {
-  double get plannedRate => isEmpty ? 0 : where((f) => f.asPlanned).length / length;
-  int get earlyStartCount => where((f) => f.results.contains(FastResult.earlyStart)).length;
-  int get lateStartCount => where((f) => f.results.contains(FastResult.lateStart)).length;
-  int get earlyEndCount => where((f) => f.results.contains(FastResult.earlyEnd)).length;
-  int get lateEndCount => where((f) => f.results.contains(FastResult.lateEnd)).length;
+  double get plannedRate =>
+      isEmpty ? 0 : where((f) => f.asPlanned).length / length;
+  int get earlyStartCount =>
+      where((f) => (f.earlyFastResult == FastResult.earlyStart)).length;
+  int get lateStartCount =>
+      where((f) => (f.lateFastResult == FastResult.lateStart)).length;
+  int get earlyEndCount =>
+      where((f) => (f.earlyFastResult == FastResult.earlyEnd)).length;
+  int get lateEndCount =>
+      where((f) => (f.lateFastResult == FastResult.lateEnd)).length;
+
+      int get plannedEndCount =>
+    where((f) => f.lateFastResult == FastResult.asPlanned).length;
+    int get plannedStartCount =>
+    where((f) => f.earlyFastResult == FastResult.asPlanned).length;
+
+  // Duration get avgLateStart => fold(Duration.zero, (prev, cur) {
+  //   if (cur)
+  // });
 
   // 5:2 specific
-  int get skippedCount => where((f) => f.results.contains(FastResult.skipped)).length;
-  int get interruptedCount => where((f) => f.results.contains(FastResult.interrupted)).length;
+  int get skippedCount => where((f) => f.wasSkipped).length;
+  int get interruptedCount => where((f) => f.wasInterrupted).length;
+
+  double get averageEndDeviation {
+    final deviations = where(
+      (f) =>
+          f.lateFastResult == FastResult.earlyEnd ||
+          f.lateFastResult == FastResult.lateEnd,
+    ).map((f) => f.lateResultSeverity);
+
+    if (deviations.isEmpty) return 0;
+
+    return deviations.reduce((a, b) => a + b) / deviations.length;
+  }
+
+  double get averageStartDeviation {
+    final deviations = where(
+      (f) =>
+          f.lateFastResult == FastResult.earlyStart ||
+          f.lateFastResult == FastResult.lateStart,
+    ).map((f) => f.lateResultSeverity);
+
+    if (deviations.isEmpty) return 0;
+
+    return deviations.reduce((a, b) => a + b) / deviations.length;
+  }
 }

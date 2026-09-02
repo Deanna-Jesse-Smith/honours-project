@@ -738,30 +738,46 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<FastingForm>($FastLogTable.$converterformIF);
-  static const VerificationMeta _fastResultMeta = const VerificationMeta(
-    'fastResult',
-  );
   @override
-  late final GeneratedColumn<String> fastResult = GeneratedColumn<String>(
-    'fast_result',
+  late final GeneratedColumnWithTypeConverter<FastResult, String>
+  earlyFastResult = GeneratedColumn<String>(
+    'early_fast_result',
     aliasedName,
     false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
-  static const VerificationMeta _fastResultSeverityMeta =
-      const VerificationMeta('fastResultSeverity');
+    requiredDuringInsert: true,
+  ).withConverter<FastResult>($FastLogTable.$converterearlyFastResult);
   @override
-  late final GeneratedColumn<String> fastResultSeverity =
-      GeneratedColumn<String>(
-        'fast_result_severity',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        defaultValue: const Constant(''),
-      );
+  late final GeneratedColumnWithTypeConverter<FastResult?, String>
+  lateFastResult = GeneratedColumn<String>(
+    'late_fast_result',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<FastResult?>($FastLogTable.$converterlateFastResultn);
+  static const VerificationMeta _earlyResultSeverityMeta =
+      const VerificationMeta('earlyResultSeverity');
+  @override
+  late final GeneratedColumn<int> earlyResultSeverity = GeneratedColumn<int>(
+    'early_result_severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lateResultSeverityMeta =
+      const VerificationMeta('lateResultSeverity');
+  @override
+  late final GeneratedColumn<int> lateResultSeverity = GeneratedColumn<int>(
+    'late_result_severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _startDateTimeMeta = const VerificationMeta(
     'startDateTime',
   );
@@ -791,8 +807,10 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     fastLogID,
     userID,
     formIF,
-    fastResult,
-    fastResultSeverity,
+    earlyFastResult,
+    lateFastResult,
+    earlyResultSeverity,
+    lateResultSeverity,
     startDateTime,
     endDateTime,
   ];
@@ -822,18 +840,21 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
     } else if (isInserting) {
       context.missing(_userIDMeta);
     }
-    if (data.containsKey('fast_result')) {
+    if (data.containsKey('early_result_severity')) {
       context.handle(
-        _fastResultMeta,
-        fastResult.isAcceptableOrUnknown(data['fast_result']!, _fastResultMeta),
+        _earlyResultSeverityMeta,
+        earlyResultSeverity.isAcceptableOrUnknown(
+          data['early_result_severity']!,
+          _earlyResultSeverityMeta,
+        ),
       );
     }
-    if (data.containsKey('fast_result_severity')) {
+    if (data.containsKey('late_result_severity')) {
       context.handle(
-        _fastResultSeverityMeta,
-        fastResultSeverity.isAcceptableOrUnknown(
-          data['fast_result_severity']!,
-          _fastResultSeverityMeta,
+        _lateResultSeverityMeta,
+        lateResultSeverity.isAcceptableOrUnknown(
+          data['late_result_severity']!,
+          _lateResultSeverityMeta,
         ),
       );
     }
@@ -878,13 +899,25 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
           data['${effectivePrefix}form_i_f'],
         )!,
       ),
-      fastResult: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}fast_result'],
+      earlyFastResult: $FastLogTable.$converterearlyFastResult.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}early_fast_result'],
+        )!,
+      ),
+      lateFastResult: $FastLogTable.$converterlateFastResultn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}late_fast_result'],
+        ),
+      ),
+      earlyResultSeverity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}early_result_severity'],
       )!,
-      fastResultSeverity: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}fast_result_severity'],
+      lateResultSeverity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}late_result_severity'],
       )!,
       startDateTime: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -904,22 +937,38 @@ class $FastLogTable extends FastLog with TableInfo<$FastLogTable, FastLogData> {
 
   static JsonTypeConverter2<FastingForm, String, String> $converterformIF =
       const EnumNameConverter<FastingForm>(FastingForm.values);
+  static JsonTypeConverter2<FastResult, String, String>
+  $converterearlyFastResult = const EnumNameConverter<FastResult>(
+    FastResult.values,
+  );
+  static JsonTypeConverter2<FastResult, String, String>
+  $converterlateFastResult = const EnumNameConverter<FastResult>(
+    FastResult.values,
+  );
+  static JsonTypeConverter2<FastResult?, String?, String?>
+  $converterlateFastResultn = JsonTypeConverter2.asNullable(
+    $converterlateFastResult,
+  );
 }
 
 class FastLogData extends DataClass implements Insertable<FastLogData> {
   final int fastLogID;
   final int userID;
   final FastingForm formIF;
-  final String fastResult;
-  final String fastResultSeverity;
+  final FastResult earlyFastResult;
+  final FastResult? lateFastResult;
+  final int earlyResultSeverity;
+  final int lateResultSeverity;
   final DateTime startDateTime;
   final DateTime? endDateTime;
   const FastLogData({
     required this.fastLogID,
     required this.userID,
     required this.formIF,
-    required this.fastResult,
-    required this.fastResultSeverity,
+    required this.earlyFastResult,
+    this.lateFastResult,
+    required this.earlyResultSeverity,
+    required this.lateResultSeverity,
     required this.startDateTime,
     this.endDateTime,
   });
@@ -933,8 +982,18 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
         $FastLogTable.$converterformIF.toSql(formIF),
       );
     }
-    map['fast_result'] = Variable<String>(fastResult);
-    map['fast_result_severity'] = Variable<String>(fastResultSeverity);
+    {
+      map['early_fast_result'] = Variable<String>(
+        $FastLogTable.$converterearlyFastResult.toSql(earlyFastResult),
+      );
+    }
+    if (!nullToAbsent || lateFastResult != null) {
+      map['late_fast_result'] = Variable<String>(
+        $FastLogTable.$converterlateFastResultn.toSql(lateFastResult),
+      );
+    }
+    map['early_result_severity'] = Variable<int>(earlyResultSeverity);
+    map['late_result_severity'] = Variable<int>(lateResultSeverity);
     map['start_date_time'] = Variable<DateTime>(startDateTime);
     if (!nullToAbsent || endDateTime != null) {
       map['end_date_time'] = Variable<DateTime>(endDateTime);
@@ -947,8 +1006,12 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastLogID: Value(fastLogID),
       userID: Value(userID),
       formIF: Value(formIF),
-      fastResult: Value(fastResult),
-      fastResultSeverity: Value(fastResultSeverity),
+      earlyFastResult: Value(earlyFastResult),
+      lateFastResult: lateFastResult == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lateFastResult),
+      earlyResultSeverity: Value(earlyResultSeverity),
+      lateResultSeverity: Value(lateResultSeverity),
       startDateTime: Value(startDateTime),
       endDateTime: endDateTime == null && nullToAbsent
           ? const Value.absent()
@@ -967,10 +1030,16 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       formIF: $FastLogTable.$converterformIF.fromJson(
         serializer.fromJson<String>(json['formIF']),
       ),
-      fastResult: serializer.fromJson<String>(json['fastResult']),
-      fastResultSeverity: serializer.fromJson<String>(
-        json['fastResultSeverity'],
+      earlyFastResult: $FastLogTable.$converterearlyFastResult.fromJson(
+        serializer.fromJson<String>(json['earlyFastResult']),
       ),
+      lateFastResult: $FastLogTable.$converterlateFastResultn.fromJson(
+        serializer.fromJson<String?>(json['lateFastResult']),
+      ),
+      earlyResultSeverity: serializer.fromJson<int>(
+        json['earlyResultSeverity'],
+      ),
+      lateResultSeverity: serializer.fromJson<int>(json['lateResultSeverity']),
       startDateTime: serializer.fromJson<DateTime>(json['startDateTime']),
       endDateTime: serializer.fromJson<DateTime?>(json['endDateTime']),
     );
@@ -984,8 +1053,14 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       'formIF': serializer.toJson<String>(
         $FastLogTable.$converterformIF.toJson(formIF),
       ),
-      'fastResult': serializer.toJson<String>(fastResult),
-      'fastResultSeverity': serializer.toJson<String>(fastResultSeverity),
+      'earlyFastResult': serializer.toJson<String>(
+        $FastLogTable.$converterearlyFastResult.toJson(earlyFastResult),
+      ),
+      'lateFastResult': serializer.toJson<String?>(
+        $FastLogTable.$converterlateFastResultn.toJson(lateFastResult),
+      ),
+      'earlyResultSeverity': serializer.toJson<int>(earlyResultSeverity),
+      'lateResultSeverity': serializer.toJson<int>(lateResultSeverity),
       'startDateTime': serializer.toJson<DateTime>(startDateTime),
       'endDateTime': serializer.toJson<DateTime?>(endDateTime),
     };
@@ -995,16 +1070,22 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     int? fastLogID,
     int? userID,
     FastingForm? formIF,
-    String? fastResult,
-    String? fastResultSeverity,
+    FastResult? earlyFastResult,
+    Value<FastResult?> lateFastResult = const Value.absent(),
+    int? earlyResultSeverity,
+    int? lateResultSeverity,
     DateTime? startDateTime,
     Value<DateTime?> endDateTime = const Value.absent(),
   }) => FastLogData(
     fastLogID: fastLogID ?? this.fastLogID,
     userID: userID ?? this.userID,
     formIF: formIF ?? this.formIF,
-    fastResult: fastResult ?? this.fastResult,
-    fastResultSeverity: fastResultSeverity ?? this.fastResultSeverity,
+    earlyFastResult: earlyFastResult ?? this.earlyFastResult,
+    lateFastResult: lateFastResult.present
+        ? lateFastResult.value
+        : this.lateFastResult,
+    earlyResultSeverity: earlyResultSeverity ?? this.earlyResultSeverity,
+    lateResultSeverity: lateResultSeverity ?? this.lateResultSeverity,
     startDateTime: startDateTime ?? this.startDateTime,
     endDateTime: endDateTime.present ? endDateTime.value : this.endDateTime,
   );
@@ -1013,12 +1094,18 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
       fastLogID: data.fastLogID.present ? data.fastLogID.value : this.fastLogID,
       userID: data.userID.present ? data.userID.value : this.userID,
       formIF: data.formIF.present ? data.formIF.value : this.formIF,
-      fastResult: data.fastResult.present
-          ? data.fastResult.value
-          : this.fastResult,
-      fastResultSeverity: data.fastResultSeverity.present
-          ? data.fastResultSeverity.value
-          : this.fastResultSeverity,
+      earlyFastResult: data.earlyFastResult.present
+          ? data.earlyFastResult.value
+          : this.earlyFastResult,
+      lateFastResult: data.lateFastResult.present
+          ? data.lateFastResult.value
+          : this.lateFastResult,
+      earlyResultSeverity: data.earlyResultSeverity.present
+          ? data.earlyResultSeverity.value
+          : this.earlyResultSeverity,
+      lateResultSeverity: data.lateResultSeverity.present
+          ? data.lateResultSeverity.value
+          : this.lateResultSeverity,
       startDateTime: data.startDateTime.present
           ? data.startDateTime.value
           : this.startDateTime,
@@ -1034,8 +1121,10 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           ..write('fastLogID: $fastLogID, ')
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
-          ..write('fastResult: $fastResult, ')
-          ..write('fastResultSeverity: $fastResultSeverity, ')
+          ..write('earlyFastResult: $earlyFastResult, ')
+          ..write('lateFastResult: $lateFastResult, ')
+          ..write('earlyResultSeverity: $earlyResultSeverity, ')
+          ..write('lateResultSeverity: $lateResultSeverity, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -1047,8 +1136,10 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
     fastLogID,
     userID,
     formIF,
-    fastResult,
-    fastResultSeverity,
+    earlyFastResult,
+    lateFastResult,
+    earlyResultSeverity,
+    lateResultSeverity,
     startDateTime,
     endDateTime,
   );
@@ -1059,8 +1150,10 @@ class FastLogData extends DataClass implements Insertable<FastLogData> {
           other.fastLogID == this.fastLogID &&
           other.userID == this.userID &&
           other.formIF == this.formIF &&
-          other.fastResult == this.fastResult &&
-          other.fastResultSeverity == this.fastResultSeverity &&
+          other.earlyFastResult == this.earlyFastResult &&
+          other.lateFastResult == this.lateFastResult &&
+          other.earlyResultSeverity == this.earlyResultSeverity &&
+          other.lateResultSeverity == this.lateResultSeverity &&
           other.startDateTime == this.startDateTime &&
           other.endDateTime == this.endDateTime);
 }
@@ -1069,16 +1162,20 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
   final Value<int> fastLogID;
   final Value<int> userID;
   final Value<FastingForm> formIF;
-  final Value<String> fastResult;
-  final Value<String> fastResultSeverity;
+  final Value<FastResult> earlyFastResult;
+  final Value<FastResult?> lateFastResult;
+  final Value<int> earlyResultSeverity;
+  final Value<int> lateResultSeverity;
   final Value<DateTime> startDateTime;
   final Value<DateTime?> endDateTime;
   const FastLogCompanion({
     this.fastLogID = const Value.absent(),
     this.userID = const Value.absent(),
     this.formIF = const Value.absent(),
-    this.fastResult = const Value.absent(),
-    this.fastResultSeverity = const Value.absent(),
+    this.earlyFastResult = const Value.absent(),
+    this.lateFastResult = const Value.absent(),
+    this.earlyResultSeverity = const Value.absent(),
+    this.lateResultSeverity = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   });
@@ -1086,18 +1183,23 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     this.fastLogID = const Value.absent(),
     required int userID,
     required FastingForm formIF,
-    this.fastResult = const Value.absent(),
-    this.fastResultSeverity = const Value.absent(),
+    required FastResult earlyFastResult,
+    this.lateFastResult = const Value.absent(),
+    this.earlyResultSeverity = const Value.absent(),
+    this.lateResultSeverity = const Value.absent(),
     this.startDateTime = const Value.absent(),
     this.endDateTime = const Value.absent(),
   }) : userID = Value(userID),
-       formIF = Value(formIF);
+       formIF = Value(formIF),
+       earlyFastResult = Value(earlyFastResult);
   static Insertable<FastLogData> custom({
     Expression<int>? fastLogID,
     Expression<int>? userID,
     Expression<String>? formIF,
-    Expression<String>? fastResult,
-    Expression<String>? fastResultSeverity,
+    Expression<String>? earlyFastResult,
+    Expression<String>? lateFastResult,
+    Expression<int>? earlyResultSeverity,
+    Expression<int>? lateResultSeverity,
     Expression<DateTime>? startDateTime,
     Expression<DateTime>? endDateTime,
   }) {
@@ -1105,9 +1207,12 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       if (fastLogID != null) 'fast_log_i_d': fastLogID,
       if (userID != null) 'user_i_d': userID,
       if (formIF != null) 'form_i_f': formIF,
-      if (fastResult != null) 'fast_result': fastResult,
-      if (fastResultSeverity != null)
-        'fast_result_severity': fastResultSeverity,
+      if (earlyFastResult != null) 'early_fast_result': earlyFastResult,
+      if (lateFastResult != null) 'late_fast_result': lateFastResult,
+      if (earlyResultSeverity != null)
+        'early_result_severity': earlyResultSeverity,
+      if (lateResultSeverity != null)
+        'late_result_severity': lateResultSeverity,
       if (startDateTime != null) 'start_date_time': startDateTime,
       if (endDateTime != null) 'end_date_time': endDateTime,
     });
@@ -1117,8 +1222,10 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
     Value<int>? fastLogID,
     Value<int>? userID,
     Value<FastingForm>? formIF,
-    Value<String>? fastResult,
-    Value<String>? fastResultSeverity,
+    Value<FastResult>? earlyFastResult,
+    Value<FastResult?>? lateFastResult,
+    Value<int>? earlyResultSeverity,
+    Value<int>? lateResultSeverity,
     Value<DateTime>? startDateTime,
     Value<DateTime?>? endDateTime,
   }) {
@@ -1126,8 +1233,10 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
       fastLogID: fastLogID ?? this.fastLogID,
       userID: userID ?? this.userID,
       formIF: formIF ?? this.formIF,
-      fastResult: fastResult ?? this.fastResult,
-      fastResultSeverity: fastResultSeverity ?? this.fastResultSeverity,
+      earlyFastResult: earlyFastResult ?? this.earlyFastResult,
+      lateFastResult: lateFastResult ?? this.lateFastResult,
+      earlyResultSeverity: earlyResultSeverity ?? this.earlyResultSeverity,
+      lateResultSeverity: lateResultSeverity ?? this.lateResultSeverity,
       startDateTime: startDateTime ?? this.startDateTime,
       endDateTime: endDateTime ?? this.endDateTime,
     );
@@ -1147,11 +1256,21 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
         $FastLogTable.$converterformIF.toSql(formIF.value),
       );
     }
-    if (fastResult.present) {
-      map['fast_result'] = Variable<String>(fastResult.value);
+    if (earlyFastResult.present) {
+      map['early_fast_result'] = Variable<String>(
+        $FastLogTable.$converterearlyFastResult.toSql(earlyFastResult.value),
+      );
     }
-    if (fastResultSeverity.present) {
-      map['fast_result_severity'] = Variable<String>(fastResultSeverity.value);
+    if (lateFastResult.present) {
+      map['late_fast_result'] = Variable<String>(
+        $FastLogTable.$converterlateFastResultn.toSql(lateFastResult.value),
+      );
+    }
+    if (earlyResultSeverity.present) {
+      map['early_result_severity'] = Variable<int>(earlyResultSeverity.value);
+    }
+    if (lateResultSeverity.present) {
+      map['late_result_severity'] = Variable<int>(lateResultSeverity.value);
     }
     if (startDateTime.present) {
       map['start_date_time'] = Variable<DateTime>(startDateTime.value);
@@ -1168,8 +1287,10 @@ class FastLogCompanion extends UpdateCompanion<FastLogData> {
           ..write('fastLogID: $fastLogID, ')
           ..write('userID: $userID, ')
           ..write('formIF: $formIF, ')
-          ..write('fastResult: $fastResult, ')
-          ..write('fastResultSeverity: $fastResultSeverity, ')
+          ..write('earlyFastResult: $earlyFastResult, ')
+          ..write('lateFastResult: $lateFastResult, ')
+          ..write('earlyResultSeverity: $earlyResultSeverity, ')
+          ..write('lateResultSeverity: $lateResultSeverity, ')
           ..write('startDateTime: $startDateTime, ')
           ..write('endDateTime: $endDateTime')
           ..write(')'))
@@ -8438,6 +8559,60 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<LogMethod>($FoodLogTable.$converterlogMethod);
+  static const VerificationMeta _carbsMeta = const VerificationMeta('carbs');
+  @override
+  late final GeneratedColumn<double> carbs = GeneratedColumn<double>(
+    'carbs',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _fatMeta = const VerificationMeta('fat');
+  @override
+  late final GeneratedColumn<double> fat = GeneratedColumn<double>(
+    'fat',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _proteinMeta = const VerificationMeta(
+    'protein',
+  );
+  @override
+  late final GeneratedColumn<double> protein = GeneratedColumn<double>(
+    'protein',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _fibreMeta = const VerificationMeta('fibre');
+  @override
+  late final GeneratedColumn<double> fibre = GeneratedColumn<double>(
+    'fibre',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _caloriesMeta = const VerificationMeta(
+    'calories',
+  );
+  @override
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
+    'calories',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     foodLogID,
@@ -8446,6 +8621,11 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
     comment,
     path,
     logMethod,
+    carbs,
+    fat,
+    protein,
+    fibre,
+    calories,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8481,6 +8661,36 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
       context.handle(
         _pathMeta,
         path.isAcceptableOrUnknown(data['path']!, _pathMeta),
+      );
+    }
+    if (data.containsKey('carbs')) {
+      context.handle(
+        _carbsMeta,
+        carbs.isAcceptableOrUnknown(data['carbs']!, _carbsMeta),
+      );
+    }
+    if (data.containsKey('fat')) {
+      context.handle(
+        _fatMeta,
+        fat.isAcceptableOrUnknown(data['fat']!, _fatMeta),
+      );
+    }
+    if (data.containsKey('protein')) {
+      context.handle(
+        _proteinMeta,
+        protein.isAcceptableOrUnknown(data['protein']!, _proteinMeta),
+      );
+    }
+    if (data.containsKey('fibre')) {
+      context.handle(
+        _fibreMeta,
+        fibre.isAcceptableOrUnknown(data['fibre']!, _fibreMeta),
+      );
+    }
+    if (data.containsKey('calories')) {
+      context.handle(
+        _caloriesMeta,
+        calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta),
       );
     }
     return context;
@@ -8520,6 +8730,26 @@ class $FoodLogTable extends FoodLog with TableInfo<$FoodLogTable, FoodLogData> {
           data['${effectivePrefix}log_method'],
         )!,
       ),
+      carbs: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carbs'],
+      )!,
+      fat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fat'],
+      )!,
+      protein: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}protein'],
+      )!,
+      fibre: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fibre'],
+      )!,
+      calories: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}calories'],
+      )!,
     );
   }
 
@@ -8541,6 +8771,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
   final String? comment;
   final String path;
   final LogMethod logMethod;
+  final double carbs;
+  final double fat;
+  final double protein;
+  final double fibre;
+  final double calories;
   const FoodLogData({
     required this.foodLogID,
     required this.category,
@@ -8548,6 +8783,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     this.comment,
     required this.path,
     required this.logMethod,
+    required this.carbs,
+    required this.fat,
+    required this.protein,
+    required this.fibre,
+    required this.calories,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8568,6 +8808,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
         $FoodLogTable.$converterlogMethod.toSql(logMethod),
       );
     }
+    map['carbs'] = Variable<double>(carbs);
+    map['fat'] = Variable<double>(fat);
+    map['protein'] = Variable<double>(protein);
+    map['fibre'] = Variable<double>(fibre);
+    map['calories'] = Variable<double>(calories);
     return map;
   }
 
@@ -8581,6 +8826,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           : Value(comment),
       path: Value(path),
       logMethod: Value(logMethod),
+      carbs: Value(carbs),
+      fat: Value(fat),
+      protein: Value(protein),
+      fibre: Value(fibre),
+      calories: Value(calories),
     );
   }
 
@@ -8600,6 +8850,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       logMethod: $FoodLogTable.$converterlogMethod.fromJson(
         serializer.fromJson<String>(json['logMethod']),
       ),
+      carbs: serializer.fromJson<double>(json['carbs']),
+      fat: serializer.fromJson<double>(json['fat']),
+      protein: serializer.fromJson<double>(json['protein']),
+      fibre: serializer.fromJson<double>(json['fibre']),
+      calories: serializer.fromJson<double>(json['calories']),
     );
   }
   @override
@@ -8616,6 +8871,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       'logMethod': serializer.toJson<String>(
         $FoodLogTable.$converterlogMethod.toJson(logMethod),
       ),
+      'carbs': serializer.toJson<double>(carbs),
+      'fat': serializer.toJson<double>(fat),
+      'protein': serializer.toJson<double>(protein),
+      'fibre': serializer.toJson<double>(fibre),
+      'calories': serializer.toJson<double>(calories),
     };
   }
 
@@ -8626,6 +8886,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     Value<String?> comment = const Value.absent(),
     String? path,
     LogMethod? logMethod,
+    double? carbs,
+    double? fat,
+    double? protein,
+    double? fibre,
+    double? calories,
   }) => FoodLogData(
     foodLogID: foodLogID ?? this.foodLogID,
     category: category ?? this.category,
@@ -8633,6 +8898,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
     comment: comment.present ? comment.value : this.comment,
     path: path ?? this.path,
     logMethod: logMethod ?? this.logMethod,
+    carbs: carbs ?? this.carbs,
+    fat: fat ?? this.fat,
+    protein: protein ?? this.protein,
+    fibre: fibre ?? this.fibre,
+    calories: calories ?? this.calories,
   );
   FoodLogData copyWithCompanion(FoodLogCompanion data) {
     return FoodLogData(
@@ -8642,6 +8912,11 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
       comment: data.comment.present ? data.comment.value : this.comment,
       path: data.path.present ? data.path.value : this.path,
       logMethod: data.logMethod.present ? data.logMethod.value : this.logMethod,
+      carbs: data.carbs.present ? data.carbs.value : this.carbs,
+      fat: data.fat.present ? data.fat.value : this.fat,
+      protein: data.protein.present ? data.protein.value : this.protein,
+      fibre: data.fibre.present ? data.fibre.value : this.fibre,
+      calories: data.calories.present ? data.calories.value : this.calories,
     );
   }
 
@@ -8653,14 +8928,30 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           ..write('logDate: $logDate, ')
           ..write('comment: $comment, ')
           ..write('path: $path, ')
-          ..write('logMethod: $logMethod')
+          ..write('logMethod: $logMethod, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat, ')
+          ..write('protein: $protein, ')
+          ..write('fibre: $fibre, ')
+          ..write('calories: $calories')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(foodLogID, category, logDate, comment, path, logMethod);
+  int get hashCode => Object.hash(
+    foodLogID,
+    category,
+    logDate,
+    comment,
+    path,
+    logMethod,
+    carbs,
+    fat,
+    protein,
+    fibre,
+    calories,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8670,7 +8961,12 @@ class FoodLogData extends DataClass implements Insertable<FoodLogData> {
           other.logDate == this.logDate &&
           other.comment == this.comment &&
           other.path == this.path &&
-          other.logMethod == this.logMethod);
+          other.logMethod == this.logMethod &&
+          other.carbs == this.carbs &&
+          other.fat == this.fat &&
+          other.protein == this.protein &&
+          other.fibre == this.fibre &&
+          other.calories == this.calories);
 }
 
 class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
@@ -8680,6 +8976,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
   final Value<String?> comment;
   final Value<String> path;
   final Value<LogMethod> logMethod;
+  final Value<double> carbs;
+  final Value<double> fat;
+  final Value<double> protein;
+  final Value<double> fibre;
+  final Value<double> calories;
   const FoodLogCompanion({
     this.foodLogID = const Value.absent(),
     this.category = const Value.absent(),
@@ -8687,6 +8988,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     this.comment = const Value.absent(),
     this.path = const Value.absent(),
     this.logMethod = const Value.absent(),
+    this.carbs = const Value.absent(),
+    this.fat = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.fibre = const Value.absent(),
+    this.calories = const Value.absent(),
   });
   FoodLogCompanion.insert({
     this.foodLogID = const Value.absent(),
@@ -8695,6 +9001,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     this.comment = const Value.absent(),
     this.path = const Value.absent(),
     required LogMethod logMethod,
+    this.carbs = const Value.absent(),
+    this.fat = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.fibre = const Value.absent(),
+    this.calories = const Value.absent(),
   }) : category = Value(category),
        logMethod = Value(logMethod);
   static Insertable<FoodLogData> custom({
@@ -8704,6 +9015,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     Expression<String>? comment,
     Expression<String>? path,
     Expression<String>? logMethod,
+    Expression<double>? carbs,
+    Expression<double>? fat,
+    Expression<double>? protein,
+    Expression<double>? fibre,
+    Expression<double>? calories,
   }) {
     return RawValuesInsertable({
       if (foodLogID != null) 'food_log_i_d': foodLogID,
@@ -8712,6 +9028,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
       if (comment != null) 'comment': comment,
       if (path != null) 'path': path,
       if (logMethod != null) 'log_method': logMethod,
+      if (carbs != null) 'carbs': carbs,
+      if (fat != null) 'fat': fat,
+      if (protein != null) 'protein': protein,
+      if (fibre != null) 'fibre': fibre,
+      if (calories != null) 'calories': calories,
     });
   }
 
@@ -8722,6 +9043,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
     Value<String?>? comment,
     Value<String>? path,
     Value<LogMethod>? logMethod,
+    Value<double>? carbs,
+    Value<double>? fat,
+    Value<double>? protein,
+    Value<double>? fibre,
+    Value<double>? calories,
   }) {
     return FoodLogCompanion(
       foodLogID: foodLogID ?? this.foodLogID,
@@ -8730,6 +9056,11 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
       comment: comment ?? this.comment,
       path: path ?? this.path,
       logMethod: logMethod ?? this.logMethod,
+      carbs: carbs ?? this.carbs,
+      fat: fat ?? this.fat,
+      protein: protein ?? this.protein,
+      fibre: fibre ?? this.fibre,
+      calories: calories ?? this.calories,
     );
   }
 
@@ -8758,6 +9089,21 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
         $FoodLogTable.$converterlogMethod.toSql(logMethod.value),
       );
     }
+    if (carbs.present) {
+      map['carbs'] = Variable<double>(carbs.value);
+    }
+    if (fat.present) {
+      map['fat'] = Variable<double>(fat.value);
+    }
+    if (protein.present) {
+      map['protein'] = Variable<double>(protein.value);
+    }
+    if (fibre.present) {
+      map['fibre'] = Variable<double>(fibre.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<double>(calories.value);
+    }
     return map;
   }
 
@@ -8769,7 +9115,12 @@ class FoodLogCompanion extends UpdateCompanion<FoodLogData> {
           ..write('logDate: $logDate, ')
           ..write('comment: $comment, ')
           ..write('path: $path, ')
-          ..write('logMethod: $logMethod')
+          ..write('logMethod: $logMethod, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat, ')
+          ..write('protein: $protein, ')
+          ..write('fibre: $fibre, ')
+          ..write('calories: $calories')
           ..write(')'))
         .toString();
   }
@@ -9857,8 +10208,10 @@ typedef $$FastLogTableCreateCompanionBuilder =
       Value<int> fastLogID,
       required int userID,
       required FastingForm formIF,
-      Value<String> fastResult,
-      Value<String> fastResultSeverity,
+      required FastResult earlyFastResult,
+      Value<FastResult?> lateFastResult,
+      Value<int> earlyResultSeverity,
+      Value<int> lateResultSeverity,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
     });
@@ -9867,8 +10220,10 @@ typedef $$FastLogTableUpdateCompanionBuilder =
       Value<int> fastLogID,
       Value<int> userID,
       Value<FastingForm> formIF,
-      Value<String> fastResult,
-      Value<String> fastResultSeverity,
+      Value<FastResult> earlyFastResult,
+      Value<FastResult?> lateFastResult,
+      Value<int> earlyResultSeverity,
+      Value<int> lateResultSeverity,
       Value<DateTime> startDateTime,
       Value<DateTime?> endDateTime,
     });
@@ -9915,13 +10270,25 @@ class $$FastLogTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<String> get fastResult => $composableBuilder(
-    column: $table.fastResult,
+  ColumnWithTypeConverterFilters<FastResult, FastResult, String>
+  get earlyFastResult => $composableBuilder(
+    column: $table.earlyFastResult,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<FastResult?, FastResult, String>
+  get lateFastResult => $composableBuilder(
+    column: $table.lateFastResult,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get earlyResultSeverity => $composableBuilder(
+    column: $table.earlyResultSeverity,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get fastResultSeverity => $composableBuilder(
-    column: $table.fastResultSeverity,
+  ColumnFilters<int> get lateResultSeverity => $composableBuilder(
+    column: $table.lateResultSeverity,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9978,13 +10345,23 @@ class $$FastLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get fastResult => $composableBuilder(
-    column: $table.fastResult,
+  ColumnOrderings<String> get earlyFastResult => $composableBuilder(
+    column: $table.earlyFastResult,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get fastResultSeverity => $composableBuilder(
-    column: $table.fastResultSeverity,
+  ColumnOrderings<String> get lateFastResult => $composableBuilder(
+    column: $table.lateFastResult,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get earlyResultSeverity => $composableBuilder(
+    column: $table.earlyResultSeverity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lateResultSeverity => $composableBuilder(
+    column: $table.lateResultSeverity,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -10037,13 +10414,25 @@ class $$FastLogTableAnnotationComposer
   GeneratedColumnWithTypeConverter<FastingForm, String> get formIF =>
       $composableBuilder(column: $table.formIF, builder: (column) => column);
 
-  GeneratedColumn<String> get fastResult => $composableBuilder(
-    column: $table.fastResult,
+  GeneratedColumnWithTypeConverter<FastResult, String> get earlyFastResult =>
+      $composableBuilder(
+        column: $table.earlyFastResult,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<FastResult?, String> get lateFastResult =>
+      $composableBuilder(
+        column: $table.lateFastResult,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<int> get earlyResultSeverity => $composableBuilder(
+    column: $table.earlyResultSeverity,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get fastResultSeverity => $composableBuilder(
-    column: $table.fastResultSeverity,
+  GeneratedColumn<int> get lateResultSeverity => $composableBuilder(
+    column: $table.lateResultSeverity,
     builder: (column) => column,
   );
 
@@ -10112,16 +10501,20 @@ class $$FastLogTableTableManager
                 Value<int> fastLogID = const Value.absent(),
                 Value<int> userID = const Value.absent(),
                 Value<FastingForm> formIF = const Value.absent(),
-                Value<String> fastResult = const Value.absent(),
-                Value<String> fastResultSeverity = const Value.absent(),
+                Value<FastResult> earlyFastResult = const Value.absent(),
+                Value<FastResult?> lateFastResult = const Value.absent(),
+                Value<int> earlyResultSeverity = const Value.absent(),
+                Value<int> lateResultSeverity = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion(
                 fastLogID: fastLogID,
                 userID: userID,
                 formIF: formIF,
-                fastResult: fastResult,
-                fastResultSeverity: fastResultSeverity,
+                earlyFastResult: earlyFastResult,
+                lateFastResult: lateFastResult,
+                earlyResultSeverity: earlyResultSeverity,
+                lateResultSeverity: lateResultSeverity,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),
@@ -10130,16 +10523,20 @@ class $$FastLogTableTableManager
                 Value<int> fastLogID = const Value.absent(),
                 required int userID,
                 required FastingForm formIF,
-                Value<String> fastResult = const Value.absent(),
-                Value<String> fastResultSeverity = const Value.absent(),
+                required FastResult earlyFastResult,
+                Value<FastResult?> lateFastResult = const Value.absent(),
+                Value<int> earlyResultSeverity = const Value.absent(),
+                Value<int> lateResultSeverity = const Value.absent(),
                 Value<DateTime> startDateTime = const Value.absent(),
                 Value<DateTime?> endDateTime = const Value.absent(),
               }) => FastLogCompanion.insert(
                 fastLogID: fastLogID,
                 userID: userID,
                 formIF: formIF,
-                fastResult: fastResult,
-                fastResultSeverity: fastResultSeverity,
+                earlyFastResult: earlyFastResult,
+                lateFastResult: lateFastResult,
+                earlyResultSeverity: earlyResultSeverity,
+                lateResultSeverity: lateResultSeverity,
                 startDateTime: startDateTime,
                 endDateTime: endDateTime,
               ),
@@ -17344,6 +17741,11 @@ typedef $$FoodLogTableCreateCompanionBuilder =
       Value<String?> comment,
       Value<String> path,
       required LogMethod logMethod,
+      Value<double> carbs,
+      Value<double> fat,
+      Value<double> protein,
+      Value<double> fibre,
+      Value<double> calories,
     });
 typedef $$FoodLogTableUpdateCompanionBuilder =
     FoodLogCompanion Function({
@@ -17353,6 +17755,11 @@ typedef $$FoodLogTableUpdateCompanionBuilder =
       Value<String?> comment,
       Value<String> path,
       Value<LogMethod> logMethod,
+      Value<double> carbs,
+      Value<double> fat,
+      Value<double> protein,
+      Value<double> fibre,
+      Value<double> calories,
     });
 
 class $$FoodLogTableFilterComposer
@@ -17395,6 +17802,31 @@ class $$FoodLogTableFilterComposer
         column: $table.logMethod,
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
+
+  ColumnFilters<double> get carbs => $composableBuilder(
+    column: $table.carbs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fat => $composableBuilder(
+    column: $table.fat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get protein => $composableBuilder(
+    column: $table.protein,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fibre => $composableBuilder(
+    column: $table.fibre,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$FoodLogTableOrderingComposer
@@ -17435,6 +17867,31 @@ class $$FoodLogTableOrderingComposer
     column: $table.logMethod,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get carbs => $composableBuilder(
+    column: $table.carbs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fat => $composableBuilder(
+    column: $table.fat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get protein => $composableBuilder(
+    column: $table.protein,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fibre => $composableBuilder(
+    column: $table.fibre,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FoodLogTableAnnotationComposer
@@ -17463,6 +17920,21 @@ class $$FoodLogTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<LogMethod, String> get logMethod =>
       $composableBuilder(column: $table.logMethod, builder: (column) => column);
+
+  GeneratedColumn<double> get carbs =>
+      $composableBuilder(column: $table.carbs, builder: (column) => column);
+
+  GeneratedColumn<double> get fat =>
+      $composableBuilder(column: $table.fat, builder: (column) => column);
+
+  GeneratedColumn<double> get protein =>
+      $composableBuilder(column: $table.protein, builder: (column) => column);
+
+  GeneratedColumn<double> get fibre =>
+      $composableBuilder(column: $table.fibre, builder: (column) => column);
+
+  GeneratedColumn<double> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
 }
 
 class $$FoodLogTableTableManager
@@ -17502,6 +17974,11 @@ class $$FoodLogTableTableManager
                 Value<String?> comment = const Value.absent(),
                 Value<String> path = const Value.absent(),
                 Value<LogMethod> logMethod = const Value.absent(),
+                Value<double> carbs = const Value.absent(),
+                Value<double> fat = const Value.absent(),
+                Value<double> protein = const Value.absent(),
+                Value<double> fibre = const Value.absent(),
+                Value<double> calories = const Value.absent(),
               }) => FoodLogCompanion(
                 foodLogID: foodLogID,
                 category: category,
@@ -17509,6 +17986,11 @@ class $$FoodLogTableTableManager
                 comment: comment,
                 path: path,
                 logMethod: logMethod,
+                carbs: carbs,
+                fat: fat,
+                protein: protein,
+                fibre: fibre,
+                calories: calories,
               ),
           createCompanionCallback:
               ({
@@ -17518,6 +18000,11 @@ class $$FoodLogTableTableManager
                 Value<String?> comment = const Value.absent(),
                 Value<String> path = const Value.absent(),
                 required LogMethod logMethod,
+                Value<double> carbs = const Value.absent(),
+                Value<double> fat = const Value.absent(),
+                Value<double> protein = const Value.absent(),
+                Value<double> fibre = const Value.absent(),
+                Value<double> calories = const Value.absent(),
               }) => FoodLogCompanion.insert(
                 foodLogID: foodLogID,
                 category: category,
@@ -17525,6 +18012,11 @@ class $$FoodLogTableTableManager
                 comment: comment,
                 path: path,
                 logMethod: logMethod,
+                carbs: carbs,
+                fat: fat,
+                protein: protein,
+                fibre: fibre,
+                calories: calories,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

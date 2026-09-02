@@ -167,6 +167,7 @@ class MyExpandableFAB extends ConsumerWidget {
       type: ExpandableFabType.up,
       pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
+      childrenAnimation: ExpandableFabAnimation.none,
       margin: const EdgeInsets.all(10),
       children:
           [...actions.sublist(index - 1), ...actions.sublist(0, index - 1)]

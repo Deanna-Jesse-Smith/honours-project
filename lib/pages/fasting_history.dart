@@ -127,7 +127,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
           ),
         ],
       ),
-      body: Column(
+      body: SingleChildScrollView(child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(height: 15),
@@ -244,7 +244,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 children: [
                   Text(bestStreak, style: TextStyle(fontSize: TextSizing.medium),),
                   Text(
-                    'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)}',
+                    'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)} hours',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
                   Text('Longest Fast: ${sm.getLongest().inMinutes / 60} hours', style: TextStyle(fontSize: TextSizing.medium),),
@@ -254,6 +254,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -332,14 +333,15 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   }
 
   List<Icon> getIcons(FastLogData log) {
-    List<String> strList = log.fastResult.split(',');
-    List<Icon> frList = List.empty(growable: true);
-    final converter = FastResultConverter();
+    // List<String> strList = log.fastResult.split(',');
+    // List<Icon> frList = List.empty(growable: true);
+    // final converter = FastResultConverter();
 
-    for (String res in strList) {
-      frList.add(converter.fromSql(res).resultIcon);
-    }
-    return frList;
+    // for (String res in strList) {
+    //   frList.add(converter.fromSql(res).resultIcon);
+    // }
+
+    return log.lateFastResult != null ? [log.earlyFastResult.resultIcon, log.lateFastResult!.resultIcon,] : [log.earlyFastResult.resultIcon,];
   }
 
   StreamBuilder getCalendar(UserSessionData session) {

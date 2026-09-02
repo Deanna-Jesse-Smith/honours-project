@@ -155,7 +155,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // insert(ref);
-    ref.read(fDaoProvider).dummyData();
+    // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
     ref.read(asyncConcernsProvider);
     // tz.initializeTimeZones();

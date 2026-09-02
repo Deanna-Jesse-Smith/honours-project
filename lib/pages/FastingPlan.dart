@@ -168,7 +168,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(
         index: 1,
-        posi: ExpandableFabPos.right,
+        posi: ExpandableFabPos.center,
       ),
       // floatingActionButton: customWidgets.getFAB(
       //   ref,
@@ -292,7 +292,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ),
       Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.fromLTRB(35, 15, 35, 45),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(3, (c) => getBox(c + 4, fiveTwoDaysSelected)),
@@ -301,25 +301,17 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Encouragement Text',
-          style: TextStyle(fontSize: TextSizing.large),
+          'Which days of the week are right for you?',
+          style: TextStyle(fontSize: TextSizing.medium),
+          textAlign: TextAlign.center,
         ),
       ),
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Streak progress text',
-          style: TextStyle(fontSize: TextSizing.medium),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(15),
-        child: CustomWidgets().streakIndicator(
-          'Streak underway',
-          0.6,
-          Colors.orange,
-          Colors.amberAccent,
-          context,
+          'Choosing the best days of the week to fast with 5:2 can be helped by considering which days of the week you are typically eat less on and when you have less opportunity to be socially pressured into eating.',
+          style: TextStyle(fontSize: TextSizing.small),
+          textAlign: TextAlign.center,
         ),
       ),
     ],
@@ -401,7 +393,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         Padding(
           padding: EdgeInsets.all(15),
           child: const Text(
-            'Encouragement Text',
+            'Select Eating Window Times',
             style: TextStyle(fontSize: TextSizing.large),
           ),
         ),
@@ -417,6 +409,23 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             ),
           ],
         ),
+        const SizedBox(height: 45,),
+        Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'What eating window times are sustainable every day?',
+          style: TextStyle(fontSize: TextSizing.medium),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(15),
+        child: const Text(
+          'Consider when you normally eat throughout the day and plan your TRE times around that. If you regularly eat with others at a certain time, do not resolve to not eat with them, as social pressure to eat is a major barrier for adhereing to intermittent fasting.',
+          style: TextStyle(fontSize: TextSizing.small),
+          textAlign: TextAlign.center,
+        ),
+      ),
       ],
     );
   }
@@ -439,7 +448,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ),
       Padding(
-        padding: EdgeInsets.fromLTRB(35, 15, 35, 80),
+        padding: EdgeInsets.fromLTRB(35, 15, 35, 45),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(3, (c) => getADFBox(c + 4)),
@@ -448,25 +457,17 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Encouragement Text',
-          style: TextStyle(fontSize: TextSizing.large),
+          'Which days of the week are right for you?',
+          style: TextStyle(fontSize: TextSizing.medium),
+          textAlign: TextAlign.center,
         ),
       ),
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Streak progress text',
-          style: TextStyle(fontSize: TextSizing.medium),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(15),
-        child: CustomWidgets().streakIndicator(
-          'Streak underway',
-          0.6,
-          Colors.orange,
-          Colors.amberAccent,
-          context,
+          'Choosing the best days of the week to fast with ADF can be helped by considering which days of the week you are typically eat less on and when you have less opportunity to be socially pressured into eating.',
+          style: TextStyle(fontSize: TextSizing.small),
+          textAlign: TextAlign.center,
         ),
       ),
     ],

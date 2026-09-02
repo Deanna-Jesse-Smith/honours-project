@@ -181,9 +181,9 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                   child: CheckboxListTile(
                     value: isWeight,
                     onChanged: (bool? value) {
-                      if (weightDay != null) {
+                      if (value! && weightDay != null) {
                         setState(() {
-                          isWeight = value!;
+                          isWeight = value;
                           asyncReminder.setWeightReminder(
                             enabled: isWeight,
                             time: waterTime,
@@ -196,6 +196,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                           title: 'Invalid Selection',
                           message:
                               'One day of the week must be selected to create a weight reminder',
+                              confrim: 'Back'
                         );
                       }
                     },

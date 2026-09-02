@@ -1,7 +1,5 @@
 import 'package:testrun/models/goals_model.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-@riverpod
 sealed class BasicConcern {
   final int id;
   final GoalType? gType;

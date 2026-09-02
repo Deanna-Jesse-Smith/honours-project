@@ -61,7 +61,6 @@ class _AnimatedCircularPercentState extends ConsumerState<AnimatedCircularPercen
   @override
   Widget build(BuildContext context) {
     final checkStatus = ref.watch(checkFastingStatusProvider);
-    final checkProgress = ref.watch(checkFastingProgressProvider);
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
@@ -100,7 +99,7 @@ class _AnimatedCircularPercentState extends ConsumerState<AnimatedCircularPercen
                       //   },
                       // ),
                     ),
-                    center: Text('${perc.remaining.inHours}h ${perc.remaining.inMinutes % 60}m', style: TextStyle(fontSize: TextSizing.small),),
+                    center: Text('${widget.progress.remaining.inHours}h ${widget.progress.remaining.inMinutes % 60}m', style: TextStyle(fontSize: TextSizing.small),),
                     progressColor: Colors.lightBlueAccent,
                     backgroundColor: Colors.cyan,
                     circularStrokeCap: CircularStrokeCap.round,

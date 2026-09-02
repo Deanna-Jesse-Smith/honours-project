@@ -23,4 +23,9 @@ class FoodLog extends Table {
   TextColumn get comment => text().nullable()();
   TextColumn get path => text().withDefault(const Constant(''))();
   TextColumn get logMethod => textEnum<LogMethod>()();
+  RealColumn get carbs => real().withDefault(const Constant(0))();
+  RealColumn get fat => real().withDefault(const Constant(0))();
+  RealColumn get protein => real().withDefault(const Constant(0))();
+  RealColumn get fibre => real().withDefault(const Constant(0))();
+  RealColumn get calories => real().withDefault(const Constant(0))();
 }

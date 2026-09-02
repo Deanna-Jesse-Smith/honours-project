@@ -13,36 +13,40 @@ class StatisticsModel {
     curTREDurations = treFasts.map((f) => f.duration as Duration).toList();
     adfFasts = curFasts.where((f) => f.formIF == FastingForm.adf).toList();
     curADFDurations = adfFasts.map((f) => f.duration as Duration).toList();
-    fiveTwoFasts = curFasts.where((f) => f.formIF == FastingForm.fiveTwo).toList();
+    fiveTwoFasts = curFasts
+        .where((f) => f.formIF == FastingForm.fiveTwo)
+        .toList();
   }
 
   Duration getLength() {
     Duration longest = Duration(hours: 0, minutes: 0);
 
     for (FastLogData fast in treFasts) {
-      longest = fast.duration?.compareTo(longest) == 1 ? fast.duration! : longest;
+      longest = fast.duration?.compareTo(longest) == 1
+          ? fast.duration!
+          : longest;
     }
-    
+
     return longest;
   }
 
   double getAverage() {
     if (curTREDurations.isNotEmpty) {
       return curTREDurations.map((d) => d.inMinutes).reduce((a, b) => a + b) /
-        curTREDurations.length /
-        60;
+          curTREDurations.length /
+          60;
     }
     return 0;
   }
 
-  double getTotalForMonth(int year, int month) {
+  int getTotalForMonth(int year, int month) {
     if (curFasts.isEmpty) {
       return 0;
     }
     final thisDurations = curFasts
         .map((d) => d.duration as Duration)
-        .fold(0, (prev, cur)  => prev + cur.inMinutes);
-    return thisDurations / 60;
+        .fold(Duration.zero, (prev, cur) => prev + cur);
+    return thisDurations.inHours;
   }
 
   Duration getLongest() {
@@ -59,4 +63,20 @@ class StatisticsModel {
   // double getAverageStartDeviation() {
 
   // }
+
+  int longestPlannedStreak() {
+    int current = 0;
+    int longest = 0;
+
+    for (final fast in curFasts) {
+      if (fast.asPlanned) {
+        current++;
+        if (current > longest) longest = current;
+      } else {
+        current = 0;
+      }
+    }
+
+    return longest;
+  }
 }
