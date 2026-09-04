@@ -39,7 +39,9 @@ final fastsInMonthProvider = StreamProvider.autoDispose
       StatisticsModel,
       ({int userID, FastingForm curForm, DateTime start, DateTime end})
     >((ref, params) {
-      final repo = ref.watch(fDaoProvider).findFastsInRange(params.start, params.end);
+      final repo = ref
+          .watch(fDaoProvider)
+          .findFastsInRange(params.start, params.end);
 
       return repo.map(
         (fasts) => StatisticsModel(curFasts: fasts, curForm: params.curForm),
@@ -53,6 +55,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   Stream<StatisticsModel> sm = Stream.empty();
   late DateTime start, end;
   late String bestStreak;
+  late FastingForm curForm;
 
   late Stream<StatisticsModel> sms;
   late Stream<List<FastLogData>> fasts;
@@ -62,37 +65,38 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   void initState() {
     DateTime focusMonth = DateTime(thisYear, thisMonth + 1);
     start = DateTime(focusMonth.year, focusMonth.month, 1);
-    
+
     daysInMonth = DateUtils.getDaysInMonth(focusMonth.year, focusMonth.month);
     end = DateTime(focusMonth.year, focusMonth.month, daysInMonth, 23, 59, 59);
     firstWeekday = start.weekday - 1;
     totalCells = firstWeekday + daysInMonth;
+    final session = ref.watch(userSessionProvider).value;
+    curForm = session!.fastingForm;
 
     // session = ref.watch(userSessionProvider).value!;
 
     final outcome = ref.read(bestStreakProvider(GoalType.fasting));
 
-    bestStreak = outcome.when(data: (streak) {
-      if (streak == null) {
-        return '\n\nYou have no fasting streaks recorded.';
-      }
-      return '\n\nYour best streak is $streak days';
-    }, error: (e, _) => '', loading: () => '');
-
+    bestStreak = outcome.when(
+      data: (streak) {
+        if (streak == null) {
+          return '\n\nYou have no fasting streaks recorded.';
+        }
+        return '\n\nYour best streak is $streak days';
+      },
+      error: (e, _) => '',
+      loading: () => '',
+    );
 
     resetStreams();
     super.initState();
   }
 
   void resetStreams() {
-    final session = ref.watch(userSessionProvider).value;
-    data = ref
-        .watch(fDaoProvider)
-        .findFastsInRange(start, end);
+    data = ref.watch(fDaoProvider).findFastsInRange(start, end);
 
     sms = data.map(
-      (convert) =>
-          StatisticsModel(curFasts: convert, curForm: session!.fastingForm),
+      (convert) => StatisticsModel(curFasts: convert, curForm: curForm),
     );
   }
 
@@ -127,134 +131,288 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
           ),
         ],
       ),
-      body: SingleChildScrollView(child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                child: Icon(Icons.arrow_back),
-                onTap: () {
-                  setState(() {
-                    if (thisMonth - 1 == -1) {
-                      thisMonth = 11;
-                      thisYear = thisYear - 1;
-                    } else {
-                      thisMonth = thisMonth - 1;
-                    }
-                    changeFocus(thisYear, thisMonth, session!);
-                  });
-                },
-              ),
-              Text(
-                '${months[thisMonth]} $thisYear',
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
-              GestureDetector(
-                child: Icon(Icons.arrow_forward),
-                onTap: () {
-                  setState(() {
-                    if (thisMonth + 1 == 12) {
-                      thisMonth = 0;
-                      thisYear = thisYear + 1;
-                    } else {
-                      thisMonth = thisMonth + 1;
-                    }
-                    changeFocus(thisYear, thisMonth, session!);
-                  });
-                },
-              ),
-            ],
-          ),
-          SizedBox(height: 15),
-          Row(
-            children: daysOfWeek
-                .map(
-                  (day) => Expanded(
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  child: Icon(Icons.arrow_back),
+                  onTap: () {
+                    setState(() {
+                      if (thisMonth - 1 == -1) {
+                        thisMonth = 11;
+                        thisYear = thisYear - 1;
+                      } else {
+                        thisMonth = thisMonth - 1;
+                      }
+                      changeFocus(thisYear, thisMonth, session!);
+                    });
+                  },
+                ),
+                Text(
+                  '${months[thisMonth]} $thisYear',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+                GestureDetector(
+                  child: Icon(Icons.arrow_forward),
+                  onTap: () {
+                    setState(() {
+                      if (thisMonth + 1 == 12) {
+                        thisMonth = 0;
+                        thisYear = thisYear + 1;
+                      } else {
+                        thisMonth = thisMonth + 1;
+                      }
+                      changeFocus(thisYear, thisMonth, session!);
+                    });
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 15),
+            Row(
+              children: daysOfWeek
+                  .map(
+                    (day) => Expanded(
+                      child: Center(
+                        child: Text(
+                          day,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
+                  )
+                  .toList(),
+            ),
+            // Expanded(child: getCalendar(session!)),
+            StreamBuilder<List<FastLogData>>(
+              stream: data,
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                final fasts = asyncSnapshot.data!;
+
+                // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');
+                // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisExtent: 90,
                   ),
-                )
-                .toList(),
-          ),
-          // Expanded(child: getCalendar(session!)),
-          StreamBuilder<List<FastLogData>>(
-            stream: data,
-            builder: (context, asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
-              final fasts = asyncSnapshot.data!;
+                  itemCount: totalCells,
+                  itemBuilder: (context, index) {
+                    if (index < firstWeekday) {
+                      return const SizedBox.shrink();
+                    }
+                    final day = index - firstWeekday + 1;
+                    final log = fasts
+                        .where(
+                          (f) =>
+                              f.startDateTime.year == thisYear &&
+                              f.startDateTime.month == thisMonth + 1 &&
+                              f.startDateTime.day == day,
+                        )
+                        .firstOrNull;
 
-              // debugPrint('Number of fasts in: ${months[thisMonth]} is ${fasts.length}');
-              // sm = StatisticsModel(curFasts: fasts, curForm: session.fastingForm);
+                    if (log != null) {
+                      return fastDay(day, log);
+                    }
+                    return emptyDay(day);
+                  },
+                );
+              },
+            ),
+            SizedBox(height: 35),
+            StreamBuilder(
+              stream: sms,
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                  debugPrint('SMS: waiting');
+                  return CircularProgressIndicator();
+                }
+                if (asyncSnapshot.hasError) {
+                  debugPrint('SMS: ${asyncSnapshot.error}');
+                  return CircularProgressIndicator();
+                }
+                if (!asyncSnapshot.hasData) {
+                  debugPrint('SMS: null');
+                  return CircularProgressIndicator();
+                }
+                StatisticsModel sm = asyncSnapshot.data!;
+                debugPrint('SMS rebuild ${sm.getLength()}');
+                // final longestTRE = sm.getLongestTRE();
+                // return Column(
+                //   children: [
+                //     Text(bestStreak, style: TextStyle(fontSize: TextSizing.medium),),
+                //     Text(
+                //       'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)} hours',
+                //       style: TextStyle(fontSize: TextSizing.medium),
+                //     ),
+                //     Text('Longest Fast: ${longestTRE.inHours} hours ${longestTRE.inMinutes % 60}', style: TextStyle(fontSize: TextSizing.medium),),
+                //   ],
+                // );
 
-              return GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  mainAxisExtent: 90,
-                ),
-                itemCount: totalCells,
-                itemBuilder: (context, index) {
-                  if (index < firstWeekday) {
-                    return const SizedBox.shrink();
-                  }
-                  final day = index - firstWeekday + 1;
-                  final log = fasts
-                      .where(
-                        (f) =>
-                            f.startDateTime.year == thisYear &&
-                            f.startDateTime.month == thisMonth + 1 &&
-                            f.startDateTime.day == day,
-                      )
-                      .firstOrNull;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                  if (log != null) {
-                    return fastDay(day, log);
-                  }
-                  return emptyDay(day);
-                },
-              );
-            },
-          ),
-          SizedBox(height: 15),
-          StreamBuilder(
-            stream: sms,
-            builder: (context, asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                debugPrint('SMS: waiting');
-                return CircularProgressIndicator();
-              }
-              if (asyncSnapshot.hasError) {
-                debugPrint('SMS: ${asyncSnapshot.error}');
-                return CircularProgressIndicator();
-              }
-              if (!asyncSnapshot.hasData) {
-                debugPrint('SMS: null');
-                return CircularProgressIndicator();
-              }
-              StatisticsModel sm = asyncSnapshot.data!;
-              debugPrint('SMS rebuild ${sm.getLength()}');
-              return Column(
-                children: [
-                  Text(bestStreak, style: TextStyle(fontSize: TextSizing.medium),),
-                  Text(
-                    'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)} hours',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  Text('Longest Fast: ${sm.getLongest().inMinutes / 60} hours', style: TextStyle(fontSize: TextSizing.medium),),
-                ],
-              );
-            },
-          ),
-        ],
+                  spacing: 5,
+                  children: [
+                    Text(
+                      'Fasting Statistics',
+                      style: TextStyle(
+                        fontSize: TextSizing.large,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      'Fasts completed: ${sm.numCompleted()}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                      textAlign: TextAlign.left,
+                    ),
+
+                    Text(
+                      'Plan adherence: ${sm.getAsPlannedRate()}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Total time fasted: ${sm.getTotalForMonth()}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Average fast: ${sm.getAverage() ?? 'N/A'}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Longest fast: ${sm.getLongestTimed() ?? 'N/A'}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Best planned streak: $bestStreak',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      'Starting',
+                      style: TextStyle(
+                        fontSize: TextSizing.medium,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    Text(
+                      'Started on time: ${sm.onTimeStartCount()}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Started early: ${sm.curFasts.earlyStartCount}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Started late: ${sm.curFasts.lateStartCount}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    if (sm.curFasts.earlyStartCount +
+                            sm.curFasts.lateStartCount >
+                        0)
+                      Text(
+                        'Average start deviation: '
+                        '${sm.curFasts.averageStartDeviation.round()} min',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      'Ending',
+                      style: TextStyle(
+                        fontSize: TextSizing.medium,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    Text(
+                      'Ended on time: ${sm.onTimeEndCount()}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Ended early: ${sm.curFasts.earlyEndCount}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    Text(
+                      'Ended late: ${sm.curFasts.lateEndCount}',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+
+                    if (sm.curFasts.earlyEndCount + sm.curFasts.lateEndCount >
+                        0)
+                      Text(
+                        'Average end deviation: '
+                        '${sm.curFasts.averageEndDeviation.round()} min',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+
+                    if (sm.curForm == FastingForm.fiveTwo) ...[
+                      const SizedBox(height: 12),
+
+                      Text(
+                        '5:2 Statistics',
+                        style: TextStyle(
+                          fontSize: TextSizing.medium,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      Text(
+                        'Fast days skipped: ${sm.curFasts.skippedCount}',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+
+                      Text(
+                        'Fast days interrupted: ${sm.curFasts.interruptedCount}',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+
+                      Text(
+                        'Overate: ${sm.curFasts.overAte}',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+
+                      Text(
+                        'Underate: ${sm.curFasts.underAte}',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ],
+                    
+                      const SizedBox(height: 20,)
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -341,7 +499,9 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     //   frList.add(converter.fromSql(res).resultIcon);
     // }
 
-    return log.lateFastResult != null ? [log.earlyFastResult.resultIcon, log.lateFastResult!.resultIcon,] : [log.earlyFastResult.resultIcon,];
+    return log.lateFastResult != null
+        ? [log.earlyFastResult.resultIcon, log.lateFastResult!.resultIcon]
+        : [log.earlyFastResult.resultIcon];
   }
 
   StreamBuilder getCalendar(UserSessionData session) {
@@ -351,9 +511,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
       //     .findFasts(
       //       1
       //     ),
-      stream: ref
-          .watch(fDaoProvider)
-          .findFastsInRange(start, end),
+      stream: ref.watch(fDaoProvider).findFastsInRange(start, end),
       builder: (context, asyncSnapshot) {
         if (asyncSnapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();

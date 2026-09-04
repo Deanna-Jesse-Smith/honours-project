@@ -5,7 +5,7 @@ import 'package:testrun/models/fasting_model.dart';
 
 class StatisticsModel {
   late List<FastLogData> curFasts, treFasts, adfFasts, fiveTwoFasts;
-  late List<Duration> curTREDurations, curADFDurations;
+  late List<Duration> curTREDurations, curADFDurations, timedDurations;
   FastingForm curForm;
 
   StatisticsModel({required this.curFasts, required this.curForm}) {
@@ -13,6 +13,7 @@ class StatisticsModel {
     curTREDurations = treFasts.map((f) => f.duration as Duration).toList();
     adfFasts = curFasts.where((f) => f.formIF == FastingForm.adf).toList();
     curADFDurations = adfFasts.map((f) => f.duration as Duration).toList();
+    timedDurations = curFasts.where((f) => f.formIF != FastingForm.fiveTwo).map((f) => f.duration as Duration).toList();
     fiveTwoFasts = curFasts
         .where((f) => f.formIF == FastingForm.fiveTwo)
         .toList();
@@ -21,7 +22,7 @@ class StatisticsModel {
   Duration getLength() {
     Duration longest = Duration(hours: 0, minutes: 0);
 
-    for (FastLogData fast in treFasts) {
+    for (FastLogData fast in curFasts) {
       longest = fast.duration?.compareTo(longest) == 1
           ? fast.duration!
           : longest;
@@ -30,35 +31,38 @@ class StatisticsModel {
     return longest;
   }
 
-  double getAverage() {
-    if (curTREDurations.isNotEmpty) {
-      return curTREDurations.map((d) => d.inMinutes).reduce((a, b) => a + b) /
-          curTREDurations.length /
-          60;
-    }
-    return 0;
+  String? getAverage() {
+    if (timedDurations.isEmpty) return null;
+
+      final total = timedDurations.fold(Duration.zero, (prev, cur) => prev + cur);
+
+      return formatDuration(total ~/ timedDurations.length);
   }
 
-  int getTotalForMonth(int year, int month) {
+  String getTotalForMonth() {
     if (curFasts.isEmpty) {
-      return 0;
+      return formatDuration(Duration.zero);
     }
     final thisDurations = curFasts
         .map((d) => d.duration as Duration)
         .fold(Duration.zero, (prev, cur) => prev + cur);
-    return thisDurations.inHours;
+    return formatDuration(thisDurations);
   }
 
-  Duration getLongest() {
-    if (curTREDurations.isEmpty) return Duration();
-    return curTREDurations.reduce((a, b) => a > b ? a : b);
+  String? getLongestTimed() {
+    // if (curTREDurations.isEmpty) return Duration.zero;
+    // return curTREDurations.reduce((a, b) => a > b ? a : b);
+
+    if (timedDurations.isEmpty) return null;
+
+    return formatDuration(timedDurations.reduce((longest, cur) => cur > longest ? longest : cur));
   }
 
-  double getAsPlannedRate() => curFasts.plannedRate;
+  String getAsPlannedRate() => formatPercentage(curFasts.plannedRate);
 
   //! For below: - is early, + is late overall
-  int curStartDeviation() => curFasts.lateStartCount - curFasts.earlyStartCount;
-  int curEndDeviation() => curFasts.lateEndCount - curFasts.earlyEndCount;
+  double curStartDeviation() => curFasts.averageStartDeviation;
+  double curEndDeviation() => curFasts.averageEndDeviation;
 
   // double getAverageStartDeviation() {
 
@@ -79,4 +83,35 @@ class StatisticsModel {
 
     return longest;
   }
+
+  int getNumFasts() {
+    return curFasts.length;
+  }
+
+  String formatDuration(Duration? duration) {
+    if (duration == null) return '—';
+
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+
+    if (hours == 0) {
+      return '$minutes min';
+    }
+
+    if (minutes == 0) {
+      return '$hours h';
+    }
+
+    return '$hours h $minutes min';
+  }
+
+  String formatPercentage(double value) {
+    return '${(value * 100).round()}%';
+  }
+
+  int numCompleted() => curFasts.where((f) => f.endDateTime != null).length;
+
+  int onTimeStartCount() => curFasts.plannedStartCount;
+
+  int onTimeEndCount() => curFasts.plannedEndCount;
 }

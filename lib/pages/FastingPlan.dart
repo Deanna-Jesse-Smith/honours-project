@@ -83,10 +83,24 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     // ref.read(gDaoProvider).createDummyGoals();
 
     return Scaffold(
-      appBar: MainAppBar.appBar(
-        'Fasting Plan',
-        session.asData!.value!.userName,
-      ),
+      appBar: AppBar(
+      title: Text('Fasting Plan', style: TextStyle(fontSize: TextSizing.large)),
+      backgroundColor: Colors.white,
+      elevation: 0.0,
+      centerTitle: true,
+      actions: [
+          Tooltip(
+            message: 'Toggle your fast from the floating action button on your screen when you want to start or end a fast',
+            triggerMode: TooltipTriggerMode.tap,
+            child: SizedBox(width: 50,
+              child: Icon(Icons.question_mark)),
+            // child: IconButton(
+            //   onPressed: () => Dialogs.getFastResultHelp(context),
+            //   icon: Icon(Icons.question_mark),
+            // ),
+          ),
+        ],
+    ),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),

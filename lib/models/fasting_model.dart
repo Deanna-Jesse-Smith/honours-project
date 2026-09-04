@@ -308,18 +308,16 @@ extension FastListHelper on List<FastLogData> {
   int get lateEndCount =>
       where((f) => (f.lateFastResult == FastResult.lateEnd)).length;
 
-      int get plannedEndCount =>
-    where((f) => f.lateFastResult == FastResult.asPlanned).length;
-    int get plannedStartCount =>
-    where((f) => f.earlyFastResult == FastResult.asPlanned).length;
+  int get plannedEndCount =>
+      where((f) => f.lateFastResult == FastResult.asPlanned).length;
+  int get plannedStartCount =>
+      where((f) => f.earlyFastResult == FastResult.asPlanned).length;
 
-  // Duration get avgLateStart => fold(Duration.zero, (prev, cur) {
-  //   if (cur)
-  // });
-
-  // 5:2 specific
   int get skippedCount => where((f) => f.wasSkipped).length;
   int get interruptedCount => where((f) => f.wasInterrupted).length;
+
+  int get overAte => where((f) => f.earlyFastResult == FastResult.overate || f.lateFastResult == FastResult.overate).length;
+  int get underAte => where((f) => f.earlyFastResult == FastResult.underate || f.lateFastResult == FastResult.underate).length;
 
   double get averageEndDeviation {
     final deviations = where(

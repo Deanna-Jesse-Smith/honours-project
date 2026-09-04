@@ -201,6 +201,18 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     final lastFast = await fDao.isFasting();
     DateTime today = DateTime.now();
 
+    final (expectedStart, expectedEnd) = switch (cur.fastingForm) {
+      FastingForm.tre => (
+        DateTime(today.year, today.month, today.day, cur.startTime.hour, cur.startTime.minute),
+        DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute),
+      ),
+      FastingForm.fiveTwo => throw UnimplementedError(),
+      FastingForm.adf => (
+        DateTime(today.year, today.month, today.day, 20),
+        DateTime(today.year, today.month, today.day, 10),
+      ),
+    };
+
     if (lastFast) {
       await fDao.breakFast(cur.userId, today, DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute));
       fDao.testing();
@@ -213,6 +225,21 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       );
     }
     ref.invalidateSelf();
+  }
+
+  (DateTime, DateTime) adfTimes(int day) {
+    day++;
+    DateTime now = DateTime.now();
+
+    final diff = (day - now.weekday) % 7;
+
+    final temp = DateUtils.dateOnly(now.add(Duration(days: diff)));
+
+      DateTime start = temp
+          .subtract(const Duration(days: 1))
+          .copyWith(hour: 20);
+      DateTime end = temp.add(const Duration(days: 1)).copyWith(hour: 10);
+      return (start, end);
   }
 
   Future<bool> isInEatingWindow(BuildContext context) async {

@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_logs/flutter_logs.dart';
+import 'package:testrun/database/daos/steps_dao.dart';
+import 'package:testrun/main.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
-class StepCounts extends StatefulWidget {
+class StepCounts extends ConsumerStatefulWidget {
   const StepCounts({super.key});
 
   @override
-  State<StepCounts> createState() => _StepCountState();
+  ConsumerState<StepCounts> createState() => _StepCountState();
 }
 
 //! Temporarily here for me to change when I get to this part of the project
-class _StepCountState extends State<StepCounts> {
+class _StepCountState extends ConsumerState<StepCounts> {
 
   int? startSteps;
   int todaySteps = 0;
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '?';
+  final today = DateTime.now();
+  late StepsDao sDao;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+
+    sDao = ref.watch(sDaoProvider);
   }
 
   // void stepListener() {
@@ -34,10 +41,14 @@ class _StepCountState extends State<StepCounts> {
   //   });
   // }
 
-  void onStepCount(StepCount event) {
-    FlutterLogs.logInfo("Event", "StepCount", event.toString());
+  void onStepCount(StepCount event) async {
+    startSteps ??= event.steps;
+
+    todaySteps = await sDao.logSteps(today, startSteps ?? 0);
+
+    FlutterLogs.logInfo("Event", "StepCount", todaySteps.toString());
     setState(() {
-      _steps = event.steps.toString();
+      _steps = todaySteps.toString();
     });
   }
 
