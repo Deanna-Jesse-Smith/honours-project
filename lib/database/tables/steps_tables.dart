@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:testrun/database/tables/user_table.dart';
 
 class StepsLog extends Table {
   IntColumn get stepID => integer().autoIncrement()();

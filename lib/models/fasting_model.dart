@@ -173,6 +173,34 @@ FastingStatus determineFastingStatus({
   return (lateResult, difference);
 }
 
+(FastResult, int) evaluateTimingADF(
+  DateTime actual,
+  DateTime expected,
+  FastResult earlyResult,
+  FastResult lateResult,
+) {
+  final difference = actual.difference(expected).inMinutes;
+  if (DateUtils.isSameDay(actual, expected)) {
+    if (difference >= -240 ) {
+      return (FastResult.asPlanned, 0);
+    } else {
+      return (FastResult.earlyStart, difference.abs());
+    }
+  } else {
+
+  }
+
+  if (difference.abs() <= 20) {
+    return (FastResult.asPlanned, 0);
+  }
+
+  if (difference < 0) {
+    return (earlyResult, difference.abs());
+  }
+
+  return (lateResult, difference);
+}
+
 enum FastingStatus {
   notFastingDay,
   upcoming,

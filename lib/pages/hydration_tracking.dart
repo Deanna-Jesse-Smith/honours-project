@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +11,7 @@ import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animated_liquid_progress.dart';
+import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -25,31 +25,34 @@ class HydrationTracking extends ConsumerStatefulWidget {
 }
 
 class HydrationTrackingState extends ConsumerState<HydrationTracking> {
-
-  late ConfettiController controller;
+  // late ConfettiController controller;
 
   @override
   void initState() {
     super.initState();
 
-    controller = ConfettiController(duration: const Duration(seconds: 5));
+    // controller = ConfettiController(duration: const Duration(seconds: 5));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.hydration);
+      final concern = await ref
+          .read(asyncConcernsProvider.notifier)
+          .getConcern(GoalType.hydration);
 
       if (!mounted) return;
 
       if (concern != null) {
-        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+        await ref
+            .read(asyncConcernsProvider.notifier)
+            .doConcernDialogue(concern, context);
       }
     });
   }
 
-  @override void dispose() {
-    controller.dispose();
+  // @override void dispose() {
+  //   controller.dispose();
 
-    super.dispose();
-  }
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -70,66 +73,73 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
             ),
             Padding(
               padding: const EdgeInsets.all(15),
-              child: goalChecker.when(data: (goal) {
-                final model = goal == -1 ? 0.0 : goal;
+              child: goalChecker.when(
+                data: (goal) {
+                  final model = goal == -1 ? 0.0 : goal;
 
-                return AnimatedLiquidProgress(progress: model);
-                // return SizedBox(
-                //     width: 150,
-                //     height: 150,
-                //     child: LiquidCircularProgressIndicator(
-                //           value: model,
-                //           valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
-                //           backgroundColor: Colors.white,
-                //           // borderColor: Colors.red,
-                //           // borderWidth: 5.0,
-                //           direction: Axis.vertical,
-                //           // shapePath: buildBottlePath(const Size(100, 180)),
-                //         ),
-                //   );
-              }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
+                  return AnimatedLiquidProgress(progress: model);
+                },
+                error: (e, l) => Text(e.toString()),
+                loading: () => Text('Loading'),
+              ),
             ),
-            streakChecker.when(data: (streak) {
-              if (streak == null) {
-                return const SizedBox.shrink();
-              } else {
-                return Text('You\'re on a $streak day streak!', style: TextStyle(fontSize: TextSizing.medium),);
-              }
-            }, error: (e, _) => Text(e.toString()), loading: () => const CircularProgressIndicator()),
-            SizedBox(
-              width: 100,
-              height: 100,
+            streakChecker.when(
+              data: (streak) {
+                if (streak == null) {
+                  return const SizedBox.shrink();
+                } else {
+                  return Text(
+                    'You\'re on a $streak day streak!',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  );
+                }
+              },
+              error: (e, _) => Text(e.toString()),
+              loading: () => const CircularProgressIndicator(),
             ),
+            SizedBox(width: 100, height: 100),
             ElevatedButton(
               onPressed: () async {
                 final newAmount = await Dialogs.getSpinnerWaterInput(
                   context,
                   title: 'How much water have you drank?',
                 );
+
+                showCelebration();
+
                 if (newAmount != null) {
-                  controller.play();
-                  await ref.read(asyncGoalsProvider.notifier).addHydration(newAmount).whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
+                  final check = await ref
+                      .read(asyncGoalsProvider.notifier)
+                      .addHydration(newAmount)
+                      .whenComplete(
+                        () => ref.invalidate(checkHydrationGoalProvider),
+                      );
+
+                  if (check) {
+                    showCelebration();
+                  }
                 }
               },
               child: Text('Log Hydration'),
             ),
-            Align(alignment: Alignment.center,
-            child: ConfettiWidget(confettiController: controller,
-            blastDirectionality: BlastDirectionality.explosive,
-            colors: const [
-                Colors.green,
-                Colors.blue,
-                Colors.pink,
-                Colors.orange,
-                Colors.purple
-              ],
-            ),)
+            // Align(alignment: Alignment.center,
+            // child: ConfettiWidget(confettiController: controller,
+            // blastDirectionality: BlastDirectionality.explosive,
+            // colors: const [
+            //     Colors.green,
+            //     Colors.blue,
+            //     Colors.pink,
+            //     Colors.orange,
+            //     Colors.purple
+            //   ],
+            // ),)
           ],
         ),
       ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 4),
+      persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -142,7 +152,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               ),
               child: Text(
                 'Goals/Streaks',
-                style: TextStyle(fontSize: TextSizing.medium,),
+                style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),
           ],
@@ -150,6 +160,11 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
       ],
       // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
+  }
+
+  void showCelebration() {
+    if (!mounted) return;
+    showDialog(context: context, builder: (_) => DialogTitle(type: GoalType.hydration,));
   }
 
   Path drawStar(Size size) {
@@ -167,10 +182,14 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
     path.moveTo(size.width, halfWidth);
 
     for (double step = 0; step < fullAngle; step += degreesPerStep) {
-      path.lineTo(halfWidth + externalRadius * cos(step),
-          halfWidth + externalRadius * sin(step));
-      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
-          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+      path.lineTo(
+        halfWidth + externalRadius * cos(step),
+        halfWidth + externalRadius * sin(step),
+      );
+      path.lineTo(
+        halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+        halfWidth + internalRadius * sin(step + halfDegreesPerStep),
+      );
     }
     path.close();
     return path;

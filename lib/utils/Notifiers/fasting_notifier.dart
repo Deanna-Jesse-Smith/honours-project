@@ -203,43 +203,108 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     final (expectedStart, expectedEnd) = switch (cur.fastingForm) {
       FastingForm.tre => (
-        DateTime(today.year, today.month, today.day, cur.startTime.hour, cur.startTime.minute),
-        DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute),
+        DateTime(
+          today.year,
+          today.month,
+          today.day,
+          cur.startTime.hour,
+          cur.startTime.minute,
+        ),
+        DateTime(
+          today.year,
+          today.month,
+          today.day,
+          cur.endTime.hour,
+          cur.endTime.minute,
+        ),
       ),
       FastingForm.fiveTwo => throw UnimplementedError(),
-      FastingForm.adf => (
-        DateTime(today.year, today.month, today.day, 20),
-        DateTime(today.year, today.month, today.day, 10),
-      ),
+      FastingForm.adf => adfTimes(cur.adfDaysSelected, today),
     };
 
     if (lastFast) {
-      await fDao.breakFast(cur.userId, today, DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute));
+      final (result, severity) = evaluateTiming(
+        today,
+        expectedEnd,
+        FastResult.earlyEnd,
+        FastResult.lateEnd,
+        cur.fastingForm == FastingForm.adf,
+      );
+
+      await fDao.breakFast(cur.userId, today, result, severity);
       fDao.testing();
     } else {
+      final (result, severity) = evaluateTiming(
+        today,
+        expectedEnd,
+        FastResult.earlyStart,
+        FastResult.lateStart,
+        cur.fastingForm == FastingForm.adf,
+      );
       await fDao.startFast(
         cur.userId,
         cur.fastingForm,
         today,
-        DateTime(today.year, today.month, today.day, cur.startTime.hour, cur.startTime.minute),
+        result,
+        severity,
       );
     }
     ref.invalidateSelf();
   }
 
-  (DateTime, DateTime) adfTimes(int day) {
-    day++;
+  (DateTime, DateTime) adfTimes(List<int> days, DateTime today) {
+    final candidates = days.map(getFullDay).toList()..sort();
+    final nextFastDay = candidates.first;
+    final start = nextFastDay
+        .subtract(const Duration(days: 1))
+        .copyWith(hour: 20);
+    return (start, start.add(const Duration(days: 1)).copyWith(hour: 10));
+  }
+
+  DateTime getFullDay(int dayOfWeek) {
+    dayOfWeek++;
     DateTime now = DateTime.now();
 
-    final diff = (day - now.weekday) % 7;
+    final diff = (dayOfWeek - now.weekday) % 7;
 
-    final temp = DateUtils.dateOnly(now.add(Duration(days: diff)));
+    return DateUtils.dateOnly(now.add(Duration(days: diff)));
+  }
 
-      DateTime start = temp
-          .subtract(const Duration(days: 1))
-          .copyWith(hour: 20);
-      DateTime end = temp.add(const Duration(days: 1)).copyWith(hour: 10);
-      return (start, end);
+  (FastResult, int) evaluateTiming(
+    DateTime actual,
+    DateTime expected,
+    FastResult earlyResult,
+    FastResult lateResult,
+    bool isADF, {
+    bool isStart = true,
+  }) {
+    final difference = actual.difference(expected).inMinutes;
+    if (!isADF) {
+      if (difference.abs() <= 20) {
+        return (FastResult.asPlanned, 0);
+      }
+
+      if (difference < 0) {
+        return (earlyResult, difference.abs());
+      }
+      return (lateResult, difference);
+    } else {
+      if (isStart) {
+        if (difference < 0) {
+          return (earlyResult, difference.abs());
+        } else if (difference <= 240) {
+          return (FastResult.asPlanned, 0);
+        }
+        return (lateResult, difference);
+      } else {
+        if (difference <= 0 && difference >= -600) {
+          return (FastResult.asPlanned, 0);
+        } else if (difference < 0) {
+          return (earlyResult, difference.abs());
+        }
+        return (lateResult, difference);
+      }
+    }
   }
 
   Future<bool> isInEatingWindow(BuildContext context) async {
@@ -251,13 +316,19 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     final lastFast = await fDao.isFasting();
 
     if (lastFast) {
-      // if (!mounted)
-      final decision = await Dialogs.dangerDialog(context, title: 'You are outside your eating window!', message: 'Are you sure you want to log a meal now? Your fast will be broken if you do');
+      if (!context.mounted) {
+      final decision = await Dialogs.dangerDialog(
+        context,
+        title: 'You are outside your eating window!',
+        message:
+            'Are you sure you want to log a meal now? Your fast will be broken if you do',
+      );
 
       if (decision) {
-        DateTime today = DateTime.now();
-        await fDao.breakFast(cur.userId, today, DateTime(today.year, today.month, today.day, cur.endTime.hour, cur.endTime.minute));
+        await toggleFast();
       }
+      }
+
     }
     return false;
   }

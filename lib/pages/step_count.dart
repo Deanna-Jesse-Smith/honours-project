@@ -15,7 +15,6 @@ class StepCounts extends ConsumerStatefulWidget {
   ConsumerState<StepCounts> createState() => _StepCountState();
 }
 
-//! Temporarily here for me to change when I get to this part of the project
 class _StepCountState extends ConsumerState<StepCounts> {
 
   int? startSteps;

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/nutrition_pages/meal_log.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
 class MyExpandableFAB extends ConsumerWidget {
@@ -78,18 +81,19 @@ class MyExpandableFAB extends ConsumerWidget {
     //   },
     // );
     final actions = [
-      FabButton(
-        title: isFasting.when(
-          data: (isFast) => isFast ? 'Break my fast' : 'Start my fast',
-          error: (_, _) => 'Error',
-          loading: () => 'Loading',
+      if (session.fastingForm != FastingForm.fiveTwo)
+        FabButton(
+          title: isFasting.when(
+            data: (isFast) => isFast ? 'Break my fast' : 'Start my fast',
+            error: (_, _) => 'Error',
+            loading: () => 'Loading',
+          ),
+          colour: Colors.deepPurpleAccent,
+          onPressed: () => ref
+              .read(asyncFatingNotifier.notifier)
+              .toggleFast()
+              .whenComplete(() => ref.invalidate(checkFastingGoalProvider)),
         ),
-        colour: Colors.deepPurpleAccent,
-        onPressed: () => ref
-            .read(asyncFatingNotifier.notifier)
-            .toggleFast()
-            .whenComplete(() => ref.invalidate(checkFastingGoalProvider)),
-      ),
       FabButton(
         title: 'Log Weight',
         colour: Colors.green,
@@ -104,14 +108,27 @@ class MyExpandableFAB extends ConsumerWidget {
             title: 'Log Weight',
           );
           if (newAmount != null) {
-            await ref
-                .read(wDaoProvider)
-                .insertWeight(
-                  session.userId,
-                  newAmount.toDouble(),
-                  DateTime.now(),
-                )
+            final check = await ref
+                .read(asyncGoalsProvider.notifier)
+                .logWeight(newAmount)
                 .whenComplete(() => ref.invalidate(checkWeightGoalProvider));
+
+            if (check.$2 == 1) {
+              if (!context.mounted) return;
+              showDialog(
+                context: context,
+                builder: (_) => DialogTitle(type: GoalType.weight),
+              );
+            }
+
+            // await ref
+            //     .read(wDaoProvider)
+            //     .insertWeight(
+            //       session.userId,
+            //       newAmount.toDouble(),
+            //       DateTime.now(),
+            //     )
+            //     .whenComplete(() => ref.invalidate(checkWeightGoalProvider));
           }
         },
       ),
@@ -124,22 +141,40 @@ class MyExpandableFAB extends ConsumerWidget {
           if (newLog != null) {
             debugPrint('Log: ${newLog.name}');
             if (newLog == LogMethod.quick) {
-              // if (!mounted) return;
-              final decision = await ref.read(asyncFatingNotifier.notifier).isInEatingWindow(context);
+              if (!context.mounted) return;
+              final decision = await ref
+                  .read(asyncFatingNotifier.notifier)
+                  .isInEatingWindow(context);
               if (decision) {
                 await ref
-                  .read(nDaoProvider)
-                  .insertFoodLog(MealCategory.quick, null, null, newLog, DateTime.now());
+                    .read(asyncGoalsProvider.notifier)
+                    .logMeal(
+                      MealCategory.quick,
+                      null,
+                      null,
+                      newLog,
+                      DateTime.now(),
+                    ).whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
+                // await ref
+                //     .read(nDaoProvider)
+                //     .insertFoodLog(
+                //       MealCategory.quick,
+                //       null,
+                //       null,
+                //       newLog,
+                //       DateTime.now(),
+                //     );
               }
             } else if (newLog == LogMethod.full) {
               if (!context.mounted) return;
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (context) => const MealLog()));
-            } else {
-              if (!context.mounted) return;
-              chooseRepeatMeal(context, ref);
             }
+            // else {
+            //   if (!context.mounted) return;
+            //   chooseRepeatMeal(context, ref);
+            // }
           } else {
             debugPrint('Log: null');
           }
@@ -154,10 +189,18 @@ class MyExpandableFAB extends ConsumerWidget {
             title: 'How much water have you drank?',
           );
           if (newAmount != null) {
-            await ref
+            final check = await ref
                 .read(asyncGoalsProvider.notifier)
                 .addHydration(newAmount)
                 .whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
+
+            if (check) {
+              if (!context.mounted) return;
+              showDialog(
+                context: context,
+                builder: (_) => DialogTitle(type: GoalType.hydration),
+              );
+            }
           }
         },
       ),

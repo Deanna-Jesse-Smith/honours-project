@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +8,10 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
+import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/main_app_bar.dart';
@@ -26,29 +27,24 @@ class WeightTracking extends ConsumerStatefulWidget {
 
 class _WeightTrackingState extends ConsumerState<WeightTracking> {
   late Future<double> goalProgress;
-  late ConfettiController controller;
 
   @override
   void initState() {
     super.initState();
-    
-    controller = ConfettiController(duration: const Duration(seconds: 5));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final concern = await ref.read(asyncConcernsProvider.notifier).getConcern(GoalType.weight);
+      final concern = await ref
+          .read(asyncConcernsProvider.notifier)
+          .getConcern(GoalType.weight);
 
       if (!mounted) return;
 
       if (concern != null) {
-        await ref.read(asyncConcernsProvider.notifier).doConcernDialogue(concern, context);
+        await ref
+            .read(asyncConcernsProvider.notifier)
+            .doConcernDialogue(concern, context);
       }
     });
-  }
-
-  @override void dispose() {
-    controller.dispose();
-
-    super.dispose();
   }
 
   @override
@@ -71,18 +67,17 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               'Weight Motivation',
               style: TextStyle(fontSize: TextSizing.medium),
             ),
-            Padding(padding: EdgeInsets.all(15),
-            child: watchWeightGoal.when(data: (goal) {
-              if (goal.$3 == -1) {
-                return const SizedBox.shrink();
-              }
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: watchWeightGoal.when(
+                data: (goal) {
+                  if (goal.$3 == -1) {
+                    return const SizedBox.shrink();
+                  }
 
-              final model = goal.$2 == -1 ? 0.0 : goal.$2;
+                  final model = goal.$2 == -1 ? 0.0 : goal.$2;
 
-              if (model == 1) {
-                controller.play();
-              }
-              return Center(
+                  return Center(
                     child: LinearPercentIndicator(
                       percent: model,
                       lineHeight: 15,
@@ -91,14 +86,21 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                       animationDuration: 1000,
                       progressColor: Colors.amber,
                       backgroundColor: Colors.yellow,
-                      leading: Text('${goal.$1}',
-                style: TextStyle(fontSize: TextSizing.small),),
-                      trailing: Text('${goal.$3}',
-                style: TextStyle(fontSize: TextSizing.small),),
+                      leading: Text(
+                        '${goal.$1}',
+                        style: TextStyle(fontSize: TextSizing.small),
+                      ),
+                      trailing: Text(
+                        '${goal.$3}',
+                        style: TextStyle(fontSize: TextSizing.small),
+                      ),
                       barRadius: Radius.circular(10),
                     ),
                   );
-            }, error: (e, l) => Text(e.toString()), loading: () => Text('No Gaol'))
+                },
+                error: (e, l) => Text(e.toString()),
+                loading: () => Text('No Gaol'),
+              ),
             ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
@@ -111,7 +113,10 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
 
                 curWeight = asyncSnapshot.data ?? 0;
 
-                return Text('$curWeight kg', style: TextStyle(fontSize: TextSizing.large),);
+                return Text(
+                  '$curWeight kg',
+                  style: TextStyle(fontSize: TextSizing.large),
+                );
               },
             ),
             ElevatedButton(
@@ -122,34 +127,45 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                   title: 'Log Weight',
                 );
                 if (newAmount != null) {
-                  await ref
-                      .read(wDaoProvider)
-                      .insertWeight(
-                        session.userId,
-                        newAmount.toDouble(),
-                        DateTime.now(),
-                      ).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
+                  final check = await ref.read(asyncGoalsProvider.notifier).logWeight(newAmount).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
+
+                  if (check.$2 == 1) {
+                    celebrate();
+                  }
+
+
+                  // await ref
+                  //     .read(wDaoProvider)
+                  //     .insertWeight(
+                  //       session.userId,
+                  //       newAmount.toDouble(),
+                  //       DateTime.now(),
+                  //     )
+                  //     .whenComplete(
+                  //       () => ref.invalidate(checkWeightGoalProvider),
+                  //     );
                 }
               },
               child: Text('Log Weight'),
             ),
-            Align(alignment: Alignment.center,
-            child: ConfettiWidget(confettiController: controller,
-            blastDirectionality: BlastDirectionality.explosive,
-            colors: const [
-                Colors.green,
-                Colors.blue,
-                Colors.pink,
-                Colors.orange,
-                Colors.purple
-              ],
-            ),)
+            // Align(alignment: Alignment.center,
+            // child: ConfettiWidget(confettiController: controller,
+            // blastDirectionality: BlastDirectionality.explosive,
+            // colors: const [
+            //     Colors.green,
+            //     Colors.blue,
+            //     Colors.pink,
+            //     Colors.orange,
+            //     Colors.purple
+            //   ],
+            // ),)
           ],
         ),
       ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 4),
+      persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +173,8 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ElevatedButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => GoalsPage(type: GoalType.weight, startWeight: curWeight,),
+                  builder: (context) =>
+                      GoalsPage(type: GoalType.weight, startWeight: curWeight),
                 ),
               ),
               child: Text(
@@ -168,6 +185,14 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
           ],
         ),
       ],
+    );
+  }
+
+  void celebrate() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (_) => DialogTitle(type: GoalType.weight),
     );
   }
 }

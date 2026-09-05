@@ -71,7 +71,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       GoalType.weight =>
         'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
       GoalType.hydration => 'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
-      GoalType.nutrition => 'Your nutrition goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+      GoalType.nutrition => 'Your nutrition goal is the number of meals.\n\nYour hydration streak is the number of days in a row you have managed to reach your meal goal.',
     };
 
     description += bestStreak;
@@ -152,6 +152,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ref.invalidate(checkWeightGoalProvider);
     } else if (curGoal is FastingGoalModel) {
       ref.invalidate(checkFastingGoalProvider);
+    } else if (curGoal is NutritionGoalModel) {
+      ref.invalidate(checkNutritionGoalProvider);
     }
   }
 

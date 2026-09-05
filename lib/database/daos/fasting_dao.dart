@@ -17,17 +17,9 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     int userID,
     FastingForm form,
     DateTime startTime,
-    DateTime expectedStart,
+    FastResult result,
+    int severity,
   ) {
-    // testing();
-
-    final (result, severity) = evaluateTiming(
-      startTime,
-      expectedStart,
-      FastResult.earlyStart,
-      FastResult.lateStart,
-    );
-
     return into(fastLog).insert(
       FastLogCompanion.insert(
         userID: userID,
@@ -39,31 +31,13 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     );
   }
 
-  Future<DateTime?> getLatestStart(int userID) async {
-    final fast =
-        await (selectOnly(fastLog)
-              ..addColumns([fastLog.startDateTime])
-              ..where(fastLog.endDateTime.isNull())
-              ..orderBy([OrderingTerm.desc(fastLog.fastLogID)])
-              ..limit(1))
-            .getSingleOrNull();
-    return fast?.read(fastLog.startDateTime);
-  }
-
   Future<void> breakFast(
     int userID,
     DateTime endTime,
-    DateTime expectedEnd,
+    FastResult result,
+    int severity,
   ) async {
     // testing();
-
-    final (result, severity) = evaluateTiming(
-      endTime,
-      expectedEnd,
-      FastResult.earlyEnd,
-      FastResult.lateEnd,
-    );
-
     final curLog =
         await (select(fastLog)
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
@@ -79,14 +53,62 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         lateResultSeverity: Value(severity),
       ),
     );
-
-    final count = await (select(fastLog)).get();
-
-    for (FastLogData fast in count) {
-      debugPrint(fast.toString());
-    }
-    debugPrint('Fasts number: ${count.length}');
   }
+
+  // Future<int> startFast(
+  //   int userID,
+  //   FastingForm form,
+  //   DateTime startTime,
+  //   DateTime expectedStart,
+  // ) {
+  //   final (result, severity) = evaluateTiming(
+  //     startTime,
+  //     expectedStart,
+  //     FastResult.earlyStart,
+  //     FastResult.lateStart,
+  //   );
+
+  //   return into(fastLog).insert(
+  //     FastLogCompanion.insert(
+  //       userID: userID,
+  //       formIF: form,
+  //       startDateTime: Value(startTime),
+  //       earlyFastResult: result,
+  //       earlyResultSeverity: Value(severity),
+  //     ),
+  //   );
+  // }
+
+  // Future<void> breakFast(
+  //   int userID,
+  //   DateTime endTime,
+  //   DateTime expectedEnd,
+  // ) async {
+  //   // testing();
+
+  //   final (result, severity) = evaluateTiming(
+  //     endTime,
+  //     expectedEnd,
+  //     FastResult.earlyEnd,
+  //     FastResult.lateEnd,
+  //   );
+
+  //   final curLog =
+  //       await (select(fastLog)
+  //             ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
+  //             ..limit(1))
+  //           .getSingle();
+
+  //   await (update(
+  //     fastLog,
+  //   )..where((f) => f.fastLogID.equals(curLog.fastLogID))).write(
+  //     FastLogCompanion(
+  //       endDateTime: Value(endTime),
+  //       lateFastResult: Value(result),
+  //       lateResultSeverity: Value(severity),
+  //     ),
+  //   );
+  // }
 
   Future<bool> isFasting() async {
     final fast =
@@ -99,6 +121,36 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return fast != null;
   }
 
+  Future<DateTime?> getLatestStart(int userID) async {
+    final fast =
+        await (selectOnly(fastLog)
+              ..addColumns([fastLog.startDateTime])
+              ..where(fastLog.endDateTime.isNull())
+              ..orderBy([OrderingTerm.desc(fastLog.fastLogID)])
+              ..limit(1))
+            .getSingleOrNull();
+    return fast?.read(fastLog.startDateTime);
+  }
+
+  Future<int> createSyntheticFiveTwoLog(
+    int userID,
+    DateTime day,
+    FastResult adherenceResult,
+  ) {
+    final dayStart = DateTime(day.year, day.month, day.day);
+    final dayEnd = dayStart.add(const Duration(days: 1));
+
+    return into(fastLog).insert(
+      FastLogCompanion.insert(
+        userID: userID,
+        formIF: FastingForm.fiveTwo,
+        startDateTime: Value(dayStart),
+        endDateTime: Value(dayEnd),
+        earlyFastResult: adherenceResult,
+      ),
+    );
+  }
+
   Stream<bool> checkFastingStatus() {
     return (select(fastLog)
           ..where((f) => f.endDateTime.isNull())
@@ -108,11 +160,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         .map((fast) => fast != null);
   }
 
-  Stream<List<FastLogData>> findFastsInRange(
-    // int userID,
-    DateTime start,
-    DateTime end,
-  ) {
+  Stream<List<FastLogData>> findFastsInRange(DateTime start, DateTime end) {
     final history =
         (select(fastLog)
               ..where(
@@ -133,12 +181,25 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     return history;
   }
 
-  Stream<List<FastLogData>> findFasts(int userID) {
+  Future<List<FastLogData>> find52Fasts(DateTime start, DateTime end) {
     final history =
         (select(fastLog)
-              ..where((u) => u.userID.equals(userID))
+        // ..where(fastLog.startDateTime.isSmallerOrEqualValue(end) &
+        // (fastLog.endDateTime.isNotNull() ||
+            // fastLog.endDateTime.isSmallerOrEqualValue(start),)))
+              ..where(
+                (u) =>
+                    u.formIF.equals(FastingForm.fiveTwo.name) &
+                    u.startDateTime.isSmallerOrEqualValue(
+                      end,
+                    ) & // fasts that start before the end of the range
+                    (u.endDateTime.isNull() | // current fast
+                        u.endDateTime.isBiggerOrEqualValue(
+                          start,
+                        )), // fasts that end during the range
+              )
               ..orderBy([(f) => OrderingTerm.asc(f.startDateTime)]))
-            .watch();
+        .get();
 
     return history;
   }
@@ -262,7 +323,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         endDateTime: Value(DateTime(2026, 6, 24, 11, 55)),
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(40),
-
       ),
     );
 

@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +16,6 @@ import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
-import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
 class FastingPlan extends ConsumerStatefulWidget {
@@ -122,6 +120,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           loading: () => const CircularProgressIndicator(),
         ),
       ),
+      persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         TextButton(
               onPressed: () => {

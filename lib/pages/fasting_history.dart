@@ -302,7 +302,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                     ),
 
                     Text(
-                      'Best planned streak: $bestStreak',
+                      bestStreak,
                       style: TextStyle(fontSize: TextSizing.medium),
                     ),
 
@@ -588,3 +588,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     );
   }
 }
+
+final fastStatisticsProvider = Provider.family<StatisticsModel, (List<FastLogData>, FastingForm)>((ref, data) {
+  return StatisticsModel(curFasts: data.$1, curForm: data.$2);
+},);

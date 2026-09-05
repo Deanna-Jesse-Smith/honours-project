@@ -297,7 +297,7 @@ int scoreForm(FastingForm form) {
       TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
 
   final dayEarliest = TimeOfDay(hour: 7, minute: 0),
-      dayLatest = TimeOfDay(hour: 22, minute: 0);
+      dayLatest = TimeOfDay(hour: 23, minute: 30);
 
   String formatTime(TimeOfDay time) =>
       '${time.hour.toString().padLeft(2, '0')}:'

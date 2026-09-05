@@ -48,7 +48,7 @@ class _MealLogState extends ConsumerState<MealLog> {
     // makeMeal();
   }
 
-  @override @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -276,7 +276,7 @@ class _MealLogState extends ConsumerState<MealLog> {
       controller.text,
       LogMethod.full,
       mealTime,
-    );
+    ).whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
 
     if (!mounted) return;
     Navigator.of(context).pop();

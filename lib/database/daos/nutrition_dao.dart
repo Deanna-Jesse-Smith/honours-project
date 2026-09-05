@@ -156,6 +156,17 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return output.read(countDays)! <= 2;
   }
 
+  Future<int> fiveTwoDayEvaluation(DateTime start) async {
+    final countDays = foodLog.category.count(distinct: true);
+    final fasts = (selectOnly(foodLog)
+      ..addColumns([countDays])
+      ..where(foodLog.logDate.isValue(start) &
+            foodLog.category.isNotValue(MealCategory.snack.name)));
+    final output = await fasts.getSingle();
+    return output.read(countDays)!;
+  }
+
+
   Future<List<int>> countMealsInRange(DateTime start, DateTime end) async {
     final countDays = foodLog.category.count(distinct: true);
     final fasts = (selectOnly(foodLog)

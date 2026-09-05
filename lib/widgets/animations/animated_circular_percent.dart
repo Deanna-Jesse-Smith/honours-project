@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -12,10 +11,12 @@ class AnimatedCircularPercent extends ConsumerStatefulWidget {
   const AnimatedCircularPercent({super.key, required this.progress});
 
   @override
-  ConsumerState<AnimatedCircularPercent> createState() => _AnimatedCircularPercentState();
+  ConsumerState<AnimatedCircularPercent> createState() =>
+      _AnimatedCircularPercentState();
 }
 
-class _AnimatedCircularPercentState extends ConsumerState<AnimatedCircularPercent>
+class _AnimatedCircularPercentState
+    extends ConsumerState<AnimatedCircularPercent>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
   late Animation<double> animation;
@@ -26,7 +27,7 @@ class _AnimatedCircularPercentState extends ConsumerState<AnimatedCircularPercen
 
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 3000),
     );
     animation = Tween<double>(
       begin: 0.0,
@@ -67,44 +68,34 @@ class _AnimatedCircularPercentState extends ConsumerState<AnimatedCircularPercen
         return Padding(
           padding: const EdgeInsets.all(30),
           child: CircularPercentIndicator(
-                    radius: 100,
-                    percent: animation.value,
-                    lineWidth: 40,
-                    header: Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: checkStatus.when(data: (status) {
-                          return Text(
-                            status.homeReminder,
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: TextSizing.small),
-                          );
-                      }, error: (e, _) => Text(e.toString()), loading: () => SizedBox.shrink()),
-                      // child: FutureBuilder(
-                      //   future: ref
-                      //       .read(asyncFatingNotifier.notifier)
-                      //       .refreshFastingStatus(),
-                      //   builder: (context, asyncSnapshot) {
-                      //     if (!asyncSnapshot.hasData) {
-                      //       return const CircularProgressIndicator();
-                      //     }
-                      //     final status = asyncSnapshot.data!;
-                      //     return Text(
-                      //       status.homeReminder,
-                      //       // "You're only an hour away from the end",
-                      //       maxLines: 2,
-                      //       textAlign: TextAlign.center,
-                      //       style: TextStyle(fontSize: TextSizing.small),
-                      //     );
-                      //   },
-                      // ),
-                    ),
-                    center: Text('${widget.progress.remaining.inHours}h ${widget.progress.remaining.inMinutes % 60}m', style: TextStyle(fontSize: TextSizing.small),),
-                    progressColor: Colors.lightBlueAccent,
-                    backgroundColor: Colors.cyan,
-                    circularStrokeCap: CircularStrokeCap.round,
-                    animationDuration: 500,
-                  ),);
+            radius: 130,
+            percent: animation.value,
+            lineWidth: 45,
+            header: Padding(
+              padding: EdgeInsets.only(bottom: 45),
+              child: checkStatus.when(
+                data: (status) {
+                  return Text(
+                    status.homeReminder,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  );
+                },
+                error: (e, _) => Text(e.toString()),
+                loading: () => SizedBox.shrink(),
+              ),
+            ),
+            center: Text(
+              '${widget.progress.remaining.inHours}h ${widget.progress.remaining.inMinutes % 60}m',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
+            progressColor: Colors.lightBlueAccent,
+            backgroundColor: Colors.cyan,
+            circularStrokeCap: CircularStrokeCap.round,
+            animationDuration: 500,
+          ),
+        );
       },
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:testrun/database/daos/fasting_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -85,22 +86,70 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       return null;
     }
 
-    final isFasting = await fDao.isFasting();
-  
-        return  UserSessionData(
+    bool isFasting = false;
+    List<int> days = DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected);
+    if (user.formIF == FastingForm.fiveTwo) {
+      await check52Adherence(user.userID,
+        days, fDao,
+      );
+    } else {
+      isFasting = await fDao.isFasting();
+    }
+
+    fDao.dummyData();
+
+    // final isFasting = await fDao.isFasting();
+
+    return UserSessionData(
       userId: user.userID,
       userName: user.name,
       startTime: user.typicalEatingStart!,
       endTime: user.typicalEatingEnd!,
       fastingForm: user.formIF,
       adfDaysSelected: DayOfWeekConverter().fromSQL(user.adfDaysSelected),
-      fiveTwoDaysSelected: DayOfWeekConverter().fromSQL(
-        user.fiveTwoDaysSelected,
-      ),
+      fiveTwoDaysSelected: days,
       isFasting: isFasting,
       experience: user.experience,
       height: user.height,
     );
+  }
+
+  Future<void> check52Adherence(int userID, List<int> days, FastingDao fDao) async {
+    DateTime now = DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 1));
+    DateTime prevWeek = now.subtract(const Duration(days: 7));
+
+    final candidates = days.map(getFullDay).toList()..sort();
+
+    final prevWeekFasts = await ref
+        .read(fDaoProvider)
+        .find52Fasts(prevWeek, now);
+
+    candidates.removeWhere(
+      (date) => prevWeekFasts.map((day) => day.startDateTime).contains(date),
+    );
+
+    if (candidates.isNotEmpty) {
+      final nDao = ref.read(nDaoProvider);
+      for (final candidate in candidates) {
+        final mealCount = await nDao.fiveTwoDayEvaluation(candidate);
+        if (mealCount == 0) {
+          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.underate);
+        } else if (mealCount == 1) {
+          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.asPlanned);
+        } else {
+          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.overate);
+        }
+      }
+    }
+  }
+
+  DateTime getFullDay(int dayOfWeek) {
+    dayOfWeek++;
+    DateTime now = DateTime.now();
+
+    final diff = (dayOfWeek - now.weekday) % 7;
+
+    return DateUtils.dateOnly(now.subtract(Duration(days: diff)));
   }
 
   UserSessionData copy(
@@ -123,10 +172,17 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   }
 
   Future<bool> updateTRE(TimeOfDay start, TimeOfDay end) async {
-    if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) > 1200) {
+    if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
+        1200) {
       return false;
     }
-    ref.read(uDaoProvider).updateTREtimes(state.value!.userId, start.dateTimeConversion, end.dateTimeConversion);
+    ref
+        .read(uDaoProvider)
+        .updateTREtimes(
+          state.value!.userId,
+          start.dateTimeConversion,
+          end.dateTimeConversion,
+        );
     ref.invalidateSelf();
     return true;
   }

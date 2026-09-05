@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/main.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/fab.dart';
@@ -24,22 +26,6 @@ class MealTracking extends ConsumerWidget {
     final goalChecker = ref.watch(checkNutritionGoalProvider);
     final streakChecker = ref.watch(checkNutritionStreakProvider);
 
-    // if (start.day - 3 < 0) {
-    //   int tempMonth = start.month - 1;
-    //   int tempYear = start.year;
-    //   if (tempMonth < 0) {
-    //     tempYear -= 1;
-    //     end = DateTime(tempYear, 11, 0);
-    //   } else {
-    //     end = DateTime(start.year, tempMonth, 0);
-    //   }
-
-    //   int day = (end.day + start.day) - 3;
-    //   end = DateTime(tempYear, tempMonth, day);
-    // } else {
-    //   end = DateTime(start.year, start.month, start.day - 3);
-    // }
-
     return Scaffold(
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
       drawer: MyNavigationDrawer(),
@@ -58,7 +44,7 @@ class MealTracking extends ConsumerWidget {
 
                   return LinearPercentIndicator(
                     percent: model,
-                    lineHeight: 10,
+                    lineHeight: 15,
                     width: MediaQuery.of(context).size.width - 80,
                     animation: true,
                     animationDuration: 2000,
@@ -119,6 +105,20 @@ class MealTracking extends ConsumerWidget {
           ),
         ],
       ),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GoalsPage(type: GoalType.nutrition),
+                ),
+              ),
+              child: Text(
+                'Goals/Streaks',
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
+            ),
+      ],
 
       // body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
       //   if (!snapshot.hasData) {

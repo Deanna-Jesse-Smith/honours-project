@@ -364,6 +364,40 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
+  Future<NutritionGoalModel?> findActiveNutritionGoal() async {
+        final goalRows =
+        await (select(goals).join([
+                innerJoin(
+                  nutritionGoals,
+                  nutritionGoals.goalID.equalsExp(goals.goalID),
+                ),
+              ])
+              ..where(goals.type.equalsValue(GoalType.nutrition))
+              ..orderBy([
+    OrderingTerm.desc(goals.goalID),
+  ])
+              ..limit(1))
+            .getSingleOrNull();
+
+    if (goalRows == null) {
+      return null;
+    }
+
+    final goalRow = goalRows.readTable(goals);
+    final nutritionRow = goalRows.readTable(nutritionGoals);
+
+    return NutritionGoalModel(
+      goalRow.goalID,
+      goalRow.thresholdValue ?? 0,
+      goalRow.progressValue,
+      goalRow.op,
+      goalRow.metricType,
+      goalRow.lastEvaluated,
+      goalRow.isComplete,
+      // hdrAmount: hydrationRow.hdrAmount,
+    );
+  }
+
   Future<List<NutritionStreak?>> checkActiveNutrientStreaks() async {
     final streakRows =
         await (select(goals).join([
@@ -416,8 +450,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       case GoalType.hydration:
         return findActiveHydrationGoal();
       case GoalType.nutrition:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return findActiveFoodGoal();
     }
   }
 
@@ -530,7 +563,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
                 ),
               ])
               ..where(goals.type.equalsValue(GoalType.weight))
-              // ..where(goals.isComplete.isValue(false))
+              ..where(goals.isComplete.isValue(false))
               ..orderBy([
     OrderingTerm.desc(goals.goalID),
   ])
