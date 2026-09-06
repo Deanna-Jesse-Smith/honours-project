@@ -87,8 +87,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       elevation: 0.0,
       centerTitle: true,
       actions: [
-          Tooltip(
-            message: 'Toggle your fast from the floating action button on your screen when you want to start or end a fast',
+          const Tooltip(
+            message:'Toggle your fast from the floating action button on your screen when you want to start or end a TRE or ADF fast. A 5:2 fast is recorded in the week following the fast based on your recorded meals.',
+            textStyle: TextStyle(fontSize: TextSizing.small),
+            constraints: BoxConstraints(maxWidth: 300),
             triggerMode: TooltipTriggerMode.tap,
             child: SizedBox(width: 50,
               child: Icon(Icons.question_mark)),
@@ -392,11 +394,11 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     List<ElevatedButton> times = [
       ElevatedButton(
         onPressed: () => selectStartTime(session.userId),
-        child: Text(startText),
+        child: Text(startText, style: TextStyle(fontSize: TextSizing.medium)),
       ),
       ElevatedButton(
         onPressed: () => selectEndTime(session.userId),
-        child: Text(endText),
+        child: Text(endText, style: TextStyle(fontSize: TextSizing.medium)),
       ),
     ];
 
@@ -414,9 +416,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           children: [
             TableRow(
               children: headings
-                  .map((heading) => Center(child: Text(heading)))
+                  .map((heading) => Center(child: Text(heading, style: TextStyle(fontSize: TextSizing.medium),)))
                   .toList(),
             ),
+            TableRow(children: [const SizedBox(height: 10,), const SizedBox(height: 10,)]),
             TableRow(
               children: times.map((times) => Center(child: times)).toList(),
             ),

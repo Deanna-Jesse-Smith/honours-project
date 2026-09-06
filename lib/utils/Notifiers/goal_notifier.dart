@@ -162,17 +162,14 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (goal == null) {
       return 0.0;
     }
-    DateTime evalDay = goal.lastEval;
+    // DateTime evalDay = goal.lastEval;
     final curWeek = bookendWeek();
     final lastWeek = (
       curWeek.$1.subtract(const Duration(days: 7)),
       curWeek.$2.subtract(const Duration(days: 7)),
     );
     // late bool lastWeekComplete;
-    bool alreadyEvaluated = false;
-    if (evalDay == lastWeek.$2) {
-      alreadyEvaluated = true;
-    }
+    // bool alreadyEvaluated = evalDay == lastWeek.$2;
 
     if (goal.metric == MetricType.hours) {
       // if (!alreadyEvaluated) {
@@ -247,7 +244,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return false;
     }
     int goalID = goal.goalID;
-    DateTime evalDay = goal.lastEval;
+    // DateTime evalDay = goal.lastEval;
     DateTime today = DateTime.now();
     late double percent;
     final curWeek = bookendWeek();
@@ -255,20 +252,20 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       curWeek.$1.subtract(const Duration(days: 7)),
       curWeek.$2.subtract(const Duration(days: 7)),
     );
-    late bool lastWeekComplete;
-    bool alreadyEvaluated = evalDay == lastWeek.$2;
+    // late bool lastWeekComplete;
+    // bool alreadyEvaluated = evalDay == lastWeek.$2;
     bool doCelebrate = false;
 
     if (goal.metric == MetricType.hours) {
-      if (!alreadyEvaluated) {
-        final lastDur = await ref
-            .read(fDaoProvider)
-            .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
-        int numLastComplete = lastDur
-            .where((d) => d >= goal.threshold * 60)
-            .length;
-        lastWeekComplete = numLastComplete == 7;
-      }
+      // if (!alreadyEvaluated) {
+      //   final lastDur = await ref
+      //       .read(fDaoProvider)
+      //       .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
+      //   int numLastComplete = lastDur
+      //       .where((d) => d >= goal.threshold * 60)
+      //       .length;
+      //   lastWeekComplete = numLastComplete == 7;
+      // }
 
       final curDur = await ref
           .read(fDaoProvider)
@@ -276,16 +273,16 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
       percent = numComplete / 7;
     } else if (goal.metric == MetricType.days) {
-      if (!alreadyEvaluated) {
-        final weekDays = await ref
-            .read(fDaoProvider)
-            .findFastsInRange(lastWeek.$1, lastWeek.$2)
-            .length;
+      // if (!alreadyEvaluated) {
+      //   final weekDays = await ref
+      //       .read(fDaoProvider)
+      //       .findFastsInRange(lastWeek.$1, lastWeek.$2)
+      //       .length;
 
-        if (weekDays >= goal.threshold) {
-          lastWeekComplete = true;
-        }
-      }
+      //   if (weekDays >= goal.threshold) {
+      //     lastWeekComplete = true;
+      //   }
+      // }
 
       final curWeekDays = await ref
           .read(fDaoProvider)
@@ -295,21 +292,21 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
-      if (!alreadyEvaluated) {
-        bool tempResult = false;
-        for (final day in fiveTwoDays) {
-          final date = lastWeek.$1.add(Duration(days: day));
-          bool wasCompleted = await ref
-              .read(nDaoProvider)
-              .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+      // if (!alreadyEvaluated) {
+      //   bool tempResult = false;
+      //   for (final day in fiveTwoDays) {
+      //     final date = lastWeek.$1.add(Duration(days: day));
+      //     bool wasCompleted = await ref
+      //         .read(nDaoProvider)
+      //         .isFiveTwoDay(date, date.add(const Duration(days: 1)));
 
-          if (!wasCompleted) {
-            tempResult = false;
-            break;
-          }
-        }
-        lastWeekComplete = tempResult;
-      }
+      //     if (!wasCompleted) {
+      //       tempResult = false;
+      //       break;
+      //     }
+      //   }
+      //   lastWeekComplete = tempResult;
+      // }
 
       int numCompleted = 0;
       for (final day in fiveTwoDays) {

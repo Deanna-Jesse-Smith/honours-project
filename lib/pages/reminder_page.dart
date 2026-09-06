@@ -258,16 +258,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 ),
               ],
             ),
-            // Row(children: [
-            //   const Text('Remind me at: '),
-            //   ElevatedButton(onPressed: () async {
-            //     final chosenTime = await Dialogs.showTimeInput(context);
-
-            //     if (chosenTime != null) {
-
-            //     }
-            //   }, child: child)
-            // ],)
+            const SizedBox(height: 40,),
           ],
         ),
       ),
@@ -298,10 +289,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   }
 
   bool isStart = false, isEnd = false, isMid = false;
-
-  // Future<void> testing() async {
-  //   await asyncReminder.testingNotifs();
-  // }
 
   Widget dailyFastReminder() {
     return Column(

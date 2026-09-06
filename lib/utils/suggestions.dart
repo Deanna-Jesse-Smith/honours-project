@@ -206,55 +206,55 @@ class RecommendationSystem {
 
   Experience getExp() => exp;
 
-int scoreForm(FastingForm form) {
-  var score = 0;
+  int scoreForm(FastingForm form) {
+    var score = 0;
 
-  if (prevForms.contains(form)) {
-    score += 3;
-  }
-
-  if (form == FastingForm.tre) {
-    if (exp == Experience.beginner) {
-      score += 2;
-    } else {
-      score -= 1;
+    if (prevForms.contains(form)) {
+      score += 3;
     }
 
-    if (struggle.contains(Struggle.daily)) {
-      score -= 4;
-    }
-  } else if (form == FastingForm.adf) {
-    if (exp == Experience.beginner) {
-      score -= 2;
-
-      if (struggle.contains(Struggle.daily)) {
-        score -= 2;
-      }
-    } else {
-      score += 1;
-    }
-
-    if (struggle.contains(Struggle.weekly)) {
-      score -= 4;
-    }
-  } else if (form == FastingForm.fiveTwo) {
-    if (exp == Experience.beginner) {
-      score -= 2;
-
-      if (struggle.contains(Struggle.daily)) {
+    if (form == FastingForm.tre) {
+      if (exp == Experience.beginner) {
         score += 2;
+      } else {
+        score -= 1;
       }
-    } else {
-      score += 1;
+
+      if (struggle.contains(Struggle.daily)) {
+        score -= 4;
+      }
+    } else if (form == FastingForm.adf) {
+      if (exp == Experience.beginner) {
+        score -= 2;
+
+        if (struggle.contains(Struggle.daily)) {
+          score -= 2;
+        }
+      } else {
+        score += 1;
+      }
+
+      if (struggle.contains(Struggle.weekly)) {
+        score -= 4;
+      }
+    } else if (form == FastingForm.fiveTwo) {
+      if (exp == Experience.beginner) {
+        score -= 2;
+
+        if (struggle.contains(Struggle.daily)) {
+          score += 2;
+        }
+      } else {
+        score += 1;
+      }
+
+      if (struggle.contains(Struggle.weekly)) {
+        score -= 4;
+      }
     }
 
-    if (struggle.contains(Struggle.weekly)) {
-      score -= 4;
-    }
+    return score;
   }
-
-  return score;
-}
 
   ScoredOption score(FastOption option) {
     late FastingForm form;
@@ -382,7 +382,13 @@ int scoreForm(FastingForm form) {
     List<ADFoption> options = [];
 
     for (final combo in combinations) {
-      options.add(ADFoption(combo, 'ADF: A ${combo.length} day option', adfCombo(combo.sublist(1), 'A fast on ${daysOfWeek[combo.first]}')));
+      options.add(
+        ADFoption(
+          combo,
+          'ADF: A ${combo.length} day option',
+          adfCombo(combo.sublist(1), 'A fast on ${daysOfWeek[combo.first]}'),
+        ),
+      );
     }
 
     return options;
@@ -406,7 +412,13 @@ int scoreForm(FastingForm form) {
     List<ModifiedOption> options = [];
 
     for (final pair in pairs) {
-      options.add(ModifiedOption(pair, '5:2', 'A schedule with your calorie restriction days on ${daysOfWeek[pair.first]} and ${daysOfWeek[pair.last]}'));
+      options.add(
+        ModifiedOption(
+          pair,
+          '5:2',
+          'A schedule with your calorie restriction days on ${daysOfWeek[pair.first]} and ${daysOfWeek[pair.last]}',
+        ),
+      );
     }
 
     return options;
@@ -471,6 +483,7 @@ int scoreForm(FastingForm form) {
       }
       return [...withDay, ...withoutDay];
     }
+
     final combinations = validCombos(pool, null, [], []);
 
     final output = combinations.where((combo) {
@@ -602,7 +615,10 @@ class RecommendFast {
   Suggestion adfEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> combinations =RecommendationSystem.validCombosHelper(getAvailable, true);
+    List<List<int>> combinations = RecommendationSystem.validCombosHelper(
+      getAvailable,
+      true,
+    );
 
     adfList = combinations;
 
@@ -612,7 +628,10 @@ class RecommendFast {
   Suggestion fiveTwoEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, true);
 
-    List<List<int>> pairs = RecommendationSystem.validCombosHelper(getAvailable, false);
+    List<List<int>> pairs = RecommendationSystem.validCombosHelper(
+      getAvailable,
+      false,
+    );
 
     String selectionDays =
         'It is then recommended you pick from the following combinations for your fasting days:';

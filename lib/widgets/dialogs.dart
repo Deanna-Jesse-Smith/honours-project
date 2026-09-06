@@ -228,11 +228,14 @@ class Dialogs {
       context: context,
       builder: (context) => SimpleDialog(
         title: Text('Your fasting result icons'),
-        children: FastResult.values.map((r) => Row(
-          spacing: 10,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [r.resultIcon, SizedBox(width: MediaQuery.of(context).size.width * 0.6, child: Text(r.description))],
-  )).toList(),
+        children: FastResult.values.map((r) => Padding(
+          padding: const EdgeInsets.fromLTRB(0, 8, 0, 7),
+          child: Row(
+            spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [r.resultIcon, SizedBox(width: MediaQuery.of(context).size.width * 0.6, child: Text(r.description, style: TextStyle(fontSize: TextSizing.small)))],
+            ),
+        )).toList(),
       ),
     );
     return temp;

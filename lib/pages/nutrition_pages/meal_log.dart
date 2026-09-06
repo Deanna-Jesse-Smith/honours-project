@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:path/path.dart' as p;
@@ -249,15 +250,22 @@ class _MealLogState extends ConsumerState<MealLog> {
           // ),
           ElevatedButton(
             onPressed: () async {
-              bool decision = await Dialogs.dangerDialog(
-                context,
-                title: 'Done everything you need?',
-                message: 'You won\'t be able to edit this meal after you leave',
-              );
-              if (!decision) {
-                return;
+              final decision = await ref
+                  .read(asyncFatingNotifier.notifier)
+                  .isInEatingWindow(context);
+              if (decision) {
+                if (!mounted) return;
+                bool decision2 = await Dialogs.dangerDialog(
+                  context,
+                  title: 'Done everything you need?',
+                  message:
+                      'You won\'t be able to edit this meal after you leave',
+                );
+                if (!decision2) {
+                  return;
+                }
+                save();
               }
-              save();
             },
             child: const Text(
               'Save meal',
@@ -270,13 +278,15 @@ class _MealLogState extends ConsumerState<MealLog> {
   }
 
   void save() async {
-    await nDao.insertFoodLog(
-      dropDownValuee,
-      imagePath,
-      controller.text,
-      LogMethod.full,
-      mealTime,
-    ).whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
+    await nDao
+        .insertFoodLog(
+          dropDownValuee,
+          imagePath,
+          controller.text,
+          LogMethod.full,
+          mealTime,
+        )
+        .whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
 
     if (!mounted) return;
     Navigator.of(context).pop();

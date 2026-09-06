@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
+// ignore: must_be_immutable
 class CustomCheckbox extends StatelessWidget {
   bool isSelected;
   final String dayOfWeek;

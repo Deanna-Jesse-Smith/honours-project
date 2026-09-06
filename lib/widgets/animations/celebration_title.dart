@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/goals_model.dart';
@@ -33,7 +35,9 @@ class _DialogTitleState extends State<DialogTitle>
       duration: const Duration(milliseconds: 2000),
     );
 
-    confettiController = ConfettiController(duration: const Duration(seconds: 5));
+    confettiController = ConfettiController(
+      duration: const Duration(seconds: 5),
+    );
 
     trophyScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -41,7 +45,7 @@ class _DialogTitleState extends State<DialogTitle>
         curve: const Interval(0.1, 0.5, curve: Curves.elasticOut),
       ),
     );
-    trophyRotation = Tween<double>(begin: -0.55, end: 0.0).animate(
+    trophyRotation = Tween<double>(begin: -0.55, end: 0.2).animate(
       CurvedAnimation(
         parent: controller,
         curve: const Interval(0.1, 0.5, curve: Curves.easeOutBack),
@@ -108,7 +112,11 @@ class _DialogTitleState extends State<DialogTitle>
               children: [
                 AnimatedBuilder(
                   animation: controller,
-                  child: const Icon(Icons.emoji_events, size: 100, color: Color.fromRGBO(255, 215, 0, 1),),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    size: 100,
+                    color: Color.fromRGBO(255, 215, 0, 1),
+                  ),
                   builder: (context, child) {
                     return Transform.scale(
                       scale: trophyScale.value,
@@ -133,10 +141,15 @@ class _DialogTitleState extends State<DialogTitle>
                 position: textSlide,
                 child: Column(
                   children: [
-                    Text(title, style: TextStyle(fontSize: TextSizing.large), textAlign: TextAlign.center,),
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: TextSizing.large),
+                      textAlign: TextAlign.center,
+                    ),
                     SizedBox(height: 12),
                     Text(
-                      text, style: TextStyle(fontSize: TextSizing.medium),
+                      text,
+                      style: TextStyle(fontSize: TextSizing.medium),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -149,24 +162,30 @@ class _DialogTitleState extends State<DialogTitle>
             SizedBox(
               width: 250,
               height: 80,
-              child: Align(alignment: Alignment.topCenter, child: ConfettiWidget(confettiController: confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              colors: const [
-                  Colors.green,
-                  Colors.blue,
-                  Colors.pink,
-                  Colors.orange,
-                  Colors.purple
-                ],
-              ),)
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConfettiWidget(
+                  confettiController: confettiController,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  colors: const [
+                    Colors.green,
+                    Colors.blue,
+                    Colors.pink,
+                    Colors.orange,
+                    Colors.purple,
+                  ],
+                ),
+              ),
             ),
 
             FadeTransition(
               opacity: textFade,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Close',
-                            style: TextStyle(fontSize: TextSizing.medium),),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
               ),
             ),
           ],
@@ -179,9 +198,12 @@ class _DialogTitleState extends State<DialogTitle>
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
+        Random ran = Random();
+        double start = ran.nextDouble().clamp(0.1, 0.35);
         final animation = CurvedAnimation(
           parent: controller,
-          curve: const Interval(0.25, 0.7, curve: Curves.easeOut),
+          // curve: const Interval(0.25, 0.7, curve: Curves.easeOut),
+          curve: Interval(start, ran.nextDouble().clamp(start, 0.75), curve: Curves.easeOut),
         );
 
         return Opacity(

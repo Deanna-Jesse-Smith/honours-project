@@ -244,18 +244,6 @@ enum FastResult {
 }
 
 extension FastResultHistory on FastResult {
-  Color get colour => switch (this) {
-    FastResult.asPlanned => throw UnimplementedError(),
-    FastResult.lateStart => throw UnimplementedError(),
-    FastResult.earlyStart => throw UnimplementedError(),
-    FastResult.lateEnd => throw UnimplementedError(),
-    FastResult.earlyEnd => throw UnimplementedError(),
-    FastResult.skipped => throw UnimplementedError(),
-    FastResult.interrupted => throw UnimplementedError(),
-    FastResult.overate => throw UnimplementedError(),
-    FastResult.underate => throw UnimplementedError(),
-  };
-
   Icon get resultIcon => switch (this) {
     FastResult.asPlanned => Icon(Icons.check),
     FastResult.lateStart => Icon(Icons.watch_later, color: Colors.deepPurple),
@@ -284,7 +272,7 @@ extension FastResultHistory on FastResult {
     FastResult.interrupted => 'This fast was interrupted part way through',
     FastResult.overate =>
       'You ate more than was recommended on a restrictive day',
-    FastResult.underate => 'You ate less than was recommended',
+    FastResult.underate => 'You ate less than was recommended on a restrictive day',
   };
 }
 

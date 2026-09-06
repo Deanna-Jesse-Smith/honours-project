@@ -58,7 +58,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
             child: Text(
-              'The suggested fasting schedules are below, but you can choose to make your own',
+              'The suggested fasting schedules are below, but you can choose to make your own in the Fasting Plan page',
               style: TextStyle(fontSize: TextSizing.medium),
             ),
           ),
