@@ -74,7 +74,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     );
 
     if (goal == null) {
-      return 0;
+      return -1;
     } else {
       final mealCounts = await ref
           .read(nDaoProvider)

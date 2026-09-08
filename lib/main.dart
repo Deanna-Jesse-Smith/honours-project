@@ -162,7 +162,6 @@ class MyApp extends ConsumerWidget {
     // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
     ref.read(asyncConcernsProvider);
-    // tz.initializeTimeZones();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {

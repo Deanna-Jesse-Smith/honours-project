@@ -146,6 +146,8 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       widget.almost.height,
                     );
                 ref.read(wDaoProvider).logWeight(id, DateTime.now(), double.parse(widget.weight));
+
+                
                 
                 await NotificationSystem.requestPermission();
                 

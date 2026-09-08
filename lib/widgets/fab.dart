@@ -89,10 +89,21 @@ class MyExpandableFAB extends ConsumerWidget {
             loading: () => 'Loading',
           ),
           colour: Colors.deepPurpleAccent,
-          onPressed: () => ref
+          onPressed: () {
+            try {
+              ref
               .read(asyncFatingNotifier.notifier)
-              .toggleFast()
-              .whenComplete(() => ref.invalidate(checkFastingGoalProvider)),
+              .toggleFast();
+            } finally {
+              ref.invalidate(checkFastingGoalProvider);
+              ref.invalidate(checkFastingStatusProvider);
+              ref.invalidate(checkFastingProgressProvider);
+            }
+            // ref
+            //   .read(asyncFatingNotifier.notifier)
+            //   .toggleFast()
+            //   .whenComplete(() => ref.invalidate(checkFastingGoalProvider));
+              },
         ),
       FabButton(
         title: 'Log Weight',

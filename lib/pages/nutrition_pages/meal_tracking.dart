@@ -36,11 +36,11 @@ class MealTracking extends ConsumerWidget {
           Padding(
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(data: (goal) {
-                final model = goal == -1 ? 0.0 : goal;
-
-                  if (model == -1) {
-                    return Text('No ongoing goal');
+                if (goal == -1) {
+                    return Text('No ongoing goal', style: TextStyle(fontSize: TextSizing.medium),);
                   }
+                  
+                final model = goal == -1 ? 0.0 : goal;
 
                   return LinearPercentIndicator(
                     percent: model,
@@ -49,7 +49,8 @@ class MealTracking extends ConsumerWidget {
                     animation: true,
                     animationDuration: 2000,
                     progressColor: Colors.amber,
-                    backgroundColor: Colors.black,
+                    backgroundColor: Colors.yellow,
+                    barRadius: Radius.circular(10),
                   );
               }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
