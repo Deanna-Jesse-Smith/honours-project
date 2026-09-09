@@ -483,12 +483,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
               curStreak.lastPeriod = DateUtils.dateOnly(today);
               await ref.read(gDaoProvider).updateStreak(curStreak);
               doCelebrate = true;
-              // ref.invalidate(checkHydrationStreakProvider);
             }
           }
         } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
           await ref.read(gDaoProvider).breakStreak(curStreak);
-          // ref.invalidate(checkHydrationStreakProvider);
         }
       } else {
         if (percent == 1) {
@@ -575,6 +573,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return percent;
   }
 
+  Future<void> insertInitialFastinggoal(int userId, num threshold, MetricType mType) async {
+    await ref.read(gDaoProvider).insertFastingGoal(userId, threshold.toDouble(), GoalOperator.greaterEqual, mType);
+  }
+
   Future<void> insertGoal(BasicGoal newGoal) async {
     if (newGoal is FastingGoalModel) {
       await ref
@@ -637,6 +639,14 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .read(gDaoProvider)
         .evaluateConcerns(type, startWindow);
     return breaksInWindow >= thr;
+  }
+
+  Future<bool> isValidPR(GoalType type, int thr, int window) async {
+    final startWindow = DateTime.now().subtract(Duration(days: window));
+    final breaksInWindow = await ref
+        .read(gDaoProvider)
+        .evaluateConcerns(type, startWindow);
+    return breaksInWindow <= thr;
   }
 }
 

@@ -29,6 +29,7 @@ class HomePageState extends ConsumerState<HomePage> {
     session = ref.watch(userSessionProvider).value!;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // await ref.read(fDaoProvider).dummyData();
+      // await ref.read(cDaoProvider).dummyData();
       final check = await ref
           .read(asyncGoalsProvider.notifier)
           .checkFastingGoal();
@@ -39,12 +40,12 @@ class HomePageState extends ConsumerState<HomePage> {
         builder: (_) => DialogTitle(type: GoalType.fasting),
       );
 
-      final checkFood = await ref.read(asyncGoalsProvider.notifier).checkNutritionGoal();
+      final checkFood = await ref.read(asyncGoalsProvider.notifier).checkFastingGoal();
 
       if (!checkFood || !mounted) return;
       await showDialog(
         context: context,
-        builder: (_) => DialogTitle(type: GoalType.nutrition),
+        builder: (_) => DialogTitle(type: GoalType.fasting),
       );
     });
   }

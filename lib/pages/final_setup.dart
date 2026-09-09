@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
+import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -106,9 +108,13 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     
               if (decision) {
                 String cur52Schedule;
+                late MetricType type;
+                late int threshold;
                 if (selectedForm == FastingForm.fiveTwo) {
                   final temp = selectedOption as ModifiedOption;
                   cur52Schedule = temp.days.join(',');
+                  type = MetricType.meals52;
+                  threshold = 2;
                 } else {
                   cur52Schedule = '';
                 }
@@ -117,6 +123,8 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 if (selectedForm == FastingForm.adf) {
                   final temp = selectedOption as ADFoption;
                   curADFSchedule = temp.days.join(',');
+                  type = MetricType.days;
+                  threshold = temp.days.length;
                 } else {
                   curADFSchedule = '';
                 }
@@ -128,6 +136,8 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                     DateTime(2026, 1, 1, temp.start.hour, temp.start.minute),
                     DateTime(2026, 1, 1, temp.end.hour, temp.end.minute),
                   ];
+                  type = MetricType.hours;
+                  threshold = times[0].difference(times[1]).inHours - 1;
                 } else {
                   times = [DateTime(2026), DateTime(2026)];
                 }
@@ -147,7 +157,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                     );
                 ref.read(wDaoProvider).logWeight(id, DateTime.now(), double.parse(widget.weight));
 
-                
+                ref.read(asyncGoalsProvider.notifier).insertInitialFastinggoal(id, threshold, type);
                 
                 await NotificationSystem.requestPermission();
                 

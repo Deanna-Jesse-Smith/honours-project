@@ -97,7 +97,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
             ? true
             : await ref
                   .read(asyncGoalsProvider.notifier)
-                  .isValidConcern(type, pr.threshold, pr.window);
+                  .isValidPR(type, pr.threshold, pr.window);
         if (isValid) {
           return pr;
         }

@@ -35,7 +35,7 @@ class ReinforcementDao extends DatabaseAccessor<AppDatabase>
 
     into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.fasting), title: 'Your fasting plan may need adjusting', displayContext: 'You\'ve had difficulty maintaining your fasting schedule recently. Your routine may not fit your current lifestyle as well as it could. Consider adjusting your fasting schedule to something you can maintain more consistently.', citation: 'O\'Connor et al. (2022)', threshold: 2, window: 28,),);
 
-into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.fasting), title: 'Your fasting routine hasn\'t been consistent', displayContext: 'Your recent fasting history shows that your current plan has been difficult to follow. Rather than pushing yourself to continue with the same schedule consider whether a different fasting pattern would fit your routine better.', citation: 'O\'Neal et al. (2023)', threshold: 3, window: 42,),);
+// into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.fasting), title: 'Your fasting routine hasn\'t been consistent', displayContext: 'Your recent fasting history shows that your current plan has been difficult to follow. Rather than pushing yourself to continue with the same schedule consider whether a different fasting pattern would fit your routine better.', citation: 'O\'Neal et al. (2023)', threshold: <50% planned fasting weeks achieved, window: 42,),);
 
 into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.fasting), title: 'You\'re building a consistent fasting routine', displayContext: 'Your recent fasting history shows that you\'ve been consistently following your plan. Keeping a routine that fits your lifestyle can make it easier to maintain your progress.', citation: 'Torres/Salisbury et al. (2022)', threshold: 3, window: 21,),);
 
@@ -43,7 +43,7 @@ into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr
 
 into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.hydration), title: 'Your hydration goal has been difficult to maintain', displayContext: 'You haven\'t been consistently reaching your daily water goal. Consider whether changing when or how you drink water could make your goal easier to maintain.', citation: 'Aguiar et al. (2022)', threshold: 3, window: 7,),);
 
-into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.hydration), title: 'Try changing your hydration routine', displayContext: 'Your recent history suggests that your current approach isn\'t helping you consistently reach your hydration goal. Try setting reminders or connecting drinking water with an existing part of your daily routine.', citation: 'Milne-Ives et al. (2023)', threshold: 4, window: 14,),);
+// into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.hydration), title: 'Try changing your hydration routine', displayContext: 'Your recent history suggests that your current approach isn\'t helping you consistently reach your hydration goal. Try setting reminders or connecting drinking water with an existing part of your daily routine.', citation: 'Milne-Ives et al. (2023)', threshold: Hydration goal missed ≥3 days in each of the last 2 weeks, window: 2 weeks,),);
 
 into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.hydration), title: 'You\'re staying consistent with your hydration goal', displayContext: 'You\'ve been regularly meeting your daily water target. Keep the routine going.', citation: 'Aguiar et al. (2022)', threshold: 5, window: 7,),);
 
@@ -53,42 +53,40 @@ into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.he
 
 into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.nutrition), title: 'A simpler approach may work better', displayContext: 'You\'ve struggled to maintain your meal goal recently. Instead of adding more tracking consider whether your goal or logging routine could be simplified.', citation: 'Payne et al. (2022)', threshold: 3, window: 42,),);
 
-into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'You\'re keeping up with your meal goal', displayContext: 'You\'ve consistently reached your meal goal recently. Your regular tracking gives you useful information about your eating habits and progress.', citation: 'Payne et al. (2022)', threshold: 3, window: 28,),);
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'You\'re keeping up with your meal goal', displayContext: 'You\'ve consistently reached your meal goal recently. Your regular tracking gives you useful information about your eating habits and progress.', citation: 'Payne et al. (2022)', threshold: 1, window: 28,),);
 
-return into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'Consistency matters', displayContext: 'You\'ve been consistently keeping track of your meal goal. You don\'t need to record everything in detail for your progress history to be useful.', citation: 'Payne et al. (2022)', threshold: 3, window: 28,),);
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'Consistency matters', displayContext: 'You\'ve been consistently keeping track of your meal goal. You don\'t need to record everything in detail for your progress history to be useful.', citation: 'Payne et al. (2022)', threshold: 0, window: 28,),);
 
 // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.weight), title: 'Your progress toward your weight goal has slowed', displayContext: 'Your recent weight history isn\'t moving toward your goal as expected. Consider looking at your fasting meal and activity history to see whether changing your current routine could help.', citation: 'Hallock et al. (2024)', threshold: No meaningful movement toward goal, window: 28,),);
 
 // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.weight), title: 'Check in with your progress', displayContext: 'You haven\'t recorded your weight recently so your progress toward your goal is harder to assess. A new measurement can help you see whether your current routine is moving you in the direction you want.', citation: 'Hallock et al. (2024)', threshold: No weight measurement, window: 30,),);
 
-// into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'You\'re keeping track of your progress', displayContext: 'Regularly recording your weight gives you feedback about how your habits are affecting your progress toward your goal.', citation: 'Hallock et al. (2024)', threshold: Weekly weight recording, window: 28,),);
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'You\'re keeping track of your progress', displayContext: 'Regularly recording your weight gives you feedback about how your habits are affecting your progress toward your goal.', citation: 'Hallock et al. (2024)', threshold: 4, window: 28,),);
 
 // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'Your progress gives you useful feedback', displayContext: 'Your recent weight measurements give you a clearer picture of how your current routine is working. Use this information alongside your fasting meal and activity history when deciding whether to continue or adjust your plan.', citation: 'Hallock et al. (2024)', threshold: Weight trend moving toward goal, window: 21,),);
 
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.fasting), title: 'Fast completed', displayContext: 'You completed your planned fast. Take a moment to recognise the progress you\'ve made.', citation: 'Torres/Salisbury et al. (2022)', threshold: 0, window: 0,),);
 
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.fasting), title: 'Fast completed as planned', displayContext: 'You followed your fasting plan as intended. Keeping a routine that works for you is an important part of making fasting sustainable.', citation: 'O\'Connor et al. (2022)', threshold: 0, window: 0,),);
 
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.fasting), title: 'Goal reached', displayContext: 'You reached your fasting goal. Your progress shows what you can achieve when your plan fits your routine.', citation: 'Milne-Ives et al. (2023)', threshold: 0, window: 0,),);
 
-    // into(reinforcements).insert(
-    //   ReinforcementsCompanion.insert(
-    //     cType: ConcernType.health,
-    //     type: Value(GoalType.fasting),
-    //     title: 'Test 1',
-    //     displayContext: 'Testing 1',
-    //     citation: 'Teting 1',
-    //     threshold: 2,
-    //     window: 14,
-    //   ),
-    // );
-    // return into(reinforcements).insert(
-    //   ReinforcementsCompanion.insert(
-    //     cType: ConcernType.pr,
-    //     type: Value(null),
-    //     title: 'Test 2',
-    //     displayContext: 'Testing 2',
-    //     citation: 'Teting 2',
-    //     threshold: 2,
-    //     window: 14,
-    //   ),
-    // );
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.hydration), title: 'Hydration goal reached', displayContext: 'You reached your water goal today. Keep building on the routine that helped you get there.', citation: 'Aguiar et al. (2022)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.hydration), title: 'Great job staying hydrated', displayContext: 'You\'ve reached your hydration target. Regular feedback like this can help reinforce the behaviours you\'re working on.', citation: 'Aguiar et al. (2022)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.hydration), title: 'Water logged', displayContext: 'You logged your water intake. Keeping track of your behaviour gives you useful feedback on your progress.', citation: 'Milne-Ives et al. (2023)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'Meal goal reached', displayContext: 'You reached your meal goal. Keeping track of your meals gives you useful feedback about your eating habits.', citation: 'Payne et al. (2022)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'Meal logged', displayContext: 'You logged a meal. Keeping track of your eating behaviour can help you stay aware of your progress.', citation: 'Payne et al. (2022)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.nutrition), title: 'Goal reached', displayContext: 'You reached your meal goal for today. Recognising your progress can help reinforce the behaviour.', citation: 'Milne-Ives et al. (2023)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'Progress recorded', displayContext: 'You\'ve recorded your weight. Keeping track of your progress gives you useful feedback about your journey toward your goal.', citation: 'Hallock et al. (2024)', threshold: 0, window: 0,),);
+
+into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'Progress toward your goal', displayContext: 'Your latest measurement shows you\'re moving toward your weight goal. Use this progress as feedback on how your current routine is working.', citation: 'Hallock et al. (2024)', threshold: 0, window: 0,),);
+
+return into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'Goal reached', displayContext: 'You\'ve reached your weight goal. Take a moment to recognise the progress you\'ve made.', citation: 'Hallock et al. (2024)', threshold: 0, window: 0,),);
   }
 }
