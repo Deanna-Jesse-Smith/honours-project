@@ -151,7 +151,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                 ),
               ),
               child: Text(
-                'Goals/Streaks',
+                'Set Goals',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),

@@ -50,7 +50,10 @@ class _StartPageState extends State<StartPage> {
                   style: TextStyle(fontSize: TextSizing.medium),
                 ),
                 value: hasExperience,
-                onChanged: ((value) => setState(() => hasExperience = value!)),
+                onChanged: ((value) => setState(() {
+                  controller.text = controller.text;
+                  hasExperience = value!;
+                })),
               ),
             ),
             ElevatedButton(

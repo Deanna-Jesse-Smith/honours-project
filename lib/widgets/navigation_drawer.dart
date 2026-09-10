@@ -35,7 +35,7 @@ class MyNavigationDrawer extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/WeightTracking'),
           ),
           ListTile(
-            title: const Text('Reminders'),
+            title: const Text('Set Reminders'),
             onTap: () => Navigator.pushNamed(context, '/Reminder'),
           ),
           ListTile(

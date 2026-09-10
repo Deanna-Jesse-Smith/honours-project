@@ -8,7 +8,7 @@ class Food extends Table {
   IntColumn get foodID => integer().autoIncrement()();
   TextColumn get name => text()();
   TextColumn get servingDescription => text()();
-  IntColumn get servingGrams => integer()();
+  // IntColumn get servingGrams => integer()();
   RealColumn get carbs => real().withDefault(const Constant(0))();
   RealColumn get fat => real().withDefault(const Constant(0))();
   RealColumn get protein => real().withDefault(const Constant(0))();

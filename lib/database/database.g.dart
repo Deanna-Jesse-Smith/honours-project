@@ -1955,17 +1955,6 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
-  static const VerificationMeta _servingGramsMeta = const VerificationMeta(
-    'servingGrams',
-  );
-  @override
-  late final GeneratedColumn<int> servingGrams = GeneratedColumn<int>(
-    'serving_grams',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _carbsMeta = const VerificationMeta('carbs');
   @override
   late final GeneratedColumn<double> carbs = GeneratedColumn<double>(
@@ -2025,7 +2014,6 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
     foodID,
     name,
     servingDescription,
-    servingGrams,
     carbs,
     fat,
     protein,
@@ -2068,17 +2056,6 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
       );
     } else if (isInserting) {
       context.missing(_servingDescriptionMeta);
-    }
-    if (data.containsKey('serving_grams')) {
-      context.handle(
-        _servingGramsMeta,
-        servingGrams.isAcceptableOrUnknown(
-          data['serving_grams']!,
-          _servingGramsMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_servingGramsMeta);
     }
     if (data.containsKey('carbs')) {
       context.handle(
@@ -2131,10 +2108,6 @@ class $FoodTable extends Food with TableInfo<$FoodTable, FoodData> {
         DriftSqlType.string,
         data['${effectivePrefix}serving_description'],
       )!,
-      servingGrams: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}serving_grams'],
-      )!,
       carbs: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}carbs'],
@@ -2168,7 +2141,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
   final int foodID;
   final String name;
   final String servingDescription;
-  final int servingGrams;
   final double carbs;
   final double fat;
   final double protein;
@@ -2178,7 +2150,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     required this.foodID,
     required this.name,
     required this.servingDescription,
-    required this.servingGrams,
     required this.carbs,
     required this.fat,
     required this.protein,
@@ -2191,7 +2162,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     map['food_i_d'] = Variable<int>(foodID);
     map['name'] = Variable<String>(name);
     map['serving_description'] = Variable<String>(servingDescription);
-    map['serving_grams'] = Variable<int>(servingGrams);
     map['carbs'] = Variable<double>(carbs);
     map['fat'] = Variable<double>(fat);
     map['protein'] = Variable<double>(protein);
@@ -2205,7 +2175,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
       foodID: Value(foodID),
       name: Value(name),
       servingDescription: Value(servingDescription),
-      servingGrams: Value(servingGrams),
       carbs: Value(carbs),
       fat: Value(fat),
       protein: Value(protein),
@@ -2225,7 +2194,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
       servingDescription: serializer.fromJson<String>(
         json['servingDescription'],
       ),
-      servingGrams: serializer.fromJson<int>(json['servingGrams']),
       carbs: serializer.fromJson<double>(json['carbs']),
       fat: serializer.fromJson<double>(json['fat']),
       protein: serializer.fromJson<double>(json['protein']),
@@ -2240,7 +2208,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
       'foodID': serializer.toJson<int>(foodID),
       'name': serializer.toJson<String>(name),
       'servingDescription': serializer.toJson<String>(servingDescription),
-      'servingGrams': serializer.toJson<int>(servingGrams),
       'carbs': serializer.toJson<double>(carbs),
       'fat': serializer.toJson<double>(fat),
       'protein': serializer.toJson<double>(protein),
@@ -2253,7 +2220,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     int? foodID,
     String? name,
     String? servingDescription,
-    int? servingGrams,
     double? carbs,
     double? fat,
     double? protein,
@@ -2263,7 +2229,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     foodID: foodID ?? this.foodID,
     name: name ?? this.name,
     servingDescription: servingDescription ?? this.servingDescription,
-    servingGrams: servingGrams ?? this.servingGrams,
     carbs: carbs ?? this.carbs,
     fat: fat ?? this.fat,
     protein: protein ?? this.protein,
@@ -2277,9 +2242,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
       servingDescription: data.servingDescription.present
           ? data.servingDescription.value
           : this.servingDescription,
-      servingGrams: data.servingGrams.present
-          ? data.servingGrams.value
-          : this.servingGrams,
       carbs: data.carbs.present ? data.carbs.value : this.carbs,
       fat: data.fat.present ? data.fat.value : this.fat,
       protein: data.protein.present ? data.protein.value : this.protein,
@@ -2294,7 +2256,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
           ..write('foodID: $foodID, ')
           ..write('name: $name, ')
           ..write('servingDescription: $servingDescription, ')
-          ..write('servingGrams: $servingGrams, ')
           ..write('carbs: $carbs, ')
           ..write('fat: $fat, ')
           ..write('protein: $protein, ')
@@ -2309,7 +2270,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
     foodID,
     name,
     servingDescription,
-    servingGrams,
     carbs,
     fat,
     protein,
@@ -2323,7 +2283,6 @@ class FoodData extends DataClass implements Insertable<FoodData> {
           other.foodID == this.foodID &&
           other.name == this.name &&
           other.servingDescription == this.servingDescription &&
-          other.servingGrams == this.servingGrams &&
           other.carbs == this.carbs &&
           other.fat == this.fat &&
           other.protein == this.protein &&
@@ -2335,7 +2294,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
   final Value<int> foodID;
   final Value<String> name;
   final Value<String> servingDescription;
-  final Value<int> servingGrams;
   final Value<double> carbs;
   final Value<double> fat;
   final Value<double> protein;
@@ -2345,7 +2303,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
     this.foodID = const Value.absent(),
     this.name = const Value.absent(),
     this.servingDescription = const Value.absent(),
-    this.servingGrams = const Value.absent(),
     this.carbs = const Value.absent(),
     this.fat = const Value.absent(),
     this.protein = const Value.absent(),
@@ -2356,20 +2313,17 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
     this.foodID = const Value.absent(),
     required String name,
     required String servingDescription,
-    required int servingGrams,
     this.carbs = const Value.absent(),
     this.fat = const Value.absent(),
     this.protein = const Value.absent(),
     this.fibre = const Value.absent(),
     this.calories = const Value.absent(),
   }) : name = Value(name),
-       servingDescription = Value(servingDescription),
-       servingGrams = Value(servingGrams);
+       servingDescription = Value(servingDescription);
   static Insertable<FoodData> custom({
     Expression<int>? foodID,
     Expression<String>? name,
     Expression<String>? servingDescription,
-    Expression<int>? servingGrams,
     Expression<double>? carbs,
     Expression<double>? fat,
     Expression<double>? protein,
@@ -2380,7 +2334,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
       if (foodID != null) 'food_i_d': foodID,
       if (name != null) 'name': name,
       if (servingDescription != null) 'serving_description': servingDescription,
-      if (servingGrams != null) 'serving_grams': servingGrams,
       if (carbs != null) 'carbs': carbs,
       if (fat != null) 'fat': fat,
       if (protein != null) 'protein': protein,
@@ -2393,7 +2346,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
     Value<int>? foodID,
     Value<String>? name,
     Value<String>? servingDescription,
-    Value<int>? servingGrams,
     Value<double>? carbs,
     Value<double>? fat,
     Value<double>? protein,
@@ -2404,7 +2356,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
       foodID: foodID ?? this.foodID,
       name: name ?? this.name,
       servingDescription: servingDescription ?? this.servingDescription,
-      servingGrams: servingGrams ?? this.servingGrams,
       carbs: carbs ?? this.carbs,
       fat: fat ?? this.fat,
       protein: protein ?? this.protein,
@@ -2424,9 +2375,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
     }
     if (servingDescription.present) {
       map['serving_description'] = Variable<String>(servingDescription.value);
-    }
-    if (servingGrams.present) {
-      map['serving_grams'] = Variable<int>(servingGrams.value);
     }
     if (carbs.present) {
       map['carbs'] = Variable<double>(carbs.value);
@@ -2452,7 +2400,6 @@ class FoodCompanion extends UpdateCompanion<FoodData> {
           ..write('foodID: $foodID, ')
           ..write('name: $name, ')
           ..write('servingDescription: $servingDescription, ')
-          ..write('servingGrams: $servingGrams, ')
           ..write('carbs: $carbs, ')
           ..write('fat: $fat, ')
           ..write('protein: $protein, ')
@@ -2802,18 +2749,6 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _userIDMeta = const VerificationMeta('userID');
-  @override
-  late final GeneratedColumn<int> userID = GeneratedColumn<int>(
-    'user_i_d',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (user_i_d)',
-    ),
-  );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -2824,45 +2759,24 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
-  static const VerificationMeta _inEatingWindowMeta = const VerificationMeta(
-    'inEatingWindow',
-  );
   @override
-  late final GeneratedColumn<bool> inEatingWindow = GeneratedColumn<bool>(
-    'in_eating_window',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("in_eating_window" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _logMethodMeta = const VerificationMeta(
-    'logMethod',
-  );
+  late final GeneratedColumnWithTypeConverter<LogMethod, String> logMethod =
+      GeneratedColumn<String>(
+        'log_method',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LogMethod>($MealsTable.$converterlogMethod);
   @override
-  late final GeneratedColumn<String> logMethod = GeneratedColumn<String>(
-    'log_method',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
-  static const VerificationMeta _mealTypeMeta = const VerificationMeta(
-    'mealType',
-  );
-  @override
-  late final GeneratedColumn<String> mealType = GeneratedColumn<String>(
-    'meal_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
+  late final GeneratedColumnWithTypeConverter<MealCategory, String> mealType =
+      GeneratedColumn<String>(
+        'meal_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<MealCategory>($MealsTable.$convertermealType);
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
@@ -2876,9 +2790,7 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
   @override
   List<GeneratedColumn> get $columns => [
     mealID,
-    userID,
     date,
-    inEatingWindow,
     logMethod,
     mealType,
     amount,
@@ -2901,39 +2813,10 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
         mealID.isAcceptableOrUnknown(data['meal_i_d']!, _mealIDMeta),
       );
     }
-    if (data.containsKey('user_i_d')) {
-      context.handle(
-        _userIDMeta,
-        userID.isAcceptableOrUnknown(data['user_i_d']!, _userIDMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIDMeta);
-    }
     if (data.containsKey('date')) {
       context.handle(
         _dateMeta,
         date.isAcceptableOrUnknown(data['date']!, _dateMeta),
-      );
-    }
-    if (data.containsKey('in_eating_window')) {
-      context.handle(
-        _inEatingWindowMeta,
-        inEatingWindow.isAcceptableOrUnknown(
-          data['in_eating_window']!,
-          _inEatingWindowMeta,
-        ),
-      );
-    }
-    if (data.containsKey('log_method')) {
-      context.handle(
-        _logMethodMeta,
-        logMethod.isAcceptableOrUnknown(data['log_method']!, _logMethodMeta),
-      );
-    }
-    if (data.containsKey('meal_type')) {
-      context.handle(
-        _mealTypeMeta,
-        mealType.isAcceptableOrUnknown(data['meal_type']!, _mealTypeMeta),
       );
     }
     if (data.containsKey('amount')) {
@@ -2955,26 +2838,22 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
         DriftSqlType.int,
         data['${effectivePrefix}meal_i_d'],
       )!,
-      userID: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}user_i_d'],
-      )!,
       date: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}date'],
       )!,
-      inEatingWindow: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}in_eating_window'],
-      )!,
-      logMethod: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}log_method'],
-      )!,
-      mealType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}meal_type'],
-      )!,
+      logMethod: $MealsTable.$converterlogMethod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}log_method'],
+        )!,
+      ),
+      mealType: $MealsTable.$convertermealType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}meal_type'],
+        )!,
+      ),
       amount: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}amount'],
@@ -2986,21 +2865,22 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, Meal> {
   $MealsTable createAlias(String alias) {
     return $MealsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<LogMethod, String, String> $converterlogMethod =
+      const EnumNameConverter<LogMethod>(LogMethod.values);
+  static JsonTypeConverter2<MealCategory, String, String> $convertermealType =
+      const EnumNameConverter<MealCategory>(MealCategory.values);
 }
 
 class Meal extends DataClass implements Insertable<Meal> {
   final int mealID;
-  final int userID;
   final DateTime date;
-  final bool inEatingWindow;
-  final String logMethod;
-  final String mealType;
+  final LogMethod logMethod;
+  final MealCategory mealType;
   final double amount;
   const Meal({
     required this.mealID,
-    required this.userID,
     required this.date,
-    required this.inEatingWindow,
     required this.logMethod,
     required this.mealType,
     required this.amount,
@@ -3009,11 +2889,17 @@ class Meal extends DataClass implements Insertable<Meal> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['meal_i_d'] = Variable<int>(mealID);
-    map['user_i_d'] = Variable<int>(userID);
     map['date'] = Variable<DateTime>(date);
-    map['in_eating_window'] = Variable<bool>(inEatingWindow);
-    map['log_method'] = Variable<String>(logMethod);
-    map['meal_type'] = Variable<String>(mealType);
+    {
+      map['log_method'] = Variable<String>(
+        $MealsTable.$converterlogMethod.toSql(logMethod),
+      );
+    }
+    {
+      map['meal_type'] = Variable<String>(
+        $MealsTable.$convertermealType.toSql(mealType),
+      );
+    }
     map['amount'] = Variable<double>(amount);
     return map;
   }
@@ -3021,9 +2907,7 @@ class Meal extends DataClass implements Insertable<Meal> {
   MealsCompanion toCompanion(bool nullToAbsent) {
     return MealsCompanion(
       mealID: Value(mealID),
-      userID: Value(userID),
       date: Value(date),
-      inEatingWindow: Value(inEatingWindow),
       logMethod: Value(logMethod),
       mealType: Value(mealType),
       amount: Value(amount),
@@ -3037,11 +2921,13 @@ class Meal extends DataClass implements Insertable<Meal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Meal(
       mealID: serializer.fromJson<int>(json['mealID']),
-      userID: serializer.fromJson<int>(json['userID']),
       date: serializer.fromJson<DateTime>(json['date']),
-      inEatingWindow: serializer.fromJson<bool>(json['inEatingWindow']),
-      logMethod: serializer.fromJson<String>(json['logMethod']),
-      mealType: serializer.fromJson<String>(json['mealType']),
+      logMethod: $MealsTable.$converterlogMethod.fromJson(
+        serializer.fromJson<String>(json['logMethod']),
+      ),
+      mealType: $MealsTable.$convertermealType.fromJson(
+        serializer.fromJson<String>(json['mealType']),
+      ),
       amount: serializer.fromJson<double>(json['amount']),
     );
   }
@@ -3050,28 +2936,26 @@ class Meal extends DataClass implements Insertable<Meal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'mealID': serializer.toJson<int>(mealID),
-      'userID': serializer.toJson<int>(userID),
       'date': serializer.toJson<DateTime>(date),
-      'inEatingWindow': serializer.toJson<bool>(inEatingWindow),
-      'logMethod': serializer.toJson<String>(logMethod),
-      'mealType': serializer.toJson<String>(mealType),
+      'logMethod': serializer.toJson<String>(
+        $MealsTable.$converterlogMethod.toJson(logMethod),
+      ),
+      'mealType': serializer.toJson<String>(
+        $MealsTable.$convertermealType.toJson(mealType),
+      ),
       'amount': serializer.toJson<double>(amount),
     };
   }
 
   Meal copyWith({
     int? mealID,
-    int? userID,
     DateTime? date,
-    bool? inEatingWindow,
-    String? logMethod,
-    String? mealType,
+    LogMethod? logMethod,
+    MealCategory? mealType,
     double? amount,
   }) => Meal(
     mealID: mealID ?? this.mealID,
-    userID: userID ?? this.userID,
     date: date ?? this.date,
-    inEatingWindow: inEatingWindow ?? this.inEatingWindow,
     logMethod: logMethod ?? this.logMethod,
     mealType: mealType ?? this.mealType,
     amount: amount ?? this.amount,
@@ -3079,11 +2963,7 @@ class Meal extends DataClass implements Insertable<Meal> {
   Meal copyWithCompanion(MealsCompanion data) {
     return Meal(
       mealID: data.mealID.present ? data.mealID.value : this.mealID,
-      userID: data.userID.present ? data.userID.value : this.userID,
       date: data.date.present ? data.date.value : this.date,
-      inEatingWindow: data.inEatingWindow.present
-          ? data.inEatingWindow.value
-          : this.inEatingWindow,
       logMethod: data.logMethod.present ? data.logMethod.value : this.logMethod,
       mealType: data.mealType.present ? data.mealType.value : this.mealType,
       amount: data.amount.present ? data.amount.value : this.amount,
@@ -3094,9 +2974,7 @@ class Meal extends DataClass implements Insertable<Meal> {
   String toString() {
     return (StringBuffer('Meal(')
           ..write('mealID: $mealID, ')
-          ..write('userID: $userID, ')
           ..write('date: $date, ')
-          ..write('inEatingWindow: $inEatingWindow, ')
           ..write('logMethod: $logMethod, ')
           ..write('mealType: $mealType, ')
           ..write('amount: $amount')
@@ -3105,23 +2983,13 @@ class Meal extends DataClass implements Insertable<Meal> {
   }
 
   @override
-  int get hashCode => Object.hash(
-    mealID,
-    userID,
-    date,
-    inEatingWindow,
-    logMethod,
-    mealType,
-    amount,
-  );
+  int get hashCode => Object.hash(mealID, date, logMethod, mealType, amount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Meal &&
           other.mealID == this.mealID &&
-          other.userID == this.userID &&
           other.date == this.date &&
-          other.inEatingWindow == this.inEatingWindow &&
           other.logMethod == this.logMethod &&
           other.mealType == this.mealType &&
           other.amount == this.amount);
@@ -3129,44 +2997,35 @@ class Meal extends DataClass implements Insertable<Meal> {
 
 class MealsCompanion extends UpdateCompanion<Meal> {
   final Value<int> mealID;
-  final Value<int> userID;
   final Value<DateTime> date;
-  final Value<bool> inEatingWindow;
-  final Value<String> logMethod;
-  final Value<String> mealType;
+  final Value<LogMethod> logMethod;
+  final Value<MealCategory> mealType;
   final Value<double> amount;
   const MealsCompanion({
     this.mealID = const Value.absent(),
-    this.userID = const Value.absent(),
     this.date = const Value.absent(),
-    this.inEatingWindow = const Value.absent(),
     this.logMethod = const Value.absent(),
     this.mealType = const Value.absent(),
     this.amount = const Value.absent(),
   });
   MealsCompanion.insert({
     this.mealID = const Value.absent(),
-    required int userID,
     this.date = const Value.absent(),
-    this.inEatingWindow = const Value.absent(),
-    this.logMethod = const Value.absent(),
-    this.mealType = const Value.absent(),
+    required LogMethod logMethod,
+    required MealCategory mealType,
     this.amount = const Value.absent(),
-  }) : userID = Value(userID);
+  }) : logMethod = Value(logMethod),
+       mealType = Value(mealType);
   static Insertable<Meal> custom({
     Expression<int>? mealID,
-    Expression<int>? userID,
     Expression<DateTime>? date,
-    Expression<bool>? inEatingWindow,
     Expression<String>? logMethod,
     Expression<String>? mealType,
     Expression<double>? amount,
   }) {
     return RawValuesInsertable({
       if (mealID != null) 'meal_i_d': mealID,
-      if (userID != null) 'user_i_d': userID,
       if (date != null) 'date': date,
-      if (inEatingWindow != null) 'in_eating_window': inEatingWindow,
       if (logMethod != null) 'log_method': logMethod,
       if (mealType != null) 'meal_type': mealType,
       if (amount != null) 'amount': amount,
@@ -3175,18 +3034,14 @@ class MealsCompanion extends UpdateCompanion<Meal> {
 
   MealsCompanion copyWith({
     Value<int>? mealID,
-    Value<int>? userID,
     Value<DateTime>? date,
-    Value<bool>? inEatingWindow,
-    Value<String>? logMethod,
-    Value<String>? mealType,
+    Value<LogMethod>? logMethod,
+    Value<MealCategory>? mealType,
     Value<double>? amount,
   }) {
     return MealsCompanion(
       mealID: mealID ?? this.mealID,
-      userID: userID ?? this.userID,
       date: date ?? this.date,
-      inEatingWindow: inEatingWindow ?? this.inEatingWindow,
       logMethod: logMethod ?? this.logMethod,
       mealType: mealType ?? this.mealType,
       amount: amount ?? this.amount,
@@ -3199,20 +3054,18 @@ class MealsCompanion extends UpdateCompanion<Meal> {
     if (mealID.present) {
       map['meal_i_d'] = Variable<int>(mealID.value);
     }
-    if (userID.present) {
-      map['user_i_d'] = Variable<int>(userID.value);
-    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
-    if (inEatingWindow.present) {
-      map['in_eating_window'] = Variable<bool>(inEatingWindow.value);
-    }
     if (logMethod.present) {
-      map['log_method'] = Variable<String>(logMethod.value);
+      map['log_method'] = Variable<String>(
+        $MealsTable.$converterlogMethod.toSql(logMethod.value),
+      );
     }
     if (mealType.present) {
-      map['meal_type'] = Variable<String>(mealType.value);
+      map['meal_type'] = Variable<String>(
+        $MealsTable.$convertermealType.toSql(mealType.value),
+      );
     }
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
@@ -3224,9 +3077,7 @@ class MealsCompanion extends UpdateCompanion<Meal> {
   String toString() {
     return (StringBuffer('MealsCompanion(')
           ..write('mealID: $mealID, ')
-          ..write('userID: $userID, ')
           ..write('date: $date, ')
-          ..write('inEatingWindow: $inEatingWindow, ')
           ..write('logMethod: $logMethod, ')
           ..write('mealType: $mealType, ')
           ..write('amount: $amount')
@@ -4311,11 +4162,11 @@ class $MealFoodContentTable extends MealFoodContent
     'quantity',
   );
   @override
-  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
     'quantity',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
@@ -4373,7 +4224,7 @@ class $MealFoodContentTable extends MealFoodContent
         data['${effectivePrefix}food_i_d'],
       )!,
       quantity: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}quantity'],
       )!,
     );
@@ -4389,7 +4240,7 @@ class MealFoodContentData extends DataClass
     implements Insertable<MealFoodContentData> {
   final int mealID;
   final int foodID;
-  final double quantity;
+  final int quantity;
   const MealFoodContentData({
     required this.mealID,
     required this.foodID,
@@ -4400,7 +4251,7 @@ class MealFoodContentData extends DataClass
     final map = <String, Expression>{};
     map['meal_i_d'] = Variable<int>(mealID);
     map['food_i_d'] = Variable<int>(foodID);
-    map['quantity'] = Variable<double>(quantity);
+    map['quantity'] = Variable<int>(quantity);
     return map;
   }
 
@@ -4420,7 +4271,7 @@ class MealFoodContentData extends DataClass
     return MealFoodContentData(
       mealID: serializer.fromJson<int>(json['mealID']),
       foodID: serializer.fromJson<int>(json['foodID']),
-      quantity: serializer.fromJson<double>(json['quantity']),
+      quantity: serializer.fromJson<int>(json['quantity']),
     );
   }
   @override
@@ -4429,11 +4280,11 @@ class MealFoodContentData extends DataClass
     return <String, dynamic>{
       'mealID': serializer.toJson<int>(mealID),
       'foodID': serializer.toJson<int>(foodID),
-      'quantity': serializer.toJson<double>(quantity),
+      'quantity': serializer.toJson<int>(quantity),
     };
   }
 
-  MealFoodContentData copyWith({int? mealID, int? foodID, double? quantity}) =>
+  MealFoodContentData copyWith({int? mealID, int? foodID, int? quantity}) =>
       MealFoodContentData(
         mealID: mealID ?? this.mealID,
         foodID: foodID ?? this.foodID,
@@ -4471,7 +4322,7 @@ class MealFoodContentData extends DataClass
 class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
   final Value<int> mealID;
   final Value<int> foodID;
-  final Value<double> quantity;
+  final Value<int> quantity;
   final Value<int> rowid;
   const MealFoodContentCompanion({
     this.mealID = const Value.absent(),
@@ -4489,7 +4340,7 @@ class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
   static Insertable<MealFoodContentData> custom({
     Expression<int>? mealID,
     Expression<int>? foodID,
-    Expression<double>? quantity,
+    Expression<int>? quantity,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4503,7 +4354,7 @@ class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
   MealFoodContentCompanion copyWith({
     Value<int>? mealID,
     Value<int>? foodID,
-    Value<double>? quantity,
+    Value<int>? quantity,
     Value<int>? rowid,
   }) {
     return MealFoodContentCompanion(
@@ -4524,7 +4375,7 @@ class MealFoodContentCompanion extends UpdateCompanion<MealFoodContentData> {
       map['food_i_d'] = Variable<int>(foodID.value);
     }
     if (quantity.present) {
-      map['quantity'] = Variable<double>(quantity.value);
+      map['quantity'] = Variable<int>(quantity.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -9616,25 +9467,6 @@ final class $$UsersTableReferences
     );
   }
 
-  static MultiTypedResultKey<$MealsTable, List<Meal>> _mealsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.meals,
-    aliasName: 'users__user_i_d__meals__user_i_d',
-  );
-
-  $$MealsTableProcessedTableManager get mealsRefs {
-    final manager = $$MealsTableTableManager(
-      $_db,
-      $_db.meals,
-    ).filter((f) => f.userID.userID.sqlEquals($_itemColumn<int>('user_i_d')!));
-
-    final cache = $_typedResult.readTableOrNull(_mealsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$NutritionLogTable, List<NutritionLogData>>
   _nutritionLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.nutritionLog,
@@ -9823,31 +9655,6 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$WeightLogTableFilterComposer(
             $db: $db,
             $table: $db.weightLog,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> mealsRefs(
-    Expression<bool> Function($$MealsTableFilterComposer f) f,
-  ) {
-    final $$MealsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userID,
-      referencedTable: $db.meals,
-      getReferencedColumn: (t) => t.userID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$MealsTableFilterComposer(
-            $db: $db,
-            $table: $db.meals,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10128,31 +9935,6 @@ class $$UsersTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> mealsRefs<T extends Object>(
-    Expression<T> Function($$MealsTableAnnotationComposer a) f,
-  ) {
-    final $$MealsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userID,
-      referencedTable: $db.meals,
-      getReferencedColumn: (t) => t.userID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$MealsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.meals,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> nutritionLogRefs<T extends Object>(
     Expression<T> Function($$NutritionLogTableAnnotationComposer a) f,
   ) {
@@ -10246,7 +10028,6 @@ class $$UsersTableTableManager
             bool fastLogRefs,
             bool hydrationLogRefs,
             bool weightLogRefs,
-            bool mealsRefs,
             bool nutritionLogRefs,
             bool userGoalProgressRefs,
             bool reminderRefs,
@@ -10326,7 +10107,6 @@ class $$UsersTableTableManager
                 fastLogRefs = false,
                 hydrationLogRefs = false,
                 weightLogRefs = false,
-                mealsRefs = false,
                 nutritionLogRefs = false,
                 userGoalProgressRefs = false,
                 reminderRefs = false,
@@ -10337,7 +10117,6 @@ class $$UsersTableTableManager
                     if (fastLogRefs) db.fastLog,
                     if (hydrationLogRefs) db.hydrationLog,
                     if (weightLogRefs) db.weightLog,
-                    if (mealsRefs) db.meals,
                     if (nutritionLogRefs) db.nutritionLog,
                     if (userGoalProgressRefs) db.userGoalProgress,
                     if (reminderRefs) db.reminder,
@@ -10398,19 +10177,6 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).weightLogRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.userID == item.userID,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (mealsRefs)
-                        await $_getPrefetchedData<User, $UsersTable, Meal>(
-                          currentTable: table,
-                          referencedTable: $$UsersTableReferences
-                              ._mealsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$UsersTableReferences(db, table, p0).mealsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.userID == item.userID,
@@ -10504,7 +10270,6 @@ typedef $$UsersTableProcessedTableManager =
         bool fastLogRefs,
         bool hydrationLogRefs,
         bool weightLogRefs,
-        bool mealsRefs,
         bool nutritionLogRefs,
         bool userGoalProgressRefs,
         bool reminderRefs,
@@ -11510,7 +11275,6 @@ typedef $$FoodTableCreateCompanionBuilder =
       Value<int> foodID,
       required String name,
       required String servingDescription,
-      required int servingGrams,
       Value<double> carbs,
       Value<double> fat,
       Value<double> protein,
@@ -11522,7 +11286,6 @@ typedef $$FoodTableUpdateCompanionBuilder =
       Value<int> foodID,
       Value<String> name,
       Value<String> servingDescription,
-      Value<int> servingGrams,
       Value<double> carbs,
       Value<double> fat,
       Value<double> protein,
@@ -11595,11 +11358,6 @@ class $$FoodTableFilterComposer extends Composer<_$AppDatabase, $FoodTable> {
 
   ColumnFilters<String> get servingDescription => $composableBuilder(
     column: $table.servingDescription,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get servingGrams => $composableBuilder(
-    column: $table.servingGrams,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11702,11 +11460,6 @@ class $$FoodTableOrderingComposer extends Composer<_$AppDatabase, $FoodTable> {
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get servingGrams => $composableBuilder(
-    column: $table.servingGrams,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<double> get carbs => $composableBuilder(
     column: $table.carbs,
     builder: (column) => ColumnOrderings(column),
@@ -11750,11 +11503,6 @@ class $$FoodTableAnnotationComposer
 
   GeneratedColumn<String> get servingDescription => $composableBuilder(
     column: $table.servingDescription,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get servingGrams => $composableBuilder(
-    column: $table.servingGrams,
     builder: (column) => column,
   );
 
@@ -11858,7 +11606,6 @@ class $$FoodTableTableManager
                 Value<int> foodID = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> servingDescription = const Value.absent(),
-                Value<int> servingGrams = const Value.absent(),
                 Value<double> carbs = const Value.absent(),
                 Value<double> fat = const Value.absent(),
                 Value<double> protein = const Value.absent(),
@@ -11868,7 +11615,6 @@ class $$FoodTableTableManager
                 foodID: foodID,
                 name: name,
                 servingDescription: servingDescription,
-                servingGrams: servingGrams,
                 carbs: carbs,
                 fat: fat,
                 protein: protein,
@@ -11880,7 +11626,6 @@ class $$FoodTableTableManager
                 Value<int> foodID = const Value.absent(),
                 required String name,
                 required String servingDescription,
-                required int servingGrams,
                 Value<double> carbs = const Value.absent(),
                 Value<double> fat = const Value.absent(),
                 Value<double> protein = const Value.absent(),
@@ -11890,7 +11635,6 @@ class $$FoodTableTableManager
                 foodID: foodID,
                 name: name,
                 servingDescription: servingDescription,
-                servingGrams: servingGrams,
                 carbs: carbs,
                 fat: fat,
                 protein: protein,
@@ -12377,44 +12121,23 @@ typedef $$RecipeTableProcessedTableManager =
 typedef $$MealsTableCreateCompanionBuilder =
     MealsCompanion Function({
       Value<int> mealID,
-      required int userID,
       Value<DateTime> date,
-      Value<bool> inEatingWindow,
-      Value<String> logMethod,
-      Value<String> mealType,
+      required LogMethod logMethod,
+      required MealCategory mealType,
       Value<double> amount,
     });
 typedef $$MealsTableUpdateCompanionBuilder =
     MealsCompanion Function({
       Value<int> mealID,
-      Value<int> userID,
       Value<DateTime> date,
-      Value<bool> inEatingWindow,
-      Value<String> logMethod,
-      Value<String> mealType,
+      Value<LogMethod> logMethod,
+      Value<MealCategory> mealType,
       Value<double> amount,
     });
 
 final class $$MealsTableReferences
     extends BaseReferences<_$AppDatabase, $MealsTable, Meal> {
   $$MealsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $UsersTable _userIDTable(_$AppDatabase db) =>
-      db.users.createAlias('meals__user_i_d__users__user_i_d');
-
-  $$UsersTableProcessedTableManager get userID {
-    final $_column = $_itemColumn<int>('user_i_d')!;
-
-    final manager = $$UsersTableTableManager(
-      $_db,
-      $_db.users,
-    ).filter((f) => f.userID.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userIDTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static MultiTypedResultKey<
     $MealRecipeContentTable,
@@ -12479,48 +12202,22 @@ class $$MealsTableFilterComposer extends Composer<_$AppDatabase, $MealsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get inEatingWindow => $composableBuilder(
-    column: $table.inEatingWindow,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<LogMethod, LogMethod, String> get logMethod =>
+      $composableBuilder(
+        column: $table.logMethod,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnFilters<String> get logMethod => $composableBuilder(
-    column: $table.logMethod,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get mealType => $composableBuilder(
+  ColumnWithTypeConverterFilters<MealCategory, MealCategory, String>
+  get mealType => $composableBuilder(
     column: $table.mealType,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<double> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$UsersTableFilterComposer get userID {
-    final $$UsersTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userID,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.userID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableFilterComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<bool> mealRecipeContentRefs(
     Expression<bool> Function($$MealRecipeContentTableFilterComposer f) f,
@@ -12592,11 +12289,6 @@ class $$MealsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get inEatingWindow => $composableBuilder(
-    column: $table.inEatingWindow,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get logMethod => $composableBuilder(
     column: $table.logMethod,
     builder: (column) => ColumnOrderings(column),
@@ -12611,29 +12303,6 @@ class $$MealsTableOrderingComposer
     column: $table.amount,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$UsersTableOrderingComposer get userID {
-    final $$UsersTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userID,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.userID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableOrderingComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$MealsTableAnnotationComposer
@@ -12651,42 +12320,14 @@ class $$MealsTableAnnotationComposer
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
-  GeneratedColumn<bool> get inEatingWindow => $composableBuilder(
-    column: $table.inEatingWindow,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get logMethod =>
+  GeneratedColumnWithTypeConverter<LogMethod, String> get logMethod =>
       $composableBuilder(column: $table.logMethod, builder: (column) => column);
 
-  GeneratedColumn<String> get mealType =>
+  GeneratedColumnWithTypeConverter<MealCategory, String> get mealType =>
       $composableBuilder(column: $table.mealType, builder: (column) => column);
 
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
-
-  $$UsersTableAnnotationComposer get userID {
-    final $$UsersTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userID,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.userID,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableAnnotationComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<T> mealRecipeContentRefs<T extends Object>(
     Expression<T> Function($$MealRecipeContentTableAnnotationComposer a) f,
@@ -12754,7 +12395,6 @@ class $$MealsTableTableManager
           (Meal, $$MealsTableReferences),
           Meal,
           PrefetchHooks Function({
-            bool userID,
             bool mealRecipeContentRefs,
             bool mealFoodContentRefs,
           })
@@ -12773,17 +12413,13 @@ class $$MealsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> mealID = const Value.absent(),
-                Value<int> userID = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
-                Value<bool> inEatingWindow = const Value.absent(),
-                Value<String> logMethod = const Value.absent(),
-                Value<String> mealType = const Value.absent(),
+                Value<LogMethod> logMethod = const Value.absent(),
+                Value<MealCategory> mealType = const Value.absent(),
                 Value<double> amount = const Value.absent(),
               }) => MealsCompanion(
                 mealID: mealID,
-                userID: userID,
                 date: date,
-                inEatingWindow: inEatingWindow,
                 logMethod: logMethod,
                 mealType: mealType,
                 amount: amount,
@@ -12791,17 +12427,13 @@ class $$MealsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> mealID = const Value.absent(),
-                required int userID,
                 Value<DateTime> date = const Value.absent(),
-                Value<bool> inEatingWindow = const Value.absent(),
-                Value<String> logMethod = const Value.absent(),
-                Value<String> mealType = const Value.absent(),
+                required LogMethod logMethod,
+                required MealCategory mealType,
                 Value<double> amount = const Value.absent(),
               }) => MealsCompanion.insert(
                 mealID: mealID,
-                userID: userID,
                 date: date,
-                inEatingWindow: inEatingWindow,
                 logMethod: logMethod,
                 mealType: mealType,
                 amount: amount,
@@ -12813,49 +12445,14 @@ class $$MealsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                userID = false,
-                mealRecipeContentRefs = false,
-                mealFoodContentRefs = false,
-              }) {
+              ({mealRecipeContentRefs = false, mealFoodContentRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (mealRecipeContentRefs) db.mealRecipeContent,
                     if (mealFoodContentRefs) db.mealFoodContent,
                   ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (userID) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.userID,
-                                    referencedTable: $$MealsTableReferences
-                                        ._userIDTable(db),
-                                    referencedColumn: $$MealsTableReferences
-                                        ._userIDTable(db)
-                                        .userID,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
+                  addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (mealRecipeContentRefs)
@@ -12921,7 +12518,6 @@ typedef $$MealsTableProcessedTableManager =
       (Meal, $$MealsTableReferences),
       Meal,
       PrefetchHooks Function({
-        bool userID,
         bool mealRecipeContentRefs,
         bool mealFoodContentRefs,
       })
@@ -14064,14 +13660,14 @@ typedef $$MealFoodContentTableCreateCompanionBuilder =
     MealFoodContentCompanion Function({
       required int mealID,
       required int foodID,
-      Value<double> quantity,
+      Value<int> quantity,
       Value<int> rowid,
     });
 typedef $$MealFoodContentTableUpdateCompanionBuilder =
     MealFoodContentCompanion Function({
       Value<int> mealID,
       Value<int> foodID,
-      Value<double> quantity,
+      Value<int> quantity,
       Value<int> rowid,
     });
 
@@ -14132,7 +13728,7 @@ class $$MealFoodContentTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<double> get quantity => $composableBuilder(
+  ColumnFilters<int> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnFilters(column),
   );
@@ -14193,7 +13789,7 @@ class $$MealFoodContentTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<double> get quantity => $composableBuilder(
+  ColumnOrderings<int> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnOrderings(column),
   );
@@ -14254,7 +13850,7 @@ class $$MealFoodContentTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<double> get quantity =>
+  GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   $$MealsTableAnnotationComposer get mealID {
@@ -14336,7 +13932,7 @@ class $$MealFoodContentTableTableManager
               ({
                 Value<int> mealID = const Value.absent(),
                 Value<int> foodID = const Value.absent(),
-                Value<double> quantity = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MealFoodContentCompanion(
                 mealID: mealID,
@@ -14348,7 +13944,7 @@ class $$MealFoodContentTableTableManager
               ({
                 required int mealID,
                 required int foodID,
-                Value<double> quantity = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MealFoodContentCompanion.insert(
                 mealID: mealID,

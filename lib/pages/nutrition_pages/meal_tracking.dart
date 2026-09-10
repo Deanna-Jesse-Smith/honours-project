@@ -116,7 +116,7 @@ class MealTracking extends ConsumerWidget {
                 ),
               ),
               child: Text(
-                'Goals/Streaks',
+                'Set Goals',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),

@@ -128,7 +128,7 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
           DateTime today = DateTime.now();
 
           selectedFoods.forEach((key, value) {
-            ref.read(nDaoProvider).addMealFoodContent(session!.userId, widget.mealID, key, value, today, LogMethod.full);
+            ref.read(nDaoProvider).addMealFoodContent(session!.userId, widget.mealID, key, value, today, LogMethod.full, MealCategory.quick);
           });
 
           Navigator.of(context).pop();
@@ -154,7 +154,7 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
     }
     return .new(
       children: [
-        Text('${item.name} (${item.servingDescription})'),
+        Text(item.name),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -144,7 +144,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
                 ),
               ),
               child: Text(
-                'Goals/Streaks',
+                'Set Goals',
                 style: TextStyle(fontSize: TextSizing.small),
               ),
             ),

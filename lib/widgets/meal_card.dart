@@ -119,7 +119,7 @@ class FoodRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('${item.name} (${item.servingDescription})'),
+        Text(item.name),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

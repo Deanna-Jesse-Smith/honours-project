@@ -17,5 +17,5 @@ class MealRecipeContent extends Table {
 class MealFoodContent extends Table {
   IntColumn get mealID => integer().references(Meals, #mealID)();
   IntColumn get foodID => integer().references(Food, #foodID)();
-  RealColumn get quantity => real().withDefault(const Constant(0))();
+  IntColumn get quantity => integer().withDefault(const Constant(0))();
 }

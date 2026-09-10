@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:testrun/database/daos/nutrition_dao.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
@@ -36,6 +37,9 @@ class _MealLogState extends ConsumerState<MealLog> {
       );
   late MealCategory dropDownValuee;
 
+  late List<FoodData> foodItems;
+  final Set<MealFood> selectedFood = {};
+
   final TextEditingController controller = TextEditingController(text: '');
   String imagePath = '';
 
@@ -47,6 +51,19 @@ class _MealLogState extends ConsumerState<MealLog> {
 
     nDao = ref.watch(nDaoProvider);
     // makeMeal();
+  }
+
+  void fillFoodList() async {
+    final list = await nDao.getAllFood();
+    foodItems = list;
+    // foodItems = UnmodifiableListView<DropdownMenuEntry<FoodData>>(
+    //   list.map<DropdownMenuEntry<FoodData>>(
+    //     (FoodData fd) => DropdownMenuEntry(
+    //       value: fd,
+    //       label: '${fd.name} (${fd.servingDescription})',
+    //     ),
+    //   ),
+    // );
   }
 
   @override
@@ -186,7 +203,10 @@ class _MealLogState extends ConsumerState<MealLog> {
             children: [
               TableRow(
                 children: [
-                  const Text('What meal is this?', style: TextStyle(fontSize: TextSizing.medium),),
+                  const Text(
+                    'What meal is this?',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
                   DropdownMenu<MealCategory>(
                     initialSelection: dropDownValuee,
                     dropdownMenuEntries: entriess,
@@ -199,13 +219,27 @@ class _MealLogState extends ConsumerState<MealLog> {
                   ),
                 ],
               ),
-              TableRow(children: [
-                const Text('What time did you eat?', style: TextStyle(fontSize: TextSizing.medium),),
-                ElevatedButton(onPressed: selectMealTime, child: Text(strMealTime, style: TextStyle(fontSize: TextSizing.medium),))
-              ]),
               TableRow(
                 children: [
-                  const Text('Comments on meal (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+                  const Text(
+                    'What time did you eat?',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                  ElevatedButton(
+                    onPressed: selectMealTime,
+                    child: Text(
+                      strMealTime,
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const Text(
+                    'Comments on meal (optional):',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
                   TextField(
                     controller: controller,
                     decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
@@ -215,7 +249,10 @@ class _MealLogState extends ConsumerState<MealLog> {
               ),
               TableRow(
                 children: [
-                  const Text('Picture (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+                  const Text(
+                    'Picture (optional):',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
                   Row(
                     children: [
                       IconButton(
@@ -247,6 +284,68 @@ class _MealLogState extends ConsumerState<MealLog> {
                 ),
             ],
           ),
+
+          DropdownMenu(
+            dropdownMenuEntries: foodItems
+                .where(
+                  (food) =>
+                      !selectedFood.any((selected) => selected.food == food),
+                )
+                .map((selected) {
+                  return DropdownMenuEntry(
+                    value: selected,
+                    label: '${selected.name} (${selected.servingDescription})',
+                  );
+                })
+                .toList(),
+            textStyle: TextStyle(fontSize: TextSizing.medium),
+            onSelected: (value) {
+              if (value == null) return;
+              setState(() => selectedFood.add(MealFood(value)));
+            },
+          ),
+
+          Column(
+            children: selectedFood.map((selected) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${selected.food.name} (${selected.food.servingDescription})',
+                        style: const TextStyle(fontSize: TextSizing.small),
+                      ),
+                    ),
+
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: () {
+                        if (selected.quantity > 0) {
+                          setState(() => selected.quantity--);
+                        }
+                      },
+                    ),
+                    Text(
+                      '${selected.quantity}',
+                      style: const TextStyle(fontSize: TextSizing.small),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: () => setState(() => selected.quantity--),
+                    ),
+
+                    IconButton(
+                      onPressed: () =>
+                          setState(() => selectedFood.remove(selected)),
+                      icon: const Icon(Icons.cancel_outlined),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+
           ElevatedButton(
             onPressed: () async {
               final decision = await ref
@@ -289,15 +388,17 @@ class _MealLogState extends ConsumerState<MealLog> {
   }
 
   void save() async {
-    await nDao
-        .insertFoodLog(
-          dropDownValuee,
-          imagePath,
-          controller.text,
-          LogMethod.full,
-          mealTime,
-        )
-        .whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
+    // await nDao
+    //     .insertFoodLog(
+    //       dropDownValuee,
+    //       imagePath,
+    //       controller.text,
+    //       LogMethod.full,
+    //       mealTime,
+    //     )
+    //     .whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
+
+    await nDao.insertMealLog(dropDownValuee, LogMethod.full, mealTime, selectedFood);
 
     if (!mounted) return;
     Navigator.of(context).pop();

@@ -6,10 +6,11 @@ class Ingredient {
   final String name;
   final double quantity;
   final IngredientType type;
+  final String servingDescr;
 
   final double calories, fibre, fat, protein, carbs;
 
-  Ingredient(this.id, this.name, this.quantity, this.type, this.calories, this.fibre, this.fat, this.protein, this.carbs);
+  Ingredient(this.id, this.name, this.servingDescr, this.quantity, this.type, this.calories, this.fibre, this.fat, this.protein, this.carbs);
 }
 
 enum IngredientType {
@@ -21,10 +22,11 @@ class MealItem {
   final int id;
   final List<Ingredient>? ingredients;
   final DateTime date;
-  final bool isInEatingWindow;
+  // final bool isInEatingWindow;
+  final MealCategory cate;
   final LogMethod log;
 
-  MealItem(this.id, this.ingredients, this.date, this.isInEatingWindow, this.log);
+  MealItem(this.id, this.ingredients, this.date, this.cate, this.log);
 
   double getTotalCalories() {
     return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.calories);
@@ -45,6 +47,13 @@ class MealItem {
   double getTotalCarbs() {
     return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.carbs);
   }
+}
+
+class MealFood {
+  final FoodData food;
+  int quantity = 0;
+
+  MealFood(this.food);
 }
 
 enum LogMethod {

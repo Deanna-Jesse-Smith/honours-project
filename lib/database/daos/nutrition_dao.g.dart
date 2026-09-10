@@ -8,11 +8,11 @@ mixin _$NutritionDaoMixin on DatabaseAccessor<AppDatabase> {
   $RecipeTable get recipe => attachedDatabase.recipe;
   $RecipeQuantitiesTable get recipeQuantities =>
       attachedDatabase.recipeQuantities;
-  $UsersTable get users => attachedDatabase.users;
   $MealsTable get meals => attachedDatabase.meals;
   $MealFoodContentTable get mealFoodContent => attachedDatabase.mealFoodContent;
   $MealRecipeContentTable get mealRecipeContent =>
       attachedDatabase.mealRecipeContent;
+  $UsersTable get users => attachedDatabase.users;
   $NutritionLogTable get nutritionLog => attachedDatabase.nutritionLog;
   $FoodLogTable get foodLog => attachedDatabase.foodLog;
   NutritionDaoManager get managers => NutritionDaoManager(this);
@@ -30,8 +30,6 @@ class NutritionDaoManager {
         _db.attachedDatabase,
         _db.recipeQuantities,
       );
-  $$UsersTableTableManager get users =>
-      $$UsersTableTableManager(_db.attachedDatabase, _db.users);
   $$MealsTableTableManager get meals =>
       $$MealsTableTableManager(_db.attachedDatabase, _db.meals);
   $$MealFoodContentTableTableManager get mealFoodContent =>
@@ -44,6 +42,8 @@ class NutritionDaoManager {
         _db.attachedDatabase,
         _db.mealRecipeContent,
       );
+  $$UsersTableTableManager get users =>
+      $$UsersTableTableManager(_db.attachedDatabase, _db.users);
   $$NutritionLogTableTableManager get nutritionLog =>
       $$NutritionLogTableTableManager(_db.attachedDatabase, _db.nutritionLog);
   $$FoodLogTableTableManager get foodLog =>

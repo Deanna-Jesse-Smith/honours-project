@@ -48,10 +48,36 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         comment: Value(comment),
         path: path != null ? Value(path) : Value(''),
         logMethod: logMethod,
-        logDate: Value(date)
+        logDate: Value(date),
       ),
     ));
-    debugPrint('Food Insertion: $insertion');
+    return insertion;
+  }
+
+  Future<int> insertMealLog(
+    MealCategory cate,
+    LogMethod logMethod,
+    DateTime date,
+    Set<MealFood> foods,
+  ) async {
+    final insertion = await (into(meals).insert(
+      MealsCompanion.insert(
+        mealType: cate,
+        logMethod: logMethod,
+        date: Value(date),
+      ),
+    ));
+
+    for (final food in foods) {
+      await into(mealFoodContent).insert(
+        MealFoodContentCompanion.insert(
+          mealID: insertion,
+          foodID: food.food.foodID,
+          quantity: Value(food.quantity),
+        ),
+      );
+    }
+
     return insertion;
   }
 
@@ -75,7 +101,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         comment: Value(data.comment),
         path: Value(data.path),
         logMethod: data.logMethod,
-        logDate: Value(DateTime.now())
+        logDate: Value(DateTime.now()),
       ),
     );
   }
@@ -150,8 +176,10 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     final countDays = foodLog.category.count(distinct: true);
     final fasts = (selectOnly(foodLog)
       ..addColumns([countDays])
-      ..where(foodLog.logDate.isBiggerOrEqualValue(start) &
-            foodLog.logDate.isSmallerOrEqualValue(end),));
+      ..where(
+        foodLog.logDate.isBiggerOrEqualValue(start) &
+            foodLog.logDate.isSmallerOrEqualValue(end),
+      ));
     final output = await fasts.getSingle();
     return output.read(countDays)! <= 2;
   }
@@ -160,12 +188,13 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     final countDays = foodLog.category.count(distinct: true);
     final fasts = (selectOnly(foodLog)
       ..addColumns([countDays])
-      ..where(foodLog.logDate.isValue(start) &
-            foodLog.category.isNotValue(MealCategory.snack.name)));
+      ..where(
+        foodLog.logDate.isValue(start) &
+            foodLog.category.isNotValue(MealCategory.snack.name),
+      ));
     final output = await fasts.getSingle();
     return output.read(countDays)!;
   }
-
 
   Future<List<int>> countMealsInRange(DateTime start, DateTime end) async {
     final countDays = foodLog.category.count(distinct: true);
@@ -177,7 +206,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       )
       ..groupBy([foodLog.logDate.date]));
     final output = await fasts.get();
-    
+
     List<int> counts = [];
     for (final count in output) {
       counts.add(count.read(countDays)!);
@@ -192,9 +221,10 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     double amount,
     DateTime date,
     LogMethod logMethod,
+    MealCategory cate,
   ) async {
     if (mealID < 0) {
-      mealID = await insertMeal(userID, date, logMethod);
+      mealID = await insertMeal(userID, date, logMethod, cate);
       // TODO put the 'is in eating window' thing in place
     }
 
@@ -233,12 +263,13 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     int userID,
     int mealID,
     int foodID,
-    double amount,
+    num amount,
     DateTime date,
     LogMethod logMethod,
+    MealCategory cate,
   ) async {
     if (mealID < 0) {
-      mealID = await insertMeal(userID, date, logMethod);
+      mealID = await insertMeal(userID, date, logMethod, cate);
       // TODO put the 'is in eating window' thing in place
     }
 
@@ -246,11 +277,11 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       MealFoodContentCompanion.insert(
         mealID: mealID,
         foodID: foodID,
-        quantity: Value(amount),
+        quantity: Value(amount.toInt()),
       ),
     );
 
-    insertFoodNutritionLog(userID, foodID, amount, date);
+    insertFoodNutritionLog(userID, foodID, amount.toDouble(), date);
     return content;
   }
 
@@ -310,13 +341,18 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
-  Future<int> insertMeal(int userID, DateTime date, LogMethod logMethod) async {
+  Future<int> insertMeal(
+    int userID,
+    DateTime date,
+    LogMethod logMethod,
+    MealCategory cate,
+  ) async {
     final meal = await into(meals).insert(
       MealsCompanion.insert(
-        userID: userID,
         date: Value(date),
-        inEatingWindow: Value(false),
-        logMethod: Value(LogMethodConverter().toSql(logMethod)),
+        // inEatingWindow: Value(false),
+        mealType: cate,
+        logMethod: logMethod,
       ),
     );
     return meal;
@@ -379,7 +415,8 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       final ingredient = Ingredient(
         foodItem.foodID,
         foodItem.name,
-        foodContent.quantity,
+        foodItem.servingDescription,
+        foodContent.quantity.toDouble(),
         IngredientType.food,
         foodItem.calories,
         foodItem.fibre,
@@ -416,6 +453,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       final ingredient = Ingredient(
         recipeItem.recipeID,
         recipeItem.recipeName,
+        "temporary",
         recipeContent.quantity,
         IngredientType.recipe,
         calories,
@@ -435,8 +473,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         meal.mealID,
         mealFoods[meal.mealID] ?? const [],
         meal.date,
-        meal.inEatingWindow,
-        LogMethodConverter().fromSql(meal.logMethod),
+        // meal.inEatingWindow,
+        meal.mealType,
+        meal.logMethod,
       );
       mealLogs.add(temp);
       output.update(dateKey, (day) {
@@ -471,6 +510,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         Ingredient(
           foodItem.foodID,
           foodItem.name,
+          foodItem.servingDescription,
           0,
           IngredientType.food,
           foodItem.calories,
@@ -509,6 +549,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         Ingredient(
           foodItem.foodID,
           foodItem.name,
+          foodItem.servingDescription,
           0,
           IngredientType.food,
           foodItem.calories,
@@ -551,12 +592,16 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return results.get();
   }
 
+  Future<List<FoodData>> getAllFood() async {
+    return await (select(food)).get();
+  }
+
   Future<void> dummyDataInsertion() async {
     final oatsID = await into(food).insert(
       FoodCompanion.insert(
         name: "Rolled Oats",
         servingDescription: "100 g",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(389),
         protein: Value(16.9),
         carbs: Value(66.3),
@@ -569,7 +614,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Low Fat Milk",
         servingDescription: "100 ml",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(42),
         protein: Value(3.4),
         carbs: Value(5),
@@ -582,7 +627,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Chicken Breast",
         servingDescription: "100 g",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(165),
         protein: Value(31),
         carbs: Value(0),
@@ -595,7 +640,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Brown Rice",
         servingDescription: "100 g cooked",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(111),
         protein: Value(2.6),
         carbs: Value(23),
@@ -608,7 +653,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Broccoli",
         servingDescription: "100 g",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(35),
         protein: Value(2.4),
         carbs: Value(7),
@@ -621,7 +666,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Banana",
         servingDescription: "1 medium",
-        servingGrams: 118,
+        // servingGrams: 118,
         calories: Value(89),
         protein: Value(1.1),
         carbs: Value(22.8),
@@ -634,7 +679,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Egg",
         servingDescription: "1 large",
-        servingGrams: 50,
+        // servingGrams: 50,
         calories: Value(143),
         protein: Value(13),
         carbs: Value(1.1),
@@ -647,7 +692,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Whole Wheat Bread",
         servingDescription: "1 slice",
-        servingGrams: 40,
+        // servingGrams: 40,
         calories: Value(247),
         protein: Value(13),
         carbs: Value(41),
@@ -660,7 +705,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Greek Yoghurt",
         servingDescription: "100 g",
-        servingGrams: 100,
+        // servingGrams: 100,
         calories: Value(59),
         protein: Value(10),
         carbs: Value(3.6),
@@ -673,7 +718,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       FoodCompanion.insert(
         name: "Peanut Butter",
         servingDescription: "1 tbsp",
-        servingGrams: 16,
+        // servingGrams: 16,
         calories: Value(588),
         protein: Value(25),
         carbs: Value(20),

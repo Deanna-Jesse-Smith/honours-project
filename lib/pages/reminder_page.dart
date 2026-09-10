@@ -101,7 +101,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
     // testing();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Reminders', style: TextStyle(fontSize: TextSizing.large)),
+        title: Text('Set Reminders', style: TextStyle(fontSize: TextSizing.large)),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
