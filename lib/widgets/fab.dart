@@ -91,9 +91,7 @@ class MyExpandableFAB extends ConsumerWidget {
           colour: Colors.deepPurpleAccent,
           onPressed: () {
             try {
-              ref
-              .read(asyncFatingNotifier.notifier)
-              .toggleFast();
+              ref.read(asyncFatingNotifier.notifier).toggleFast();
             } finally {
               ref.invalidate(checkFastingGoalProvider);
               ref.invalidate(checkFastingStatusProvider);
@@ -103,7 +101,7 @@ class MyExpandableFAB extends ConsumerWidget {
             //   .read(asyncFatingNotifier.notifier)
             //   .toggleFast()
             //   .whenComplete(() => ref.invalidate(checkFastingGoalProvider));
-              },
+          },
         ),
       FabButton(
         title: 'Log Weight',
@@ -156,7 +154,35 @@ class MyExpandableFAB extends ConsumerWidget {
               final decision = await ref
                   .read(asyncFatingNotifier.notifier)
                   .isInEatingWindow(context);
+                  debugPrint('Mounted: ${context.mounted} $decision');
               if (decision) {
+                debugPrint('before mounted');
+                if (context.mounted) {
+                  debugPrint('why not');
+                  final decision2 = await Dialogs.dangerDialog(
+                    context,
+                    title: 'You are outside your eating window!',
+                    message:
+                        'Are you sure you want to log a meal now? Your fast will be broken if you do',
+                  );
+
+                  if (decision2) {
+                    await ref
+                    .read(asyncGoalsProvider.notifier)
+                    .logMeal(
+                      MealCategory.quick,
+                      null,
+                      null,
+                      newLog,
+                      DateTime.now(),
+                    )
+                    .whenComplete(
+                      () => ref.invalidate(checkNutritionGoalProvider),
+                    );
+                    await ref.read(asyncFatingNotifier.notifier).toggleFast();
+                  }
+                }
+              } else {
                 await ref
                     .read(asyncGoalsProvider.notifier)
                     .logMeal(
@@ -165,16 +191,10 @@ class MyExpandableFAB extends ConsumerWidget {
                       null,
                       newLog,
                       DateTime.now(),
-                    ).whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
-                // await ref
-                //     .read(nDaoProvider)
-                //     .insertFoodLog(
-                //       MealCategory.quick,
-                //       null,
-                //       null,
-                //       newLog,
-                //       DateTime.now(),
-                //     );
+                    )
+                    .whenComplete(
+                      () => ref.invalidate(checkNutritionGoalProvider),
+                    );
               }
             } else if (newLog == LogMethod.full) {
               if (!context.mounted) return;

@@ -32,12 +32,13 @@ class MealTracking extends ConsumerWidget {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 3),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(data: (goal) {
                 if (goal == -1) {
-                    return Text('No ongoing goal', style: TextStyle(fontSize: TextSizing.medium),);
+                    return Text('No ongoing meal goal', style: TextStyle(fontSize: TextSizing.medium),);
                   }
                   
                 final model = goal == -1 ? 0.0 : goal;

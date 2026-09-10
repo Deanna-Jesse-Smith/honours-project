@@ -574,6 +574,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
   }
 
   Future<void> insertInitialFastinggoal(int userId, num threshold, MetricType mType) async {
+    await ref.read(gDaoProvider).insertHydrationGoal(userId, DateTime.now(), 1, GoalOperator.greaterEqual);
     await ref.read(gDaoProvider).insertFastingGoal(userId, threshold.toDouble(), GoalOperator.greaterEqual, mType);
   }
 

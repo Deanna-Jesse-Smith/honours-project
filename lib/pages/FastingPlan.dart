@@ -134,7 +134,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               },
               child: Text(
                 'View Fasting History',
-                style: TextStyle(fontSize: TextSizing.medium),
+                style: TextStyle(fontSize: TextSizing.small),
               ),
             ),
             TextButton(
@@ -145,7 +145,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               ),
               child: Text(
                 'Goals/Streaks',
-                style: TextStyle(fontSize: TextSizing.medium),
+                style: TextStyle(fontSize: TextSizing.small),
               ),
             ),
         // Row(
@@ -183,7 +183,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(
         index: 1,
-        posi: ExpandableFabPos.center,
+        posi: ExpandableFabPos.right,
       ),
       // floatingActionButton: customWidgets.getFAB(
       //   ref,

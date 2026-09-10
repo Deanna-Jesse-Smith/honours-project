@@ -63,10 +63,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Weight Motivation',
-              style: TextStyle(fontSize: TextSizing.medium),
-            ),
             Padding(
               padding: EdgeInsets.all(15),
               child: watchWeightGoal.when(

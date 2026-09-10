@@ -105,7 +105,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   title: 'How much water have you drank?',
                 );
 
-                showCelebration();
+                // showCelebration();
 
                 if (newAmount != null) {
                   final check = await ref

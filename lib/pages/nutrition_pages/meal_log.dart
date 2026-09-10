@@ -84,176 +84,187 @@ class _MealLogState extends ConsumerState<MealLog> {
       body: Column(
         spacing: 20.0,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'What meal is this?',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                DropdownMenu<MealCategory>(
-                  initialSelection: dropDownValuee,
-                  dropdownMenuEntries: entriess,
-                  textStyle: TextStyle(fontSize: TextSizing.medium),
-                  onSelected: (MealCategory? value) {
-                    setState(() {
-                      dropDownValuee = value!;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'What time did you eat?',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                ElevatedButton(
-                  onPressed: selectMealTime,
-                  child: Text(
-                    strMealTime,
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Comments on meal (optional):',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Picture (optional):',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => selectImage(ImageSource.gallery),
-                      icon: Icon(Icons.image),
-                    ),
-                    IconButton(
-                      onPressed: () => selectImage(ImageSource.camera),
-                      icon: Icon(Icons.camera_alt),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (imagePath.isNotEmpty)
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    File(imagePath),
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox.shrink(),
-              ],
-            ),
-          // Table(
-          //   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          //   border: TableBorder.all(width: 10),
-          //   children: [
-          //     TableRow(
-          //       children: [
-          //         const Text('What meal is this?', style: TextStyle(fontSize: TextSizing.medium),),
-          //         DropdownMenu<MealCategory>(
-          //           initialSelection: dropDownValuee,
-          //           dropdownMenuEntries: entriess,
-          //           textStyle: TextStyle(fontSize: TextSizing.medium),
-          //           onSelected: (MealCategory? value) {
-          //             setState(() {
-          //               dropDownValuee = value!;
-          //             });
-          //           },
-          //         ),
-          //       ],
-          //     ),
-          //     TableRow(children: [
-          //       const Text('What time did you eat?', style: TextStyle(fontSize: TextSizing.medium),),
-          //       ElevatedButton(onPressed: selectMealTime, child: Text(strMealTime, style: TextStyle(fontSize: TextSizing.medium),))
-          //     ]),
-          //     TableRow(
-          //       children: [
-          //         const Text('Comments on meal (optional):', style: TextStyle(fontSize: TextSizing.medium),),
-          //         TextField(
-          //           controller: controller,
-          //           decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text(
+          //         'What meal is this?',
+          //         style: TextStyle(fontSize: TextSizing.medium),
+          //       ),
+          //       DropdownMenu<MealCategory>(
+          //         initialSelection: dropDownValuee,
+          //         dropdownMenuEntries: entriess,
+          //         textStyle: TextStyle(fontSize: TextSizing.medium),
+          //         onSelected: (MealCategory? value) {
+          //           setState(() {
+          //             dropDownValuee = value!;
+          //           });
+          //         },
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text(
+          //         'What time did you eat?',
+          //         style: TextStyle(fontSize: TextSizing.medium),
+          //       ),
+          //       ElevatedButton(
+          //         onPressed: selectMealTime,
+          //         child: Text(
+          //           strMealTime,
           //           style: TextStyle(fontSize: TextSizing.medium),
           //         ),
-          //       ],
-          //     ),
-          //     TableRow(
-          //       children: [
-          //         const Text('Picture (optional):', style: TextStyle(fontSize: TextSizing.medium),),
-          //         Row(
-          //           children: [
-          //             IconButton(
-          //               onPressed: () => selectImage(ImageSource.gallery),
-          //               icon: Icon(Icons.image),
-          //             ),
-          //             IconButton(
-          //               onPressed: () => selectImage(ImageSource.camera),
-          //               icon: Icon(Icons.camera_alt),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //     if (imagePath.isNotEmpty)
-          //       TableRow(
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text(
+          //         'Comments on meal (optional):',
+          //         style: TextStyle(fontSize: TextSizing.medium),
+          //       ),
+          //       TextField(
+          //         controller: controller,
+          //         decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+          //         style: TextStyle(fontSize: TextSizing.medium),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text(
+          //         'Picture (optional):',
+          //         style: TextStyle(fontSize: TextSizing.medium),
+          //       ),
+          //       Row(
           //         children: [
-          //           ClipRRect(
-          //             borderRadius: BorderRadius.circular(10),
-          //             child: Image.file(
-          //               File(imagePath),
-          //               width: 120,
-          //               height: 120,
-          //               fit: BoxFit.cover,
-          //             ),
+          //           IconButton(
+          //             onPressed: () => selectImage(ImageSource.gallery),
+          //             icon: Icon(Icons.image),
           //           ),
-          //           SizedBox.shrink(),
+          //           IconButton(
+          //             onPressed: () => selectImage(ImageSource.camera),
+          //             icon: Icon(Icons.camera_alt),
+          //           ),
           //         ],
           //       ),
-          //   ],
+          //     ],
+          //   ),
           // ),
+          // if (imagePath.isNotEmpty)
+          //   Row(
+          //     children: [
+          //       ClipRRect(
+          //         borderRadius: BorderRadius.circular(10),
+          //         child: Image.file(
+          //           File(imagePath),
+          //           width: 120,
+          //           height: 120,
+          //           fit: BoxFit.cover,
+          //         ),
+          //       ),
+          //       SizedBox.shrink(),
+          //     ],
+          //   ),
+          Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              TableRow(
+                children: [
+                  const Text('What meal is this?', style: TextStyle(fontSize: TextSizing.medium),),
+                  DropdownMenu<MealCategory>(
+                    initialSelection: dropDownValuee,
+                    dropdownMenuEntries: entriess,
+                    textStyle: TextStyle(fontSize: TextSizing.medium),
+                    onSelected: (MealCategory? value) {
+                      setState(() {
+                        dropDownValuee = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              TableRow(children: [
+                const Text('What time did you eat?', style: TextStyle(fontSize: TextSizing.medium),),
+                ElevatedButton(onPressed: selectMealTime, child: Text(strMealTime, style: TextStyle(fontSize: TextSizing.medium),))
+              ]),
+              TableRow(
+                children: [
+                  const Text('Comments on meal (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const Text('Picture (optional):', style: TextStyle(fontSize: TextSizing.medium),),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => selectImage(ImageSource.gallery),
+                        icon: Icon(Icons.image),
+                      ),
+                      IconButton(
+                        onPressed: () => selectImage(ImageSource.camera),
+                        icon: Icon(Icons.camera_alt),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (imagePath.isNotEmpty)
+                TableRow(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        File(imagePath),
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox.shrink(),
+                  ],
+                ),
+            ],
+          ),
           ElevatedButton(
             onPressed: () async {
               final decision = await ref
                   .read(asyncFatingNotifier.notifier)
                   .isInEatingWindow(context);
               if (decision) {
+                if (!mounted) return;
+                bool decision2 = await Dialogs.dangerDialog(
+                  context,
+                  title: 'Done everything you need?',
+                  message:
+                      'You won\'t be able to edit this meal after you leave',
+                );
+                if (!decision2) {
+                  return;
+                }
+                save();
+              } else {
                 if (!mounted) return;
                 bool decision2 = await Dialogs.dangerDialog(
                   context,

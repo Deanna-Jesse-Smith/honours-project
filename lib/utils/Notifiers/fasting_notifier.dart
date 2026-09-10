@@ -316,19 +316,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     final lastFast = await fDao.isFasting();
 
     if (lastFast) {
-      if (!context.mounted) {
-      final decision = await Dialogs.dangerDialog(
-        context,
-        title: 'You are outside your eating window!',
-        message:
-            'Are you sure you want to log a meal now? Your fast will be broken if you do',
-      );
-
-      if (decision) {
-        await toggleFast();
-      }
-      }
-
+      return true;
     }
     return false;
   }

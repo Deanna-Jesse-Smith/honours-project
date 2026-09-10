@@ -19,7 +19,7 @@ class _StartPageState extends State<StartPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(15),
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
@@ -77,7 +77,7 @@ class _StartPageState extends State<StartPage> {
             ),
           ],
         ),
-      ),
+      ),),
     );
   }
 }

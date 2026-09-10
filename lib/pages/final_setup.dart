@@ -137,7 +137,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                     DateTime(2026, 1, 1, temp.end.hour, temp.end.minute),
                   ];
                   type = MetricType.hours;
-                  threshold = times[0].difference(times[1]).inHours - 1;
+                  threshold = times[1].difference(times[0]).inHours - 1;
                 } else {
                   times = [DateTime(2026), DateTime(2026)];
                 }

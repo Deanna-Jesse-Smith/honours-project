@@ -105,7 +105,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ),
       ),
       // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
-      body: Column(
+      body: SingleChildScrollView(child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Text(
@@ -115,7 +115,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           ),
           goalInfo(),
         ],
-      ),
+      ),),
       persistentFooterButtons: [
         Center(
           child: OutlinedButton(
@@ -287,7 +287,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 40,
         children: [
-          Text(type.goalText, style: TextStyle(fontSize: TextSizing.medium)),
+          Text(type.goalText, style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.left,),
           Table(
             children: [
               TableRow(
