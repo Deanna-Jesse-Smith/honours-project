@@ -21,12 +21,26 @@ class Dialogs {
         title: Row(
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.warning_amber_sharp, color: Colors.orange, size: 50,),
+            const Icon(
+              Icons.warning_amber_sharp,
+              color: Colors.orange,
+              size: 50,
+            ),
             const SizedBox(width: 8),
-            Expanded(child: Text(title, style: TextStyle(fontSize: TextSizing.medium), maxLines: 3,)),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: TextSizing.medium),
+                maxLines: 3,
+              ),
+            ),
           ],
         ),
-        content: Text(message, style: TextStyle(fontSize: TextSizing.medium), maxLines: 6,),
+        content: Text(
+          message,
+          style: TextStyle(fontSize: TextSizing.medium),
+          maxLines: 6,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -59,7 +73,10 @@ class Dialogs {
     final focusNode = FocusNode();
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
-        contorller.selection = TextSelection(baseOffset: 0, extentOffset: contorller.text.length);
+        contorller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: contorller.text.length,
+        );
       }
     });
 
@@ -199,22 +216,37 @@ class Dialogs {
       context: context,
       builder: (context) => AlertDialog(
         title: Center(child: Text('How would you like to log your meal?')),
-        content: Text('You can:', style: TextStyle(fontSize: TextSizing.medium),),
+        content: Text(
+          'You can:',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               // ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), LogMethod.quick);
               Navigator.pop(context, LogMethod.quick);
             },
-            child: Text('Log that I ate', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
+            child: Text(
+              'Log that I ate',
+              style: TextStyle(fontSize: TextSizing.medium),
+              textAlign: TextAlign.center,
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, LogMethod.repeat),
-            child: Text('Repeat yesterday', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
+            child: Text(
+              'Repeat yesterday',
+              style: TextStyle(fontSize: TextSizing.medium),
+              textAlign: TextAlign.center,
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, LogMethod.full),
-            child: Text('Log Full Meal', style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.center,),
+            child: Text(
+              'Log Full Meal',
+              style: TextStyle(fontSize: TextSizing.medium),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
@@ -228,96 +260,171 @@ class Dialogs {
       context: context,
       builder: (context) => SimpleDialog(
         title: Text('Your fasting result icons'),
-        children: FastResult.values.map((r) => Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 7),
-          child: Row(
-            spacing: 10,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [r.resultIcon, SizedBox(width: MediaQuery.of(context).size.width * 0.6, child: Text(r.description, style: TextStyle(fontSize: TextSizing.small)))],
-            ),
-        )).toList(),
+        children: FastResult.values
+            .map(
+              (r) => Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 7),
+                child: Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    r.resultIcon,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: Text(
+                        r.description,
+                        style: TextStyle(fontSize: TextSizing.small),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
     return temp;
   }
 
-  static Future<int?> showConcern(BuildContext context, BasicConcern concern) async {
+  static Future<int?> showConcern(
+    BuildContext context,
+    BasicConcern concern,
+  ) async {
     int? output = -1;
     if (concern is HealthConcern) {
-      output = await showDialog<int>(context: context, builder: (context) => AlertDialog(
-        title: Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(Icons.health_and_safety, color: Colors.red),
-            const SizedBox(width: 8),
-            Expanded(child: Text(concern.title, style: TextStyle(fontSize: TextSizing.large),)),
+      output = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.health_and_safety, color: Colors.red),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  concern.title,
+                  style: TextStyle(fontSize: TextSizing.large),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            children: [
+              Flexible(
+                child: Text(
+                  concern.text,
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  concern.citation,
+                  style: TextStyle(
+                    fontSize: TextSizing.small,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 1),
+              child: Text('Close'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 2),
+              child: Text('Dismiss (1 week)'),
+            ),
           ],
         ),
-        content: Column(children: [
-          Flexible(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
-          Flexible(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
-        ],),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, 1),
-            child: Text('Close'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, 2),
-            child: Text('Dismiss (1 week)'),
-          ),
-        ],
-      ));
+      );
     } else {
-      output = await showDialog<int>(context: context, builder: (context) => AlertDialog(
-        title: Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(Icons.info_outline, color: Colors.lightGreenAccent),
-            const SizedBox(width: 8),
-            Expanded(child: Text(concern.title, style: TextStyle(fontSize: TextSizing.large),)),
+      output = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(Icons.info_outline, color: Colors.lightGreenAccent),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  concern.title,
+                  style: TextStyle(fontSize: TextSizing.large),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            children: [
+              Expanded(
+                child: Text(
+                  concern.text,
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  concern.citation,
+                  style: TextStyle(
+                    fontSize: TextSizing.small,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 1),
+              child: Text('Close'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 2),
+              child: Text('Dismiss (1 week)'),
+            ),
           ],
         ),
-        content: Column(children: [
-          Expanded(child: Text(concern.text, style: TextStyle(fontSize: TextSizing.medium),)),
-          Expanded(child: Text(concern.citation, style: TextStyle(fontSize: TextSizing.small, fontStyle: FontStyle.italic),))
-        ],),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, 1),
-            child: Text('Close'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, 2),
-            child: Text('Dismiss (1 week)'),
-          ),
-        ],
-      ));
+      );
     }
     return output;
   }
 
-  static Future<void> goalComplete(BuildContext context, String title, String text, ConfettiController controller) async {
-
-      final output = await showDialog(context: context, builder: (context) => AlertDialog(
+  static Future<void> goalComplete(
+    BuildContext context,
+    String title,
+    String text,
+    ConfettiController controller,
+  ) async {
+    final output = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
         title: Row(
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Icon(Icons.health_and_safety, color: Colors.red),
             const SizedBox(width: 8),
-            Expanded(child: Text(title, style: TextStyle(fontSize: TextSizing.large),)),
+            Expanded(
+              child: Text(title, style: TextStyle(fontSize: TextSizing.large)),
+            ),
           ],
         ),
-        content: Column(children: [
-          Flexible(child: Text(text, style: TextStyle(fontSize: TextSizing.medium),)),
-        ],),
+        content: Column(
+          children: [
+            Flexible(
+              child: Text(text, style: TextStyle(fontSize: TextSizing.medium)),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Close'),
           ),
         ],
-      ));
-      return output;
-    }
+      ),
+    );
+    return output;
+  }
 }

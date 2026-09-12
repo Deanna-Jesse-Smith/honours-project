@@ -1,14 +1,16 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
 import 'package:testrun/database/database.dart';
 
 class Ingredient {
   final int id;
   final String name;
-  final double quantity;
+  final int quantity;
   final IngredientType type;
   final String servingDescr;
 
-  final double calories, fibre, fat, protein, carbs;
+  final double fibre, fat, protein, carbs;
+  final int calories;
 
   Ingredient(this.id, this.name, this.servingDescr, this.quantity, this.type, this.calories, this.fibre, this.fat, this.protein, this.carbs);
 }
@@ -18,40 +20,46 @@ enum IngredientType {
   recipe,
 }
 
-class MealItem {
+class MealItem implements Comparable {
   final int id;
   final List<Ingredient>? ingredients;
   final DateTime date;
   // final bool isInEatingWindow;
-  final MealCategory cate;
+  MealCategory cate;
   final LogMethod log;
 
   MealItem(this.id, this.ingredients, this.date, this.cate, this.log);
 
-  double getTotalCalories() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.calories);
+  int getTotalCalories() {
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.calories);
   }
 
   double getTotalFibre() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.fibre);
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.fibre);
   }
 
   double getTotalFat() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.fat);
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.fat);
   }
 
   double getTotalProtein() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.protein);
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.protein);
   }
 
   double getTotalCarbs() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev += cur.carbs);
+    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.carbs);
+  }
+
+  @override
+  int compareTo(other) {
+    other as MealItem;
+    return other.cate.index.compareTo(cate.index);
   }
 }
 
 class MealFood {
   final FoodData food;
-  int quantity = 0;
+  int quantity = 1;
 
   MealFood(this.food);
 }
@@ -63,13 +71,27 @@ enum LogMethod {
   none
 }
 
-class DayMeals {
+class DayMeals implements Comparable {
   final List<MealItem> meals;
   final DateTime day;
 
   DayMeals(this.meals, this.day);
 
   void updateMeals(MealItem item) => meals.add(item);
+
+  @override
+  int compareTo(other) {
+    other as DayMeals;
+    return day.isBefore(other.day) ? 1 : -1;
+  }
+
+  void sort() {
+    meals.sort();
+  }
+
+  int getTotalCalories() {
+    return meals.fold(0, (prev, cur) => prev + cur.getTotalCalories());
+  }
 }
 
 class DayFoods {

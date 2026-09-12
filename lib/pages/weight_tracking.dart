@@ -75,6 +75,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
 
                   return Center(
                     child: LinearPercentIndicator(
+                      alignment: MainAxisAlignment.center,
                       percent: model,
                       lineHeight: 15,
                       width: MediaQuery.of(context).size.width * 0.6,

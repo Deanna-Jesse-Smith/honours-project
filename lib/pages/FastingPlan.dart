@@ -54,8 +54,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     asyncFasting = ref.read(asyncFatingNotifier.notifier);
 
     ogFiveTwo = intsToBools(session.fiveTwoDaysSelected, ogFiveTwo);
-    // List<int> forTesting = [1,2,4];
-    // fiveTwoDaysSelected = List<bool>.of(intsToBools(forTesting, ogFiveTwo));
+    fiveTwoDaysSelected = List<bool>.of(ogFiveTwo);
+    
     ogADF = intsToBools(session.adfDaysSelected, ogADF);
     adfDaysSelected = List<bool>.of(ogADF);
 
@@ -92,12 +92,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             textStyle: TextStyle(fontSize: TextSizing.small),
             constraints: BoxConstraints(maxWidth: 300),
             triggerMode: TooltipTriggerMode.tap,
+            showDuration: Duration(seconds: 10),
             child: SizedBox(width: 50,
               child: Icon(Icons.question_mark)),
-            // child: IconButton(
-            //   onPressed: () => Dialogs.getFastResultHelp(context),
-            //   icon: Icon(Icons.question_mark),
-            // ),
           ),
         ],
     ),

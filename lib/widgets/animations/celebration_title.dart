@@ -88,7 +88,7 @@ class _DialogTitleState extends State<DialogTitle>
         text = 'You have completed your daily hydration goal\n\nWell done!';
       case GoalType.nutrition:
         title = 'Meal Goal Complete!';
-        text = 'You have completed your weekly meal goal\n\nWell done!';
+        text = 'You have completed your daily calorie goal\n\nWell done!';
     }
   }
 
@@ -170,7 +170,7 @@ class _DialogTitleState extends State<DialogTitle>
                   colors: const [
                     Colors.green,
                     Colors.blue,
-                    Colors.pink,
+                    Color.fromARGB(255, 233, 30, 189),
                     Colors.orange,
                     Colors.purple,
                   ],

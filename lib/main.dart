@@ -17,6 +17,7 @@ import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/pages/goals_pages/profile_page.dart';
 import 'package:testrun/pages/goals_pages/reminder_page.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
@@ -65,10 +66,10 @@ final cDaoProvider = Provider<ReinforcementDao>(
 final sDaoProvider = Provider<StepsDao>(
   (ref) => StepsDao(ref.watch(databaseProvider)),
 );
-final mealRangeProvider = FutureProvider.family<Map<DateTime, DayMeals>, List<DateTime>>(
+final mealRangeProvider = FutureProvider.family<List<DayMeals>, (DateTime, DateTime)>(
   (ref, days) {
     final repo = ref.watch(nDaoProvider);
-    return repo.getMealsInRange(days);
+    return repo.getMealsInRange(days.$1, days.$2);
   },
 );
 final foodRangeProvider = FutureProvider.family<Map<DateTime, DayFoods>, List<DateTime>>(
@@ -172,6 +173,7 @@ class MyApp extends ConsumerWidget {
         '/HydrationTracking': (context) => HydrationTracking(),
         '/WeightTracking': (context) => WeightTracking(),
         '/Reminder' : (context) => const ReminderPage(),
+        '/Profile' : (context) => ProfilePage(),
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),

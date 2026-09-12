@@ -25,13 +25,14 @@ class MealTracking extends ConsumerWidget {
 
     final goalChecker = ref.watch(checkNutritionGoalProvider);
     final streakChecker = ref.watch(checkNutritionStreakProvider);
+    final mealWatcher = ref.watch(mealRangeProvider((start, end)));
 
     return Scaffold(
       appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: MyExpandableFAB(index: 3),
-      body: Column(
+      body: SingleChildScrollView(child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
@@ -44,6 +45,7 @@ class MealTracking extends ConsumerWidget {
                 final model = goal == -1 ? 0.0 : goal;
 
                   return LinearPercentIndicator(
+                    alignment: MainAxisAlignment.center,
                     percent: model,
                     lineHeight: 15,
                     width: MediaQuery.of(context).size.width - 80,
@@ -62,51 +64,66 @@ class MealTracking extends ConsumerWidget {
                 return Text('You\'re on a $streak day streak!', style: TextStyle(fontSize: TextSizing.medium),);
               }
             }, error: (e, _) => Text(e.toString()), loading: () => const CircularProgressIndicator()),
-          StreamBuilder(
-            stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                debugPrint('FoodMap: no data');
+
+            mealWatcher.when(data: (meals) {
+              if (meals.isEmpty) {
                 return const Text(
                   'No meals to show',
                   style: TextStyle(fontSize: TextSizing.large),
                 );
               }
+
+              return Column(
+                spacing: 20,
+                children: meals.map((meal) => DaySection(dayMeal: meal)).toList(),);
+            }, loading: () => const SizedBox.shrink(),
+            error: (e, o) => const SizedBox.shrink()),
+
+          // StreamBuilder(
+          //   stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
+          //   builder: (context, snapshot) {
+          //     if (!snapshot.hasData) {
+          //       debugPrint('FoodMap: no data');
+          //       return const Text(
+          //         'No meals to show',
+          //         style: TextStyle(fontSize: TextSizing.large),
+          //       );
+          //     }
           
-              final dayFoods = snapshot.data;
-              if (dayFoods == null) {
-                debugPrint('FoodMap: null');
-                return const Text(
-                  'No meals to show',
-                  style: TextStyle(fontSize: TextSizing.large),
-                );
-              }
+          //     final dayFoods = snapshot.data;
+          //     if (dayFoods == null) {
+          //       debugPrint('FoodMap: null');
+          //       return const Text(
+          //         'No meals to show',
+          //         style: TextStyle(fontSize: TextSizing.large),
+          //       );
+          //     }
           
-              Map<DateTime, DayFoods> foodMap = {};
-              for (final foodItem in dayFoods) {
-                DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
-                foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
-                  u.foods.add(foodItem);
-                  return u;
-                }, ifAbsent: () => temp);
-              }
-              List<DayFoods> curr = foodMap.values.toList();
-              return Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: curr.length,
-                  itemBuilder: (context, index) {
-                    if (curr.isNotEmpty) {
-                      return DaySection(dayMeal: curr[index]);
-                    }
-                    return SizedBox(height: 10);
-                  },
-                ),
-              );
-            },
-          ),
+          //     Map<DateTime, DayFoods> foodMap = {};
+          //     for (final foodItem in dayFoods) {
+          //       DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
+          //       foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
+          //         u.foods.add(foodItem);
+          //         return u;
+          //       }, ifAbsent: () => temp);
+          //     }
+          //     List<DayFoods> curr = foodMap.values.toList();
+          //     return Expanded(
+          //       child: ListView.builder(
+          //         padding: EdgeInsets.all(16),
+          //         itemCount: curr.length,
+          //         itemBuilder: (context, index) {
+          //           if (curr.isNotEmpty) {
+          //             return DaySection(dayMeal: curr[index]);
+          //           }
+          //           return SizedBox(height: 10);
+          //         },
+          //       ),
+          //     );
+          //   },
+          // ),
         ],
-      ),
+      ),),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         TextButton(

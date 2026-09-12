@@ -151,14 +151,13 @@ class MyExpandableFAB extends ConsumerWidget {
             debugPrint('Log: ${newLog.name}');
             if (newLog == LogMethod.quick) {
               if (!context.mounted) return;
+              bool celebrate = false;
               final decision = await ref
                   .read(asyncFatingNotifier.notifier)
                   .isInEatingWindow(context);
                   debugPrint('Mounted: ${context.mounted} $decision');
               if (decision) {
-                debugPrint('before mounted');
                 if (context.mounted) {
-                  debugPrint('why not');
                   final decision2 = await Dialogs.dangerDialog(
                     context,
                     title: 'You are outside your eating window!',
@@ -167,34 +166,52 @@ class MyExpandableFAB extends ConsumerWidget {
                   );
 
                   if (decision2) {
-                    await ref
+                    celebrate = await ref
                     .read(asyncGoalsProvider.notifier)
                     .logMeal(
                       MealCategory.quick,
-                      null,
-                      null,
+                      {},
                       newLog,
                       DateTime.now(),
                     )
                     .whenComplete(
                       () => ref.invalidate(checkNutritionGoalProvider),
                     );
+                    // await ref
+                    // .read(asyncGoalsProvider.notifier)
+                    // .logMeal(
+                    //   MealCategory.quick,
+                    //   null,
+                    //   null,
+                    //   newLog,
+                    //   DateTime.now(),
+                    // )
+                    // .whenComplete(
+                    //   () => ref.invalidate(checkNutritionGoalProvider),
+                    // );
                     await ref.read(asyncFatingNotifier.notifier).toggleFast();
                   }
                 }
               } else {
-                await ref
+                celebrate = await ref
                     .read(asyncGoalsProvider.notifier)
                     .logMeal(
                       MealCategory.quick,
-                      null,
-                      null,
+                      {},
                       newLog,
                       DateTime.now(),
                     )
                     .whenComplete(
                       () => ref.invalidate(checkNutritionGoalProvider),
                     );
+              }
+
+              if (celebrate) {
+                if (!context.mounted) return;
+              showDialog(
+                context: context,
+                builder: (_) => DialogTitle(type: GoalType.nutrition),
+              );
               }
             } else if (newLog == LogMethod.full) {
               if (!context.mounted) return;

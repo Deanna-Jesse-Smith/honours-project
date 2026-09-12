@@ -274,8 +274,9 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
   }
 
   Future<void> dummyData() async {
-    await into(fastLog).insert(
-      FastLogCompanion.insert(
+    await batch((batch) {
+      batch.insertAll(fastLog, [
+        FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
         earlyFastResult: FastResult.asPlanned,
@@ -285,9 +286,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -298,9 +296,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(30),
         lateResultSeverity: Value(40),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -311,9 +306,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -324,9 +316,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(40),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -337,9 +326,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(30),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -350,9 +336,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -363,9 +346,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(30),
         lateResultSeverity: Value(40),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -376,9 +356,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(30),
         lateResultSeverity: Value(40),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -389,9 +366,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -402,9 +376,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -415,9 +386,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -428,9 +396,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -441,9 +406,6 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
-
-    await into(fastLog).insert(
       FastLogCompanion.insert(
         userID: 1,
         formIF: FastingForm.tre,
@@ -454,6 +416,189 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         earlyResultSeverity: Value(0),
         lateResultSeverity: Value(0),
       ),
-    );
+      ]);
+    });
+    
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 6, 20, 20, 15)),
+    //     endDateTime: Value(DateTime(2026, 6, 21, 12, 20)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.earlyStart,
+    //     lateFastResult: Value(FastResult.lateEnd),
+    //     startDateTime: Value(DateTime(2026, 6, 21, 19, 55)),
+    //     endDateTime: Value(DateTime(2026, 6, 22, 12, 5)),
+    //     earlyResultSeverity: Value(30),
+    //     lateResultSeverity: Value(40),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.skipped,
+    //     lateFastResult: Value(FastResult.skipped),
+    //     startDateTime: Value(DateTime(2026, 6, 22, 20, 30)),
+    //     endDateTime: Value(DateTime(2026, 6, 23, 12, 45)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.earlyEnd),
+    //     startDateTime: Value(DateTime(2026, 6, 23, 20, 5)),
+    //     endDateTime: Value(DateTime(2026, 6, 24, 11, 55)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(40),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.lateEnd,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 6, 24, 20, 20)),
+    //     endDateTime: Value(DateTime(2026, 6, 25, 12, 30)),
+    //     earlyResultSeverity: Value(30),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 6, 25, 21, 0)),
+    //     endDateTime: Value(DateTime(2026, 6, 26, 13, 10)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.earlyStart,
+    //     lateFastResult: Value(FastResult.lateEnd),
+    //     startDateTime: Value(DateTime(2026, 6, 26, 20, 40)),
+    //     endDateTime: Value(DateTime(2026, 6, 27, 12, 50)),
+    //     earlyResultSeverity: Value(30),
+    //     lateResultSeverity: Value(40),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.lateStart,
+    //     lateFastResult: Value(FastResult.earlyEnd),
+    //     startDateTime: Value(DateTime(2026, 6, 27, 20, 0)),
+    //     endDateTime: Value(DateTime(2026, 6, 28, 12, 0)),
+    //     earlyResultSeverity: Value(30),
+    //     lateResultSeverity: Value(40),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.skipped,
+    //     lateFastResult: Value(FastResult.skipped),
+    //     startDateTime: Value(DateTime(2026, 6, 28, 20, 10)),
+    //     endDateTime: Value(DateTime(2026, 6, 29, 12, 25)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 6, 29, 20, 35)),
+    //     endDateTime: Value(DateTime(2026, 6, 30, 12, 40)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 6, 30, 20, 0)),
+    //     endDateTime: Value(DateTime(2026, 7, 1, 12, 10)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 7, 1, 20, 20)),
+    //     endDateTime: Value(DateTime(2026, 7, 2, 12, 30)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 7, 2, 20, 45)),
+    //     endDateTime: Value(DateTime(2026, 7, 3, 13, 0)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
+
+    // await into(fastLog).insert(
+    //   FastLogCompanion.insert(
+    //     userID: 1,
+    //     formIF: FastingForm.tre,
+    //     earlyFastResult: FastResult.asPlanned,
+    //     lateFastResult: Value(FastResult.asPlanned),
+    //     startDateTime: Value(DateTime(2026, 7, 3, 20, 10)),
+    //     endDateTime: Value(DateTime(2026, 7, 4, 12, 15)),
+    //     earlyResultSeverity: Value(0),
+    //     lateResultSeverity: Value(0),
+    //   ),
+    // );
   }
 }

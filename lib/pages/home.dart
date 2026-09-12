@@ -79,6 +79,7 @@ class HomePageState extends ConsumerState<HomePage> {
                 data: (goal) {
                   final model = goal > -1 ? goal : 0.0;
                   return LinearPercentIndicator(
+                    alignment: MainAxisAlignment.center,
                     percent: model,
                     lineHeight: 15,
                     width: MediaQuery.of(context).size.width - 80,

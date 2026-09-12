@@ -10,6 +10,7 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:path/path.dart' as p;
@@ -37,11 +38,11 @@ class _MealLogState extends ConsumerState<MealLog> {
       );
   late MealCategory dropDownValuee;
 
-  late List<FoodData> foodItems;
-  final Set<MealFood> selectedFood = {};
-
   final TextEditingController controller = TextEditingController(text: '');
   String imagePath = '';
+
+  List<FoodData> foodItems = [];
+  final Set<MealFood> selectedFood = {};
 
   @override
   void initState() {
@@ -51,19 +52,15 @@ class _MealLogState extends ConsumerState<MealLog> {
 
     nDao = ref.watch(nDaoProvider);
     // makeMeal();
+    fillFoodList();
   }
 
   void fillFoodList() async {
     final list = await nDao.getAllFood();
-    foodItems = list;
-    // foodItems = UnmodifiableListView<DropdownMenuEntry<FoodData>>(
-    //   list.map<DropdownMenuEntry<FoodData>>(
-    //     (FoodData fd) => DropdownMenuEntry(
-    //       value: fd,
-    //       label: '${fd.name} (${fd.servingDescription})',
-    //     ),
-    //   ),
-    // );
+
+    if (!mounted) return;
+
+    setState(() => foodItems = list);
   }
 
   @override
@@ -308,7 +305,7 @@ class _MealLogState extends ConsumerState<MealLog> {
           Column(
             children: selectedFood.map((selected) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
                     Expanded(
@@ -317,7 +314,15 @@ class _MealLogState extends ConsumerState<MealLog> {
                         style: const TextStyle(fontSize: TextSizing.small),
                       ),
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: () => setState(() => selected.quantity++),
+                    ),
 
+                    Text(
+                      '${selected.quantity}',
+                      style: const TextStyle(fontSize: TextSizing.small),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: () {
@@ -325,14 +330,6 @@ class _MealLogState extends ConsumerState<MealLog> {
                           setState(() => selected.quantity--);
                         }
                       },
-                    ),
-                    Text(
-                      '${selected.quantity}',
-                      style: const TextStyle(fontSize: TextSizing.small),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () => setState(() => selected.quantity--),
                     ),
 
                     IconButton(
@@ -398,7 +395,10 @@ class _MealLogState extends ConsumerState<MealLog> {
     //     )
     //     .whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
 
-    await nDao.insertMealLog(dropDownValuee, LogMethod.full, mealTime, selectedFood);
+    // await nDao.insertMealLog(dropDownValuee, LogMethod.full, mealTime, selectedFood);
+    ref
+        .read(asyncGoalsProvider.notifier)
+        .logMeal(dropDownValuee, selectedFood, LogMethod.full, mealTime);
 
     if (!mounted) return;
     Navigator.of(context).pop();

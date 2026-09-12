@@ -6,7 +6,7 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
-import 'package:testrun/widgets/dialogs.dart';
+import 'package:testrun/widgets/animations/concern_dialog.dart';
 
 class AsyncConcerns extends AsyncNotifier<BasicConcern> {
   Set<HealthConcern> healthConcerns = {};
@@ -128,7 +128,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
   }
 
   Future<void> doConcernDialogue(BasicConcern concern, BuildContext context) async {
-    final result = await Dialogs.showConcern(context, concern);
+    final result = await showDialog<int>(context: context, builder: (_) => ConcernDialog(concern: concern));
     if (result == null || result > 1) {
       adjustConcernEval(concern);
     } else {

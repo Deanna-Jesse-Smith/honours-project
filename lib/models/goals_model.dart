@@ -200,6 +200,6 @@ extension Display on GoalType {
       GoalType.fasting => 'I will reach my fasting goal of:',
       GoalType.weight => 'I will weigh:',
       GoalType.hydration => 'I will drink:',
-      GoalType.nutrition => 'I will reach my goal of logging:',
+      GoalType.nutrition => 'I will reach my daily calorie goal:',
     };
 }

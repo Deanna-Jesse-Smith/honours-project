@@ -39,8 +39,8 @@ class MyNavigationDrawer extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/Reminder'),
           ),
           ListTile(
-            title: const Text('Setup'),
-            onTap: () => Navigator.pushNamed(context, '/SetupUser'),
+            title: const Text('Profile'),
+            onTap: () => Navigator.pushNamed(context, '/Profile'),
           ),
         ],
       ),

@@ -67,7 +67,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         date: Value(date),
       ),
     ));
-
+    
     for (final food in foods) {
       await into(mealFoodContent).insert(
         MealFoodContentCompanion.insert(
@@ -79,6 +79,14 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
 
     return insertion;
+  }
+
+  Future<int> getDaysCalories(DateTime day) async {
+    final todayMeals = await getMealsInRange(day, day.add(const Duration(days: 1)));
+
+    final firstt = todayMeals.first;
+
+    return firstt.getTotalCalories();
   }
 
   Future<DayFoods?> getYesterdayMeals() async {
@@ -185,15 +193,39 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<int> fiveTwoDayEvaluation(DateTime start) async {
-    final countDays = foodLog.category.count(distinct: true);
-    final fasts = (selectOnly(foodLog)
-      ..addColumns([countDays])
-      ..where(
-        foodLog.logDate.isValue(start) &
-            foodLog.category.isNotValue(MealCategory.snack.name),
-      ));
-    final output = await fasts.getSingle();
-    return output.read(countDays)!;
+    // final countDays = foodLog.category.count(distinct: true);
+    // final fasts = (selectOnly(foodLog)
+    //   ..addColumns([countDays])
+    //   ..where(
+    //     foodLog.logDate.isValue(start) &
+    //         foodLog.category.isNotValue(MealCategory.snack.name),
+    //   ));
+    // final output = await fasts.getSingle();
+    // return output.read(countDays)!;
+
+    final allMeals =
+        await (select(meals)
+              ..where((f) => f.date.isBiggerOrEqualValue(start) &
+                    f.date.isSmallerOrEqualValue(start.add(const Duration(days: 1))),)
+              ..orderBy([(d) => OrderingTerm.desc(d.date)]))
+            .get();
+
+    final mealIDs = allMeals.map((m) => m.mealID).toList();
+
+    int calories = 0;
+
+    final foodContentRows = await (select(mealFoodContent).join([
+      innerJoin(food, food.foodID.equalsExp(mealFoodContent.foodID)),
+    ])..where(mealFoodContent.mealID.isIn(mealIDs))).get();
+
+    for (final row in foodContentRows) {
+      final foodContent = row.readTable(mealFoodContent);
+      final foodItem = row.readTable(food);
+
+      calories += foodContent.quantity * foodItem.calories.toInt();
+    }
+
+    return calories;
   }
 
   Future<List<int>> countMealsInRange(DateTime start, DateTime end) async {
@@ -391,10 +423,11 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
-  Future<Map<DateTime, DayMeals>> getMealsInRange(List<DateTime> days) async {
+  Future<List<DayMeals>> getMealsInRange(DateTime start, DateTime end) async {
     final allMeals =
         await (select(meals)
-              ..where((m) => m.date.isIn(days))
+              ..where((f) => f.date.isBiggerOrEqualValue(start) &
+                    f.date.isSmallerOrEqualValue(end),)
               ..orderBy([(d) => OrderingTerm.desc(d.date)]))
             .get();
 
@@ -416,9 +449,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
         foodItem.foodID,
         foodItem.name,
         foodItem.servingDescription,
-        foodContent.quantity.toDouble(),
+        foodContent.quantity,
         IngredientType.food,
-        foodItem.calories,
+        foodItem.calories.toInt(),
         foodItem.fibre,
         foodItem.fat,
         foodItem.protein,
@@ -427,43 +460,43 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       mealFoods.putIfAbsent(foodContent.mealID, () => []).add(ingredient);
     }
 
-    final recipeContentRows = await (select(mealRecipeContent).join([
-      innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID)),
-    ])..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
+    // final recipeContentRows = await (select(mealRecipeContent).join([
+    //   innerJoin(recipe, recipe.recipeID.equalsExp(mealRecipeContent.recipeID)),
+    // ])..where(mealRecipeContent.mealID.isIn(mealIDs))).get();
 
-    for (final row in recipeContentRows) {
-      final recipeContent = row.readTable(mealRecipeContent);
-      final recipeItem = row.readTable(recipe);
+    // for (final row in recipeContentRows) {
+    //   final recipeContent = row.readTable(mealRecipeContent);
+    //   final recipeItem = row.readTable(recipe);
 
-      final recipeNutrition = await (select(recipeQuantities).join([
-        innerJoin(food, food.foodID.equalsExp(recipeQuantities.foodID)),
-      ])..where(recipeQuantities.recipeID.equals(recipeItem.recipeID))).get();
-      double calories = 0, fibre = 0, fat = 0, protein = 0, carbs = 0;
-      for (final row in recipeNutrition) {
-        final ingr = row.readTable(food);
+    //   final recipeNutrition = await (select(recipeQuantities).join([
+    //     innerJoin(food, food.foodID.equalsExp(recipeQuantities.foodID)),
+    //   ])..where(recipeQuantities.recipeID.equals(recipeItem.recipeID))).get();
+    //   double calories = 0, fibre = 0, fat = 0, protein = 0, carbs = 0;
+    //   for (final row in recipeNutrition) {
+    //     final ingr = row.readTable(food);
 
-        final multiplier = recipeContent.quantity / 100;
+    //     final multiplier = recipeContent.quantity / 100;
 
-        calories += ingr.calories * multiplier;
-        fibre += ingr.fibre * multiplier;
-        fat += ingr.fat * multiplier;
-        protein += ingr.protein * multiplier;
-        carbs += ingr.carbs * multiplier;
-      }
-      final ingredient = Ingredient(
-        recipeItem.recipeID,
-        recipeItem.recipeName,
-        "temporary",
-        recipeContent.quantity,
-        IngredientType.recipe,
-        calories,
-        fibre,
-        fat,
-        protein,
-        carbs,
-      );
-      mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
-    }
+    //     calories += ingr.calories * multiplier;
+    //     fibre += ingr.fibre * multiplier;
+    //     fat += ingr.fat * multiplier;
+    //     protein += ingr.protein * multiplier;
+    //     carbs += ingr.carbs * multiplier;
+    //   }
+    //   final ingredient = Ingredient(
+    //     recipeItem.recipeID,
+    //     recipeItem.recipeName,
+    //     "temporary",
+    //     recipeContent.quantity,
+    //     IngredientType.recipe,
+    //     calories,
+    //     fibre,
+    //     fat,
+    //     protein,
+    //     carbs,
+    //   );
+    //   mealFoods.putIfAbsent(recipeContent.mealID, () => []).add(ingredient);
+    // }
 
     Map<DateTime, DayMeals> output = {};
 
@@ -480,11 +513,15 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
       mealLogs.add(temp);
       output.update(dateKey, (day) {
         day.meals.add(temp);
+        day.meals.sort();
         return day;
       }, ifAbsent: () => DayMeals([temp], dateKey));
     }
 
-    return output;
+    final List<DayMeals> outMeals = output.values.toList();
+    outMeals.sort();
+
+    return outMeals;
 
     // return mealLogs;
   }
@@ -513,7 +550,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
           foodItem.servingDescription,
           0,
           IngredientType.food,
-          foodItem.calories,
+          foodItem.calories.toInt(),
           foodItem.fibre,
           foodItem.fat,
           foodItem.protein,
@@ -552,7 +589,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
           foodItem.servingDescription,
           0,
           IngredientType.food,
-          foodItem.calories,
+          foodItem.calories.toInt(),
           foodItem.fibre,
           foodItem.fat,
           foodItem.protein,

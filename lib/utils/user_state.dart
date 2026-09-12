@@ -132,9 +132,9 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       final nDao = ref.read(nDaoProvider);
       for (final candidate in candidates) {
         final mealCount = await nDao.fiveTwoDayEvaluation(candidate);
-        if (mealCount == 0) {
+        if (mealCount < 550) {
           await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.underate);
-        } else if (mealCount == 1) {
+        } else if (mealCount < 800) {
           await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.asPlanned);
         } else {
           await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.overate);

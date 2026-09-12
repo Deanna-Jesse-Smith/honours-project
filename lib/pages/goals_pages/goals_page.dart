@@ -58,20 +58,26 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
     final outcome = ref.read(bestStreakProvider(type));
 
-    bestStreak = outcome.when(data: (streak) {
-      if (streak == null) {
-        return '\n\nYou have no streaks of this type recorded.';
-      }
-      return '\n\nYour best streak is $streak days';
-    }, error: (e, _) => '', loading: () => '');
+    bestStreak = outcome.when(
+      data: (streak) {
+        if (streak == null) {
+          return '\n\nYou have no streaks of this type recorded.';
+        }
+        return '\n\nYour best streak is $streak days';
+      },
+      error: (e, _) => '',
+      loading: () => '',
+    );
 
     description = switch (type) {
       GoalType.fasting =>
         'A TRE fasting goal is the minimum number of hours you can aim to reach each day of the week.\n\nAn ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.',
       GoalType.weight =>
         'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
-      GoalType.hydration => 'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
-      GoalType.nutrition => 'Your nutrition goal is the number of meals.\n\nYour hydration streak is the number of days in a row you have managed to reach your meal goal.',
+      GoalType.hydration =>
+        'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+      GoalType.nutrition =>
+        'Your nutrition goal is the number of calories you want to be under in a day.\n\nYour nutrition streak is the number of days in a row you have managed to reach your nutrition goal.',
     };
 
     description += bestStreak;
@@ -105,23 +111,25 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ),
       ),
       // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
-      body: SingleChildScrollView(child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text(
-            description,
-            style: TextStyle(fontSize: TextSizing.medium),
-            textAlign: TextAlign.center,
-          ),
-          goalInfo(),
-        ],
-      ),),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(
+              description,
+              style: TextStyle(fontSize: TextSizing.medium),
+              textAlign: TextAlign.center,
+            ),
+            goalInfo(),
+          ],
+        ),
+      ),
       persistentFooterButtons: [
         Center(
           child: OutlinedButton(
             onPressed: () async {
               await saveChanges();
-          
+
               if (!mounted) {
                 return;
               } else if (mounted) {
@@ -266,7 +274,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             curGoal = model;
             return goalCard(
               TextInputType.numberWithOptions(),
-              'Meal(s) per day',
+              'calories per day',
             );
           case BasicStreak():
             // TODO: Handle this case.
@@ -287,7 +295,11 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 40,
         children: [
-          Text(type.goalText, style: TextStyle(fontSize: TextSizing.medium), textAlign: TextAlign.left,),
+          Text(
+            type.goalText,
+            style: TextStyle(fontSize: TextSizing.medium),
+            textAlign: TextAlign.left,
+          ),
           Table(
             children: [
               TableRow(

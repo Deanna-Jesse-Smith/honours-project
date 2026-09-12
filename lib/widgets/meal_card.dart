@@ -6,44 +6,47 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
-// class MealCard extends StatelessWidget {
-//   final MealItem meal;
+class MealCard extends StatelessWidget {
+  final MealItem meal;
 
-//   const MealCard({super.key, required this.meal});
+  const MealCard({super.key, required this.meal});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (meal.ingredients != null) {
-//       return Card(
-//         child: Padding(
-//           padding: const EdgeInsets.all(8),
-//           child: Column(
-//             children: [
-//               Text(DateFormat('HH:mm a').format(meal.date)),
-//               const SizedBox(height: 10),
-//               Wrap(
-//                 spacing: 20,
-//                 runSpacing: 15,
-//                 children: meal.ingredients != null ? meal.ingredients!.map((i) {
-//                   return Chip(label: Text(i.name));
-//                 }).toList() : List.empty(),
-//               ),
-//               Text('${meal.getTotalCalories()} calories'),
-//               Text('${meal.getTotalFibre()}g fibre')
-//             ],
-//           ),
-//         ),
-//       );
-//     } else {
-//       return Card(
-//         child: Padding(
-//           padding: const EdgeInsets.all(8),
-//           child: Text(DateFormat('HH:mm a').format(meal.date)),
-//         ),
-//       );
-//     }
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    if (meal.ingredients != null) {
+      return Card.outlined(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              Text('${meal.cate.name} — ${DateFormat('HH:mm a').format(meal.date)}', style: TextStyle(fontSize: TextSizing.small),),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 20,
+                runSpacing: 15,
+                children: meal.ingredients != null ? meal.ingredients!.map((i) {
+                  return Chip(label: Text('${i.quantity} ${i.name}', style: TextStyle(fontSize: TextSizing.small),));
+                }).toList() : List.empty(),
+              ),
+              Text('${meal.getTotalCalories()} calories', style: TextStyle(fontSize: TextSizing.small),),
+              Text('${meal.getTotalFibre().toStringAsFixed(2)}g fibre', style: TextStyle(fontSize: TextSizing.small),),
+              Text('${meal.getTotalCarbs().toStringAsFixed(2)}g carbs', style: TextStyle(fontSize: TextSizing.small),),
+              Text('${meal.getTotalProtein().toStringAsFixed(2)}g protein', style: TextStyle(fontSize: TextSizing.small),),
+              Text('${meal.getTotalFat().toStringAsFixed(2)}g fat', style: TextStyle(fontSize: TextSizing.small),),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Card.outlined(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(DateFormat('HH:mm a').format(meal.date)),
+        ),
+      );
+    }
+  }
+}
 
 class FoodCard extends StatelessWidget {
   final FoodLogData food;
@@ -74,38 +77,39 @@ class FoodCard extends StatelessWidget {
   }
 }
 
-class DaySection extends StatelessWidget {
-  final DayFoods dayMeal;
-  const DaySection({super.key, required this.dayMeal});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 8,
-      children: [
-        Text(DateFormat('EEE, M/d/y').format(dayMeal.day)),
-        ...dayMeal.foods.map((meal) => FoodCard(food: meal)),
-      ],
-    );
-  }
-}
-
 // class DaySection extends StatelessWidget {
-//   final DayMeals dayMeal;
+//   final DayFoods dayMeal;
 //   const DaySection({super.key, required this.dayMeal});
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Column(
 //       crossAxisAlignment: CrossAxisAlignment.start,
+//       spacing: 8,
 //       children: [
-//         Text(DateFormat('EEE, M/d/y').format(dayMeal.meals.first.date)),
-//         ...dayMeal.meals.map((meal) => MealCard(meal: meal)),
+//         Text(DateFormat('EEE, M/d/y').format(dayMeal.day)),
+//         ...dayMeal.foods.map((meal) => FoodCard(food: meal)),
 //       ],
 //     );
 //   }
 // }
+
+class DaySection extends StatelessWidget {
+  final DayMeals dayMeal;
+  const DaySection({super.key, required this.dayMeal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 10,
+      children: [
+        Text('${DateFormat('EEE, M/d/y').format(dayMeal.meals.first.date)} (${dayMeal.getTotalCalories()} calories)', style: TextStyle(fontSize: TextSizing.medium, fontWeight: FontWeight.bold),),
+        ...dayMeal.meals.map((meal) => MealCard(meal: meal)),
+      ],
+    );
+  }
+}
 
 class FoodRow extends StatelessWidget {
   final FoodData item;

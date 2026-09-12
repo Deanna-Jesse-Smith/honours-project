@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
@@ -67,93 +68,164 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
   Future<double> checkNutritionGoalPercent() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
-    final curWeek = bookendWeek();
-    final lastWeek = (
-      curWeek.$1.subtract(const Duration(days: 7)),
-      curWeek.$2.subtract(const Duration(days: 7)),
-    );
+    // final curWeek = bookendWeek();
+    // final lastWeek = (
+    //   curWeek.$1.subtract(const Duration(days: 7)),
+    //   curWeek.$2.subtract(const Duration(days: 7)),
+    // );
+
+    // if (goal == null) {
+    //   return -1;
+    // } else {
+    //   final mealCounts = await ref
+    //       .read(nDaoProvider)
+    //       .countMealsInRange(lastWeek.$1, lastWeek.$2);
+
+    //   return mealCounts.fold(
+    //         0,
+    //         (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
+    //       ) /
+    //       7;
+    // }
 
     if (goal == null) {
-      return -1;
-    } else {
-      final mealCounts = await ref
-          .read(nDaoProvider)
-          .countMealsInRange(lastWeek.$1, lastWeek.$2);
+      return 0.0;
+    }
 
-      return mealCounts.fold(
-            0,
-            (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
-          ) /
-          7;
+    final curWater = await ref
+        .read(nDaoProvider)
+        .getDaysCalories(DateTime.now());
+
+    if (curWater == 0) {
+      return 0.0;
+    } else {
+      debugPrint('Water: $curWater');
+
+      return (curWater / goal.threshold).clamp(0.0, 1.0);
     }
   }
 
   Future<bool> checkNutritionGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
-    double percent = 0;
-    int goalID = -1;
-    final curWeek = bookendWeek();
-    final lastWeek = (
-      curWeek.$1.subtract(const Duration(days: 7)),
-      curWeek.$2.subtract(const Duration(days: 7)),
-    );
-    DateTime today = DateTime.now();
-    bool doCelebrate = false;
 
     if (goal == null) {
-      percent = 0.0;
-    } else {
-      goalID = goal.goalID;
-
-      final mealCounts = await ref
-          .read(nDaoProvider)
-          .countMealsInRange(lastWeek.$1, lastWeek.$2);
-
-      percent =
-          mealCounts.fold(
-            0,
-            (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
-          ) /
-          7;
+      return false;
     }
+    int goalID = goal.goalID;
+    DateTime today = DateUtils.dateOnly(DateTime.now());
+    late double percent;
 
-    BasicStreak? curStreak = await ref
-        .read(gDaoProvider)
-        .checkActiveStreak(GoalType.nutrition);
+    final curCalories = await ref
+        .read(nDaoProvider)
+        .getDaysCalories(DateTime.now());
 
-    if (curStreak != null) {
-      if ((today.isAfter(curStreak.curPeriod) ||
-              DateUtils.isSameDay(today, curStreak.curPeriod)) &&
-          today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
-        if (DateUtils.dateOnly(
-          today,
-        ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
-          if (percent == 1) {
-            curStreak.curPeriod = DateUtils.dateOnly(
-              curWeek.$1.add(const Duration(days: 7)),
-            );
-            curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
-            await ref.read(gDaoProvider).updateStreak(curStreak);
-            doCelebrate = true;
+    if (curCalories == 0) {
+      return false;
+    } else {
+      percent = (curCalories / goal.threshold).clamp(0.0, 1.0);
+
+      BasicStreak? curStreak = await ref
+          .read(gDaoProvider)
+          .checkActiveStreak(GoalType.nutrition);
+      bool doCelebrate = false;
+
+      if (curStreak != null) {
+        if (DateUtils.isSameDay(today, curStreak.curPeriod)) {
+          if (
+            today
+          .isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+            if (percent == 1) {
+              curStreak.curPeriod =
+                today.add(const Duration(days: 1));
+              curStreak.lastPeriod = today;
+              await ref.read(gDaoProvider).updateStreak(curStreak);
+              doCelebrate = true;
+            }
           }
+        } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
+          await ref.read(gDaoProvider).breakStreak(curStreak);
         }
-      } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
-        await ref.read(gDaoProvider).breakStreak(curStreak);
+      } else {
+        if (percent == 1) {
+          await ref
+              .read(gDaoProvider)
+              .insertStreak(
+                goalID,
+                today,
+                today.add(const Duration(days: 1)),
+                today,
+              );
+          doCelebrate = true;
+          // ref.invalidate(checkHydrationStreakProvider);
+        }
       }
-    } else {
-      if (percent == 1) {
-        await ref
-            .read(gDaoProvider)
-            .insertStreak(
-              goalID,
-              today,
-              DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
-              curWeek.$2,
-            );
-        doCelebrate = true;
-      }
+      return doCelebrate;
     }
-    return doCelebrate;
+
+    // double percent = 0;
+    // int goalID = -1;
+    // final curWeek = bookendWeek();
+    // final lastWeek = (
+    //   curWeek.$1.subtract(const Duration(days: 7)),
+    //   curWeek.$2.subtract(const Duration(days: 7)),
+    // );
+    // DateTime today = DateTime.now();
+    // bool doCelebrate = false;
+
+    // if (goal == null) {
+    //   percent = 0.0;
+    // } else {
+    //   goalID = goal.goalID;
+
+    //   final mealCounts = await ref
+    //       .read(nDaoProvider)
+    //       .countMealsInRange(lastWeek.$1, lastWeek.$2);
+
+    //   percent =
+    //       mealCounts.fold(
+    //         0,
+    //         (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
+    //       ) /
+    //       7;
+    // }
+
+    // BasicStreak? curStreak = await ref
+    //     .read(gDaoProvider)
+    //     .checkActiveStreak(GoalType.nutrition);
+
+    // if (curStreak != null) {
+    //   if ((today.isAfter(curStreak.curPeriod) ||
+    //           DateUtils.isSameDay(today, curStreak.curPeriod)) &&
+    //       today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
+    //     if (DateUtils.dateOnly(
+    //       today,
+    //     ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+    //       if (percent == 1) {
+    //         curStreak.curPeriod = DateUtils.dateOnly(
+    //           curWeek.$1.add(const Duration(days: 7)),
+    //         );
+    //         curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
+    //         await ref.read(gDaoProvider).updateStreak(curStreak);
+    //         doCelebrate = true;
+    //       }
+    //     }
+    //   } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
+    //     await ref.read(gDaoProvider).breakStreak(curStreak);
+    //   }
+    // } else {
+    //   if (percent == 1) {
+    //     await ref
+    //         .read(gDaoProvider)
+    //         .insertStreak(
+    //           goalID,
+    //           today,
+    //           DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
+    //           curWeek.$2,
+    //         );
+    //     doCelebrate = true;
+    //   }
+    // }
+    // return doCelebrate;
   }
 
   Future<double> checkFastingGoalProgress() async {
@@ -454,7 +526,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return false;
     }
     int goalID = goal.goalID;
-    DateTime today = DateTime.now();
+    DateTime today = DateUtils.dateOnly(DateTime.now());
     late double percent;
 
     final curWater = await ref
@@ -473,14 +545,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
       if (curStreak != null) {
         if (DateUtils.isSameDay(today, curStreak.curPeriod)) {
-          if (DateUtils.dateOnly(
-            today,
-          ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
+          if (today.isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
             if (percent == 1) {
-              curStreak.curPeriod = DateUtils.dateOnly(
-                today.add(const Duration(days: 1)),
-              );
-              curStreak.lastPeriod = DateUtils.dateOnly(today);
+              curStreak.curPeriod = today.add(const Duration(days: 1));
+              curStreak.lastPeriod = today;
               await ref.read(gDaoProvider).updateStreak(curStreak);
               doCelebrate = true;
             }
@@ -520,16 +588,23 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return await checkWeightGoal();
   }
 
-  Future<void> logMeal(
+  Future<bool> logMeal(
     MealCategory cate,
-    String? path,
-    String? comment,
+    // String? path,
+    // String? comment,
+    Set<MealFood> foods,
     LogMethod logMethod,
     DateTime date,
   ) async {
-    await ref
-        .read(nDaoProvider)
-        .insertFoodLog(cate, path, comment, logMethod, date);
+    // await ref
+    //     .read(nDaoProvider)
+    //     .insertFoodLog(cate, path, comment, logMethod, date);
+
+    await ref.read(nDaoProvider).insertMealLog(cate, logMethod, date, foods);
+
+    ref.invalidate(mealRangeProvider);
+
+    return await checkNutritionGoal();
   }
 
   // Future<void> updateStreak(GoalType type, int goalID, bool result) async {
