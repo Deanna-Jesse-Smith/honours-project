@@ -58,14 +58,14 @@ class _AnimatedLiquidProgressState extends State<AnimatedLiquidProgress>
       animation: animation,
       builder: (context, child) {
         return SizedBox(
-          width: 150,
-          height: 150,
+          width: 220,
+          height: 220,
           child: LiquidCircularProgressIndicator(
             value: animation.value,
             valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
             backgroundColor: Colors.white,
-            // borderColor: Colors.red,
-            // borderWidth: 5.0,
+            borderColor: Colors.black,
+            borderWidth: 0.5,
             direction: Axis.vertical,
             // shapePath: buildBottlePath(const Size(100, 180)),
           ),

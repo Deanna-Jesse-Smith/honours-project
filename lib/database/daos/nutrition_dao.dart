@@ -7,7 +7,6 @@ import 'package:testrun/database/tables/nutrition_tables/meals_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/nutrition_log_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_quantities_table.dart';
 import 'package:testrun/database/tables/nutrition_tables/recipe_table.dart';
-import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/meals_model.dart';
 
 part 'nutrition_dao.g.dart';
@@ -257,7 +256,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   ) async {
     if (mealID < 0) {
       mealID = await insertMeal(userID, date, logMethod, cate);
-      // TODO put the 'is in eating window' thing in place
+      
     }
 
     final content = await into(mealRecipeContent).insert(
@@ -302,7 +301,6 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   ) async {
     if (mealID < 0) {
       mealID = await insertMeal(userID, date, logMethod, cate);
-      // TODO put the 'is in eating window' thing in place
     }
 
     final content = await into(mealFoodContent).insert(

@@ -1,7 +1,6 @@
 // Meals PK mealID FK userID mealType date time inEatingWindow logMethod
 
 import 'package:drift/drift.dart';
-import 'package:testrun/database/tables/user_table.dart';
 import 'package:testrun/models/meals_model.dart';
 
 class Meals extends Table {

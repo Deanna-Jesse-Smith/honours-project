@@ -61,6 +61,7 @@ class _FoodSearchState extends ConsumerState<FoodSearch> {
 
             bool choice = await Dialogs.dangerDialog(context, title: 'Are you sure?', message: 'If you leave now, all your selections will be discarded');
 
+            if (!mounted) return;
             if (choice) Navigator.of(context).pop();
 
             },

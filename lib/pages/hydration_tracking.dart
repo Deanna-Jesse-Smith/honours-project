@@ -67,10 +67,11 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Text(
-              'Hydration Motivation',
-              style: TextStyle(fontSize: TextSizing.medium),
-            ),
+            // Text(
+            //   'Hydration Motivation',
+            //   style: TextStyle(fontSize: TextSizing.medium),
+            // ),
+            // const SizedBox(height: 30,),
             Padding(
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(
@@ -151,7 +152,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                 ),
               ),
               child: Text(
-                'Set Goals',
+                'Set Hydration Goal',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),

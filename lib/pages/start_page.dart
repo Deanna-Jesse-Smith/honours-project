@@ -76,7 +76,7 @@ class _StartPageState extends State<StartPage> {
                   );
                 }
               },
-              child: const Text('Sign Up'),
+              child: const Text('Sign Up', style: TextStyle(fontSize: TextSizing.medium),),
             ),
           ],
         ),

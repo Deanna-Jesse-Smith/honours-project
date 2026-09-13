@@ -183,7 +183,7 @@ class Dialogs {
                     ? () => setState(() => value -= 250)
                     : null,
               ),
-              Text('$value ml', style: const TextStyle(fontSize: 24)),
+              Text('$value ml', style: const TextStyle(fontSize: TextSizing.large)),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed: value < max
@@ -229,23 +229,23 @@ class Dialogs {
             child: Text(
               'Log that I ate',
               style: TextStyle(fontSize: TextSizing.medium),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
             ),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, LogMethod.repeat),
-            child: Text(
-              'Repeat yesterday',
-              style: TextStyle(fontSize: TextSizing.medium),
-              textAlign: TextAlign.center,
-            ),
-          ),
+          // TextButton(
+          //   onPressed: () => Navigator.pop(context, LogMethod.repeat),
+          //   child: Text(
+          //     'Repeat yesterday',
+          //     style: TextStyle(fontSize: TextSizing.medium),
+          //     textAlign: TextAlign.center,
+          //   ),
+          // ),
           TextButton(
             onPressed: () => Navigator.pop(context, LogMethod.full),
             child: Text(
               'Log Full Meal',
               style: TextStyle(fontSize: TextSizing.medium),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
             ),
           ),
         ],

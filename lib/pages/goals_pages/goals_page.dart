@@ -205,9 +205,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
-        3,
+        3000,
         0,
-        GoalOperator.greaterEqual,
+        GoalOperator.lesserEqual,
         MetricType.meals,
         DateTime.now(),
         false,
@@ -290,25 +290,26 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     String suffixText = '',
   }) {
     return Card(
-      margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
+      margin: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 40,
         children: [
           Text(
             type.goalText,
-            style: TextStyle(fontSize: TextSizing.medium),
+            style: const TextStyle(fontSize: TextSizing.medium),
             textAlign: TextAlign.left,
           ),
           Table(
             children: [
               TableRow(
                 children: [
-                  Text(
+                  const Text(
                     'Comparison: ',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  goalOperatorMenu(),
+                  Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),)
+                  // goalOperatorMenu(),
                 ],
               ),
               TableRow(

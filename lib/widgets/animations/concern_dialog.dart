@@ -148,16 +148,16 @@ class _ConcernDialogState extends State<ConcernDialog>
 
             const SizedBox(height: 20),
 
-            FadeTransition(
-              opacity: textFade,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Close',
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-              ),
-            ),
+            // FadeTransition(
+            //   opacity: textFade,
+            //   child: ElevatedButton(
+            //     onPressed: () => Navigator.pop(context),
+            //     child: const Text(
+            //       'Close',
+            //       style: TextStyle(fontSize: TextSizing.medium),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         actions: [

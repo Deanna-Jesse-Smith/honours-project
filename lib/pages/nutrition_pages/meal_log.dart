@@ -195,113 +195,160 @@ class _MealLogState extends ConsumerState<MealLog> {
           //       SizedBox.shrink(),
           //     ],
           //   ),
-          Table(
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: [
-              TableRow(
-                children: [
-                  const Text(
-                    'What meal is this?',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  DropdownMenu<MealCategory>(
-                    initialSelection: dropDownValuee,
-                    dropdownMenuEntries: entriess,
-                    textStyle: TextStyle(fontSize: TextSizing.medium),
-                    onSelected: (MealCategory? value) {
-                      setState(() {
-                        dropDownValuee = value!;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  const Text(
-                    'What time did you eat?',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  ElevatedButton(
-                    onPressed: selectMealTime,
-                    child: Text(
-                      strMealTime,
-                      style: TextStyle(fontSize: TextSizing.medium),
-                    ),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  const Text(
-                    'Comments on meal (optional):',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  const Text(
-                    'Picture (optional):',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => selectImage(ImageSource.gallery),
-                        icon: Icon(Icons.image),
-                      ),
-                      IconButton(
-                        onPressed: () => selectImage(ImageSource.camera),
-                        icon: Icon(Icons.camera_alt),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              if (imagePath.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
                 TableRow(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.file(
-                        File(imagePath),
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
+                    cell(
+                      const Text(
+                        'What meal is this?',
+                        style: TextStyle(fontSize: TextSizing.medium),
                       ),
                     ),
-                    SizedBox.shrink(),
+                    cell(
+                      DropdownMenu<MealCategory>(
+                        initialSelection: dropDownValuee,
+                        dropdownMenuEntries: entriess,
+                        textStyle: TextStyle(fontSize: TextSizing.medium),
+                        onSelected: (MealCategory? value) {
+                          setState(() {
+                            dropDownValuee = value!;
+                          });
+                        },
+                      ),
+                    ),
                   ],
                 ),
-            ],
+                TableRow(
+                  children: [
+                    cell(
+                      const Text(
+                        'What time did you eat?',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                    cell(
+                      ElevatedButton(
+                        onPressed: selectMealTime,
+                        child: Text(
+                          strMealTime,
+                          style: TextStyle(fontSize: TextSizing.medium),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // TableRow(
+                //   children: [
+                //     cell(const Text(
+                //       'Comments on meal (optional):',
+                //       style: TextStyle(fontSize: TextSizing.medium),
+                //     )),
+                //     cell(TextField(
+                //       controller: controller,
+                //       decoration: InputDecoration(hintText: 'e.g. Hawaii pizza'),
+                //       style: TextStyle(fontSize: TextSizing.medium),
+                //     ),),
+                //   ],
+                // ),
+                // TableRow(
+                //   children: [
+                //     const Text(
+                //       'Picture (optional):',
+                //       style: TextStyle(fontSize: TextSizing.medium),
+                //     ),
+                //     Row(
+                //       children: [
+                //         IconButton(
+                //           onPressed: () => selectImage(ImageSource.gallery),
+                //           icon: Icon(Icons.image),
+                //         ),
+                //         IconButton(
+                //           onPressed: () => selectImage(ImageSource.camera),
+                //           icon: Icon(Icons.camera_alt),
+                //         ),
+                //       ],
+                //     ),
+                //   ],
+                // ),
+                // if (imagePath.isNotEmpty)
+                //   TableRow(
+                //     children: [
+                //       ClipRRect(
+                //         borderRadius: BorderRadius.circular(10),
+                //         child: Image.file(
+                //           File(imagePath),
+                //           width: 120,
+                //           height: 120,
+                //           fit: BoxFit.cover,
+                //         ),
+                //       ),
+                //       SizedBox.shrink(),
+                //     ],
+                //   ),
+                TableRow(
+                  children: [
+                    cell(
+                      const Text(
+                        'Select food:',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                    cell(
+                      DropdownMenu(
+                        dropdownMenuEntries: foodItems
+                            .where(
+                              (food) => !selectedFood.any(
+                                (selected) => selected.food == food,
+                              ),
+                            )
+                            .map((selected) {
+                              return DropdownMenuEntry(
+                                value: selected,
+                                label:
+                                    '${selected.name} (${selected.servingDescription})',
+                              );
+                            })
+                            .toList(),
+                        textStyle: TextStyle(fontSize: TextSizing.medium),
+                        onSelected: (value) {
+                          if (value == null) return;
+                          setState(() => selectedFood.add(MealFood(value)));
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
 
-          DropdownMenu(
-            dropdownMenuEntries: foodItems
-                .where(
-                  (food) =>
-                      !selectedFood.any((selected) => selected.food == food),
-                )
-                .map((selected) {
-                  return DropdownMenuEntry(
-                    value: selected,
-                    label: '${selected.name} (${selected.servingDescription})',
-                  );
-                })
-                .toList(),
-            textStyle: TextStyle(fontSize: TextSizing.medium),
-            onSelected: (value) {
-              if (value == null) return;
-              setState(() => selectedFood.add(MealFood(value)));
-            },
-          ),
+          // DropdownMenu(
+          //   dropdownMenuEntries: foodItems
+          //       .where(
+          //         (food) =>
+          //             !selectedFood.any((selected) => selected.food == food),
+          //       )
+          //       .map((selected) {
+          //         return DropdownMenuEntry(
+          //           value: selected,
+          //           label: '${selected.name} (${selected.servingDescription})',
+          //         );
+          //       })
+          //       .toList(),
+          //   textStyle: TextStyle(fontSize: TextSizing.medium),
+          //   onSelected: (value) {
+          //     if (value == null) return;
+          //     setState(() => selectedFood.add(MealFood(value)));
+          //   },
+          // ),
 
+          const Text('Meal Ingredients:', 
+                      style: TextStyle(fontSize: TextSizing.medium),),
+                      // const SizedBox(height: 10,),
           Column(
             children: selectedFood.map((selected) {
               return Padding(
@@ -311,7 +358,7 @@ class _MealLogState extends ConsumerState<MealLog> {
                     Expanded(
                       child: Text(
                         '${selected.food.name} (${selected.food.servingDescription})',
-                        style: const TextStyle(fontSize: TextSizing.small),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
                     ),
                     IconButton(
@@ -321,7 +368,7 @@ class _MealLogState extends ConsumerState<MealLog> {
 
                     Text(
                       '${selected.quantity}',
-                      style: const TextStyle(fontSize: TextSizing.small),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
@@ -382,6 +429,10 @@ class _MealLogState extends ConsumerState<MealLog> {
         ],
       ),
     );
+  }
+
+  Padding cell(Widget child) {
+    return Padding(padding: const EdgeInsets.only(bottom: 15), child: child);
   }
 
   void save() async {

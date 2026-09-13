@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
@@ -89,7 +88,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     // }
 
     if (goal == null) {
-      return 0.0;
+      return -1;
     }
 
     final curWater = await ref
@@ -721,8 +720,8 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     final startWindow = DateTime.now().subtract(Duration(days: window));
     final breaksInWindow = await ref
         .read(gDaoProvider)
-        .evaluateConcerns(type, startWindow);
-    return breaksInWindow <= thr;
+        .evaluatePR(type, startWindow);
+    return breaksInWindow != 0 && breaksInWindow <= thr;
   }
 }
 

@@ -10,7 +10,6 @@ import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
-import 'package:testrun/widgets/dialogs.dart';
 
 @riverpod
 class AsyncFasting extends AsyncNotifier<FastingForm> {

@@ -8,6 +8,7 @@ import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/nutrition_pages/meal_log.dart';
 import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -148,14 +149,12 @@ class MyExpandableFAB extends ConsumerWidget {
           final newLog = await Dialogs.getCurLogMethod(context, ref, session);
 
           if (newLog != null) {
-            debugPrint('Log: ${newLog.name}');
             if (newLog == LogMethod.quick) {
               if (!context.mounted) return;
               bool celebrate = false;
               final decision = await ref
                   .read(asyncFatingNotifier.notifier)
                   .isInEatingWindow(context);
-                  debugPrint('Mounted: ${context.mounted} $decision');
               if (decision) {
                 if (context.mounted) {
                   final decision2 = await Dialogs.dangerDialog(
@@ -266,7 +265,8 @@ class MyExpandableFAB extends ConsumerWidget {
               .map(
                 (button) => ElevatedButton(
                   onPressed: button.onPressed,
-                  child: Text(button.title),
+                  child: Text(button.title, 
+                      style: TextStyle(fontSize: TextSizing.medium),),
                 ),
               )
               .toList(),

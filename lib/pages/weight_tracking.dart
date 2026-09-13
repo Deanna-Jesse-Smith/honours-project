@@ -116,35 +116,25 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                 );
               },
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final newAmount = await Dialogs.getNewInput(
-                  context,
-                  initialVal: curWeight,
-                  title: 'Log Weight',
-                );
-                if (newAmount != null) {
-                  final check = await ref.read(asyncGoalsProvider.notifier).logWeight(newAmount).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
+            // ElevatedButton(
+            //   onPressed: () async {
+            //     final newAmount = await Dialogs.getNewInput(
+            //       context,
+            //       initialVal: curWeight,
+            //       title: 'Log Weight',
+            //     );
+            //     if (newAmount != null) {
+            //       final check = await ref.read(asyncGoalsProvider.notifier).logWeight(newAmount).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
 
-                  if (check.$2 == 1) {
-                    celebrate();
-                  }
+            //       if (check.$2 == 1) {
+            //         celebrate();
+            //       }
+            //     }
+            //   },
+            //   child: Text('Log Weight'),
+            // ),
 
 
-                  // await ref
-                  //     .read(wDaoProvider)
-                  //     .insertWeight(
-                  //       session.userId,
-                  //       newAmount.toDouble(),
-                  //       DateTime.now(),
-                  //     )
-                  //     .whenComplete(
-                  //       () => ref.invalidate(checkWeightGoalProvider),
-                  //     );
-                }
-              },
-              child: Text('Log Weight'),
-            ),
             // Align(alignment: Alignment.center,
             // child: ConfettiWidget(confettiController: controller,
             // blastDirectionality: BlastDirectionality.explosive,
@@ -175,7 +165,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                 ),
               ),
               child: Text(
-                'Goals/Streaks',
+                'Set Weight Goal',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),

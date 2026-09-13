@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/material.dart';
 import 'package:testrun/database/database.dart';
 
 class Ingredient {
@@ -22,7 +21,7 @@ enum IngredientType {
 
 class MealItem implements Comparable {
   final int id;
-  final List<Ingredient>? ingredients;
+  final List<Ingredient> ingredients;
   final DateTime date;
   // final bool isInEatingWindow;
   MealCategory cate;
@@ -31,23 +30,23 @@ class MealItem implements Comparable {
   MealItem(this.id, this.ingredients, this.date, this.cate, this.log);
 
   int getTotalCalories() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.calories);
+    return ingredients.fold(0, (prev, cur) => prev + cur.calories);
   }
 
   double getTotalFibre() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.fibre);
+    return ingredients.fold(0, (prev, cur) => prev + cur.fibre);
   }
 
   double getTotalFat() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.fat);
+    return ingredients.fold(0, (prev, cur) => prev + cur.fat);
   }
 
   double getTotalProtein() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.protein);
+    return ingredients.fold(0, (prev, cur) => prev + cur.protein);
   }
 
   double getTotalCarbs() {
-    return ingredients == null ? -1 : ingredients!.fold(0, (prev, cur) => prev + cur.carbs);
+    return ingredients.fold(0, (prev, cur) => prev + cur.carbs);
   }
 
   @override
@@ -125,6 +124,6 @@ extension CategoryInfo on MealCategory {
     MealCategory.lunch => 'Lunch',
     MealCategory.supper => 'Supper',
     MealCategory.snack => 'Snack',
-    _ => 'Other',
+    MealCategory.quick => 'Quick Log',
   };
 }

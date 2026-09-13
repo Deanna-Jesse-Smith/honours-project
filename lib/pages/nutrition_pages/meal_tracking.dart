@@ -4,7 +4,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
