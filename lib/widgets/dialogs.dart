@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
+import 'package:testrun/utils/input_format.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 
@@ -30,7 +31,7 @@ class Dialogs {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontSize: TextSizing.medium),
+                style: TextStyle(fontSize: TextSizing.large),
                 maxLines: 3,
               ),
             ),
@@ -44,11 +45,11 @@ class Dialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(cancel),
+            child: Text(cancel, style: TextStyle(fontSize: TextSizing.medlarge),),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(confrim),
+            child: Text(confrim, style: TextStyle(fontSize: TextSizing.medlarge),),
           ),
         ],
       ),
@@ -83,25 +84,26 @@ class Dialogs {
     final input = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
+        title: Text(title, style: TextStyle(fontSize: TextSizing.large)),
         content: TextField(
+          style: TextStyle(fontSize: TextSizing.medium),
           controller: contorller,
           focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           autofocus: true,
-          decoration: InputDecoration(suffixText: unit),
+          decoration: InputDecoration(suffixText: unit, hintText: unit),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () {
               final value = double.tryParse(contorller.text);
               Navigator.pop(context, value);
             },
-            child: Text('Save'),
+            child: Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
           ),
         ],
       ),
@@ -149,11 +151,11 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, value),
-              child: const Text('Save'),
+              child: const Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
           ],
         ),
@@ -173,7 +175,7 @@ class Dialogs {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(title),
+          title: Text(title, style: TextStyle(fontSize: TextSizing.large),),
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -195,11 +197,11 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, value),
-              child: const Text('Save'),
+              child: const Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
           ],
         ),
@@ -330,11 +332,11 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close'),
+              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)'),
+              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
           ],
         ),
@@ -378,11 +380,11 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close'),
+              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)'),
+              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
           ],
         ),
@@ -420,7 +422,7 @@ class Dialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
           ),
         ],
       ),

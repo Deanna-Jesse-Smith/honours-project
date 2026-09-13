@@ -70,6 +70,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   @override
   void dispose() {
+    focusNodeHeight.dispose();
+    focusNodeDuration.dispose();
+    focusNodeWeight.dispose();
+
     heightController.dispose();
     weightController.dispose();
     durationController.dispose();

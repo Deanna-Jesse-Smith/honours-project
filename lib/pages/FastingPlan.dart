@@ -55,7 +55,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
     ogFiveTwo = intsToBools(session.fiveTwoDaysSelected, ogFiveTwo);
     fiveTwoDaysSelected = List<bool>.of(ogFiveTwo);
-    
+
     ogADF = intsToBools(session.adfDaysSelected, ogADF);
     adfDaysSelected = List<bool>.of(ogADF);
 
@@ -82,22 +82,25 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
     return Scaffold(
       appBar: AppBar(
-      title: Text('Fasting Plan', style: TextStyle(fontSize: TextSizing.large)),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
-      actions: [
+        title: Text(
+          'Fasting Plan',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+        actions: [
           const Tooltip(
-            message:'Toggle your fast from the floating action button on your screen when you want to start or end a TRE or ADF fast. A 5:2 fast is recorded in the week following the fast based on your recorded meals.',
+            message:
+                'Toggle your fast from the floating action button on your screen when you want to start or end a TRE or ADF fast. A 5:2 fast is recorded in the week following the fast based on your recorded meals.',
             textStyle: TextStyle(fontSize: TextSizing.small),
             constraints: BoxConstraints(maxWidth: 300),
             triggerMode: TooltipTriggerMode.tap,
             showDuration: Duration(seconds: 10),
-            child: SizedBox(width: 50,
-              child: Icon(Icons.question_mark)),
+            child: SizedBox(width: 50, child: Icon(Icons.question_mark)),
           ),
         ],
-    ),
+      ),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -122,29 +125,27 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         TextButton(
-              onPressed: () => {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const FastingHistory(),
-                  ),
-                ),
-              },
-              child: Text(
-                'View Fasting History',
-                style: TextStyle(fontSize: TextSizing.small),
-              ),
+          onPressed: () => {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const FastingHistory()),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => GoalsPage(type: GoalType.fasting),
-                ),
-              ),
-              child: Text(
-                'Set Goals',
-                style: TextStyle(fontSize: TextSizing.small),
-              ),
+          },
+          child: Text(
+            'View Fasting History',
+            style: TextStyle(fontSize: TextSizing.smallmed),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => GoalsPage(type: GoalType.fasting),
             ),
+          ),
+          child: Text(
+            'Set Goals',
+            style: TextStyle(fontSize: TextSizing.smallmed),
+          ),
+        ),
         // Row(
         //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         //   // spacing: 30,
@@ -250,22 +251,35 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   );
 
   Future<void> planDecision(List<bool> list, bool isADF) async {
-    String text = isADF ? 'You should have 3 non-consecutive fasting days selected' : 'You should have 2 non-consecutive fasting days selected';
+    String text = isADF
+        ? 'You should have 3 non-consecutive fasting days selected'
+        : 'You should have 2 non-consecutive fasting days selected';
     final decision = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Center(child: Text('Invalid Fasting Days Selected', style: TextStyle(fontSize: TextSizing.medium),)),
-        content: Text(text, style: TextStyle(fontSize: TextSizing.small)),
+        title: Center(
+          child: Text(
+            'Invalid Fasting Days Selected',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
+        content: Text(text, style: TextStyle(fontSize: TextSizing.medium)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Rescind last selection'),
+            child: Text(
+              'Rescind last selection',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context, true);
             },
-            child: Text('Continue with selection'),
+            child: Text(
+              'Continue with selection',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
         ],
       ),
@@ -314,15 +328,15 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         padding: EdgeInsets.all(15),
         child: const Text(
           'Which days of the week are right for you?',
-          style: TextStyle(fontSize: TextSizing.medium),
+          style: TextStyle(fontSize: TextSizing.medlarge),
           textAlign: TextAlign.center,
         ),
       ),
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Choosing the best days of the week to fast with 5:2 can be helped by considering which days of the week you are typically eat less on and when you have less opportunity to be socially pressured into eating.',
-          style: TextStyle(fontSize: TextSizing.small),
+          'Consider which days of the week you are typically eat less on, and which days you have less opportunity to be socially pressured into eating.',
+          style: TextStyle(fontSize: TextSizing.smallmed),
           textAlign: TextAlign.center,
         ),
       ),
@@ -413,32 +427,44 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           children: [
             TableRow(
               children: headings
-                  .map((heading) => Center(child: Text(heading, style: TextStyle(fontSize: TextSizing.medium),)))
+                  .map(
+                    (heading) => Center(
+                      child: Text(
+                        heading,
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
-            TableRow(children: [const SizedBox(height: 10,), const SizedBox(height: 10,)]),
+            TableRow(
+              children: [
+                const SizedBox(height: 10),
+                const SizedBox(height: 10),
+              ],
+            ),
             TableRow(
               children: times.map((times) => Center(child: times)).toList(),
             ),
           ],
         ),
-        const SizedBox(height: 45,),
+        const SizedBox(height: 45),
         Padding(
-        padding: EdgeInsets.all(15),
-        child: const Text(
-          'What eating window times are sustainable every day?',
-          style: TextStyle(fontSize: TextSizing.medium),
-          textAlign: TextAlign.center,
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'What eating window times are sustainable every day?',
+            style: TextStyle(fontSize: TextSizing.medlarge),
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(15),
-        child: const Text(
-          'Consider when you normally eat throughout the day and plan your TRE times around that. If you regularly eat with others at a certain time, do not resolve to not eat with them, as social pressure to eat is a major barrier for adhereing to intermittent fasting.',
-          style: TextStyle(fontSize: TextSizing.small),
-          textAlign: TextAlign.center,
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: const Text(
+            'Consider when you normally eat throughout the day and plan your TRE times around that. If you regularly eat with others at a certain time, do not resolve to not eat with them, as social pressure to eat is a major barrier for adhereing to intermittent fasting.',
+            style: TextStyle(fontSize: TextSizing.smallmed),
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
       ],
     );
   }
@@ -471,15 +497,15 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         padding: EdgeInsets.all(15),
         child: const Text(
           'Which days of the week are right for you?',
-          style: TextStyle(fontSize: TextSizing.medium),
+          style: TextStyle(fontSize: TextSizing.medlarge),
           textAlign: TextAlign.center,
         ),
       ),
       Padding(
         padding: EdgeInsets.all(15),
         child: const Text(
-          'Choosing the best days of the week to fast with ADF can be helped by considering which days of the week you are typically eat less on and when you have less opportunity to be socially pressured into eating.',
-          style: TextStyle(fontSize: TextSizing.small),
+          'Consider which days of the week you are typically eat less on, and days where you have less opportunity to be socially pressured into eating.',
+          style: TextStyle(fontSize: TextSizing.smallmed),
           textAlign: TextAlign.center,
         ),
       ),

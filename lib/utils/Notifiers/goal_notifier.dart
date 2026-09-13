@@ -65,7 +65,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return DateUtils.dateOnly(start);
   }
 
-  Future<double> checkNutritionGoalPercent() async {
+  Future<(double, double)> checkNutritionGoalPercent() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
     // final curWeek = bookendWeek();
     // final lastWeek = (
@@ -88,19 +88,17 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     // }
 
     if (goal == null) {
-      return -1;
+      return (-1.0, 0.0);
     }
 
-    final curWater = await ref
+    final curCalories = await ref
         .read(nDaoProvider)
-        .getDaysCalories(DateTime.now());
+        .getDaysCalories(DateUtils.dateOnly(DateTime.now()));
 
-    if (curWater == 0) {
-      return 0.0;
+    if (curCalories == 0) {
+      return (0.0, goal.threshold);
     } else {
-      debugPrint('Water: $curWater');
-
-      return (curWater / goal.threshold).clamp(0.0, 1.0);
+      return ((curCalories / goal.threshold).clamp(0.0, 1.0), goal.threshold);
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
+import 'package:testrun/pages/goals_pages/debug.dart';
 import 'package:testrun/utils/Notifiers/reminder_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
@@ -106,16 +107,12 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         elevation: 0.0,
         centerTitle: true,
         actions: [
-          Tooltip(
-            message: '',
-            triggerMode: TooltipTriggerMode.tap,
-            child: IconButton(
-              onPressed: () => Dialogs.getFastResultHelp(
+          TextButton(onPressed: () {
+            if (!context.mounted) return;
+              Navigator.of(
                 context,
-              ), //! Replace this with a relevant tooltip later
-              icon: Icon(Icons.question_mark),
-            ),
-          ),
+              ).push(MaterialPageRoute(builder: (context) => const DebugPage()));
+          }, child: const Text(''))
         ],
       ),
       drawer: MyNavigationDrawer(),

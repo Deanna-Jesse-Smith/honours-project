@@ -58,7 +58,12 @@ class HomePageState extends ConsumerState<HomePage> {
     // ref.read(fDaoProvider).dummyData();
 
     return Scaffold(
-      appBar: MainAppBar.appBar('', session.userName),
+      appBar: AppBar(
+        title: Text('Welcome, ${session.userName}', style: TextStyle(fontSize: TextSizing.large)),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+      ),
       body: Container(
         padding: EdgeInsets.all(20),
         alignment: Alignment.center,
@@ -68,16 +73,9 @@ class HomePageState extends ConsumerState<HomePage> {
           children: [
             Padding(
               padding: EdgeInsets.all(15),
-              child: const Text(
-                'Encouragement Text',
-                style: TextStyle(fontSize: TextSizing.large),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
               child: checkGoal.when(
                 data: (goal) {
-                  final model = goal > -1 ? goal : 0.0;
+                  final model = goal > -1 ? goal : 0.01;
                   return LinearPercentIndicator(
                     alignment: MainAxisAlignment.center,
                     percent: model,

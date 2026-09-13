@@ -196,6 +196,11 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     await ref.read(uDaoProvider).update52(state.value!.userId, days);
     ref.invalidateSelf();
   }
+
+  Future<void> updateDetails(String name, double height, DateTime? birthday) async {
+    await ref.read(uDaoProvider).changeDetails(state.value!.userId, name, height, birthday);
+    ref.invalidateSelf();
+  }
 }
 
 final userSessionProvider =

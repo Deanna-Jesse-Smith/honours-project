@@ -1,11 +1,13 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/input_format.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/dialogs.dart';
@@ -27,11 +29,13 @@ class GoalsPage extends ConsumerStatefulWidget {
 
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   late GoalType type;
-  late String title, description, bestStreak;
+  late String title, bestStreak;
+  String description = '';
   late BasicGoal curGoal;
   final TextEditingController goalController = TextEditingController();
   final focusNode = FocusNode();
   bool isLogOnly = true;
+  double maxAmount = 10000;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =
       UnmodifiableListView<DropdownMenuEntry<GoalOperator>>(
@@ -71,14 +75,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
     description = switch (type) {
       GoalType.fasting =>
-        'A TRE fasting goal is the minimum number of hours you can aim to reach each day of the week.\n\nAn ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.',
+        'A TRE fasting goal is the minimum number of hours you aim to fast each day of the week.\n\nAn ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.',
       GoalType.weight =>
         'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
       GoalType.hydration =>
         'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
       GoalType.nutrition =>
         'Your nutrition goal is the number of calories you want to be under in a day.\n\nYour nutrition streak is the number of days in a row you have managed to reach your nutrition goal.',
-    };
+    };;
 
     description += bestStreak;
   }
@@ -115,31 +119,33 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text(
-              description,
-              style: TextStyle(fontSize: TextSizing.medium),
-              textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                description,
+                style: TextStyle(fontSize: TextSizing.medium),
+                textAlign: TextAlign.center,
+              ),
             ),
             goalInfo(),
           ],
         ),
       ),
+      persistentFooterAlignment: AlignmentDirectional.bottomCenter,
       persistentFooterButtons: [
-        Center(
-          child: OutlinedButton(
-            onPressed: () async {
-              await saveChanges();
-
-              if (!mounted) {
-                return;
-              } else if (mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-            child: const Text(
-              'Save Changes',
-              style: TextStyle(fontSize: TextSizing.medium),
-            ),
+        FilledButton(
+          onPressed: () async {
+            await saveChanges();
+        
+            if (!mounted) {
+              return;
+            } else if (mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: const Text(
+            'Save Changes',
+            style: TextStyle(fontSize: TextSizing.medium),
           ),
         ),
       ],
@@ -205,7 +211,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
-        3000,
+        2300,
         0,
         GoalOperator.lesserEqual,
         MetricType.meals,
@@ -244,18 +250,24 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             curGoal = model;
 
             final session = ref.watch(userSessionProvider).value;
-            String goalText = '';
+            String goalText = '', suffixText = '';
 
             switch (session!.fastingForm) {
               case FastingForm.tre:
                 goalText = 'Hours of fasting per day.';
+                suffixText = 'Hours';
+                maxAmount = 22;
               case FastingForm.fiveTwo:
-                goalText = 'Meals per fasting day.';
+                goalText = 'Calories per fasting day.';
+                suffixText = 'Calories';
+                maxAmount = 700;
               case FastingForm.adf:
                 goalText = 'Days of fasting a week.';
+                suffixText = 'Days';
+                maxAmount = 4;
             }
 
-            return goalCard(TextInputType.numberWithOptions(), goalText);
+            return goalCard(TextInputType.numberWithOptions(), goalText, suffixText: suffixText);
           case WeightGoalModel model:
             curGoal = model;
             return goalCard(
@@ -275,6 +287,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             return goalCard(
               TextInputType.numberWithOptions(),
               'calories per day',
+              suffixText: 'calories'
             );
           case BasicStreak():
             // TODO: Handle this case.
@@ -289,54 +302,72 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     String goalText, {
     String suffixText = '',
   }) {
-    return Card(
+    return Card.outlined(
       margin: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 40,
         children: [
-          Text(
-            type.goalText,
-            style: const TextStyle(fontSize: TextSizing.medium),
-            textAlign: TextAlign.left,
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              type.goalText,
+              style: const TextStyle(fontSize: TextSizing.medium),
+              textAlign: TextAlign.left,
+            ),
           ),
-          Table(
-            children: [
-              TableRow(
-                children: [
-                  const Text(
-                    'Comparison: ',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),)
-                  // goalOperatorMenu(),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Text(
-                    'Amount: ',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                  TextField(
-                    style: TextStyle(fontSize: TextSizing.medium),
-                    controller: goalController,
-                    focusNode: focusNode,
-                    keyboardType: inputType,
-                    decoration: InputDecoration(suffix: Text(suffixText)),
-                    // onChanged: (value) => setState(() {
-                    //   double? temp = double.tryParse(value);
-                    //   if (temp != null) {
-                    //     curGoal.threshold = temp;
-                    //     goalController.text = temp.toString();
-                    //   }
-                    // }),
-                  ),
-                ],
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Table(
+              children: [
+                TableRow(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: const Text(
+                        'Comparison: ',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),),
+                    )
+                    // goalOperatorMenu(),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text(
+                      'Amount: ',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    ),
+                    TextField(
+                      style: TextStyle(fontSize: TextSizing.medium),
+                      controller: goalController,
+                      focusNode: focusNode,
+                      keyboardType: inputType,
+                      inputFormatters: [
+                        MyInputFormatter(maxAmount)
+                      ],
+                      decoration: InputDecoration(suffixText: suffixText),
+                      // onChanged: (value) => setState(() {
+                      //   double? temp = double.tryParse(value);
+                      //   if (temp != null) {
+                      //     curGoal.threshold = temp;
+                      //     goalController.text = temp.toString();
+                      //   }
+                      // }),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          Text(goalText, style: TextStyle(fontSize: TextSizing.medium)),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(goalText, style: TextStyle(fontSize: TextSizing.medium)),
+          ),
         ],
       ),
     );

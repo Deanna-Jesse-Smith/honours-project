@@ -56,7 +56,15 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
     final watchWeightGoal = ref.watch(checkWeightGoalProvider);
 
     return Scaffold(
-      appBar: MainAppBar.appBar('Weight Tracking', session!.userName),
+      appBar: AppBar(
+        title: Text(
+          'Weight Tracking',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+      ),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),
@@ -85,11 +93,11 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                       backgroundColor: Colors.yellow,
                       leading: Text(
                         '${goal.$1}',
-                        style: TextStyle(fontSize: TextSizing.small),
+                        style: TextStyle(fontSize: TextSizing.smallmed),
                       ),
                       trailing: Text(
                         '${goal.$3}',
-                        style: TextStyle(fontSize: TextSizing.small),
+                        style: TextStyle(fontSize: TextSizing.smallmed),
                       ),
                       barRadius: Radius.circular(10),
                     ),
@@ -101,7 +109,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
-              stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
+              stream: ref.watch(wDaoProvider).getCurWeight(session!.userId),
               builder: (context, asyncSnapshot) {
                 if (!asyncSnapshot.hasData) {
                   curWeight = 0;

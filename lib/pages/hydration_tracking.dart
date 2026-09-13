@@ -56,12 +56,16 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.read(userSessionProvider).value;
     final goalChecker = ref.watch(checkHydrationGoalProvider);
     final streakChecker = ref.watch(checkHydrationStreakProvider);
 
     return Scaffold(
-      appBar: MainAppBar.appBar('Hydration Tracking', session!.userName),
+      appBar: AppBar(
+        title: Text('Hydration Tracking', style: TextStyle(fontSize: TextSizing.large)),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+      ),
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(20),

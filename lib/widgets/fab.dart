@@ -116,6 +116,7 @@ class MyExpandableFAB extends ConsumerWidget {
             context,
             initialVal: curWeight,
             title: 'Log Weight',
+            unit: 'kg'
           );
           if (newAmount != null) {
             final check = await ref
@@ -233,7 +234,7 @@ class MyExpandableFAB extends ConsumerWidget {
         onPressed: () async {
           final newAmount = await Dialogs.getSpinnerWaterInput(
             context,
-            title: 'How much water have you drank?',
+            title: 'How much water have you drank since your last log?',
           );
           if (newAmount != null) {
             final check = await ref

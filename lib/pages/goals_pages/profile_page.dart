@@ -19,14 +19,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final TextEditingController weightController = TextEditingController(
     text: '0',
   );
-  final TextEditingController durationController = TextEditingController(
-    text: '1',
-  );
   TextEditingController nameController = TextEditingController(text: '');
 
   final focusNodeHeight = FocusNode(),
       focusNodeWeight = FocusNode(),
-      focusNodeDuration = FocusNode(),
       focusNodeName = FocusNode();
 
   bool isSaving = false;
@@ -66,25 +62,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         );
       }
     });
-
-    focusNodeDuration.addListener(() {
-      if (focusNodeDuration.hasFocus) {
-        durationController.selection = TextSelection(
-          baseOffset: 0,
-          extentOffset: durationController.text.length,
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
-    focusNodeDuration.dispose();
     focusNodeHeight.dispose();
     focusNodeName.dispose();
+
     heightController.dispose();
     weightController.dispose();
-    durationController.dispose();
     super.dispose();
   }
 
@@ -98,134 +84,128 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         centerTitle: true,
       ),
       drawer: MyNavigationDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Table(
-          children: [
-            TableRow(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Table(
               children: [
-                cell(
-                  const Text(
-                    'Name',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ),
-                cell(
-                  TextField(
-                    // controller: nameController,
-                    // autofocus: true,
-                    style: TextStyle(fontSize: TextSizing.medium),
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(hintText: 'Name:'),
-                    // focusNode: focusNodeName,
-                  ),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                cell(
-                  const Text(
-                    'When were you born?',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ),
-                cell(
-                  ElevatedButton(
-                    onPressed: () async {
-                      final DateTime? dateTime = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(3000),
-                      );
-                      if (dateTime != null) {
-                        setState(() {
-                          selectedDate = dateTime;
-                        });
-                      }
-                    },
-                    child: const Text('Select Birthday', style: TextStyle(fontSize: TextSizing.medium),),
-                  ),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                cell(
-                  const Text(
-                    'How tall are you?',
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ),
-                cell(
-                  TextField(
-                    controller: heightController,
-                    focusNode: focusNodeHeight,
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: false,
+                TableRow(
+                  children: [
+                    cell(
+                      const Text(
+                        'Name',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
                     ),
-                    decoration: InputDecoration(suffixText: 'cm'),
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
+                    cell(
+                      TextField(
+                        // controller: nameController,
+                        // autofocus: true,
+                        style: TextStyle(fontSize: TextSizing.medium),
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: InputDecoration(hintText: 'Name:'),
+                        // focusNode: focusNodeName,
+                      ),
+                    ),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    cell(
+                      const Text(
+                        'When were you born?',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                    cell(
+                      ElevatedButton(
+                        onPressed: () async {
+                          final DateTime? dateTime = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(3000),
+                          );
+                          if (dateTime != null) {
+                            setState(() {
+                              selectedDate = dateTime;
+                            });
+                          }
+                        },
+                        child: const Text(
+                          'Select Birthday',
+                          style: TextStyle(fontSize: TextSizing.medium),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    cell(
+                      const Text(
+                        'How tall are you?',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                    cell(
+                      TextField(
+                        controller: heightController,
+                        focusNode: focusNodeHeight,
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: false,
+                        ),
+                        decoration: InputDecoration(suffixText: 'cm'),
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: handleFinished,
+            child: Text(
+              'Save Changes',
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
+          ),
+        ],
       ),
-      // Column(
-      //   children: [
-      //     Expanded(
-      //       child: Padding(
-      //           padding: const EdgeInsets.all(8.0),
-      //           child: Row(
-      //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //             children: [
-
-      //         // Padding(
-      //         //   padding: const EdgeInsets.all(8.0),
-      //         //   child: Row(
-      //         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //         //     children: [
-      //         //       const Text(
-      //         //         'How much do you weigh?',
-      //         //         style: TextStyle(fontSize: TextSizing.medium),
-      //         //       ),
-      //         //       SizedBox(
-      //         //         width: 80,
-      //         //         child: TextField(
-      //         //           controller: weightController,
-      //         //           focusNode: focusNodeWeight,
-      //         //           keyboardType: TextInputType.numberWithOptions(
-      //         //             decimal: true,
-      //         //           ),
-      //         //           decoration: InputDecoration(suffixText: 'kg'),
-      //         //           style: TextStyle(fontSize: TextSizing.medium),
-      //         //         ),
-      //         //       ),
-      //         //     ],
-      //         //   ),
-      //         // ),
-      //         // ElevatedButton(
-      //         //   onPressed: () async {
-      //         //     if (nameController.text.isNotEmpty) {
-
-      //         //     } else {
-      //         //       await Dialogs.dangerDialog(
-      //         //         context,
-      //         //         title: 'WARNING',
-      //         //         message: 'You need to input your name to proceed',
-      //         //       );
-      //         //     }
-      //         //   },
-      //         //   child: const Text('Sign Up'),
-      //         // ),
-      //               ],
-      //             ),
-      //       ),
-      //     )])
     );
+  }
+
+  Future<void> handleFinished() async {
+    setState(() => isSaving = true);
+    if (heightController.text.isEmpty || weightController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You need to fill in your height, weight and name to proceed',
+          ),
+        ),
+      );
+    } else {
+      try {
+        if (!mounted) return;
+        ref
+            .read(userSessionProvider.notifier)
+            .updateDetails(
+              nameController.text,
+              double.parse(heightController.text),
+              selectedDate,
+            );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not save user: $e')));
+      } finally {
+        if (mounted) setState(() => isSaving = false);
+      }
+    }
   }
 
   Padding cell(Widget child) {

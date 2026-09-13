@@ -27,27 +27,40 @@ class MealTracking extends ConsumerWidget {
     final mealWatcher = ref.watch(mealRangeProvider((start, end)));
 
     return Scaffold(
-      appBar: MainAppBar.appBar('Meal Tracking', session!.userName),
+      appBar: AppBar(
+        title: Text('Meal Tracking', style: TextStyle(fontSize: TextSizing.large)),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+      ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: MyExpandableFAB(index: 3),
+      floatingActionButton: MyExpandableFAB(index: 3, posi: ExpandableFabPos.right,),
       body: SingleChildScrollView(child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(data: (goal) {
-                if (goal == -1) {
+                if (goal.$1 == -1) {
                     return Text('No ongoing meal goal', style: TextStyle(fontSize: TextSizing.medium),);
                   }
                   
-                final model = goal == -1 ? 0.0 : goal;
+                final model = goal.$1 == -1 ? 0.0 : goal.$1;
 
                   return LinearPercentIndicator(
                     alignment: MainAxisAlignment.center,
                     percent: model,
+                    leading: Text(
+                        '0',
+                        style: TextStyle(fontSize: TextSizing.smallmed),
+                      ),
+                      trailing: Text(
+                        '${goal.$2.toInt()}',
+                        style: TextStyle(fontSize: TextSizing.smallmed),
+                      ),
                     lineHeight: 15,
-                    width: MediaQuery.of(context).size.width - 80,
+                    width: MediaQuery.of(context).size.width * 0.6,
                     animation: true,
                     animationDuration: 2000,
                     progressColor: Colors.amber,
@@ -56,6 +69,7 @@ class MealTracking extends ConsumerWidget {
                   );
               }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
             ),
+            const SizedBox(height: 10,),
           streakChecker.when(data: (streak) {
               if (streak == null) {
                 return const SizedBox.shrink();
@@ -71,7 +85,7 @@ class MealTracking extends ConsumerWidget {
                   style: TextStyle(fontSize: TextSizing.large),
                 );
               }
-
+              
               return Column(
                 spacing: 20,
                 children: meals.map((meal) => DaySection(dayMeal: meal)).toList(),);

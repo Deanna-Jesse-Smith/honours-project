@@ -52,7 +52,7 @@ class MealItem implements Comparable {
   @override
   int compareTo(other) {
     other as MealItem;
-    return other.cate.index.compareTo(cate.index);
+    return cate.index.compareTo(other.cate.index);
   }
 }
 

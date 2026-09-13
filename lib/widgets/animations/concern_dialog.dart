@@ -163,11 +163,11 @@ class _ConcernDialogState extends State<ConcernDialog>
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close'),
+              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)'),
+              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
             ),
         ],
       ),
