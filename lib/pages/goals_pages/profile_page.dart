@@ -84,6 +84,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         centerTitle: true,
       ),
       drawer: MyNavigationDrawer(),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        TextButton(
+              onPressed: handleFinished,
+              child: Text(
+                'Save Changes',
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
+            ),
+      ],
       body: Column(
         children: [
           Padding(

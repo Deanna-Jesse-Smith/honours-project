@@ -448,7 +448,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             ),
           ],
         ),
-        const SizedBox(height: 45),
+        const SizedBox(height: 35),
         Padding(
           padding: EdgeInsets.all(15),
           child: const Text(

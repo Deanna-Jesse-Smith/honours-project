@@ -139,7 +139,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                         });
                       }
                     },
-                    child: const Text('Select Birthday', style: TextStyle(fontSize: TextSizing.medium),),
+                    child: const Text('Select Birthday', style: TextStyle(fontSize: TextSizing.smallmed),),
                   ),
                 ],
               ),
