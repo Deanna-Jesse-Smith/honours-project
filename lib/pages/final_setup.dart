@@ -114,7 +114,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                   final temp = selectedOption as ModifiedOption;
                   cur52Schedule = temp.days.join(',');
                   type = MetricType.meals52;
-                  threshold = 2;
+                  threshold = 700;
                 } else {
                   cur52Schedule = '';
                 }

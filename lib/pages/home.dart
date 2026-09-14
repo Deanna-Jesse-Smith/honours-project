@@ -20,6 +20,8 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => HomePageState();
 }
 
+bool firstHomeFrame = false;
+
 class HomePageState extends ConsumerState<HomePage> {
   late UserSessionData session;
 
@@ -30,23 +32,27 @@ class HomePageState extends ConsumerState<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // await ref.read(fDaoProvider).dummyData();
       // await ref.read(cDaoProvider).dummyData();
-      final check = await ref
-          .read(asyncGoalsProvider.notifier)
-          .checkFastingGoal();
+      // final check = await ref
+      //     .read(asyncGoalsProvider.notifier)
+      //     .checkFastingGoal();
 
-      if (!check || !mounted) return;
-      await showDialog(
-        context: context,
-        builder: (_) => DialogTitle(type: GoalType.fasting),
-      );
+      // if (!check || !mounted) return;
+      // await showDialog(
+      //   context: context,
+      //   builder: (_) => DialogTitle(type: GoalType.fasting),
+      // );
+      if (!firstHomeFrame) {
+        firstHomeFrame = true;
+        final checkFood = await ref
+            .read(asyncGoalsProvider.notifier)
+            .checkFastingGoal();
 
-      final checkFood = await ref.read(asyncGoalsProvider.notifier).checkFastingGoal();
-
-      if (!checkFood || !mounted) return;
-      await showDialog(
-        context: context,
-        builder: (_) => DialogTitle(type: GoalType.fasting),
-      );
+        if (!checkFood || !mounted) return;
+        await showDialog(
+          context: context,
+          builder: (_) => DialogTitle(type: GoalType.fasting),
+        );
+      }
     });
   }
 
@@ -59,7 +65,10 @@ class HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${session.userName}', style: TextStyle(fontSize: TextSizing.large)),
+        title: Text(
+          'Welcome, ${session.userName}',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -96,8 +105,10 @@ class HomePageState extends ConsumerState<HomePage> {
               stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
               builder: (context, asyncSnapshot) {
                 if (!asyncSnapshot.hasData) {
-                  return const Text('No ongoing Fasting streak',
-                            style: TextStyle(fontSize: TextSizing.small),);
+                  return const Text(
+                    'No ongoing Fasting streak',
+                    style: TextStyle(fontSize: TextSizing.smallmed),
+                  );
                 }
 
                 final days = asyncSnapshot.data;
@@ -106,7 +117,8 @@ class HomePageState extends ConsumerState<HomePage> {
                   return const SizedBox.shrink();
                 }
 
-                return Text('You\'re on a $days streak!');
+                return Text('You\'re on a $days week streak!',
+                    style: TextStyle(fontSize: TextSizing.smallmed));
               },
             ),
             Padding(

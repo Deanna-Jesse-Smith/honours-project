@@ -55,7 +55,7 @@ class StatisticsModel {
 
     if (timedDurations.isEmpty) return null;
 
-    return formatDuration(timedDurations.reduce((longest, cur) => cur > longest ? longest : cur));
+    return formatDuration(timedDurations.reduce((longest, cur) => cur > longest ? cur : longest));
   }
 
   String getAsPlannedRate() => formatPercentage(curFasts.plannedRate);

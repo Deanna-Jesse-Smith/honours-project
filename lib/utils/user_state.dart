@@ -76,6 +76,7 @@ class UserSessionData {
 }
 
 class UserSession extends AsyncNotifier<UserSessionData?> {
+  bool fiveTwoComplete = false;
   @override
   Future<UserSessionData?> build() async {
     final uDao = ref.watch(uDaoProvider);
@@ -88,7 +89,8 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
 
     bool isFasting = false;
     List<int> days = DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected);
-    if (user.formIF == FastingForm.fiveTwo) {
+    if (!fiveTwoComplete && user.formIF == FastingForm.fiveTwo) {
+      fiveTwoComplete = true;
       await check52Adherence(user.userID,
         days, fDao,
       );
@@ -96,7 +98,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       isFasting = await fDao.isFasting();
     }
 
-    fDao.dummyData();
+    // fDao.dummyData();
 
     // final isFasting = await fDao.isFasting();
 

@@ -60,14 +60,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
     type = widget.type;
 
-    final outcome = ref.read(bestStreakProvider(type));
+    final outcome = ref.watch(bestStreakProvider(type));
 
     bestStreak = outcome.when(
       data: (streak) {
         if (streak == null) {
           return '\n\nYou have no streaks of this type recorded.';
         }
-        return '\n\nYour best streak is $streak days';
+        return '\n\nYour best streak is $streak';
       },
       error: (e, _) => '',
       loading: () => '',
@@ -82,7 +82,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
       GoalType.nutrition =>
         'Your nutrition goal is the number of calories you want to be under in a day.\n\nYour nutrition streak is the number of days in a row you have managed to reach your nutrition goal.',
-    };;
+    };
 
     description += bestStreak;
   }
@@ -257,14 +257,23 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 goalText = 'Hours of fasting per day.';
                 suffixText = 'Hours';
                 maxAmount = 22;
+                if (curGoal.goalID == -1) {
+                  curGoal.threshold == 6;
+                }
               case FastingForm.fiveTwo:
                 goalText = 'Calories per fasting day.';
                 suffixText = 'Calories';
-                maxAmount = 700;
+                maxAmount = 800;
+                if (curGoal.goalID == -1) {
+                  curGoal.threshold == 700;
+                }
               case FastingForm.adf:
                 goalText = 'Days of fasting a week.';
                 suffixText = 'Days';
                 maxAmount = 4;
+                if (curGoal.goalID == -1) {
+                  curGoal.threshold == 3;
+                }
             }
 
             return goalCard(TextInputType.numberWithOptions(), goalText, suffixText: suffixText);

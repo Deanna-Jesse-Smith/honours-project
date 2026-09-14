@@ -377,7 +377,7 @@ class RecommendationSystem {
     final getAvailable = findAvailableDays(meals, false);
 
     List<List<int>> combinations = validCombosHelper(getAvailable, true);
-    combinations.retainWhere((c) => c.isNotEmpty);
+    combinations.retainWhere((c) => c.isNotEmpty && c.length != 3);
 
     List<ADFoption> options = [];
 
@@ -407,7 +407,7 @@ class RecommendationSystem {
     final getAvailable = findAvailableDays(meals, true);
 
     List<List<int>> pairs = validCombosHelper(getAvailable, false);
-    pairs.retainWhere((c) => c.isNotEmpty);
+    pairs.retainWhere((c) => c.isNotEmpty && c.length == 2);
 
     List<ModifiedOption> options = [];
 

@@ -464,13 +464,15 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
             // ..where(goals.streakID.isNull()))
             )
             .getSingleOrNull();
-
+            debugPrint('Fasting goal: ${goalRows == null}');
     if (goalRows == null) {
       return null;
     }
 
     final goalRow = goalRows.readTable(goals);
     final fastingRow = goalRows.readTable(fastingGoals);
+
+    debugPrint('Fasting goal: $goalRow');
 
     return FastingGoalModel(
       goalRow.goalID,
