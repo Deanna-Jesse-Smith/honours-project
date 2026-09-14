@@ -154,6 +154,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       cur52Schedule,
                       curADFSchedule,
                       widget.almost.height,
+                      widget.almost.isGender,
                     );
                 ref.read(wDaoProvider).logWeight(id, DateTime.now(), double.parse(widget.weight));
 

@@ -98,7 +98,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (curCalories == 0) {
       return (0.0, goal.threshold);
     } else {
-      return ((curCalories / goal.threshold).clamp(0.0, 1.0), goal.threshold);
+      return ((curCalories / goal.threshold).clamp(0.05, 1.0), goal.threshold);
     }
   }
 
@@ -119,7 +119,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (curCalories == 0) {
       return false;
     } else {
-      percent = (curCalories / goal.threshold).clamp(0.0, 1.0);
+      percent = (curCalories / goal.threshold).clamp(0.05, 1.0);
 
       BasicStreak? curStreak = await ref
           .read(gDaoProvider)
@@ -272,7 +272,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           .read(fDaoProvider)
           .findFastsInRange(curWeek.$1, curWeek.$2)
           .length;
-      return (curWeekDays / goal.threshold).clamp(0.0, 1.0);
+      return (curWeekDays / goal.threshold).clamp(0.05, 1.0);
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
@@ -302,7 +302,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         if (wasCompleted) numCompleted++;
       }
 
-      return (numCompleted / fiveTwoDays.length).clamp(0.0, 1.0);
+      return (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
     }
   }
 
@@ -357,7 +357,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           .read(fDaoProvider)
           .findFastsInRange(curWeek.$1, curWeek.$2)
           .length;
-      percent = (curWeekDays / goal.threshold).clamp(0.0, 1.0);
+      percent = (curWeekDays / goal.threshold).clamp(0.05, 1.0);
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
@@ -387,7 +387,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         if (wasCompleted) numCompleted++;
       }
 
-      percent = (numCompleted / fiveTwoDays.length).clamp(0.0, 1.0);
+      percent = (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
 
       // List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
       // daysList.removeWhere((d) => d == null);
@@ -487,7 +487,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
     percent =
         ((goal.startWeight - curWeight) / (goal.startWeight - goal.threshold))
-            .clamp(0.1, 1.0);
+            .clamp(0.05, 1.0);
 
     if (percent == 1) {
       ref.read(gDaoProvider).setComplete(true, goalID);
@@ -512,7 +512,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else {
       debugPrint('Water: $curWater');
 
-      return (curWater / goal.threshold).clamp(0.0, 1.0);
+      return (curWater / goal.threshold).clamp(0.05, 1.0);
     }
   }
 
@@ -533,7 +533,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (curWater == null) {
       return false;
     } else {
-      percent = (curWater / goal.threshold).clamp(0.0, 1.0);
+      percent = (curWater / goal.threshold).clamp(0.05, 1.0);
 
       BasicStreak? curStreak = await ref
           .read(gDaoProvider)
@@ -716,10 +716,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
   Future<bool> isValidPR(GoalType type, int thr, int window) async {
     final startWindow = DateTime.now().subtract(Duration(days: window));
-    final breaksInWindow = await ref
+    final curLength = await ref
         .read(gDaoProvider)
         .evaluatePR(type, startWindow);
-    return breaksInWindow != 0 && breaksInWindow <= thr;
+    return curLength >= thr;
   }
 }
 

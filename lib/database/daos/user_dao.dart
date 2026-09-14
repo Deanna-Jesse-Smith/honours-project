@@ -21,6 +21,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     String days52,
     String daysADF,
     double height,
+    bool isFemale,
   ) {
     return into(users).insert(
       UsersCompanion.insert(
@@ -32,6 +33,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
         adfDaysSelected: Value(daysADF),
         fiveTwoDaysSelected: Value(days52),
         height: height,
+        isGender: isFemale,
       ),
     );
   }

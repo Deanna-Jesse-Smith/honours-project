@@ -41,6 +41,7 @@ class _StartPageState extends State<StartPage> {
                 decoration: InputDecoration(hintText: 'Name:'),
               ),
             ),
+            const Text('Intermittent fasting is not recommended to individuals who are under the age of 18, pregnant, or have a condition such as diabetes. Consult your doctor about adopting intermittent fasting if you are in any of these categories.', style: TextStyle(fontSize: TextSizing.smallmed),),
             SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),

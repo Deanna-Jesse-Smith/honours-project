@@ -13,13 +13,14 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   DateTime selectedDate = DateTime(2008);
+  bool isFemale = false;
   final TextEditingController heightController = TextEditingController(
     text: '0',
   );
   final TextEditingController weightController = TextEditingController(
     text: '0',
   );
-  TextEditingController nameController = TextEditingController(text: '');
+  TextEditingController nameController = TextEditingController();
 
   final focusNodeHeight = FocusNode(),
       focusNodeWeight = FocusNode(),
@@ -34,7 +35,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final session = ref.read(userSessionProvider).value;
     // selectedDate = session.
 
-    nameController.text = session!.userName;
+    isFemale = session!.isFemale;
+
+    nameController.text = session.userName;
     focusNodeName.addListener(() {
       if (focusNodeName.hasFocus) {
         nameController.selection = TextSelection(
@@ -87,12 +90,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         TextButton(
-              onPressed: handleFinished,
-              child: Text(
-                'Save Changes',
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
-            ),
+          onPressed: handleFinished,
+          child: Text(
+            'Save Changes',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
       ],
       body: Column(
         children: [
@@ -124,33 +127,69 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   children: [
                     cell(
                       const Text(
-                        'When were you born?',
+                        'Are you male or female?',
                         style: TextStyle(fontSize: TextSizing.medium),
                       ),
                     ),
                     cell(
-                      ElevatedButton(
-                        onPressed: () async {
-                          final DateTime? dateTime = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(3000),
-                          );
-                          if (dateTime != null) {
-                            setState(() {
-                              selectedDate = dateTime;
-                            });
-                          }
+                      RadioGroup<bool>(
+                        onChanged: (bool? value) {
+                          setState(() => isFemale = value!);
                         },
-                        child: const Text(
-                          'Select Birthday',
-                          style: TextStyle(fontSize: TextSizing.medium),
+                        groupValue: isFemale,
+                        child: const Column(
+                          children: [
+                            RadioListTile(
+                              value: true,
+                              title: Text(
+                                'Female',
+                                style: TextStyle(fontSize: TextSizing.medium),
+                              ),
+                            ),
+                            RadioListTile(
+                              value: false,
+                              title: Text(
+                                'Male',
+                                style: TextStyle(fontSize: TextSizing.medium),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
+                // TableRow(
+                //   children: [
+                //     cell(
+                //       const Text(
+                //         'When were you born?',
+                //         style: TextStyle(fontSize: TextSizing.medium),
+                //       ),
+                //     ),
+                //     cell(
+                //       ElevatedButton(
+                //         onPressed: () async {
+                //           final DateTime? dateTime = await showDatePicker(
+                //             context: context,
+                //             initialDate: selectedDate,
+                //             firstDate: DateTime(2000),
+                //             lastDate: DateTime(3000),
+                //           );
+                //           if (dateTime != null) {
+                //             setState(() {
+                //               selectedDate = dateTime;
+                //             });
+                //           }
+                //         },
+                //         child: const Text(
+                //           'Select Birthday',
+                //           style: TextStyle(fontSize: TextSizing.medium),
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 TableRow(
                   children: [
                     cell(

@@ -34,6 +34,7 @@ class UserSessionData {
   final bool isFasting;
   final Experience experience;
   final double height;
+  final bool isFemale;
 
   const UserSessionData({
     required this.userId,
@@ -46,6 +47,7 @@ class UserSessionData {
     required this.isFasting,
     required this.experience,
     required this.height,
+    required this.isFemale,
   });
 
   UserSessionData copyWith({
@@ -71,6 +73,7 @@ class UserSessionData {
       isFasting: isFasting ?? this.isFasting,
       experience: exp ?? experience,
       height: height ?? this.height,
+      isFemale: isFemale
     );
   }
 }
@@ -113,6 +116,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       isFasting: isFasting,
       experience: user.experience,
       height: user.height,
+      isFemale: user.isGender,
     );
   }
 
@@ -170,6 +174,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       isFasting: isFasting,
       experience: data.experience,
       height: data.height,
+      isFemale: data.isFemale,
     );
   }
 

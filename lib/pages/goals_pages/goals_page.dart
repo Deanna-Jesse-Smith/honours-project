@@ -15,12 +15,12 @@ import 'package:testrun/widgets/dialogs.dart';
 class GoalsPage extends ConsumerStatefulWidget {
   final GoalType type;
   final MetricType mType;
-  final double? startWeight;
+  final double startWeight;
   const GoalsPage({
     super.key,
     required this.type,
     this.mType = MetricType.hours,
-    this.startWeight,
+    this.startWeight = 0,
   });
 
   @override
@@ -84,7 +84,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         'Your nutrition goal is the number of calories you want to be under in a day.\n\nYour nutrition streak is the number of days in a row you have managed to reach your nutrition goal.',
     };
 
-    description += bestStreak;
+    if (type != GoalType.weight) description += bestStreak;
   }
 
   @override
@@ -180,6 +180,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   }
 
   BasicGoal createDummyGoal() {
+    final session = ref.read(userSessionProvider).value;
     return switch (type) {
       GoalType.fasting => FastingGoalModel(
         -1,
@@ -192,13 +193,13 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       GoalType.weight => WeightGoalModel(
         -1,
-        0,
+        widget.startWeight - 1,
         0,
         GoalOperator.lesserEqual,
         MetricType.kg,
         DateTime.now(),
         false,
-        startWeight: widget.startWeight!,
+        startWeight: widget.startWeight,
       ),
       GoalType.hydration => HydrationGoalModel(
         -1,
@@ -211,7 +212,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
-        2300,
+        session!.isFemale ? 1600 : 1900,
         0,
         GoalOperator.lesserEqual,
         MetricType.meals,
@@ -244,14 +245,13 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         }
 
         goalController.text = curGoal.threshold.toString();
+        final session = ref.read(userSessionProvider).value;
 
         switch (curGoal) {
           case FastingGoalModel model:
             curGoal = model;
-
-            final session = ref.watch(userSessionProvider).value;
+            
             String goalText = '', suffixText = '';
-
             switch (session!.fastingForm) {
               case FastingForm.tre:
                 goalText = 'Hours of fasting per day.';
@@ -293,6 +293,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             );
           case NutritionGoalModel model:
             curGoal = model;
+            maxAmount = session!.isFemale ? 500 : 600;
             return goalCard(
               TextInputType.numberWithOptions(),
               'calories per day',

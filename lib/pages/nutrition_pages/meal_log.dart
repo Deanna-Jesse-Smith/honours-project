@@ -177,7 +177,7 @@ class _MealLogState extends ConsumerState<MealLog> {
                         onPressed: selectMealTime,
                         child: Text(
                           strMealTime,
-                          style: TextStyle(fontSize: TextSizing.medium),
+                          style: const TextStyle(fontSize: TextSizing.medium),
                         ),
                       ),
                     ),
@@ -255,7 +255,7 @@ class _MealLogState extends ConsumerState<MealLog> {
                               );
                             })
                             .toList(),
-                        textStyle: TextStyle(fontSize: TextSizing.medium),
+                        textStyle: const TextStyle(fontSize: TextSizing.medium),
                         onSelected: (value) {
                           if (value == null) return;
                           setState(() => selectedFood.add(MealFood(value)));
@@ -269,7 +269,7 @@ class _MealLogState extends ConsumerState<MealLog> {
           ),
 
           const Text('Meal Ingredients:', 
-                      style: TextStyle(fontSize: TextSizing.medium),),
+                      style: TextStyle(fontSize: TextSizing.medlarge, fontWeight: FontWeight.bold),),
                       // const SizedBox(height: 10,),
           Column(
             children: selectedFood.map((selected) {

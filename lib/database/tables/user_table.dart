@@ -15,4 +15,5 @@ class Users extends Table {
   TextColumn get adfDaysSelected => text().withDefault(const Constant(''))();
   TextColumn get fiveTwoDaysSelected => text().withDefault(const Constant(''))();
   RealColumn get height => real()();
+  BoolColumn get isGender => boolean()();
 }

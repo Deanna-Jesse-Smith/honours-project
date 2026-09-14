@@ -91,6 +91,22 @@ class DayMeals implements Comparable {
   int getTotalCalories() {
     return meals.fold(0, (prev, cur) => prev + cur.getTotalCalories());
   }
+
+  double getTotalProtein() {
+    return meals.fold(0, (prev, cur) => prev + cur.getTotalProtein());
+  }
+
+  double getTotalFat() {
+    return meals.fold(0, (prev, cur) => prev + cur.getTotalFat());
+  }
+
+  double getTotalFibre() {
+    return meals.fold(0, (prev, cur) => prev + cur.getTotalFibre());
+  }
+
+  double getTotalCarbs() {
+    return meals.fold(0, (prev, cur) => prev + cur.getTotalCarbs());
+  }
 }
 
 class DayFoods {

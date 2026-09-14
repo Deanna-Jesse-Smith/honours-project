@@ -131,6 +131,20 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isGenderMeta = const VerificationMeta(
+    'isGender',
+  );
+  @override
+  late final GeneratedColumn<bool> isGender = GeneratedColumn<bool>(
+    'is_gender',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_gender" IN (0, 1))',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     userID,
@@ -144,6 +158,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     adfDaysSelected,
     fiveTwoDaysSelected,
     height,
+    isGender,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -230,6 +245,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_heightMeta);
     }
+    if (data.containsKey('is_gender')) {
+      context.handle(
+        _isGenderMeta,
+        isGender.isAcceptableOrUnknown(data['is_gender']!, _isGenderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isGenderMeta);
+    }
     return context;
   }
 
@@ -287,6 +310,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.double,
         data['${effectivePrefix}height'],
       )!,
+      isGender: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_gender'],
+      )!,
     );
   }
 
@@ -313,6 +340,7 @@ class User extends DataClass implements Insertable<User> {
   final String adfDaysSelected;
   final String fiveTwoDaysSelected;
   final double height;
+  final bool isGender;
   const User({
     required this.userID,
     required this.name,
@@ -325,6 +353,7 @@ class User extends DataClass implements Insertable<User> {
     required this.adfDaysSelected,
     required this.fiveTwoDaysSelected,
     required this.height,
+    required this.isGender,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -352,6 +381,7 @@ class User extends DataClass implements Insertable<User> {
     map['adf_days_selected'] = Variable<String>(adfDaysSelected);
     map['five_two_days_selected'] = Variable<String>(fiveTwoDaysSelected);
     map['height'] = Variable<double>(height);
+    map['is_gender'] = Variable<bool>(isGender);
     return map;
   }
 
@@ -372,6 +402,7 @@ class User extends DataClass implements Insertable<User> {
       adfDaysSelected: Value(adfDaysSelected),
       fiveTwoDaysSelected: Value(fiveTwoDaysSelected),
       height: Value(height),
+      isGender: Value(isGender),
     );
   }
 
@@ -402,6 +433,7 @@ class User extends DataClass implements Insertable<User> {
         json['fiveTwoDaysSelected'],
       ),
       height: serializer.fromJson<double>(json['height']),
+      isGender: serializer.fromJson<bool>(json['isGender']),
     );
   }
   @override
@@ -423,6 +455,7 @@ class User extends DataClass implements Insertable<User> {
       'adfDaysSelected': serializer.toJson<String>(adfDaysSelected),
       'fiveTwoDaysSelected': serializer.toJson<String>(fiveTwoDaysSelected),
       'height': serializer.toJson<double>(height),
+      'isGender': serializer.toJson<bool>(isGender),
     };
   }
 
@@ -438,6 +471,7 @@ class User extends DataClass implements Insertable<User> {
     String? adfDaysSelected,
     String? fiveTwoDaysSelected,
     double? height,
+    bool? isGender,
   }) => User(
     userID: userID ?? this.userID,
     name: name ?? this.name,
@@ -454,6 +488,7 @@ class User extends DataClass implements Insertable<User> {
     adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
     fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
     height: height ?? this.height,
+    isGender: isGender ?? this.isGender,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -480,6 +515,7 @@ class User extends DataClass implements Insertable<User> {
           ? data.fiveTwoDaysSelected.value
           : this.fiveTwoDaysSelected,
       height: data.height.present ? data.height.value : this.height,
+      isGender: data.isGender.present ? data.isGender.value : this.isGender,
     );
   }
 
@@ -496,7 +532,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('createdDate: $createdDate, ')
           ..write('adfDaysSelected: $adfDaysSelected, ')
           ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected, ')
-          ..write('height: $height')
+          ..write('height: $height, ')
+          ..write('isGender: $isGender')
           ..write(')'))
         .toString();
   }
@@ -514,6 +551,7 @@ class User extends DataClass implements Insertable<User> {
     adfDaysSelected,
     fiveTwoDaysSelected,
     height,
+    isGender,
   );
   @override
   bool operator ==(Object other) =>
@@ -529,7 +567,8 @@ class User extends DataClass implements Insertable<User> {
           other.createdDate == this.createdDate &&
           other.adfDaysSelected == this.adfDaysSelected &&
           other.fiveTwoDaysSelected == this.fiveTwoDaysSelected &&
-          other.height == this.height);
+          other.height == this.height &&
+          other.isGender == this.isGender);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -544,6 +583,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> adfDaysSelected;
   final Value<String> fiveTwoDaysSelected;
   final Value<double> height;
+  final Value<bool> isGender;
   const UsersCompanion({
     this.userID = const Value.absent(),
     this.name = const Value.absent(),
@@ -556,6 +596,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
     this.height = const Value.absent(),
+    this.isGender = const Value.absent(),
   });
   UsersCompanion.insert({
     this.userID = const Value.absent(),
@@ -569,10 +610,12 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.adfDaysSelected = const Value.absent(),
     this.fiveTwoDaysSelected = const Value.absent(),
     required double height,
+    required bool isGender,
   }) : name = Value(name),
        formIF = Value(formIF),
        experience = Value(experience),
-       height = Value(height);
+       height = Value(height),
+       isGender = Value(isGender);
   static Insertable<User> custom({
     Expression<int>? userID,
     Expression<String>? name,
@@ -585,6 +628,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? adfDaysSelected,
     Expression<String>? fiveTwoDaysSelected,
     Expression<double>? height,
+    Expression<bool>? isGender,
   }) {
     return RawValuesInsertable({
       if (userID != null) 'user_i_d': userID,
@@ -600,6 +644,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (fiveTwoDaysSelected != null)
         'five_two_days_selected': fiveTwoDaysSelected,
       if (height != null) 'height': height,
+      if (isGender != null) 'is_gender': isGender,
     });
   }
 
@@ -615,6 +660,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? adfDaysSelected,
     Value<String>? fiveTwoDaysSelected,
     Value<double>? height,
+    Value<bool>? isGender,
   }) {
     return UsersCompanion(
       userID: userID ?? this.userID,
@@ -628,6 +674,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       adfDaysSelected: adfDaysSelected ?? this.adfDaysSelected,
       fiveTwoDaysSelected: fiveTwoDaysSelected ?? this.fiveTwoDaysSelected,
       height: height ?? this.height,
+      isGender: isGender ?? this.isGender,
     );
   }
 
@@ -675,6 +722,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (height.present) {
       map['height'] = Variable<double>(height.value);
     }
+    if (isGender.present) {
+      map['is_gender'] = Variable<bool>(isGender.value);
+    }
     return map;
   }
 
@@ -691,7 +741,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('createdDate: $createdDate, ')
           ..write('adfDaysSelected: $adfDaysSelected, ')
           ..write('fiveTwoDaysSelected: $fiveTwoDaysSelected, ')
-          ..write('height: $height')
+          ..write('height: $height, ')
+          ..write('isGender: $isGender')
           ..write(')'))
         .toString();
   }
@@ -9393,6 +9444,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<String> adfDaysSelected,
       Value<String> fiveTwoDaysSelected,
       required double height,
+      required bool isGender,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -9407,6 +9459,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> adfDaysSelected,
       Value<String> fiveTwoDaysSelected,
       Value<double> height,
+      Value<bool> isGender,
     });
 
 final class $$UsersTableReferences
@@ -9586,6 +9639,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<double> get height => $composableBuilder(
     column: $table.height,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isGender => $composableBuilder(
+    column: $table.isGender,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9803,6 +9861,11 @@ class $$UsersTableOrderingComposer
     column: $table.height,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isGender => $composableBuilder(
+    column: $table.isGender,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -9859,6 +9922,9 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<double> get height =>
       $composableBuilder(column: $table.height, builder: (column) => column);
+
+  GeneratedColumn<bool> get isGender =>
+      $composableBuilder(column: $table.isGender, builder: (column) => column);
 
   Expression<T> fastLogRefs<T extends Object>(
     Expression<T> Function($$FastLogTableAnnotationComposer a) f,
@@ -10057,6 +10123,7 @@ class $$UsersTableTableManager
                 Value<String> adfDaysSelected = const Value.absent(),
                 Value<String> fiveTwoDaysSelected = const Value.absent(),
                 Value<double> height = const Value.absent(),
+                Value<bool> isGender = const Value.absent(),
               }) => UsersCompanion(
                 userID: userID,
                 name: name,
@@ -10069,6 +10136,7 @@ class $$UsersTableTableManager
                 adfDaysSelected: adfDaysSelected,
                 fiveTwoDaysSelected: fiveTwoDaysSelected,
                 height: height,
+                isGender: isGender,
               ),
           createCompanionCallback:
               ({
@@ -10083,6 +10151,7 @@ class $$UsersTableTableManager
                 Value<String> adfDaysSelected = const Value.absent(),
                 Value<String> fiveTwoDaysSelected = const Value.absent(),
                 required double height,
+                required bool isGender,
               }) => UsersCompanion.insert(
                 userID: userID,
                 name: name,
@@ -10095,6 +10164,7 @@ class $$UsersTableTableManager
                 adfDaysSelected: adfDaysSelected,
                 fiveTwoDaysSelected: fiveTwoDaysSelected,
                 height: height,
+                isGender: isGender,
               ),
           withReferenceMapper: (p0) => p0
               .map(

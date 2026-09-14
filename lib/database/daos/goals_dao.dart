@@ -658,7 +658,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(
         lastEvaluated: Value(model.lastEval),
-        isComplete: Value(true),
+        // isComplete: Value(true),
       ),
     );
     await (update(
@@ -685,7 +685,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     DateTime lastPeriod,
   ) async {
     await (update(goals)..where((g) => g.goalID.equals(goalID))).write(
-      GoalsCompanion(lastEvaluated: Value(today), isComplete: Value(true)),
+      // GoalsCompanion(lastEvaluated: Value(today), isComplete: Value(true)),
+      GoalsCompanion(lastEvaluated: Value(today),),
     );
 
     await into(streaks).insert(
@@ -724,7 +725,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         await (selectOnly(streaks)
               ..join([innerJoin(goals, goals.goalID.equalsExp(streaks.goalID))])
               ..addColumns([countProgress])
-              ..where(goals.type.equals(type.name)))
+              ..where(goals.type.equalsValue(type)))
             .getSingle();
 
     return records.read(countProgress);
@@ -768,18 +769,22 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           ..where(goals.type.equalsValue(type))
           ..where(streaks.startDate.isSmallerOrEqualValue(windowStart))
           ..where(
-            streaks.endDate.isBiggerOrEqualValue(windowStart) |
+            // streaks.endDate.isBiggerOrEqualValue(windowStart) |
                 streaks.endDate.isNull(),
           );
 
-    final dataOutput = await data.get();
-    int numValid = 0;
+    final dataOutput = await data.getSingleOrNull();
 
-    for (final row in dataOutput) {
-      int len = row.read(days) ?? 0;
-      if (len > 3) numValid++;
-    }
-    return numValid;
+    if (dataOutput != null) return dataOutput.read(days) ?? 0;
+    return 0;
+
+    // int numValid = 0;
+
+    // for (final row in dataOutput) {
+    //   int len = row.read(days) ?? 0;
+    //   if (len > 3) numValid++;
+    // }
+    // return numValid;
   }
 
   void setComplete(bool isComplete, int goalID) {

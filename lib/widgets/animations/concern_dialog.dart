@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:testrun/models/concerns_model.dart';
@@ -97,6 +99,7 @@ class _ConcernDialogState extends State<ConcernDialog>
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Concern: thr—${widget.concern.threshold}, window—${widget.concern.window}, thr—${widget.concern.nextEval}, ');
     return ScaleTransition(
       scale: CurvedAnimation(parent: controller, curve: Curves.easeOutBack),
       child: AlertDialog(
@@ -119,6 +122,9 @@ class _ConcernDialogState extends State<ConcernDialog>
                     );
                   },
                 ),
+                Positioned(top: 0, left: 30, child: sparkles()),
+                Positioned(top: 20, right: 20, child: sparkles()),
+                Positioned(bottom: 5, left: 20, child: sparkles()),
               ],
             ),
 
@@ -171,6 +177,31 @@ class _ConcernDialogState extends State<ConcernDialog>
             ),
         ],
       ),
+    );
+  }
+
+  AnimatedBuilder sparkles() {
+    Random ran = Random();
+    // int col = ran.nextInt(5);
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        double start = ran.nextDouble().clamp(0.1, 0.35);
+        final animation = CurvedAnimation(
+          parent: controller,
+          // curve: const Interval(0.25, 0.7, curve: Curves.easeOut),
+          curve: Interval(start, ran.nextDouble().clamp(start, 0.75), curve: Curves.easeOut),
+        );
+
+        return Opacity(
+          opacity: animation.value,
+          child: Transform.scale(
+            scale: 0.5 + animation.value * 0.5,
+            child: child,
+          ),
+        );
+      },
+      child: const Icon(Icons.star_border_rounded,),
     );
   }
 }

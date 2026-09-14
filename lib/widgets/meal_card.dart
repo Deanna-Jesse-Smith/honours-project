@@ -44,19 +44,19 @@ class MealCard extends StatelessWidget {
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               Text(
-                '${meal.getTotalFibre().toStringAsFixed(2)}g fibre',
+                '${meal.getTotalProtein().toStringAsFixed(1)}g protein',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               Text(
-                '${meal.getTotalCarbs().toStringAsFixed(2)}g carbs',
+                '${meal.getTotalFibre().toStringAsFixed(1)}g fibre',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               Text(
-                '${meal.getTotalProtein().toStringAsFixed(2)}g protein',
+                '${meal.getTotalFat().toStringAsFixed(1)}g fat',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               Text(
-                '${meal.getTotalFat().toStringAsFixed(2)}g fat',
+                '${meal.getTotalCarbs().toStringAsFixed(1)}g carbs',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ],
@@ -146,6 +146,12 @@ class DaySection extends StatelessWidget {
           style: TextStyle(
             fontSize: TextSizing.medium,
             fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '${dayMeal.getTotalProtein().toStringAsFixed(1)}g protein, ${dayMeal.getTotalFibre().toStringAsFixed(1)}g fibre, ${dayMeal.getTotalFat().toStringAsFixed(1)}g fat, ${dayMeal.getTotalCarbs().toStringAsFixed(1)}g carbs',
+          style: TextStyle(
+            fontSize: TextSizing.smallmed,
           ),
         ),
         ...dayMeal.meals.map((meal) => MealCard(meal: meal)),

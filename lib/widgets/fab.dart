@@ -26,6 +26,7 @@ class MyExpandableFAB extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     UserSessionData session = ref.watch(userSessionProvider).value!;
     final isFasting = ref.watch(isFastingProvider);
+    
     // final actions = BuildFAB.buildFab(
     //   ref,
     //   index: index,

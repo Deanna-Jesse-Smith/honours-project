@@ -25,6 +25,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   FastingForm dropDownValuee = FastingForm.tre;
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
+  bool? isFemale;
 
   bool obligationVisibility = false;
   List<bool> obligationDays = List.filled(7, false);
@@ -116,31 +117,68 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             if (widget.experience)
               buildWithExperience(), //? What form(s) of IF have you done before? And for how long (weeks)?
 
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'When were you born?',
+            //         style: TextStyle(fontSize: TextSizing.medium),
+            //       ),
+            //       ElevatedButton(
+            //         onPressed: () async {
+            //           final DateTime? dateTime = await showDatePicker(
+            //             context: context,
+            //             initialDate: selectedDate,
+            //             firstDate: DateTime(2000),
+            //             lastDate: DateTime(3000),
+            //           );
+            //           if (dateTime != null) {
+            //             setState(() {
+            //               selectedDate = dateTime;
+            //             });
+            //           }
+            //         },
+            //         child: const Text('Select Birthday', style: TextStyle(fontSize: TextSizing.smallmed),),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'When were you born?',
+                    'Are you male or female?',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final DateTime? dateTime = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(3000),
-                      );
-                      if (dateTime != null) {
-                        setState(() {
-                          selectedDate = dateTime;
-                        });
-                      }
-                    },
-                    child: const Text('Select Birthday', style: TextStyle(fontSize: TextSizing.smallmed),),
-                  ),
+                  RadioGroup<bool>(
+                        onChanged: (bool? value) {
+                          setState(() => isFemale = value!);
+                        },
+                        groupValue: isFemale,
+                        child: const Column(
+                          children: [
+                            RadioListTile(
+                              value: true,
+                              title: Text(
+                                'Female',
+                                style: TextStyle(fontSize: TextSizing.medium),
+                              ),
+                            ),
+                            RadioListTile(
+                              value: false,
+                              title: Text(
+                                'Male',
+                                style: TextStyle(fontSize: TextSizing.medium),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                 ],
               ),
             ),
@@ -249,10 +287,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
   Future<void> handleFinished() async {
     setState(() => isSaving = true);
-    if (heightController.text.isEmpty || weightController.text.isEmpty) {
+    if (heightController.text.isEmpty || weightController.text.isEmpty || isFemale == null) {
       ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('You need to fill in your height, weight and name to proceed')));
+        ).showSnackBar(SnackBar(content: Text('You need to fill in your height, weight and gender to proceed')));
     } else {
       try {
         if (!mounted) return;
@@ -269,6 +307,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           adfDaysSelected: '',
           fiveTwoDaysSelected: '',
           height: double.parse(heightController.text),
+          isGender: isFemale!,
         );
         ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
         RecommendationSystem rs = RecommendationSystem(

@@ -318,8 +318,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You completed your planned fast. Take a moment to recognise the progress you\'ve made.',
           citation: 'Torres/Salisbury et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 1,
+          window: 1,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -328,8 +328,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You followed your fasting plan as intended. Keeping a routine that works for you is an important part of making fasting sustainable.',
           citation: 'O\'Connor et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 2,
+          window: 2,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -338,8 +338,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You reached your fasting goal. Your progress shows what you can achieve when your plan fits your routine.',
           citation: 'Milne-Ives et al. (2023)',
-          threshold: 0,
-          window: 0,
+          threshold: 3,
+          window: 3,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -348,8 +348,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You reached your water goal today. Keep building on the routine that helped you get there.',
           citation: 'Aguiar et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 1,
+          window: 1,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -358,8 +358,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You\'ve reached your hydration target. Regular feedback like this can help reinforce the behaviours you\'re working on.',
           citation: 'Aguiar et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 3,
+          window: 5,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -368,8 +368,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You logged your water intake. Keeping track of your behaviour gives you useful feedback on your progress.',
           citation: 'Milne-Ives et al. (2023)',
-          threshold: 0,
-          window: 0,
+          threshold: 1,
+          window: 1,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -378,8 +378,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You reached your meal goal. Keeping track of your meals gives you useful feedback about your eating habits.',
           citation: 'Payne et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 1,
+          window: 1,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -388,8 +388,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You logged a meal. Keeping track of your eating behaviour can help you stay aware of your progress.',
           citation: 'Payne et al. (2022)',
-          threshold: 0,
-          window: 0,
+          threshold: 3,
+          window: 5,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -398,8 +398,8 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'You reached your meal goal for today. Recognising your progress can help reinforce the behaviour.',
           citation: 'Milne-Ives et al. (2023)',
-          threshold: 0,
-          window: 0,
+          threshold: 7,
+          window: 10,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
@@ -418,13 +418,13 @@ class AppDatabase extends _$AppDatabase {
           displayContext:
               'Your latest measurement shows you\'re moving toward your weight goal. Use this progress as feedback on how your current routine is working.',
           citation: 'Hallock et al. (2024)',
-          threshold: 0,
+          threshold: 1,
           window: 0,
         ),
         ReinforcementsCompanion.insert(
           cType: ConcernType.pr,
           type: Value(GoalType.weight),
-          title: 'Goal reached',
+          title: 'Goal reached!',
           displayContext:
               'You\'ve reached your weight goal. Take a moment to recognise the progress you\'ve made.',
           citation: 'Hallock et al. (2024)',
@@ -578,6 +578,10 @@ class AppDatabase extends _$AppDatabase {
       ),
       ]);
     });
+
+    // await batch((batch) {
+    //   batch.insertAll(table, rows);
+    // });
   }
 
   Future<void> wipeData() async {

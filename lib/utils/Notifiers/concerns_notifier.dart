@@ -11,6 +11,7 @@ import 'package:testrun/widgets/animations/concern_dialog.dart';
 class AsyncConcerns extends AsyncNotifier<BasicConcern> {
   Set<HealthConcern> healthConcerns = {};
   Set<PositiveReinforcement> positiveReinforcements = {};
+  Set<PositiveReinforcement> weightPR = {};
 
   @override
   FutureOr<BasicConcern> build() async {
@@ -38,7 +39,8 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
 
     final prs = await ref.read(cDaoProvider).getPRConcerns();
     for (final pr in prs) {
-      positiveReinforcements.add(
+      if (pr.type != null && pr.type == GoalType.weight) {
+      weightPR.add(
         PositiveReinforcement(
           pr.id,
           pr.type,
@@ -50,10 +52,25 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
           pr.nextEval,
         ),
       );
+      } else {
+        positiveReinforcements.add(
+        PositiveReinforcement(
+          pr.id,
+          pr.type,
+          pr.title,
+          pr.displayContext,
+          pr.threshold,
+          pr.window,
+          pr.citation,
+          pr.nextEval,
+        ),
+      );
+      }
     }
   }
 
   Future<BasicConcern?> getConcern(GoalType type) async {
+    final today = DateTime.now();
     // final session = ref.watch(userSessionProvider).value;
     if (type == GoalType.weight) {
       // final weight = await ref.read(wDaoProvider).latestWeight(session!.userId);
@@ -68,12 +85,13 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
       // } else {
 
       // }
+      
+      
     }
 
     final healthRelated = healthConcerns.where(
       (h) => h.gType == type || h.gType == null,
     );
-    final today = DateTime.now();
     for (final health in healthRelated) {
       if (health.nextEval == null || today.compareTo(health.nextEval!) > -1) {
         bool isValid = health.gType == null
@@ -129,6 +147,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
 
   Future<void> doConcernDialogue(BasicConcern concern, BuildContext context) async {
     final result = await showDialog<int>(context: context, builder: (_) => ConcernDialog(concern: concern));
+    debugPrint('Eval resutl: $result');
     if (result == null || result > 1) {
       adjustConcernEval(concern);
     } else {

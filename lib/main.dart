@@ -115,8 +115,8 @@ final checkFastingProgressProvider = FutureProvider<FastingProgress>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshProgress();
 });
 final bestStreakProvider = FutureProvider.family<int?, GoalType>(
-  (ref, type) {
-    return ref.read(gDaoProvider).findBestStreak(type);
+  (ref, type) async {
+    return await ref.read(gDaoProvider).findBestStreak(type);
   },
 );
 

@@ -6,9 +6,7 @@ import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/text_sizing.dart';
-import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/fab.dart';
-import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/meal_card.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
@@ -17,7 +15,6 @@ class MealTracking extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(userSessionProvider).value;
     DateTime end = DateUtils.dateOnly(DateTime.now());
     DateTime start = end.subtract(const Duration(days: 31));
     end = end.add(const Duration(days: 1));
