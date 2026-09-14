@@ -1,6 +1,6 @@
 import 'package:testrun/models/goals_model.dart';
 
-sealed class BasicConcern {
+sealed class BasicConcern implements Comparable {
   final int id;
   final GoalType? gType;
   final String title, text, citation;
@@ -19,6 +19,12 @@ final class HealthConcern extends BasicConcern {
   HealthConcern copyWithEval(DateTime? newEval) {
     return HealthConcern(id, gType, title, text, threshold, window, citation, newEval);
   }
+
+  @override
+  int compareTo(other) {
+    HealthConcern hc = other as HealthConcern;
+    return hc.threshold.compareTo(threshold);
+  }
 }
 
 final class PositiveReinforcement extends BasicConcern {
@@ -27,6 +33,12 @@ final class PositiveReinforcement extends BasicConcern {
   @override
   PositiveReinforcement copyWithEval(DateTime? newEval) {
     return PositiveReinforcement(id, gType, title, text, threshold, window, citation, newEval);
+  }
+
+  @override
+  int compareTo(other) {
+    PositiveReinforcement pr = other as PositiveReinforcement;
+    return -pr.threshold.compareTo(threshold);
   }
 }
 

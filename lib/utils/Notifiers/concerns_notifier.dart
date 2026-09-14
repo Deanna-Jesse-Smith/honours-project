@@ -15,13 +15,13 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
 
   @override
   FutureOr<BasicConcern> build() async {
-    // await ref.read(cDaoProvider).dummyData();
     populateSets();
     return healthConcerns.first;
   }
 
   Future<void> populateSets() async {
     final healths = await ref.read(cDaoProvider).getHealthConcerns();
+    healths.sort();
     for (final health in healths) {
       healthConcerns.add(
         HealthConcern(
@@ -38,6 +38,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
     }
 
     final prs = await ref.read(cDaoProvider).getPRConcerns();
+    prs.sort();
     for (final pr in prs) {
       if (pr.type != null && pr.type == GoalType.weight) {
       weightPR.add(

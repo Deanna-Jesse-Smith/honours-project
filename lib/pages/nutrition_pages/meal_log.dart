@@ -100,33 +100,31 @@ class _MealLogState extends ConsumerState<MealLog> {
         FilledButton(
           onPressed: () async {
             final decision = await ref
-                  .read(asyncFatingNotifier.notifier)
-                  .isInEatingWindow(context);
-              if (decision) {
-                if (!mounted) return;
-                bool decision2 = await Dialogs.dangerDialog(
-                  context,
-                  title: 'Done everything you need?',
-                  message:
-                      'You won\'t be able to edit this meal after you leave',
-                );
-                if (!decision2) {
-                  return;
-                }
-                save();
-              } else {
-                if (!mounted) return;
-                bool decision2 = await Dialogs.dangerDialog(
-                  context,
-                  title: 'Done everything you need?',
-                  message:
-                      'You won\'t be able to edit this meal after you leave',
-                );
-                if (!decision2) {
-                  return;
-                }
-                save();
+                .read(asyncFatingNotifier.notifier)
+                .isInEatingWindow(context);
+            if (decision) {
+              if (!mounted) return;
+              bool decision2 = await Dialogs.dangerDialog(
+                context,
+                title: 'Done everything you need?',
+                message: 'You won\'t be able to edit this meal after you leave',
+              );
+              if (!decision2) {
+                return;
               }
+              save();
+            } else {
+              if (!mounted) return;
+              bool decision2 = await Dialogs.dangerDialog(
+                context,
+                title: 'Done everything you need?',
+                message: 'You won\'t be able to edit this meal after you leave',
+              );
+              if (!decision2) {
+                return;
+              }
+              save();
+            }
           },
           child: const Text(
             'Save Changes',
@@ -268,9 +266,14 @@ class _MealLogState extends ConsumerState<MealLog> {
             ),
           ),
 
-          const Text('Meal Ingredients:', 
-                      style: TextStyle(fontSize: TextSizing.medlarge, fontWeight: FontWeight.bold),),
-                      // const SizedBox(height: 10,),
+          const Text(
+            'Meal Ingredients:',
+            style: TextStyle(
+              fontSize: TextSizing.medlarge,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          // const SizedBox(height: 10,),
           Column(
             children: selectedFood.map((selected) {
               return Padding(
