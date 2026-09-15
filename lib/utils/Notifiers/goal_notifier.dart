@@ -721,6 +721,40 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .evaluatePR(type, startWindow);
     return curLength >= thr;
   }
+
+  Future<void> seedData() async {
+    final today = DateTime.now();
+    final gDao = ref.read(gDaoProvider);
+    await gDao.insertHydrationGoal(1, DateTime.now(), 2, GoalOperator.greaterEqual);
+    await gDao.insertFastingGoal(1, 6, GoalOperator.greaterEqual, MetricType.hours);
+
+    final minus5 = today.subtract(const Duration(days: 5));
+    await gDao.insertStreak(4, minus5,
+                minus5.add(const Duration(days: 1)),
+                minus5,);
+    final h1 = await gDao.checkActiveHydrationStreak();
+    await gDao.breakStreakTEMP(h1!, minus5.add(const Duration(days: 1)));
+
+    final minus3 = today.subtract(const Duration(days: 3));
+    await gDao.insertStreak(4, minus3,
+                minus3.add(const Duration(days: 1)),
+                minus3,);
+    final h2 = await gDao.checkActiveHydrationStreak();
+    await gDao.breakStreakTEMP(h2!, minus3.add(const Duration(days: 1)));
+    final minus1 = today.subtract(const Duration(days: 1));
+    await gDao.insertStreak(4, minus1,
+                minus1.add(const Duration(days: 1)),
+                minus1,);
+                final curWeek = bookendWeek();
+
+    final lastWeek = (
+      curWeek.$1.subtract(const Duration(days: 7)),
+      curWeek.$2.subtract(const Duration(days: 7)),
+    );
+    await gDao.insertStreak(5, today,
+              DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
+              curWeek.$2,);
+  }
 }
 
 final asyncGoalsProvider = AsyncNotifierProvider<AsyncGoals, BasicGoal?>(

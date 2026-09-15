@@ -713,6 +713,18 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         .write(StreaksCompanion(endDate: Value(streak.lastEval)));
   }
 
+  Future<void> breakStreakTEMP(BasicStreak streak, DateTime breakDate) async {
+    await (update(goals)..where((g) => g.goalID.equals(streak.goalID))).write(
+      GoalsCompanion(
+        lastEvaluated: Value(streak.lastEval),
+        isComplete: Value(false),
+      ),
+    );
+
+    await (update(streaks)..where((s) => s.streakID.equals(streak.streakID)))
+        .write(StreaksCompanion(endDate: Value(breakDate)));
+  }
+
   void createDummyGoals() {
     insertFastingGoal(0, 8, GoalOperator.greaterThan, MetricType.hours);
     insertHydrationGoal(0, DateTime(2026, 8, 10), 1, GoalOperator.greaterEqual);
