@@ -99,7 +99,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
   @override
   Widget build(BuildContext context) {
     session = ref.watch(userSessionProvider).value!;
-    // testing();
     return Scaffold(
       appBar: AppBar(
         title: Text('Set Reminders', style: TextStyle(fontSize: TextSizing.large)),
@@ -419,8 +418,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         foodText = time.format(context);
       });
 
-      // await asyncReminder.testingNotifs();
-
       if (isNutrition) {
         await asyncReminder.setFoodReminder(enabled: true, time: time);
       }
@@ -435,8 +432,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         waterText = time.format(context);
       });
 
-      // await asyncReminder.testingNotifs();
-
       if (isHydration) {
         await asyncReminder.setWaterReminder(enabled: true, time: time);
       }
@@ -450,8 +445,6 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
         weightTime = time;
         weightText = time.format(context);
       });
-
-      // await asyncReminder.testingNotifs();
 
       if (isWeight) {
         if (weightDay != null) {

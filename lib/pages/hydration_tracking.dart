@@ -9,12 +9,10 @@ import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
-import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animated_liquid_progress.dart';
 import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
-import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
 class HydrationTracking extends ConsumerStatefulWidget {
@@ -47,13 +45,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
       }
     });
   }
-
-  // @override void dispose() {
-  //   controller.dispose();
-
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     final goalChecker = ref.watch(checkHydrationGoalProvider);
@@ -61,7 +52,10 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hydration Tracking', style: TextStyle(fontSize: TextSizing.large)),
+        title: Text(
+          'Hydration Tracking',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -71,11 +65,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            // Text(
-            //   'Hydration Motivation',
-            //   style: TextStyle(fontSize: TextSizing.medium),
-            // ),
-            // const SizedBox(height: 30,),
             Padding(
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(
@@ -93,9 +82,26 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                 if (streak == null) {
                   return const SizedBox.shrink();
                 } else {
-                  return Text(
-                    'You\'re on a $streak day streak!',
-                    style: TextStyle(fontSize: TextSizing.medium),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Tooltip(
+                        message:
+                            'Your hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+                        textStyle: TextStyle(fontSize: TextSizing.small),
+                        constraints: BoxConstraints(maxWidth: 300),
+                        triggerMode: TooltipTriggerMode.tap,
+                        showDuration: Duration(seconds: 10),
+                        child: SizedBox(
+                          width: 50,
+                          child: Icon(Icons.info_outline),
+                        ),
+                      ),
+                      Text(
+                        'You\'re on a $streak day streak!',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ],
                   );
                 }
               },
@@ -109,8 +115,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                   context,
                   title: 'How much water have you drank?',
                 );
-
-                // showCelebration();
 
                 if (newAmount != null) {
                   final check = await ref
@@ -127,17 +131,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               },
               child: Text('Log Hydration'),
             ),
-            // Align(alignment: Alignment.center,
-            // child: ConfettiWidget(confettiController: controller,
-            // blastDirectionality: BlastDirectionality.explosive,
-            // colors: const [
-            //     Colors.green,
-            //     Colors.blue,
-            //     Colors.pink,
-            //     Colors.orange,
-            //     Colors.purple
-            //   ],
-            // ),)
           ],
         ),
       ),
@@ -163,13 +156,15 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
           ],
         ),
       ],
-      // floatingActionButton: customWidgets.getFAB(ref, context, 4),
     );
   }
 
   void showCelebration() {
     if (!mounted) return;
-    showDialog(context: context, builder: (_) => DialogTitle(type: GoalType.hydration,));
+    showDialog(
+      context: context,
+      builder: (_) => DialogTitle(type: GoalType.hydration),
+    );
   }
 
   Path drawStar(Size size) {

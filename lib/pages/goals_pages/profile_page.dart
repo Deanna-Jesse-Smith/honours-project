@@ -20,7 +20,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final TextEditingController weightController = TextEditingController(
     text: '0',
   );
-  TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
   final focusNodeHeight = FocusNode(),
       focusNodeWeight = FocusNode(),
@@ -37,6 +37,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     isFemale = session!.isFemale;
 
+    // nameController.text = session.userName;
     nameController.text = session.userName;
     focusNodeName.addListener(() {
       if (focusNodeName.hasFocus) {
@@ -89,7 +90,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       drawer: MyNavigationDrawer(),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
-        TextButton(
+        FilledButton(
           onPressed: handleFinished,
           child: Text(
             'Save Changes',
@@ -113,7 +114,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     cell(
                       TextField(
-                        // controller: nameController,
+                        controller: nameController,
                         // autofocus: true,
                         style: TextStyle(fontSize: TextSizing.medium),
                         textCapitalization: TextCapitalization.sentences,
@@ -212,13 +213,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ],
                 ),
               ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: handleFinished,
-            child: Text(
-              'Save Changes',
-              style: TextStyle(fontSize: TextSizing.medium),
             ),
           ),
         ],

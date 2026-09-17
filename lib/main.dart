@@ -17,6 +17,7 @@ import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/pages/fasting_info.dart';
 import 'package:testrun/pages/goals_pages/profile_page.dart';
 import 'package:testrun/pages/goals_pages/reminder_page.dart';
 import 'package:testrun/pages/home.dart';
@@ -175,6 +176,7 @@ class MyApp extends ConsumerWidget {
         '/WeightTracking': (context) => WeightTracking(),
         '/Reminder' : (context) => const ReminderPage(),
         '/Profile' : (context) => ProfilePage(),
+        '/FastingInfo' : (context) => const FastingInformation(),
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),

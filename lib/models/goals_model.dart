@@ -198,8 +198,8 @@ extension Display on GoalType {
 
   String get goalText => switch (this) {
       GoalType.fasting => 'I will reach my fasting goal of:',
-      GoalType.weight => 'I will weigh:',
-      GoalType.hydration => 'I will drink:',
+      GoalType.weight => 'I will weigh less than or equal to:',
+      GoalType.hydration => 'I will drink more than:',
       GoalType.nutrition => 'I will reach my daily calorie goal:',
     };
 }

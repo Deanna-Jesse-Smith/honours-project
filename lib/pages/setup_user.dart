@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
@@ -25,7 +28,6 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   FastingForm dropDownValuee = FastingForm.tre;
   Measurement? measurement = Measurement.metric;
   DateTime selectedDate = DateTime(2008);
-  bool? isFemale;
 
   bool obligationVisibility = false;
   List<bool> obligationDays = List.filled(7, false);
@@ -40,31 +42,45 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     text: '1',
   );
 
-  final focusNodeHeight = FocusNode(), focusNodeWeight = FocusNode(), focusNodeDuration = FocusNode();
+  final focusNodeHeight = FocusNode(),
+      focusNodeWeight = FocusNode(),
+      focusNodeDuration = FocusNode();
 
   bool isSaving = false;
 
   Experience exp = Experience.beginner;
+  Set<bool> gender = {};
 
-  @override 
+  @override
   void initState() {
     super.initState();
 
+    debugPrint('In setup. ${widget.name}, ${widget.experience}');
+
     focusNodeHeight.addListener(() {
       if (focusNodeHeight.hasFocus) {
-        heightController.selection = TextSelection(baseOffset: 0, extentOffset: heightController.text.length);
+        heightController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: heightController.text.length,
+        );
       }
     });
 
     focusNodeWeight.addListener(() {
       if (focusNodeWeight.hasFocus) {
-        weightController.selection = TextSelection(baseOffset: 0, extentOffset: weightController.text.length);
+        weightController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: weightController.text.length,
+        );
       }
     });
 
     focusNodeDuration.addListener(() {
       if (focusNodeDuration.hasFocus) {
-        durationController.selection = TextSelection(baseOffset: 0, extentOffset: durationController.text.length);
+        durationController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: durationController.text.length,
+        );
       }
     });
   }
@@ -85,38 +101,53 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Questionnaire'), centerTitle: true),
+      persistentFooterAlignment: AlignmentDirectional.bottomCenter,
+      persistentFooterButtons: [
+        FilledButton(
+          onPressed: handleFinished,
+          child: const Text(
+            'Finished',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
+      ],
       body: SingleChildScrollView(
         child: Column(
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Text(
-                'Forms of Intermittent Fasting',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: TextSizing.medium),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            buildTextCard(
-              'Time Restricted Eating',
-              'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
-            ),
-            buildTextCard(
-              'Alternate Day Fasting',
-              'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
-            ),
-            buildTextCard(
-              'Modified Fasting/5:2',
-              'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            //   child: Text(
+            //     'Forms of Intermittent Fasting',
+            //     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: TextSizing.medium),
+            //     textAlign: TextAlign.left,
+            //   ),
+            // ),
+            // buildTextCard(
+            //   'Time Restricted Eating',
+            //   'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            // ),
+            // buildTextCard(
+            //   'Alternate Day Fasting',
+            //   'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            // ),
+            // buildTextCard(
+            //   'Modified Fasting/5:2',
+            //   'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            // ),
             Padding(
               padding: const EdgeInsets.all(10),
-              child: Text('Questions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: TextSizing.medium)),
+              child: Text(
+                'Questions',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: TextSizing.medium,
+                ),
+              ),
             ),
             if (widget.experience)
               buildWithExperience(), //? What form(s) of IF have you done before? And for how long (weeks)?
-
             // Padding(
             //   padding: const EdgeInsets.all(8.0),
             //   child: Row(
@@ -146,39 +177,60 @@ class _SetupUserState extends ConsumerState<SetupUser> {
             //   ),
             // ),
 
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Are you male or female?',
+            //         style: TextStyle(fontSize: TextSizing.medium),
+            //       ),
+            //       RadioGroup<bool>(
+            //             onChanged: (bool? value) {
+            //               setState(() => isFemale = value!);
+            //             },
+            //             groupValue: isFemale,
+            //             child: const Column(
+            //               children: [
+            //                 RadioListTile(
+            //                   value: true,
+            //                   title: Text(
+            //                     'Female',
+            //                     style: TextStyle(fontSize: TextSizing.small),
+            //                   ),
+            //                 ),
+            //                 RadioListTile(
+            //                   value: false,
+            //                   title: Text(
+            //                     'Male',
+            //                     style: TextStyle(fontSize: TextSizing.small),
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //     ],
+            //   ),
+            // ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(8),
+              child: Column(
                 children: [
                   const Text(
                     'Are you male or female?',
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
-                  RadioGroup<bool>(
-                        onChanged: (bool? value) {
-                          setState(() => isFemale = value!);
-                        },
-                        groupValue: isFemale,
-                        child: const Column(
-                          children: [
-                            RadioListTile(
-                              value: true,
-                              title: Text(
-                                'Female',
-                                style: TextStyle(fontSize: TextSizing.medium),
-                              ),
-                            ),
-                            RadioListTile(
-                              value: false,
-                              title: Text(
-                                'Male',
-                                style: TextStyle(fontSize: TextSizing.medium),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  SegmentedButton<bool>(
+                    segments: genders,
+                    selected: gender,
+                    onSelectionChanged: (Set<bool> cur) {
+                      setState(() {
+                        gender = cur;
+                      });
+                    },
+                    emptySelectionAllowed: true,
+                  ),
                 ],
               ),
             ),
@@ -260,21 +312,21 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
             if (obligationVisibility) getWeek(),
 
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: isSaving ? null : handleFinished,
-                  child: isSaving
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Finished', style: TextStyle(fontSize: TextSizing.medium)),
-                ),
-              ),
-            ),
+            // Center(
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(8.0),
+            //     child: ElevatedButton(
+            //       onPressed: isSaving ? null : handleFinished,
+            //       child: isSaving
+            //           ? const SizedBox(
+            //               width: 16,
+            //               height: 16,
+            //               child: CircularProgressIndicator(strokeWidth: 2),
+            //             )
+            //           : const Text('Finished', style: TextStyle(fontSize: TextSizing.medium)),
+            //     ),
+            //   ),
+            // ),
 
             // What do you hope to achieve with IF?
 
@@ -285,12 +337,29 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     );
   }
 
+  static final List<ButtonSegment<bool>> genders = [
+    ButtonSegment(
+      value: true,
+      label: Text('Female', style: const TextStyle(fontSize: TextSizing.small)),
+    ),
+    ButtonSegment(
+      value: false,
+      label: Text('Male', style: const TextStyle(fontSize: TextSizing.small)),
+    ),
+  ];
+
   Future<void> handleFinished() async {
     setState(() => isSaving = true);
-    if (heightController.text.isEmpty || weightController.text.isEmpty || isFemale == null) {
-      ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('You need to fill in your height, weight and gender to proceed')));
+    if (heightController.text.isEmpty ||
+        weightController.text.isEmpty ||
+        gender.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You need to fill in your height, weight and gender to proceed',
+          ),
+        ),
+      );
     } else {
       try {
         if (!mounted) return;
@@ -307,7 +376,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           adfDaysSelected: '',
           fiveTwoDaysSelected: '',
           height: double.parse(heightController.text),
-          isGender: isFemale!,
+          isGender: gender.first,
         );
         ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
         RecommendationSystem rs = RecommendationSystem(
@@ -369,7 +438,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 setState(() => obligationTimes.add(TimeOfDay.now())),
             child: const Text(
               '+',
-              style: TextStyle(fontSize: TextSizing.large,),
+              style: TextStyle(fontSize: TextSizing.large),
             ),
           ),
       ],
@@ -446,7 +515,8 @@ class _SetupUserState extends ConsumerState<SetupUser> {
         spacing: 10,
         children: [
           const Text(
-            'What form(s) of intermittent fasting have you done before?', style: TextStyle(fontSize: TextSizing.medium),
+            'What form(s) of intermittent fasting have you done before?',
+            style: TextStyle(fontSize: TextSizing.medium),
           ),
           SegmentedButton<FastingForm>(
             segments: FastingForm.values.map((ff) {
@@ -467,19 +537,22 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('For what duration?', style: TextStyle(fontSize: TextSizing.medium)),
+              const Text(
+                'For what duration?',
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
               SizedBox(
                 width: 80,
                 child: TextField(
-                            controller: durationController,
-                            focusNode: focusNodeDuration,
-                            keyboardType: TextInputType.numberWithOptions(
-                decimal: false,
-                signed: false,
-                            ),
-                            decoration: InputDecoration(suffixText: 'weeks'),
-                            style: TextStyle(fontSize: TextSizing.medium)
-                          ),
+                  controller: durationController,
+                  focusNode: focusNodeDuration,
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: false,
+                    signed: false,
+                  ),
+                  decoration: InputDecoration(suffixText: 'weeks'),
+                  style: TextStyle(fontSize: TextSizing.medium),
+                ),
               ),
             ],
           ),

@@ -73,9 +73,13 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       loading: () => '',
     );
 
+    final session = ref.read(userSessionProvider).value;
+
     description = switch (type) {
       GoalType.fasting =>
-        'A TRE fasting goal is the minimum number of hours you aim to fast each day of the week.\n\nAn ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.',
+        session!.fastingForm == FastingForm.fiveTwo
+            ? 'An ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.'
+            : 'A TRE fasting goal is the minimum number of hours you aim to fast each day of the week.',
       GoalType.weight =>
         'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
       GoalType.hydration =>
@@ -136,7 +140,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         FilledButton(
           onPressed: () async {
             await saveChanges();
-        
+
             if (!mounted) {
               return;
             } else if (mounted) {
@@ -250,7 +254,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         switch (curGoal) {
           case FastingGoalModel model:
             curGoal = model;
-            
+
             String goalText = '', suffixText = '';
             switch (session!.fastingForm) {
               case FastingForm.tre:
@@ -276,7 +280,11 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 }
             }
 
-            return goalCard(TextInputType.numberWithOptions(), goalText, suffixText: suffixText);
+            return goalCard(
+              TextInputType.numberWithOptions(),
+              goalText,
+              suffixText: suffixText,
+            );
           case WeightGoalModel model:
             curGoal = model;
             return goalCard(
@@ -297,7 +305,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             return goalCard(
               TextInputType.numberWithOptions(),
               'calories per day',
-              suffixText: 'calories'
+              suffixText: 'calories',
             );
           case BasicStreak():
             // TODO: Handle this case.
@@ -316,10 +324,10 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       margin: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 40,
+        spacing: 20,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
             child: Text(
               type.goalText,
               style: const TextStyle(fontSize: TextSizing.medium),
@@ -328,55 +336,73 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Table(
-              children: [
-                TableRow(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: const Text(
-                        'Comparison: ',
-                        style: TextStyle(fontSize: TextSizing.medium),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),),
-                    )
-                    // goalOperatorMenu(),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    Text(
-                      'Amount: ',
-                      style: TextStyle(fontSize: TextSizing.medium),
-                    ),
-                    TextField(
-                      style: TextStyle(fontSize: TextSizing.medium),
-                      controller: goalController,
-                      focusNode: focusNode,
-                      keyboardType: inputType,
-                      inputFormatters: [
-                        MyInputFormatter(maxAmount)
-                      ],
-                      decoration: InputDecoration(suffixText: suffixText),
-                      // onChanged: (value) => setState(() {
-                      //   double? temp = double.tryParse(value);
-                      //   if (temp != null) {
-                      //     curGoal.threshold = temp;
-                      //     goalController.text = temp.toString();
-                      //   }
-                      // }),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            child: SizedBox(width: MediaQuery.of(context).size.width * 0.3, child: TextField(
+              style: TextStyle(fontSize: TextSizing.medium),
+              controller: goalController,
+              focusNode: focusNode,
+              keyboardType: inputType,
+              inputFormatters: [MyInputFormatter(maxAmount)],
+              decoration: InputDecoration(suffixText: suffixText),
+              // onChanged: (value) => setState(() {
+              //   double? temp = double.tryParse(value);
+              //   if (temp != null) {
+              //     curGoal.threshold = temp;
+              //     goalController.text = temp.toString();
+              //   }
+              // }),
+            ),),
+            // child: Table(
+            //   children: [
+            //     // TableRow(
+            //     //   children: [
+            //     //     Padding(
+            //     //       padding: const EdgeInsets.only(bottom: 12),
+            //     //       child: const Text(
+            //     //         'Comparison: ',
+            //     //         style: TextStyle(fontSize: TextSizing.medium),
+            //     //       ),
+            //     //     ),
+            //     //     Padding(
+            //     //       padding: const EdgeInsets.only(bottom: 12),
+            //     //       child: Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),),
+            //     //     )
+            //     //     // goalOperatorMenu(),
+            //     //   ],
+            //     // ),
+            //     // TableRow(
+            //     //   children: [
+            //     //     Text(
+            //     //       'Amount: ',
+            //     //       style: TextStyle(fontSize: TextSizing.medium),
+            //     //     ),
+            //     //     TextField(
+            //     //       style: TextStyle(fontSize: TextSizing.medium),
+            //     //       controller: goalController,
+            //     //       focusNode: focusNode,
+            //     //       keyboardType: inputType,
+            //     //       inputFormatters: [
+            //     //         MyInputFormatter(maxAmount)
+            //     //       ],
+            //     //       decoration: InputDecoration(suffixText: suffixText),
+            //     //       // onChanged: (value) => setState(() {
+            //     //       //   double? temp = double.tryParse(value);
+            //     //       //   if (temp != null) {
+            //     //       //     curGoal.threshold = temp;
+            //     //       //     goalController.text = temp.toString();
+            //     //       //   }
+            //     //       // }),
+            //     //     ),
+            //     //   ],
+            //     // ),
+            //   ],
+            // ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Text(goalText, style: TextStyle(fontSize: TextSizing.medium)),
+            child: Text(
+              goalText,
+              style: TextStyle(fontSize: TextSizing.medium),
+            ),
           ),
         ],
       ),

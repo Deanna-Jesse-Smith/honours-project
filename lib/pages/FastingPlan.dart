@@ -201,7 +201,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   }
 
   List<bool> intsToBools(List<int> days, List<bool> list) {
-    debugPrint('REINITIALISING 5:2 FROM SESSION');
     list.fillRange(0, 6, false);
     for (int day in days) {
       list[day] = true;
@@ -251,9 +250,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   );
 
   Future<void> planDecision(List<bool> list, bool isADF) async {
-    String text = isADF
-        ? 'You should have 3 non-consecutive fasting days selected'
-        : 'You should have 2 non-consecutive fasting days selected';
     final decision = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -263,12 +259,17 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             style: TextStyle(fontSize: TextSizing.large),
           ),
         ),
-        content: Text(text, style: TextStyle(fontSize: TextSizing.medium)),
+        content: Text(
+          isADF
+              ? 'You should have 3 non-consecutive fasting days selected'
+              : 'You should have 2 non-consecutive fasting days selected',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Rescind last selection',
+              'Cancel selection',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -302,8 +303,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   Column create52(UserSessionData session) => Column(
     children: [
-      Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
-      Padding(
+      Padding(padding: const EdgeInsets.all(15), child: chooseFastingPlan(session)),
+      const Padding(
         padding: EdgeInsets.all(15),
         child: Text(
           'Select Fasting Days',
@@ -311,32 +312,32 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ),
       Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(4, (c) => getBox(c, fiveTwoDaysSelected)),
         ),
       ),
       Padding(
-        padding: EdgeInsets.fromLTRB(35, 15, 35, 45),
+        padding: const EdgeInsets.fromLTRB(35, 15, 35, 45),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(3, (c) => getBox(c + 4, fiveTwoDaysSelected)),
         ),
       ),
-      Padding(
+      const Padding(
         padding: EdgeInsets.all(15),
-        child: const Text(
+        child: Text(
           'Which days of the week are right for you?',
-          style: TextStyle(fontSize: TextSizing.medlarge),
+          style: TextStyle(fontSize: TextSizing.medium),
           textAlign: TextAlign.center,
         ),
       ),
-      Padding(
+      const Padding(
         padding: EdgeInsets.all(15),
-        child: const Text(
+        child: Text(
           'Consider which days of the week you are typically eat less on, and which days you have less opportunity to be socially pressured into eating.',
-          style: TextStyle(fontSize: TextSizing.smallmed),
+          style: TextStyle(fontSize: TextSizing.small),
           textAlign: TextAlign.center,
         ),
       ),
@@ -401,7 +402,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     startText = start.format(context);
     end = TimeOfDay.fromDateTime(session.endTime);
     endText = end.format(context);
-    List<String> headings = ['Starting Time', 'Ending Time'];
+    // List<String> headings = ['Starting Time', 'Ending Time'];
     List<ElevatedButton> times = [
       ElevatedButton(
         onPressed: () => selectStartTime(session.userId),
@@ -425,18 +426,22 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
         Table(
           children: [
-            TableRow(
-              children: headings
-                  .map(
-                    (heading) => Center(
-                      child: Text(
-                        heading,
-                        style: TextStyle(fontSize: TextSizing.medium),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
+            const TableRow(children: [
+              Center(child: Text('Starting Time', style: TextStyle(fontSize: TextSizing.medium),),),
+              Center(child: Text('Ending Time', style: TextStyle(fontSize: TextSizing.medium),),),
+            ]),
+            // TableRow(
+            //   children: headings
+            //       .map(
+            //         (heading) => Center(
+            //           child: Text(
+            //             heading,
+            //             style: TextStyle(fontSize: TextSizing.medium),
+            //           ),
+            //         ),
+            //       )
+            //       .toList(),
+            // ),
             TableRow(
               children: [
                 const SizedBox(height: 10),
@@ -453,7 +458,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           padding: EdgeInsets.all(15),
           child: const Text(
             'What eating window times are sustainable every day?',
-            style: TextStyle(fontSize: TextSizing.medlarge),
+            style: TextStyle(fontSize: TextSizing.medium),
             textAlign: TextAlign.center,
           ),
         ),
@@ -461,7 +466,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           padding: EdgeInsets.all(15),
           child: const Text(
             'Consider when you normally eat throughout the day and plan your TRE times around that. If you regularly eat with others at a certain time, do not resolve to not eat with them, as social pressure to eat is a major barrier for adhereing to intermittent fasting.',
-            style: TextStyle(fontSize: TextSizing.smallmed),
+            style: TextStyle(fontSize: TextSizing.small),
             textAlign: TextAlign.center,
           ),
         ),
@@ -472,7 +477,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   Column createADF(UserSessionData session) => Column(
     children: [
       Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
-      Padding(
+      const Padding(
         padding: EdgeInsets.all(15),
         child: Text(
           'Select Fasting Days',
@@ -480,32 +485,32 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         ),
       ),
       Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(4, (c) => getADFBox(c)),
         ),
       ),
       Padding(
-        padding: EdgeInsets.fromLTRB(35, 15, 35, 45),
+        padding: const EdgeInsets.fromLTRB(35, 15, 35, 45),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(3, (c) => getADFBox(c + 4)),
         ),
       ),
-      Padding(
+      const Padding(
         padding: EdgeInsets.all(15),
-        child: const Text(
+        child: Text(
           'Which days of the week are right for you?',
-          style: TextStyle(fontSize: TextSizing.medlarge),
+          style: TextStyle(fontSize: TextSizing.medium),
           textAlign: TextAlign.center,
         ),
       ),
-      Padding(
+      const Padding(
         padding: EdgeInsets.all(15),
-        child: const Text(
+        child: Text(
           'Consider which days of the week you are typically eat less on, and days where you have less opportunity to be socially pressured into eating.',
-          style: TextStyle(fontSize: TextSizing.smallmed),
+          style: TextStyle(fontSize: TextSizing.small),
           textAlign: TextAlign.center,
         ),
       ),

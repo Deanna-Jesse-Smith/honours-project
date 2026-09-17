@@ -40,7 +40,7 @@ class MealTracking extends ConsumerWidget {
               padding: const EdgeInsets.all(15),
               child: goalChecker.when(data: (goal) {
                 if (goal.$1 == -1) {
-                    return Text('No ongoing meal goal', style: TextStyle(fontSize: TextSizing.medium),);
+                    return Text('No ongoing calorie goal', style: TextStyle(fontSize: TextSizing.medium),);
                   }
                   
                 final model = goal.$1 == -1 ? 0.0 : goal.$1;
@@ -78,8 +78,10 @@ class MealTracking extends ConsumerWidget {
             mealWatcher.when(data: (meals) {
               if (meals.isEmpty) {
                 return const Text(
-                  'No meals to show',
-                  style: TextStyle(fontSize: TextSizing.large),
+                  'No meals to show. You can track your meals when by clicking on the menu button below and selecting \'Log Meal\'.\n\nLog a full meal to keep track of your calorie and macronutrient intake such as protein and fibre.',
+                  style: TextStyle(fontSize: TextSizing.large,
+                  ),
+                  textAlign: TextAlign.center,
                 );
               }
               

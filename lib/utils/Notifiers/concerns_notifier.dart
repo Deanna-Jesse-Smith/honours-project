@@ -9,8 +9,8 @@ import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/widgets/animations/concern_dialog.dart';
 
 class AsyncConcerns extends AsyncNotifier<BasicConcern> {
-  Set<HealthConcern> healthConcerns = {};
-  Set<PositiveReinforcement> positiveReinforcements = {};
+  List<HealthConcern> healthConcerns = [];
+  List<PositiveReinforcement> positiveReinforcements = [];
   Set<PositiveReinforcement> weightPR = {};
 
   @override
@@ -21,7 +21,6 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
 
   Future<void> populateSets() async {
     final healths = await ref.read(cDaoProvider).getHealthConcerns();
-    healths.sort();
     for (final health in healths) {
       healthConcerns.add(
         HealthConcern(
@@ -36,9 +35,9 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
         ),
       );
     }
+    healthConcerns.sort();
 
     final prs = await ref.read(cDaoProvider).getPRConcerns();
-    prs.sort();
     for (final pr in prs) {
       if (pr.type != null && pr.type == GoalType.weight) {
       weightPR.add(
@@ -68,6 +67,7 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
       );
       }
     }
+    positiveReinforcements.sort();
   }
 
   Future<BasicConcern?> getConcern(GoalType type) async {
