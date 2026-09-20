@@ -335,9 +335,16 @@ class _MealLogState extends ConsumerState<MealLog> {
     //     .whenComplete(() => ref.invalidate(checkNutritionGoalProvider));
 
     // await nDao.insertMealLog(dropDownValuee, LogMethod.full, mealTime, selectedFood);
-    ref
+    try {
+          await ref
         .read(asyncGoalsProvider.notifier)
         .logMeal(dropDownValuee, selectedFood, LogMethod.full, mealTime);
+    } finally {
+      ref.invalidate(checkNutritionGoalProvider);
+    }
+    // await ref
+    //     .read(asyncGoalsProvider.notifier)
+    //     .logMeal(dropDownValuee, selectedFood, LogMethod.full, mealTime);
 
     if (!mounted) return;
     Navigator.of(context).pop();

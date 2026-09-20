@@ -303,7 +303,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
 
   Column create52(UserSessionData session) => Column(
     children: [
-      Padding(padding: const EdgeInsets.all(15), child: chooseFastingPlan(session)),
+      Padding(
+        padding: const EdgeInsets.all(15),
+        child: chooseFastingPlan(session),
+      ),
       const Padding(
         padding: EdgeInsets.all(15),
         child: Text(
@@ -352,14 +355,18 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       final outcome = await ref
           .read(userSessionProvider.notifier)
           .updateTRE(time, end);
-      setState(() {
-        if (outcome) {
+      // setState(() {
+      if (outcome) {
+        setState(() {
           start = time;
           startText = time.format(context);
-        } else {
-          planTREDecision(time, true);
-        }
-      });
+        });
+        // start = time;
+        // startText = time.format(context);
+      } else {
+        planTREDecision(time, true);
+      }
+      // });
     }
   }
 
@@ -369,14 +376,18 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       final outcome = await ref
           .read(userSessionProvider.notifier)
           .updateTRE(start, time);
-      setState(() {
-        if (outcome) {
+      // setState(() {
+      if (outcome) {
+        setState(() {
           end = time;
           endText = time.format(context);
-        } else {
-          planTREDecision(time, false);
-        }
-      });
+        });
+        // end = time;
+        // endText = time.format(context);
+      } else {
+        planTREDecision(time, false);
+      }
+      // });
     }
   }
 
@@ -390,7 +401,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             style: TextStyle(fontSize: TextSizing.large),
           ),
         ),
-        content: Text('Your eating window should not be',
+        content: Text(
+          'Your eating window should not be more than 12 hours in TRE',
           style: const TextStyle(fontSize: TextSizing.medium),
         ),
         actions: [
@@ -431,23 +443,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     }
   }
 
-  Future<void> giveWarning(FastingForm form) async {
-    late String title, message;
-    switch (form) {
-      case FastingForm.adf:
-        title = 'WARNING: Incompatible ADF Days Selected';
-        message = 'Only non-consecutive days can be selected.';
-      case FastingForm.tre:
-        title = 'WARNING: Incompatible Start and End Times Selected';
-        message = 'Reduce your planned fast time.';
-      case FastingForm.fiveTwo:
-        title = 'WARNING: Incompatible 5:2 Days Selected';
-        message = 'Only non-consecutive days can be selected.';
-    }
-
-    await Dialogs.dangerDialog(context, title: title, message: message);
-  }
-
   Column createTRE(UserSessionData session) {
     start = TimeOfDay.fromDateTime(session.startTime);
     startText = start.format(context);
@@ -471,16 +466,29 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         Padding(
           padding: EdgeInsets.all(15),
           child: const Text(
-            'Select Eating Window Times',
+            'Create Eating Window',
             style: TextStyle(fontSize: TextSizing.large),
+            textAlign: TextAlign.center,
           ),
         ),
         Table(
           children: [
-            const TableRow(children: [
-              Center(child: Text('Starting Time', style: TextStyle(fontSize: TextSizing.medium),),),
-              Center(child: Text('Ending Time', style: TextStyle(fontSize: TextSizing.medium),),),
-            ]),
+            const TableRow(
+              children: [
+                Center(
+                  child: Text(
+                    'Starting Time',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    'Ending Time',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
+                ),
+              ],
+            ),
             // TableRow(
             //   children: headings
             //       .map(

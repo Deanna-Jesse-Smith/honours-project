@@ -336,7 +336,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: SizedBox(width: MediaQuery.of(context).size.width * 0.3, child: TextField(
+            child: SizedBox(width: MediaQuery.of(context).size.width * 0.5, child: TextField(
               style: TextStyle(fontSize: TextSizing.medium),
               controller: goalController,
               focusNode: focusNode,

@@ -10,7 +10,6 @@ import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animations/animated_circular_percent.dart';
 import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/fab.dart';
-import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
 class HomePage extends ConsumerStatefulWidget {

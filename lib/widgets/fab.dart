@@ -194,17 +194,29 @@ class MyExpandableFAB extends ConsumerWidget {
                   }
                 }
               } else {
-                celebrate = await ref
+                try {
+                  celebrate = await ref
                     .read(asyncGoalsProvider.notifier)
                     .logMeal(
                       MealCategory.quick,
                       {},
                       newLog,
                       DateTime.now(),
-                    )
-                    .whenComplete(
-                      () => ref.invalidate(checkNutritionGoalProvider),
                     );
+                } finally {
+                  ref.invalidate(checkNutritionGoalProvider);
+                }
+                // celebrate = await ref
+                //     .read(asyncGoalsProvider.notifier)
+                //     .logMeal(
+                //       MealCategory.quick,
+                //       {},
+                //       newLog,
+                //       DateTime.now(),
+                //     )
+                //     .whenComplete(
+                //       () => ref.invalidate(checkNutritionGoalProvider),
+                //     );
               }
 
               if (celebrate) {

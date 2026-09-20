@@ -199,14 +199,14 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       return false;
     } else if (start.isBefore(end)) {
       if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
-          1200) {
+          720) {
         return false;
       }
     } else if (((24 - start.hour) * 60) +
             start.minute +
             (end.hour * 60) +
             end.minute >
-        1200) {
+        720) {
       return false;
     }
 

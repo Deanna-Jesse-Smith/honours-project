@@ -12,7 +12,7 @@ class DebugPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Debug', style: TextStyle(fontSize: TextSizing.large)),
+        title: const Text('Debug', style: TextStyle(fontSize: TextSizing.large)),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -20,16 +20,31 @@ class DebugPage extends ConsumerWidget {
       drawer: MyNavigationDrawer(),
       persistentFooterAlignment: AlignmentDirectional.bottomCenter,
       persistentFooterButtons: [
-        OutlinedButton(onPressed: () async {
-          await ref.read(databaseProvider).wipeData();
-          if (!context.mounted) return;
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => const StartPage()));
-        }, child: const Text('Reset', style: TextStyle(fontSize: TextSizing.large),)),
-        OutlinedButton(onPressed: () async {
-          await ref.read(databaseProvider).seedDatabase();
-        }, child: const Text('Seed', style: TextStyle(fontSize: TextSizing.large),))
+        OutlinedButton(
+          onPressed: () async {
+            try {
+              await ref.read(databaseProvider).wipeData();
+            } finally {
+              if (!context.mounted) return;
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const StartPage()),
+              );
+            }
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
+        OutlinedButton(
+          onPressed: () async {
+            await ref.read(databaseProvider).seedDatabase();
+          },
+          child: const Text(
+            'Seed',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
       ],
     );
   }
