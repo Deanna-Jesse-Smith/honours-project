@@ -105,7 +105,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
     final session = ref.watch(userSessionProvider).value;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Fasting History',
           style: TextStyle(
             color: Colors.black,
@@ -126,7 +126,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
             triggerMode: TooltipTriggerMode.tap,
             child: IconButton(
               onPressed: () => Dialogs.getFastResultHelp(context),
-              icon: Icon(Icons.question_mark),
+              icon: const Icon(Icons.question_mark),
             ),
           ),
         ],
@@ -140,7 +140,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 GestureDetector(
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                   onTap: () {
                     setState(() {
                       if (thisMonth - 1 == -1) {
@@ -155,10 +155,10 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 ),
                 Text(
                   '${months[thisMonth]} $thisYear',
-                  style: TextStyle(fontSize: TextSizing.medium),
+                  style: const TextStyle(fontSize: TextSizing.medium),
                 ),
                 GestureDetector(
-                  child: Icon(Icons.arrow_forward),
+                  child: const Icon(Icons.arrow_forward),
                   onTap: () {
                     setState(() {
                       if (thisMonth + 1 == 12) {
@@ -173,7 +173,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 ),
               ],
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Row(
               children: daysOfWeek
                   .map(
@@ -229,33 +229,33 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                 );
               },
             ),
-            SizedBox(height: 35),
+            const SizedBox(height: 35),
             StreamBuilder(
               stream: sms,
               builder: (context, asyncSnapshot) {
                 if (asyncSnapshot.connectionState == ConnectionState.waiting) {
                   debugPrint('SMS: waiting');
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
                 if (asyncSnapshot.hasError) {
                   debugPrint('SMS: ${asyncSnapshot.error}');
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
                 if (!asyncSnapshot.hasData) {
                   debugPrint('SMS: null');
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
                 StatisticsModel sm = asyncSnapshot.data!;
                 debugPrint('SMS rebuild ${sm.getLength()}');
                 // final longestTRE = sm.getLongestTRE();
                 // return Column(
                 //   children: [
-                //     Text(bestStreak, style: TextStyle(fontSize: TextSizing.medium),),
+                //     Text(bestStreak, style: const TextStyle(fontSize: TextSizing.medium),),
                 //     Text(
                 //       'Total Hours Fasted in ${months[thisMonth]}: ${sm.getTotalForMonth(thisYear, thisMonth)} hours',
-                //       style: TextStyle(fontSize: TextSizing.medium),
+                //       style: const TextStyle(fontSize: TextSizing.medium),
                 //     ),
-                //     Text('Longest Fast: ${longestTRE.inHours} hours ${longestTRE.inMinutes % 60}', style: TextStyle(fontSize: TextSizing.medium),),
+                //     Text('Longest Fast: ${longestTRE.inHours} hours ${longestTRE.inMinutes % 60}', style: const TextStyle(fontSize: TextSizing.medium),),
                 //   ],
                 // );
 
@@ -264,7 +264,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
                   spacing: 5,
                   children: [
-                    Text(
+                    const Text(
                       'Fasting Statistics',
                       style: TextStyle(
                         fontSize: TextSizing.large,
@@ -277,38 +277,38 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
                     Text(
                       'Fasts completed: ${sm.numCompleted()}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                       textAlign: TextAlign.left,
                     ),
 
                     Text(
                       'Plan adherence: ${sm.getAsPlannedRate()}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Total time fasted: ${sm.getTotalForMonth()}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Average fast: ${sm.getAverage() ?? 'N/A'}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Longest fast: ${sm.getLongestTimed() ?? 'N/A'}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       bestStreak,
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     const SizedBox(height: 12),
 
-                    Text(
+                    const Text(
                       'Starting',
                       style: TextStyle(
                         fontSize: TextSizing.medium,
@@ -318,17 +318,17 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
                     Text(
                       'Started on time: ${sm.onTimeStartCount()}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Started early: ${sm.curFasts.earlyStartCount}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Started late: ${sm.curFasts.lateStartCount}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     if (sm.curFasts.earlyStartCount +
@@ -337,12 +337,12 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                       Text(
                         'Average start deviation: '
                         '${sm.curFasts.averageStartDeviation.round()} min',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
                     const SizedBox(height: 12),
 
-                    Text(
+                    const Text(
                       'Ending',
                       style: TextStyle(
                         fontSize: TextSizing.medium,
@@ -352,17 +352,17 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
                     Text(
                       'Ended on time: ${sm.onTimeEndCount()}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Ended early: ${sm.curFasts.earlyEndCount}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     Text(
                       'Ended late: ${sm.curFasts.lateEndCount}',
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
 
                     if (sm.curFasts.earlyEndCount + sm.curFasts.lateEndCount >
@@ -370,13 +370,13 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                       Text(
                         'Average end deviation: '
                         '${sm.curFasts.averageEndDeviation.round()} min',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
                     if (sm.curForm == FastingForm.fiveTwo) ...[
                       const SizedBox(height: 12),
 
-                      Text(
+                      const Text(
                         '5:2 Statistics',
                         style: TextStyle(
                           fontSize: TextSizing.medium,
@@ -386,22 +386,22 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
 
                       Text(
                         'Fast days skipped: ${sm.curFasts.skippedCount}',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
                       Text(
                         'Fast days interrupted: ${sm.curFasts.interruptedCount}',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
                       Text(
                         'Overate: ${sm.curFasts.overAte}',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
                       Text(
                         'Underate: ${sm.curFasts.underAte}',
-                        style: TextStyle(fontSize: TextSizing.medium),
+                        style: const TextStyle(fontSize: TextSizing.medium),
                       ),
                     ],
                     
@@ -415,17 +415,6 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
       ),
     );
   }
-
-  // FutureBuilder showStats(StatisticsModel sm) {
-  //   Text makeAvg = Text('Total Hours Fasted in ${months[thisMonth]}: ${sm.getAverage()}',
-  //           style: TextStyle(fontSize: TextSizing.medium),);
-  // }
-
-  // Future<StatisticsModel> getModel(UserSessionData session) async {
-  //   //! change getDurations to fasts in range
-  //   final curFasts = await ref.watch(fDaoProvider).getDurations(session.userId, session.fastingForm.name);
-  //   return StatisticsModel(curFasts: curFasts, curForm: session.fastingForm);
-  // }
 
   void changeFocus(int curYear, int curMonth, UserSessionData session) {
     setState(() {
@@ -452,7 +441,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
         child: Center(
           child: Text(
             '$day',
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: const TextStyle(color: Colors.black, fontSize: 20),
           ),
         ),
       ),
@@ -473,7 +462,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
             Center(
               child: Text(
                 '$day',
-                style: TextStyle(color: Colors.black, fontSize: 20),
+                style: const TextStyle(color: Colors.black, fontSize: 20),
               ),
             ),
             const SizedBox.shrink(),
@@ -579,7 +568,7 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
             child: Center(
               child: Text(
                 '$day',
-                style: TextStyle(color: Colors.black, fontSize: 30),
+                style: const TextStyle(color: Colors.black, fontSize: 30),
               ),
             ),
           ),

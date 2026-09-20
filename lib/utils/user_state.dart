@@ -73,7 +73,7 @@ class UserSessionData {
       isFasting: isFasting ?? this.isFasting,
       experience: exp ?? experience,
       height: height ?? this.height,
-      isFemale: isFemale
+      isFemale: isFemale,
     );
   }
 }
@@ -94,9 +94,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     List<int> days = DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected);
     if (!fiveTwoComplete && user.formIF == FastingForm.fiveTwo) {
       fiveTwoComplete = true;
-      await check52Adherence(user.userID,
-        days, fDao,
-      );
+      await check52Adherence(user.userID, days, fDao);
     } else {
       isFasting = await fDao.isFasting();
     }
@@ -120,8 +118,14 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     );
   }
 
-  Future<void> check52Adherence(int userID, List<int> days, FastingDao fDao) async {
-    DateTime now = DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 1));
+  Future<void> check52Adherence(
+    int userID,
+    List<int> days,
+    FastingDao fDao,
+  ) async {
+    DateTime now = DateUtils.dateOnly(
+      DateTime.now(),
+    ).subtract(const Duration(days: 1));
     DateTime prevWeek = now.subtract(const Duration(days: 7));
 
     final candidates = days.map(getFullDay).toList()..sort();
@@ -139,11 +143,23 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       for (final candidate in candidates) {
         final mealCount = await nDao.fiveTwoDayEvaluation(candidate);
         if (mealCount < 550) {
-          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.underate);
+          await fDao.createSyntheticFiveTwoLog(
+            userID,
+            candidate,
+            FastResult.underate,
+          );
         } else if (mealCount < 800) {
-          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.asPlanned);
+          await fDao.createSyntheticFiveTwoLog(
+            userID,
+            candidate,
+            FastResult.asPlanned,
+          );
         } else {
-          await fDao.createSyntheticFiveTwoLog(userID, candidate, FastResult.overate);
+          await fDao.createSyntheticFiveTwoLog(
+            userID,
+            candidate,
+            FastResult.overate,
+          );
         }
       }
     }
@@ -179,10 +195,21 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
   }
 
   Future<bool> updateTRE(TimeOfDay start, TimeOfDay end) async {
-    if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
+    if (start.isAtSameTimeAs(end)) {
+      return false;
+    } else if (start.isBefore(end)) {
+      if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
+          1200) {
+        return false;
+      }
+    } else if (((24 - start.hour) * 60) +
+            start.minute +
+            (end.hour * 60) +
+            end.minute >
         1200) {
       return false;
     }
+
     ref
         .read(uDaoProvider)
         .updateTREtimes(
@@ -204,8 +231,14 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     ref.invalidateSelf();
   }
 
-  Future<void> updateDetails(String name, double height, DateTime? birthday) async {
-    await ref.read(uDaoProvider).changeDetails(state.value!.userId, name, height, birthday);
+  Future<void> updateDetails(
+    String name,
+    double height,
+    DateTime? birthday,
+  ) async {
+    await ref
+        .read(uDaoProvider)
+        .changeDetails(state.value!.userId, name, height, birthday);
     ref.invalidateSelf();
   }
 }

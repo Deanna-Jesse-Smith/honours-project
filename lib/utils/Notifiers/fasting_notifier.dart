@@ -201,22 +201,23 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     DateTime today = DateTime.now();
 
     final (expectedStart, expectedEnd) = switch (cur.fastingForm) {
-      FastingForm.tre => (
-        DateTime(
-          today.year,
-          today.month,
-          today.day,
-          cur.startTime.hour,
-          cur.startTime.minute,
-        ),
-        DateTime(
-          today.year,
-          today.month,
-          today.day,
-          cur.endTime.hour,
-          cur.endTime.minute,
-        ),
-      ),
+      FastingForm.tre => treTimes(today, cur.startTime, cur.endTime),
+      // FastingForm.tre => (
+      //   DateTime(
+      //     today.year,
+      //     today.month,
+      //     today.day,
+      //     cur.startTime.hour,
+      //     cur.startTime.minute,
+      //   ),
+      //   DateTime(
+      //     today.year,
+      //     today.month,
+      //     today.day,
+      //     cur.endTime.hour,
+      //     cur.endTime.minute,
+      //   ),
+      // ),
       FastingForm.fiveTwo => throw UnimplementedError(),
       FastingForm.adf => adfTimes(cur.adfDaysSelected, today),
     };
@@ -250,6 +251,24 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     }
     ref.invalidateSelf();
   }
+
+  (DateTime, DateTime) treTimes(DateTime today, DateTime startTime, DateTime endTime) {
+      final tempToday = today.add(const Duration(days: 1));
+      return (DateTime(
+          today.year,
+          today.month,
+          today.day,
+          endTime.hour,
+          endTime.minute,
+        ),
+        DateTime(
+          tempToday.year,
+          tempToday.month,
+          tempToday.day,
+          startTime.hour,
+          startTime.minute,
+        ),);
+    }
 
   (DateTime, DateTime) adfTimes(List<int> days, DateTime today) {
     final candidates = days.map(getFullDay).toList()..sort();

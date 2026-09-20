@@ -254,7 +254,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       context: context,
       builder: (context) => AlertDialog(
         title: Center(
-          child: Text(
+          child: const Text(
             'Invalid Fasting Days Selected',
             style: TextStyle(fontSize: TextSizing.large),
           ),
@@ -263,12 +263,12 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           isADF
               ? 'You should have 3 non-consecutive fasting days selected'
               : 'You should have 2 non-consecutive fasting days selected',
-          style: TextStyle(fontSize: TextSizing.medium),
+          style: const TextStyle(fontSize: TextSizing.medium),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
+            child: const Text(
               'Cancel selection',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
@@ -277,7 +277,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             onPressed: () {
               Navigator.pop(context, true);
             },
-            child: Text(
+            child: const Text(
               'Continue with selection',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
@@ -357,7 +357,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           start = time;
           startText = time.format(context);
         } else {
-          //! Pop up to warn user
+          planTREDecision(time, true);
         }
       });
     }
@@ -374,9 +374,60 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           end = time;
           endText = time.format(context);
         } else {
-          //! Pop up to warn user
+          planTREDecision(time, false);
         }
       });
+    }
+  }
+
+  Future<void> planTREDecision(TimeOfDay time, bool isStart) async {
+    final decision = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Center(
+          child: const Text(
+            'Invalid Fasting Times Selected',
+            style: TextStyle(fontSize: TextSizing.large),
+          ),
+        ),
+        content: Text('Your eating window should not be',
+          style: const TextStyle(fontSize: TextSizing.medium),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel selection',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: Text(
+              'Continue with selection',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (decision != null && decision) {
+      if (isStart) {
+        ref.read(userSessionProvider.notifier).updateTRE(time, end);
+        setState(() {
+          start = time;
+          startText = start.format(context);
+        });
+      } else {
+        ref.read(userSessionProvider.notifier).updateTRE(start, time);
+        setState(() {
+          end = time;
+          endText = end.format(context);
+        });
+      }
     }
   }
 

@@ -39,7 +39,6 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<void> updateTREtimes(int id, DateTime start, DateTime end) {
-    // dynamic test = TimeOfDay(hour: 12, minute: 30);
     return (update(users)..where((u) => u.userID.equals(id))).write(
       UsersCompanion(
         typicalEatingStart: Value(start),

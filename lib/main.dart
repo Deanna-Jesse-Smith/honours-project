@@ -67,13 +67,13 @@ final cDaoProvider = Provider<ReinforcementDao>(
 final sDaoProvider = Provider<StepsDao>(
   (ref) => StepsDao(ref.watch(databaseProvider)),
 );
-final mealRangeProvider = FutureProvider.family<List<DayMeals>, (DateTime, DateTime)>(
+final mealRangeProvider = FutureProvider.autoDispose.family<List<DayMeals>, (DateTime, DateTime)>(
   (ref, days) {
     final repo = ref.watch(nDaoProvider);
     return repo.getMealsInRange(days.$1, days.$2);
   },
 );
-final foodRangeProvider = FutureProvider.family<Map<DateTime, DayFoods>, List<DateTime>>(
+final foodRangeProvider = FutureProvider.autoDispose.family<Map<DateTime, DayFoods>, List<DateTime>>(
   (ref, days) {
     final repo = ref.watch(nDaoProvider);
     return repo.getFoodInRange(days);
@@ -84,7 +84,7 @@ final isFastingProvider = StreamProvider<bool>((ref) {
   return dao.checkFastingStatus();
 });
 
-final checkWeightGoalProvider = FutureProvider<(double, double, double)>((ref) {
+final checkWeightGoalProvider = FutureProvider.autoDispose<(double, double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkWeightGoal();
 });
 
@@ -115,13 +115,13 @@ final checkNutritionStreakProvider = StreamProvider<int?>((ref) {
 final checkFastingProgressProvider = FutureProvider<FastingProgress>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshProgress();
 });
-final bestStreakProvider = FutureProvider.family<int?, GoalType>(
+final bestStreakProvider = FutureProvider.autoDispose.family<int?, GoalType>(
   (ref, type) async {
     return await ref.read(gDaoProvider).findBestStreak(type);
   },
 );
 
-final fastsInRangProvider = StreamProvider.family<List<FastLogData>, (DateTime, DateTime)>(
+final fastsInRangProvider = StreamProvider.autoDispose.family<List<FastLogData>, (DateTime, DateTime)>(
   (ref, dates) {
     return ref
         .watch(fDaoProvider)
