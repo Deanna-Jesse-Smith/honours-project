@@ -39,22 +39,22 @@ class FastingInformation extends StatelessWidget {
         ],
       ),
       drawer: isForStart ? null : MyNavigationDrawer(),
-      body: Column(
+      body: SingleChildScrollView(child: Column(
         children: [
           buildTextCard(
-            'Time Restricted Eating',
-            'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            'Time Restricted Eating (TRE)',
+            'TRE limits eating to a specific period of time each day.\n\nFor example, with a 16:8 schedule, you fast for 16 hours and have an 8-hour eating window each day.',
           ),
           buildTextCard(
-            'Alternate Day Fasting',
-            'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            'Alternate Day Fasting (ADF)',
+            'ADF alternates between fasting days and non-fasting days.\n\nFor example, you might fast on Monday, eat normally on Tuesday, and continue alternating between fasting and non-fasting days throughout the week.',
           ),
           buildTextCard(
-            'Modified Fasting/5:2',
-            'This is where you restrict when you eat to only certain hours of the day.\n\n For example: a common way to do this method is the 16:8 split, where you fast for 16 hours of the day and eat whatever you want for the remaining 8.',
+            'Modified Fasting (5:2)',
+            '5:2 involves restricting your food intake on two days of each week, while eating normally on the other five days.\n\nFor example, you might choose Monday and Thursday as your two fasting days and eat normally on the remaining days.',
           ),
         ],
-      ),
+      ),),
       persistentFooterAlignment: AlignmentDirectional.bottomCenter,
       persistentFooterButtons: isForStart
           ? [
@@ -78,19 +78,39 @@ class FastingInformation extends StatelessWidget {
     );
   }
 
-  Widget buildTextCard(String title, text) {
+    Widget buildTextCard(String title, text) {
     return Padding(
-      padding: EdgeInsets.all(10),
-      child: Card(
-        child: ExpansionTile(
-          title: Text(
-            title,
-            textAlign: TextAlign.left,
-            style: const TextStyle(fontSize: TextSizing.medium),
+      padding: const EdgeInsets.all(10),
+      child: Card.outlined(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(children: [
+            Text(
+              title,
+              textAlign: TextAlign.left,
+              style: const TextStyle(fontSize: TextSizing.medium, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10,),
+            Text(text, style: const TextStyle(fontSize: TextSizing.medium))],
           ),
-          children: [Text(text, style: TextStyle(fontSize: TextSizing.medium))],
         ),
       ),
     );
   }
+
+  // Widget buildTextCard(String title, text) {
+  //   return Padding(
+  //     padding: EdgeInsets.all(10),
+  //     child: Card(
+  //       child: ExpansionTile(
+  //         title: Text(
+  //           title,
+  //           textAlign: TextAlign.left,
+  //           style: const TextStyle(fontSize: TextSizing.medium),
+  //         ),
+  //         children: [Text(text, style: TextStyle(fontSize: TextSizing.medium))],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

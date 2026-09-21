@@ -2,8 +2,9 @@ import 'package:flutter/services.dart';
 
 class MyInputFormatter extends TextInputFormatter {
   final double max;
+  final double min;
 
-  MyInputFormatter(this.max);
+  MyInputFormatter(this.max, this.min);
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -13,7 +14,7 @@ class MyInputFormatter extends TextInputFormatter {
 
     final value = double.tryParse(newValue.text);
 
-    if (value == null || value > max || value < 1) {
+    if (value == null || value > max || value < min) {
       return oldValue;
     }
 

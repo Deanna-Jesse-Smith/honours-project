@@ -82,13 +82,13 @@ class _DialogTitleState extends State<DialogTitle>
         text = 'You have completed your weekly fasting goal\n\nWell done!';
       case GoalType.weight:
         title = 'Weight Goal Complete!';
-        text = 'You have completed target weight\n\nWell done!';
+        text = 'You have reached your target weight\n\nWell done!\n\nWhat do you want to strive for next? Weight maintenance is typically easier with TRE.';
       case GoalType.hydration:
         title = 'Hydration Goal Complete!';
-        text = 'You have completed your daily hydration goal\n\nWell done!';
+        text = 'You have completed your daily hydration goal\n\nWell done!\n\nRemember to keep hydrated during your fasts.';
       case GoalType.nutrition:
         title = 'Meal Goal Complete!';
-        text = 'You have completed your daily calorie goal\n\nWell done!';
+        text = 'You have completed your daily calorie goal\n\nWell done!\n\nEating satiating foods with proteins and fibre can help keep you from wanting to break a fast early.';
     }
   }
 

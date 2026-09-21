@@ -222,6 +222,8 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       FastingForm.adf => adfTimes(cur.adfDaysSelected, today),
     };
 
+    debugPrint('Expected Fasting Times (S:E) today: ($expectedStart — $expectedEnd)   $today');
+
     if (lastFast) {
       final (result, severity) = evaluateTiming(
         today,
@@ -231,16 +233,21 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
         cur.fastingForm == FastingForm.adf,
       );
 
+      debugPrint('Fast Results: $result of severity $severity');
+
       await fDao.breakFast(cur.userId, today, result, severity);
       fDao.testing();
     } else {
       final (result, severity) = evaluateTiming(
         today,
-        expectedEnd,
+        expectedStart,
         FastResult.earlyStart,
         FastResult.lateStart,
         cur.fastingForm == FastingForm.adf,
       );
+      
+      debugPrint('Fast Results: $result of severity $severity');
+
       await fDao.startFast(
         cur.userId,
         cur.fastingForm,
@@ -297,6 +304,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     bool isStart = true,
   }) {
     final difference = actual.difference(expected).inMinutes;
+    debugPrint('Time difference: $difference');
     if (!isADF) {
       if (difference.abs() <= 20) {
         return (FastResult.asPlanned, 0);

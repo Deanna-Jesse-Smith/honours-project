@@ -114,7 +114,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
     final curCalories = await ref
         .read(nDaoProvider)
-        .getDaysCalories(DateTime.now());
+        .getDaysCalories(today);
 
     if (curCalories == 0) {
       return false;

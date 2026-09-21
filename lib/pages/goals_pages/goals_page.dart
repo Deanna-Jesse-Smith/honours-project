@@ -35,7 +35,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   final TextEditingController goalController = TextEditingController();
   final focusNode = FocusNode();
   bool isLogOnly = true;
-  double maxAmount = 10000;
+  double maxAmount = 20000, minAmount = 1;
+  late Future<BasicGoal?> futureGoal;
 
   static final List<DropdownMenuEntry<GoalOperator>> entries =
       UnmodifiableListView<DropdownMenuEntry<GoalOperator>>(
@@ -59,6 +60,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     });
 
     type = widget.type;
+    futureGoal = ref.read(gDaoProvider).findActiveGoal(type);
 
     final outcome = ref.watch(bestStreakProvider(type));
 
@@ -78,14 +80,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     description = switch (type) {
       GoalType.fasting =>
         session!.fastingForm == FastingForm.fiveTwo
-            ? 'An ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak (incremented or broken on Mondays) is the number of weeks you have managed to reach your fasting goal.'
-            : 'A TRE fasting goal is the minimum number of hours you aim to fast each day of the week.',
+            ? 'An ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.'
+            : 'A TRE fasting goal is the minimum number of hours you aim to fast each day.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.',
       GoalType.weight =>
-        'Your weight goal is the amount you want to aim for.\nUnlike other goal types, you cannot create a weight streak.',
+        'Your weight goal is the weight you are aiming to reach.\nUnlike the other goal types, weight goals do not have a streak.',
       GoalType.hydration =>
-        'Your hydration goal is the amount of water you aim to drink in a day.\n\nYour hydration streak is the number of days in a row you have managed to reach your hydration goal.',
+        'Your hydration goal is the amount of water you aim to drink each day.\n\nYour hydration streak is the number of consecutive days in which you have met your hydration goal.',
       GoalType.nutrition =>
-        'Your nutrition goal is the number of calories you want to be under in a day.\n\nYour nutrition streak is the number of days in a row you have managed to reach your nutrition goal.',
+        'Your nutrition goal is the maximum number of calories you aim to consume each day.\n\nYour nutrition streak is the number of consecutive days in which you have met your nutrition goal.',
     };
 
     if (type != GoalType.weight) description += bestStreak;
@@ -228,7 +230,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
   FutureBuilder goalInfo() {
     return FutureBuilder(
-      future: ref.watch(gDaoProvider).findActiveGoal(type),
+      future: futureGoal,
       builder: (context, asyncSnapshot) {
         debugPrint('connectionState: ${asyncSnapshot.connectionState}');
         debugPrint('hasData: ${asyncSnapshot.hasData}');
@@ -294,6 +296,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             );
           case HydrationGoalModel model:
             curGoal = model;
+            minAmount = 0.5;
             return goalCard(
               TextInputType.numberWithOptions(decimal: true),
               'litres of water per day',
@@ -301,7 +304,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             );
           case NutritionGoalModel model:
             curGoal = model;
-            maxAmount = session!.isFemale ? 500 : 600;
+            minAmount = session!.isFemale ? 500 : 600;
             return goalCard(
               TextInputType.numberWithOptions(),
               'calories per day',
@@ -336,12 +339,13 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: SizedBox(width: MediaQuery.of(context).size.width * 0.5, child: TextField(
+            // child: SizedBox(width: MediaQuery.of(context).size.width * 0.5, child: TextField(
+            child: SizedBox(width: 250, child: TextField(
               style: TextStyle(fontSize: TextSizing.medium),
               controller: goalController,
               focusNode: focusNode,
               keyboardType: inputType,
-              inputFormatters: [MyInputFormatter(maxAmount)],
+              inputFormatters: [MyInputFormatter(maxAmount, minAmount)],
               decoration: InputDecoration(suffixText: suffixText),
               // onChanged: (value) => setState(() {
               //   double? temp = double.tryParse(value);
@@ -351,51 +355,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               //   }
               // }),
             ),),
-            // child: Table(
-            //   children: [
-            //     // TableRow(
-            //     //   children: [
-            //     //     Padding(
-            //     //       padding: const EdgeInsets.only(bottom: 12),
-            //     //       child: const Text(
-            //     //         'Comparison: ',
-            //     //         style: TextStyle(fontSize: TextSizing.medium),
-            //     //       ),
-            //     //     ),
-            //     //     Padding(
-            //     //       padding: const EdgeInsets.only(bottom: 12),
-            //     //       child: Text(curGoal.op.symbol, style: const TextStyle(fontSize: TextSizing.large),),
-            //     //     )
-            //     //     // goalOperatorMenu(),
-            //     //   ],
-            //     // ),
-            //     // TableRow(
-            //     //   children: [
-            //     //     Text(
-            //     //       'Amount: ',
-            //     //       style: TextStyle(fontSize: TextSizing.medium),
-            //     //     ),
-            //     //     TextField(
-            //     //       style: TextStyle(fontSize: TextSizing.medium),
-            //     //       controller: goalController,
-            //     //       focusNode: focusNode,
-            //     //       keyboardType: inputType,
-            //     //       inputFormatters: [
-            //     //         MyInputFormatter(maxAmount)
-            //     //       ],
-            //     //       decoration: InputDecoration(suffixText: suffixText),
-            //     //       // onChanged: (value) => setState(() {
-            //     //       //   double? temp = double.tryParse(value);
-            //     //       //   if (temp != null) {
-            //     //       //     curGoal.threshold = temp;
-            //     //       //     goalController.text = temp.toString();
-            //     //       //   }
-            //     //       // }),
-            //     //     ),
-            //     //   ],
-            //     // ),
-            //   ],
-            // ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 12),

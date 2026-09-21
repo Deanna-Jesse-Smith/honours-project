@@ -92,7 +92,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         actions: [
           const Tooltip(
             message:
-                'Toggle your fast from the floating action button on your screen when you want to start or end a TRE or ADF fast. A 5:2 fast is recorded in the week following the fast based on your recorded meals.',
+                'Use the floating action button to start or end a TRE or ADF fast.\n\nFor 5:2, fasting days are recorded based on the meals you log during the week rather than by starting and ending a fast manually.',
             textStyle: TextStyle(fontSize: TextSizing.small),
             constraints: BoxConstraints(maxWidth: 300),
             triggerMode: TooltipTriggerMode.tap,
@@ -339,7 +339,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       const Padding(
         padding: EdgeInsets.all(15),
         child: Text(
-          'Consider which days of the week you are typically eat less on, and which days you have less opportunity to be socially pressured into eating.',
+          'Consider which two days of the week you are most likely to eat less and which days have fewer social occasions that may make it difficult to restrict your food intake.',
           style: TextStyle(fontSize: TextSizing.small),
           textAlign: TextAlign.center,
         ),
@@ -463,9 +463,9 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     return Column(
       children: [
         Padding(padding: EdgeInsets.all(15), child: chooseFastingPlan(session)),
-        Padding(
+        const Padding(
           padding: EdgeInsets.all(15),
-          child: const Text(
+          child: Text(
             'Create Eating Window',
             style: TextStyle(fontSize: TextSizing.large),
             textAlign: TextAlign.center,
@@ -501,10 +501,10 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             //       )
             //       .toList(),
             // ),
-            TableRow(
+            const TableRow(
               children: [
-                const SizedBox(height: 10),
-                const SizedBox(height: 10),
+               SizedBox(height: 10),
+               SizedBox(height: 10),
               ],
             ),
             TableRow(
@@ -513,18 +513,18 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           ],
         ),
         const SizedBox(height: 35),
-        Padding(
+        const Padding(
           padding: EdgeInsets.all(15),
-          child: const Text(
+          child: Text(
             'What eating window times are sustainable every day?',
             style: TextStyle(fontSize: TextSizing.medium),
             textAlign: TextAlign.center,
           ),
         ),
-        Padding(
+        const Padding(
           padding: EdgeInsets.all(15),
-          child: const Text(
-            'Consider when you normally eat throughout the day and plan your TRE times around that. If you regularly eat with others at a certain time, do not resolve to not eat with them, as social pressure to eat is a major barrier for adhereing to intermittent fasting.',
+          child: Text(
+            'Consider when you normally eat throughout the day and plan your eating window around your existing routine. If you regularly eat with other people at a particular time, try to include that time in your eating window. Social occasions that conflict with your fasting schedule can make it more difficult to maintain your plan.',
             style: TextStyle(fontSize: TextSizing.small),
             textAlign: TextAlign.center,
           ),
@@ -568,7 +568,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       const Padding(
         padding: EdgeInsets.all(15),
         child: Text(
-          'Consider which days of the week you are typically eat less on, and days where you have less opportunity to be socially pressured into eating.',
+          'Consider which days of the week are most suitable for fasting and which days have fewer social occasions that may make fasting difficult.',
           style: TextStyle(fontSize: TextSizing.small),
           textAlign: TextAlign.center,
         ),

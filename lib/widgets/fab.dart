@@ -86,7 +86,7 @@ class MyExpandableFAB extends ConsumerWidget {
       if (session.fastingForm != FastingForm.fiveTwo)
         FabButton(
           title: isFasting.when(
-            data: (isFast) => isFast ? 'Break my fast' : 'Start my fast',
+            data: (isFast) => isFast ? 'Start my fast' : 'Break my fast',
             error: (_, _) => 'Error',
             loading: () => 'Loading',
           ),

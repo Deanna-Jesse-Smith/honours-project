@@ -83,8 +83,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   Future<int> getDaysCalories(DateTime day) async {
     final todayMeals = await getMealsInRange(day, day.add(const Duration(days: 1)));
 
-    final firstt = todayMeals.first;
+    if (todayMeals.isEmpty) return 0;
 
+    final firstt = todayMeals.first;
     return firstt.getTotalCalories();
   }
 

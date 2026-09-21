@@ -21,41 +21,53 @@ class MealTracking extends ConsumerWidget {
 
     final goalChecker = ref.watch(checkNutritionGoalProvider);
     final streakChecker = ref.watch(checkNutritionStreakProvider);
+
     final mealWatcher = ref.watch(mealRangeProvider((start, end)));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Meal Tracking', style: TextStyle(fontSize: TextSizing.large)),
+        title: Text(
+          'Meal Tracking',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
       ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: MyExpandableFAB(index: 3, posi: ExpandableFabPos.right,),
-      body: SingleChildScrollView(child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
+      floatingActionButton: MyExpandableFAB(
+        index: 3,
+        posi: ExpandableFabPos.right,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(15),
-              child: goalChecker.when(data: (goal) {
-                if (goal.$1 == -1) {
-                    return Text('No ongoing calorie goal', style: TextStyle(fontSize: TextSizing.medium),);
+              child: goalChecker.when(
+                data: (goal) {
+                  if (goal.$1 == -1) {
+                    return Text(
+                      'No ongoing calorie goal',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    );
                   }
-                  
-                final model = goal.$1 == -1 ? 0.0 : goal.$1;
+
+                  final model = goal.$1 == -1 ? 0.0 : goal.$1;
 
                   return LinearPercentIndicator(
                     alignment: MainAxisAlignment.center,
                     percent: model,
                     leading: Text(
-                        '0',
-                        style: TextStyle(fontSize: TextSizing.smallmed),
-                      ),
-                      trailing: Text(
-                        '${goal.$2.toInt()}',
-                        style: TextStyle(fontSize: TextSizing.smallmed),
-                      ),
+                      '0',
+                      style: TextStyle(fontSize: TextSizing.smallmed),
+                    ),
+                    trailing: Text(
+                      '${goal.$2.toInt()}',
+                      style: TextStyle(fontSize: TextSizing.smallmed),
+                    ),
                     lineHeight: 15,
                     width: MediaQuery.of(context).size.width * 0.6,
                     animation: true,
@@ -64,91 +76,107 @@ class MealTracking extends ConsumerWidget {
                     backgroundColor: Colors.yellow,
                     barRadius: Radius.circular(10),
                   );
-              }, error: (e, l) => Text(e.toString()), loading: () => Text('Loading'))
+                },
+                error: (e, l) => Text(e.toString()),
+                loading: () => const Text('Loading'),
+              ),
             ),
-            const SizedBox(height: 10,),
-          streakChecker.when(data: (streak) {
-              if (streak == null) {
-                return const SizedBox.shrink();
-              } else {
-                return Text('You\'re on a $streak day streak!', style: TextStyle(fontSize: TextSizing.medium),);
-              }
-            }, error: (e, _) => Text(e.toString()), loading: () => const CircularProgressIndicator()),
+            const SizedBox(height: 10),
+            streakChecker.when(
+              data: (streak) {
+                if (streak == null) {
+                  return const SizedBox.shrink();
+                } else {
+                  return Text(
+                    'You\'re on a $streak day streak!',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  );
+                }
+              },
+              error: (e, _) => Text(e.toString()),
+              loading: () => const CircularProgressIndicator(),
+            ),
 
-            mealWatcher.when(data: (meals) {
-              if (meals.isEmpty) {
-                return const Text(
-                  'No meals to show. You can track your meals when by clicking on the menu button below and selecting \'Log Meal\'.\n\nLog a full meal to keep track of your calorie and macronutrient intake such as protein and fibre.',
-                  style: TextStyle(fontSize: TextSizing.large,
-                  ),
-                  textAlign: TextAlign.center,
+            mealWatcher.when(
+              data: (meals) {
+                if (meals.isEmpty) {
+                  return const Text(
+                    'No meals to show. You can track your meals when by clicking on the menu button below and selecting \'Log Meal\'.\n\nLog a full meal to keep track of your calorie and macronutrient intake such as protein and fibre.',
+                    style: TextStyle(fontSize: TextSizing.large),
+                    textAlign: TextAlign.center,
+                  );
+                }
+
+                return Column(
+                  spacing: 20,
+                  children: meals
+                      .map((meal) => DaySection(dayMeal: meal))
+                      .toList(),
                 );
-              }
-              
-              return Column(
-                spacing: 20,
-                children: meals.map((meal) => DaySection(dayMeal: meal)).toList(),);
-            }, loading: () => const SizedBox.shrink(),
-            error: (e, o) => const SizedBox.shrink()),
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (e, o) => const SizedBox.shrink(),
+            ),
 
-          // StreamBuilder(
-          //   stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
-          //   builder: (context, snapshot) {
-          //     if (!snapshot.hasData) {
-          //       debugPrint('FoodMap: no data');
-          //       return const Text(
-          //         'No meals to show',
-          //         style: TextStyle(fontSize: TextSizing.large),
-          //       );
-          //     }
-          
-          //     final dayFoods = snapshot.data;
-          //     if (dayFoods == null) {
-          //       debugPrint('FoodMap: null');
-          //       return const Text(
-          //         'No meals to show',
-          //         style: TextStyle(fontSize: TextSizing.large),
-          //       );
-          //     }
-          
-          //     Map<DateTime, DayFoods> foodMap = {};
-          //     for (final foodItem in dayFoods) {
-          //       DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
-          //       foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
-          //         u.foods.add(foodItem);
-          //         return u;
-          //       }, ifAbsent: () => temp);
-          //     }
-          //     List<DayFoods> curr = foodMap.values.toList();
-          //     return Expanded(
-          //       child: ListView.builder(
-          //         padding: EdgeInsets.all(16),
-          //         itemCount: curr.length,
-          //         itemBuilder: (context, index) {
-          //           if (curr.isNotEmpty) {
-          //             return DaySection(dayMeal: curr[index]);
-          //           }
-          //           return SizedBox(height: 10);
-          //         },
-          //       ),
-          //     );
-          //   },
-          // ),
-        ],
-      ),),
+            // StreamBuilder(
+            //   stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
+            //   builder: (context, snapshot) {
+            //     if (!snapshot.hasData) {
+            //       debugPrint('FoodMap: no data');
+            //       return const Text(
+            //         'No meals to show',
+            //         style: TextStyle(fontSize: TextSizing.large),
+            //       );
+            //     }
+
+            //     final dayFoods = snapshot.data;
+            //     if (dayFoods == null) {
+            //       debugPrint('FoodMap: null');
+            //       return const Text(
+            //         'No meals to show',
+            //         style: TextStyle(fontSize: TextSizing.large),
+            //       );
+            //     }
+
+            //     Map<DateTime, DayFoods> foodMap = {};
+            //     for (final foodItem in dayFoods) {
+            //       DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
+            //       foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
+            //         u.foods.add(foodItem);
+            //         return u;
+            //       }, ifAbsent: () => temp);
+            //     }
+            //     List<DayFoods> curr = foodMap.values.toList();
+            //     return Expanded(
+            //       child: ListView.builder(
+            //         padding: EdgeInsets.all(16),
+            //         itemCount: curr.length,
+            //         itemBuilder: (context, index) {
+            //           if (curr.isNotEmpty) {
+            //             return DaySection(dayMeal: curr[index]);
+            //           }
+            //           return SizedBox(height: 10);
+            //         },
+            //       ),
+            //     );
+            //   },
+            // ),
+          ],
+        ),
+      ),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => GoalsPage(type: GoalType.nutrition),
-                ),
-              ),
-              child: Text(
-                'Set Goals',
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => GoalsPage(type: GoalType.nutrition),
             ),
+          ),
+          child: Text(
+            'Set Goals',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
+        ),
       ],
 
       // body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
