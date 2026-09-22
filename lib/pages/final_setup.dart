@@ -98,21 +98,21 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 final temp = selectedOption as TREoption;
                 times = selectedOption == null
                     ? [
-                        DateTime(2026, 1, 1, start.hour, start.minute),
+                        DateTime(2026, 1, 2, start.hour, start.minute),
                         DateTime(2026, 1, 1, end.hour, end.minute),
                       ]
                     : [
                         DateTime(
                           2026,
                           1,
-                          1,
+                          2,
                           temp.start.hour,
                           temp.start.minute,
                         ),
                         DateTime(2026, 1, 1, temp.end.hour, temp.end.minute),
                       ];
                 type = MetricType.hours;
-                threshold = times[1].difference(times[0]).inHours - 1;
+                threshold = times[1].difference(times[0]).inHours.abs() - 1;
               } else {
                 times = [DateTime(2026), DateTime(2026)];
               }
@@ -159,15 +159,15 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
         child: Column(
           spacing: 20,
           children: [
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'The results are in',
               style: TextStyle(fontSize: TextSizing.large),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
-              child: Text(
+              child: const Text(
                 'The suggested fasting schedules are below, but you can choose to make your own in the Fasting Plan page',
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
@@ -193,11 +193,11 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                     value: option,
                     title: Text(
                       option.label,
-                      style: TextStyle(fontSize: TextSizing.medium),
+                      style: const TextStyle(fontSize: TextSizing.medium),
                     ),
                     subtitle: Text(
                       option.justification,
-                      style: TextStyle(fontSize: TextSizing.small),
+                      style: const TextStyle(fontSize: TextSizing.small),
                     ),
                   );
                 }).toList(),

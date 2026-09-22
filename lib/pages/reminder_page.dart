@@ -302,7 +302,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             );
           }),
           title: const Text(
-            'Fast starting soon (15 minutes before)',
+            'Eating window starting soon (15 minutes before)',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
         ),
@@ -319,7 +319,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             );
           }),
           title: const Text(
-            'Halfway through fast',
+            'Halfway through eating window ',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
         ),
@@ -336,7 +336,7 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
             );
           }),
           title: const Text(
-            'Fast ending soon (15 minutes before)',
+            'Eating window ending soon (15 minutes before)',
             style: TextStyle(fontSize: TextSizing.medium),
           ),
         ),

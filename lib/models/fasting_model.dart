@@ -350,9 +350,9 @@ extension FastListHelper on List<FastLogData> {
   double get averageStartDeviation {
     final deviations = where(
       (f) =>
-          f.lateFastResult == FastResult.earlyStart ||
-          f.lateFastResult == FastResult.lateStart,
-    ).map((f) => f.lateResultSeverity);
+          f.earlyFastResult == FastResult.earlyStart ||
+          f.earlyFastResult == FastResult.lateStart,
+    ).map((f) => f.earlyResultSeverity);
 
     if (deviations.isEmpty) return 0;
 

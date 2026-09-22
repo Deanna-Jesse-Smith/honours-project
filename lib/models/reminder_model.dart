@@ -370,34 +370,34 @@ class NotificationSystem {
     required bool endEnabled,
   }) async {
     if (startEnabled) {
-      schedule(
+      await schedule(
         id: notificationId(userID, ReminderType.fastStart),
         title: 'Eating window starting soon!',
         body: 'Your eating window starts in 15 minutes.',
         date: fastStart,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastStart));
+      await cancel(notificationId(userID, ReminderType.fastStart));
     }
     if (midpointEnabled) {
-      schedule(
+      await schedule(
         id: notificationId(userID, ReminderType.fastMidpoint),
         title: 'Eating window halfway through!',
         body: 'You\'re halfway through your eating window.',
         date: fastMid,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastMidpoint));
+      await cancel(notificationId(userID, ReminderType.fastMidpoint));
     }
     if (endEnabled) {
-      schedule(
+      await schedule(
         id: notificationId(userID, ReminderType.fastEnd),
         title: 'Eating window ending soon!',
         body: 'Your eating window ends in 15 minutes.',
         date: fastEnd,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastEnd));
+      await cancel(notificationId(userID, ReminderType.fastEnd));
     }
   }
 
@@ -418,34 +418,34 @@ class NotificationSystem {
     final endTime = TimeOfDay.fromDateTime(endReminder);
 
     if (startEnabled) {
-      scheduleDaily(
+      await scheduleDaily(
         id: notificationId(userID, ReminderType.fastStart),
         title: 'Eating window starting soon!',
         body: 'Your eating window starts in 15 minutes.',
         time: startTime,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastStart));
+      await cancel(notificationId(userID, ReminderType.fastStart));
     }
     if (midpointEnabled) {
-      scheduleDaily(
+      await scheduleDaily(
         id: notificationId(userID, ReminderType.fastMidpoint),
         title: 'Eating window halfway through!',
         body: 'You\'re halfway through your eating window.',
         time: midTime,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastMidpoint));
+      await cancel(notificationId(userID, ReminderType.fastMidpoint));
     }
     if (endEnabled) {
-      scheduleDaily(
+      await scheduleDaily(
         id: notificationId(userID, ReminderType.fastEnd),
         title: 'Eating window ending soon!',
         body: 'Your eating window ends in 15 minutes.',
         time: endTime,
       );
     } else {
-      cancel(notificationId(userID, ReminderType.fastEnd));
+      await cancel(notificationId(userID, ReminderType.fastEnd));
     }
   }
 

@@ -40,9 +40,15 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     // testing();
     final curLog =
         await (select(fastLog)
+              ..where(
+                (fast) =>
+                    fast.userID.equals(userID) & fast.endDateTime.isNull(),
+              )
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
               ..limit(1))
-            .getSingle();
+            .getSingleOrNull();
+
+    if (curLog == null) return;
 
     await (update(
       fastLog,
@@ -110,10 +116,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
   //   );
   // }
 
-  Future<bool> isFasting() async {
+  Future<bool> isFasting(int userID) async {
     final fast =
         await (select(fastLog)
-              ..where((f) => f.endDateTime.isNull())
+              ..where(
+                (f) => f.userID.equals(userID) & f.endDateTime.isNull(),
+              )
               ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
               ..limit(1))
             .getSingleOrNull();
@@ -125,7 +133,9 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     final fast =
         await (selectOnly(fastLog)
               ..addColumns([fastLog.startDateTime])
-              ..where(fastLog.endDateTime.isNull())
+              ..where(
+                fastLog.userID.equals(userID) & fastLog.endDateTime.isNull(),
+              )
               ..orderBy([OrderingTerm.desc(fastLog.fastLogID)])
               ..limit(1))
             .getSingleOrNull();
@@ -153,7 +163,9 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
 
   Stream<bool> checkFastingStatus() {
     return (select(fastLog)
-          ..where((f) => f.endDateTime.isNull())
+          ..where(
+            (f) => f.endDateTime.isNull(),
+          )
           ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)])
           ..limit(1))
         .watchSingleOrNull()
@@ -239,8 +251,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
     for (final dur in durs) {
       DateTime start = dur.startDateTime;
       DateTime end = dur.endDateTime == null
-          ? dur.endDateTime!
-          : DateTime.now();
+          ? DateTime.now() : dur.endDateTime!;
       output.add(end.difference(start).inMinutes);
     }
 

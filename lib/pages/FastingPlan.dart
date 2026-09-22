@@ -502,10 +502,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             //       .toList(),
             // ),
             const TableRow(
-              children: [
-               SizedBox(height: 10),
-               SizedBox(height: 10),
-              ],
+              children: [SizedBox(height: 10), SizedBox(height: 10)],
             ),
             TableRow(
               children: times.map((times) => Center(child: times)).toList(),
@@ -643,8 +640,8 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         dropDownValuee,
         start,
         end,
-        fiveTwoDaysSelected,
         adfDaysSelected,
+        fiveTwoDaysSelected,
       );
     }
   }

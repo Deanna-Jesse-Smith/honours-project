@@ -48,67 +48,44 @@ class TRECalculator implements FastingScheduleCalculator {
   }
 
   @override
-  DateTime? nextExpectedStartFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  DateTime? nextExpectedStartFor(DateTime date, DummyUser user) {
     final start = expectedStartFor(date, user)!;
 
     if (start.isAfter(date)) {
       return start;
     }
 
-    return expectedStartFor(
-      date.add(const Duration(days: 1)),
-      user,
-    );
+    return expectedStartFor(date.add(const Duration(days: 1)), user);
   }
 
   @override
-  DateTime? nextExpectedEndFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  DateTime? nextExpectedEndFor(DateTime date, DummyUser user) {
     final start = nextExpectedStartFor(date, user);
 
     if (start == null) return null;
 
-    return expectedEndFor(
-      start,
-      user,
-      start,
-    );
+    return expectedEndFor(start, user, start);
   }
 }
 
 class WeekdayBasedCalculator implements FastingScheduleCalculator {
   final int fastDurationHours;
 
-  WeekdayBasedCalculator({
-    required this.fastDurationHours,
-  });
+  WeekdayBasedCalculator({required this.fastDurationHours});
 
   List<int> parseFastingDays(String raw) {
-    return raw
-        .split(',')
-        .map((s) => int.parse(s.trim()))
-        .toList();
+    return raw.split(',').map((s) => int.parse(s.trim())).toList();
   }
 
   @override
-  DateTime? expectedStartFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  DateTime? expectedStartFor(DateTime date, DummyUser user) {
     if (!user.adfDaysSelected.contains(date.weekday)) return null;
 
     return DateTime(
       date.year,
       date.month,
       date.day,
-    ).add(
-      dateTimeToDuration(user.typicalStart),
-    );
+    ).add(dateTimeToDuration(user.typicalStart));
   }
 
   @override
@@ -121,16 +98,11 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
 
     if (start == null) return null;
 
-    return start.add(
-      Duration(hours: fastDurationHours),
-    );
+    return start.add(Duration(hours: fastDurationHours));
   }
 
   @override
-  DateTime? nextExpectedStartFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  DateTime? nextExpectedStartFor(DateTime date, DummyUser user) {
     var candidate = date;
 
     // Check today first, then up to the next 7 days.
@@ -141,28 +113,19 @@ class WeekdayBasedCalculator implements FastingScheduleCalculator {
         return start;
       }
 
-      candidate = candidate.add(
-        const Duration(days: 1),
-      );
+      candidate = candidate.add(const Duration(days: 1));
     }
 
     return null;
   }
 
   @override
-  DateTime? nextExpectedEndFor(
-    DateTime date,
-    DummyUser user,
-  ) {
+  DateTime? nextExpectedEndFor(DateTime date, DummyUser user) {
     final start = nextExpectedStartFor(date, user);
 
     if (start == null) return null;
 
-    return expectedEndFor(
-      start,
-      user,
-      start,
-    );
+    return expectedEndFor(start, user, start);
   }
 }
 
@@ -172,14 +135,10 @@ FastingScheduleCalculator calculatorFor(FastingForm form) {
       return TRECalculator();
 
     case FastingForm.adf:
-      return WeekdayBasedCalculator(
-        fastDurationHours: 36,
-      );
+      return WeekdayBasedCalculator(fastDurationHours: 36);
 
     case FastingForm.fiveTwo:
-      return WeekdayBasedCalculator(
-        fastDurationHours: 24,
-      );
+      return WeekdayBasedCalculator(fastDurationHours: 24);
   }
 }
 
@@ -189,14 +148,11 @@ Duration timeOfDayToDuration(TimeOfDay t) =>
 Duration dateTimeToDuration(DateTime dt) =>
     Duration(hours: dt.hour, minutes: dt.minute);
 
-    class FastingProgress {
+class FastingProgress {
   final Duration remaining;
   final double percentage;
 
-  const FastingProgress({
-    required this.remaining,
-    required this.percentage,
-  });
+  const FastingProgress({required this.remaining, required this.percentage});
 }
 
 FastingProgress calculateFastingProgress({
@@ -208,56 +164,36 @@ FastingProgress calculateFastingProgress({
 
   // Currently fasting
   if (activeStart != null) {
-    final expectedEnd = calculator.expectedEndFor(
-      now,
-      user,
-      activeStart,
-    );
+    final expectedEnd = calculator.expectedEndFor(now, user, activeStart);
 
     if (expectedEnd == null) {
-      return const FastingProgress(
-        remaining: Duration.zero,
-        percentage: 0,
-      );
+      return const FastingProgress(remaining: Duration.zero, percentage: 0);
     }
 
-    final total = expectedEnd.difference(
-      activeStart,
-    );
+    final total = expectedEnd.difference(activeStart);
 
     final remaining = expectedEnd.difference(now);
 
     final percentage = total.inSeconds <= 0
         ? 0.0
-        : (remaining.inSeconds / total.inSeconds)
-            .clamp(0.0, 1.0);
+        : (remaining.inSeconds / total.inSeconds).clamp(0.0, 1.0);
 
     return FastingProgress(
-      remaining: remaining.isNegative
-          ? Duration.zero
-          : remaining,
+      remaining: remaining.isNegative ? Duration.zero : remaining,
       percentage: percentage,
     );
   }
 
-  final nextStart = calculator.nextExpectedStartFor(
-    now,
-    user,
-  );
+  final nextStart = calculator.nextExpectedStartFor(now, user);
 
   if (nextStart == null) {
-    return const FastingProgress(
-      remaining: Duration.zero,
-      percentage: 0,
-    );
+    return const FastingProgress(remaining: Duration.zero, percentage: 0);
   }
 
   final remaining = nextStart.difference(now);
 
   return FastingProgress(
-    remaining: remaining.isNegative
-        ? Duration.zero
-        : remaining,
+    remaining: remaining.isNegative ? Duration.zero : remaining,
     percentage: 1.0,
   );
 }

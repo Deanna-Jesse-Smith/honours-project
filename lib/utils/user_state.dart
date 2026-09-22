@@ -90,14 +90,13 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       return null;
     }
 
-    bool isFasting = false;
     List<int> days = DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected);
     if (!fiveTwoComplete && user.formIF == FastingForm.fiveTwo) {
       fiveTwoComplete = true;
       await check52Adherence(user.userID, days, fDao);
-    } else {
-      isFasting = await fDao.isFasting();
     }
+
+    final isFasting = await fDao.isFasting(user.userID);
 
     // fDao.dummyData();
 

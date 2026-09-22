@@ -23,26 +23,26 @@ class _StartPageState extends State<StartPage> {
         FilledButton(
           onPressed: () async {
             if (controller.text.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SetupUser(
-                    name: controller.text,
-                    experience: hasExperience,
-                  ),
-                ),
-              );
-
               // Navigator.push(
               //   context,
               //   MaterialPageRoute(
-              //     builder: (context) => FastingInformation(
-              //       isForStart: true,
+              //     builder: (context) => SetupUser(
               //       name: controller.text,
-              //       hasExperience: hasExperience,
+              //       experience: hasExperience,
               //     ),
               //   ),
               // );
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FastingInformation(
+                    isForStart: true,
+                    name: controller.text,
+                    hasExperience: hasExperience,
+                  ),
+                ),
+              );
             } else {
               await Dialogs.dangerDialog(
                 context,

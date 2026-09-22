@@ -53,7 +53,9 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     BasicGoal? tempGoal = await ref.read(gDaoProvider).findActiveFastingGoal();
     if (tempGoal != null) await tempGoals.finishGoal(tempGoal.goalID);
 
-    if (session.isFasting) {
+    final checkCurFast = await ref.read(fDaoProvider).isFasting(session.userId);
+
+    if (checkCurFast) {
       await toggleFast();
     }
     ref.invalidate(userSessionProvider);
@@ -77,8 +79,8 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     final curStart = await fDao.getLatestStart(cur.userId);
     List<int> days = switch (cur.fastingForm) {
       FastingForm.tre => [],
-      FastingForm.fiveTwo => cur.adfDaysSelected,
-      FastingForm.adf => cur.fiveTwoDaysSelected,
+      FastingForm.fiveTwo => cur.fiveTwoDaysSelected,
+      FastingForm.adf => cur.adfDaysSelected,
     };
 
     return determineFastingStatus(
@@ -180,8 +182,8 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     List<int> days = switch (cur.fastingForm) {
       FastingForm.tre => [],
-      FastingForm.fiveTwo => cur.adfDaysSelected,
-      FastingForm.adf => cur.fiveTwoDaysSelected,
+      FastingForm.fiveTwo => cur.fiveTwoDaysSelected,
+      FastingForm.adf => cur.adfDaysSelected,
     };
 
     return calculateFastingProgress(
@@ -197,11 +199,15 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     final fDao = ref.read(fDaoProvider);
 
-    final lastFast = await fDao.isFasting();
+    final lastFast = await fDao.isFasting(cur.userId);
     DateTime today = DateTime.now();
 
-    final (expectedStart, expectedEnd) = switch (cur.fastingForm) {
-      FastingForm.tre => treTimes(today, cur.startTime, cur.endTime),
+    late final DateTime expectedStart;
+    late final DateTime expectedEnd;
+    switch (cur.fastingForm) {
+      case FastingForm.tre:
+        (expectedStart, expectedEnd) = treTimes(today, cur.startTime, cur.endTime);
+        break;
       // FastingForm.tre => (
       //   DateTime(
       //     today.year,
@@ -218,9 +224,18 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       //     cur.endTime.minute,
       //   ),
       // ),
-      FastingForm.fiveTwo => throw UnimplementedError(),
-      FastingForm.adf => adfTimes(cur.adfDaysSelected, today),
-    };
+      case FastingForm.fiveTwo:
+        throw UnimplementedError();
+      case FastingForm.adf:
+        if (lastFast) {
+          final activeStart = await fDao.getLatestStart(cur.userId);
+          if (activeStart == null) return;
+          (expectedStart, expectedEnd) = adfTimesForActiveFast(activeStart);
+        } else {
+          (expectedStart, expectedEnd) = adfTimes(cur.adfDaysSelected, today);
+        }
+        break;
+    }
 
     debugPrint('Expected Fasting Times (S:E) today: ($expectedStart — $expectedEnd)   $today');
 
@@ -231,6 +246,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
         FastResult.earlyEnd,
         FastResult.lateEnd,
         cur.fastingForm == FastingForm.adf,
+        isStart: false,
       );
 
       debugPrint('Fast Results: $result of severity $severity');
@@ -286,6 +302,20 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     return (start, start.add(const Duration(days: 1)).copyWith(hour: 10));
   }
 
+  (DateTime, DateTime) adfTimesForActiveFast(DateTime activeStart) {
+    final plannedStart = DateTime(
+      activeStart.year,
+      activeStart.month,
+      activeStart.day,
+      20,
+    );
+    final expectedEnd = plannedStart
+        .add(const Duration(days: 2))
+        .copyWith(hour: 10, minute: 0);
+
+    return (plannedStart, expectedEnd);
+  }
+
   DateTime getFullDay(int dayOfWeek) {
     dayOfWeek++;
     DateTime now = DateTime.now();
@@ -339,7 +369,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
 
     final fDao = ref.read(fDaoProvider);
 
-    final lastFast = await fDao.isFasting();
+    final lastFast = await fDao.isFasting(cur.userId);
 
     if (lastFast) {
       return true;

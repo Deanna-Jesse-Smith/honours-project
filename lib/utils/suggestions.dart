@@ -334,7 +334,8 @@ class RecommendationSystem {
     }
 
     final lateEnd = latestEnd.clamp(
-      dayEarliestMinutes + length,
+      [dayEarliestMinutes + length, toMinutes(const TimeOfDay(hour: 21, minute: 0))]
+          .reduce((a, b) => a > b ? a : b),
       dayLatestMinutes,
     );
     final lateStart = lateEnd - length;

@@ -14,7 +14,7 @@ class MyInputFormatter extends TextInputFormatter {
 
     final value = double.tryParse(newValue.text);
 
-    if (value == null || value > max || value < min) {
+    if (value == null || value > max || value < 1) {
       return oldValue;
     }
 

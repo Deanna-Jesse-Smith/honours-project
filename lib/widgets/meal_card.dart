@@ -141,8 +141,14 @@ class DaySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        Text(
+        if (dayMeal.meals.isNotEmpty) Text(
           '${DateFormat('EEE, M/d/y').format(dayMeal.meals.first.date)} (${dayMeal.getTotalCalories()} calories)',
+          style: TextStyle(
+            fontSize: TextSizing.medium,
+            fontWeight: FontWeight.bold,
+          ),
+        ) else Text(
+          '${DateFormat('EEE, M/d/y').format(dayMeal.day)} (No meals logged)',
           style: TextStyle(
             fontSize: TextSizing.medium,
             fontWeight: FontWeight.bold,

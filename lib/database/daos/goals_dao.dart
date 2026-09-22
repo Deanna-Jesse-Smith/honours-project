@@ -237,7 +237,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           ])
           ..addColumns([streaks.streakProgress])
           ..where(streaks.endDate.isNull())
-          ..where(goals.type.equalsValue(GoalType.fasting)));
+          ..where(goals.type.equalsValue(GoalType.nutrition)));
 
     return streakRows.watchSingleOrNull().map(
       (row) => row?.read(streaks.streakProgress),
@@ -754,12 +754,14 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   }
 
   Future<int> evaluateConcerns(GoalType type, DateTime windowStart) async {
+    final today = DateUtils.dateOnly(DateTime.now());
+
     final data =
         (select(
             streaks,
           ).join([innerJoin(goals, goals.goalID.equalsExp(streaks.goalID))]))
           ..where(goals.type.equalsValue(type))
-          ..where(streaks.startDate.isSmallerOrEqualValue(windowStart))
+          ..where(streaks.startDate.isSmallerOrEqualValue(today))
           ..where(streaks.endDate.isBiggerOrEqualValue(windowStart));
     final huh = await data.get();
     return huh.length;
@@ -773,22 +775,28 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     AS INTEGER
   )
   ''', precedence: Precedence.primary);
+
+  final today = DateUtils.dateOnly(DateTime.now());
     final data =
-        (select(
+        await (select(
             streaks,
-          ).join([innerJoin(goals, goals.goalID.equalsExp(streaks.goalID))]))
+          ).join([innerJoin(goals, goals.goalID.equalsExp(streaks.goalID))])
           ..addColumns([days])
           ..where(goals.type.equalsValue(type))
-          ..where(streaks.startDate.isSmallerOrEqualValue(windowStart))
-          ..where(
-            // streaks.endDate.isBiggerOrEqualValue(windowStart) |
-                streaks.endDate.isNull(),
-          );
+           ..where(streaks.startDate.isBiggerOrEqualValue(windowStart))
+           ..where(streaks.startDate.isSmallerOrEqualValue(today))).get();
+          // ..where(streaks.startDate.isSmallerOrEqualValue(windowStart))
+          // ..where(
+          //   // streaks.endDate.isBiggerOrEqualValue(windowStart) |
+          //       streaks.endDate.isNull(),
+          // );
 
-    final dataOutput = await data.getSingleOrNull();
+          return data.map((row) => row.readTable(streaks).streakProgress).fold<int>(0, (best, progress) => progress > best ? progress : best);
 
-    if (dataOutput != null) return dataOutput.read(days) ?? 0;
-    return 0;
+    // final dataOutput = await data.getSingleOrNull();
+
+    // if (dataOutput != null) return dataOutput.read(days) ?? 0;
+    // return 0;
 
     // int numValid = 0;
 

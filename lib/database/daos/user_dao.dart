@@ -105,7 +105,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     List<int> fiveTwoDays,
   ) async {
     if (newForm == FastingForm.tre) {
-      (update(users)..where((u) => u.userID.equals(1))).write(
+      (update(users)..where((u) => u.userID.equals(userID))).write(
         UsersCompanion(
           formIF: Value(FastingForm.tre),
           typicalEatingStart: Value(start),
@@ -126,7 +126,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<void> changeToTRE(int userID, DateTime start, DateTime end) async {
-    (update(users)..where((u) => u.userID.equals(1))).write(
+    await (update(users)..where((u) => u.userID.equals(userID))).write(
       UsersCompanion(
         formIF: Value(FastingForm.tre),
         typicalEatingStart: Value(start),
@@ -136,7 +136,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<void> changeToADF(int userID, List<int> days) async {
-    (update(users)..where((u) => u.userID.equals(userID))).write(
+    await (update(users)..where((u) => u.userID.equals(userID))).write(
       UsersCompanion(
         formIF: Value(FastingForm.adf),
         adfDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
@@ -145,10 +145,10 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<void> changeTo52(int userID, List<int> days) async {
-    (update(users)..where((u) => u.userID.equals(userID))).write(
+    await (update(users)..where((u) => u.userID.equals(userID))).write(
       UsersCompanion(
         formIF: Value(FastingForm.fiveTwo),
-        adfDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
+        fiveTwoDaysSelected: Value(DayOfWeekConverter().toSQL(days)),
       ),
     );
   }

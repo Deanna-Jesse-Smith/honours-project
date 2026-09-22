@@ -19,9 +19,10 @@ class FastingInformation extends StatelessWidget {
     debugPrint('Name: $name exp: $hasExperience');
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !isForStart,
         title: Text(
           'About Intermittent Fasting',
-          style: TextStyle(fontSize: TextSizing.large),
+          style: const TextStyle(fontSize: TextSizing.medlarge),
         ),
         backgroundColor: Colors.white,
         elevation: 0.0,
