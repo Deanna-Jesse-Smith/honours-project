@@ -60,6 +60,7 @@ class HomePageState extends ConsumerState<HomePage> {
     final checkGoal = ref.watch(checkFastingGoalProvider);
     // final checkStatus = ref.watch(checkFastingStatusProvider);
     final checkProgress = ref.watch(checkFastingProgressProvider);
+    final streakChecker = ref.watch(checkFastingStreakProvider);
     // ref.read(fDaoProvider).dummyData();
 
     return Scaffold(
@@ -100,26 +101,57 @@ class HomePageState extends ConsumerState<HomePage> {
                 loading: () => const SizedBox.shrink(),
               ),
             ),
-            StreamBuilder(
-              stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
-              builder: (context, asyncSnapshot) {
-                if (!asyncSnapshot.hasData) {
-                  return const Text(
-                    'No ongoing Fasting streak',
-                    style: TextStyle(fontSize: TextSizing.smallmed),
+            streakChecker.when(
+              data: (streak) {
+                if (streak == null) {
+                  return const SizedBox.shrink();
+                } else {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Tooltip(
+                        message:
+                            'Your fasting streak is the number of days in a row you have managed to maintain your fasting period.',
+                        textStyle: TextStyle(fontSize: TextSizing.small),
+                        constraints: BoxConstraints(maxWidth: 300),
+                        triggerMode: TooltipTriggerMode.tap,
+                        showDuration: Duration(seconds: 10),
+                        child: SizedBox(
+                          width: 50,
+                          child: Icon(Icons.info_outline),
+                        ),
+                      ),
+                      Text(
+                        'You\'re on a $streak week streak!',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ],
                   );
                 }
-
-                final days = asyncSnapshot.data;
-
-                if (days == null || days < 1) {
-                  return const SizedBox.shrink();
-                }
-
-                return Text('You\'re on a $days week streak!',
-                    style: TextStyle(fontSize: TextSizing.smallmed));
               },
+              error: (e, _) => Text(e.toString()),
+              loading: () => const CircularProgressIndicator(),
             ),
+            // StreamBuilder(
+            //   stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
+            //   builder: (context, asyncSnapshot) {
+            //     if (!asyncSnapshot.hasData) {
+            //       return const Text(
+            //         'No ongoing Fasting streak',
+            //         style: TextStyle(fontSize: TextSizing.smallmed),
+            //       );
+            //     }
+
+            //     final days = asyncSnapshot.data;
+
+            //     if (days == null || days < 1) {
+            //       return const SizedBox.shrink();
+            //     }
+
+            //     return Text('You\'re on a $days week streak!',
+            //         style: TextStyle(fontSize: TextSizing.smallmed));
+            //   },
+            // ),
             Padding(
               padding: EdgeInsets.all(30),
               child: checkProgress.when(

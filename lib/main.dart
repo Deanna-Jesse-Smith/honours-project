@@ -104,6 +104,10 @@ final checkFastingStatusProvider = FutureProvider<FastingStatus>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshFastingStatus();
 });
 
+final checkFastingStreakProvider = StreamProvider<int?>((ref) {
+  return ref.watch(gDaoProvider).getActiveFastingStreak();
+});
+
 final checkNutritionGoalProvider = FutureProvider<(double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkNutritionGoalPercent();
 });

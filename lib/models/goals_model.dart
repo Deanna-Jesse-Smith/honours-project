@@ -187,19 +187,3 @@ enum MetricType {
   kg,
   meals,
 }
-
-extension Display on GoalType {
-  String get forDisplay => switch (this) {
-    GoalType.fasting => 'Fasting Goals',
-    GoalType.weight => 'Weight Goals',
-    GoalType.hydration => 'Hydration Goals',
-    GoalType.nutrition => 'Nutrition Goals',
-  };
-
-  String get goalText => switch (this) {
-      GoalType.fasting => 'I will reach my fasting goal of:',
-      GoalType.weight => 'I will weigh less than or equal to:',
-      GoalType.hydration => 'I will drink more than:',
-      GoalType.nutrition => 'I will reach my daily calorie goal:',
-    };
-}

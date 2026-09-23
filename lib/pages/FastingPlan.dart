@@ -269,7 +269,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text(
-              'Cancel selection',
+              'Cancel',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -278,7 +278,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               Navigator.pop(context, true);
             },
             child: const Text(
-              'Continue with selection',
+              'Continue',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -409,7 +409,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel selection',
+              'Cancel',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -418,7 +418,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
               Navigator.pop(context, true);
             },
             child: Text(
-              'Continue with selection',
+              'Continue',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),

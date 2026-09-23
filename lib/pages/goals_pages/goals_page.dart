@@ -30,7 +30,7 @@ class GoalsPage extends ConsumerStatefulWidget {
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   late GoalType type;
   late String title, bestStreak;
-  String description = '';
+  String description = '', cardTitle = '', screenTitle = '';
   late BasicGoal curGoal;
   final TextEditingController goalController = TextEditingController();
   final focusNode = FocusNode();
@@ -90,6 +90,51 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         'Your nutrition goal is the maximum number of calories you aim to consume each day.\n\nYour nutrition streak is the number of consecutive days in which you have met your nutrition goal.',
     };
 
+    cardTitle = switch (type) {
+      GoalType.fasting =>
+        session!.fastingForm == FastingForm.fiveTwo
+            ? 'I will eat less than'
+            : 'I will reach my fasting goal of:',
+      GoalType.weight => 'I will weigh less than or equal to:',
+      GoalType.hydration => 'I will drink more than:',
+      GoalType.nutrition => 'I will reach my daily calorie goal:',
+    };
+
+    switch (type) {
+      case GoalType.fasting:
+        if (session!.fastingForm == FastingForm.fiveTwo) {
+          description =
+              'A 5:2 fasting goal is striving to complete the planned number of fasting days per week.';
+        } else if (session.fastingForm == FastingForm.tre) {
+          description =
+              'An ADF fasting goal is striving to complete the planned number of fasting days per week.';
+        } else if (session.fastingForm == FastingForm.adf) {
+          description =
+              'A TRE fasting goal is the minimum number of hours you aim to fast each day.';
+        }
+        description +=
+            '\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.';
+        cardTitle = session.fastingForm == FastingForm.fiveTwo
+            ? 'I will eat less than'
+            : 'I will reach my fasting goal of:';
+        screenTitle = 'Fasting Goals';
+      case GoalType.weight:
+        description =
+            'Your weight goal is the weight you are aiming to reach.\nUnlike the other goal types, weight goals do not have a streak.';
+        cardTitle = 'I will weigh less than or equal to:';
+        screenTitle = 'Weight Goals';
+      case GoalType.hydration:
+        description =
+            'Your hydration goal is the amount of water you aim to drink each day.\n\nYour hydration streak is the number of consecutive days in which you have met your hydration goal.';
+        cardTitle = 'I will drink more than:';
+        screenTitle = 'Hydration Goals';
+      case GoalType.nutrition:
+        description =
+            'Your nutrition goal is the maximum number of calories you aim to consume each day.\n\nYour nutrition streak is the number of consecutive days in which you have met your nutrition goal.';
+        cardTitle = 'I will reach my daily calorie goal:';
+        screenTitle = 'Nutrition Goals';
+    }
+
     if (type != GoalType.weight) description += bestStreak;
   }
 
@@ -97,10 +142,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          type.forDisplay,
-          style: TextStyle(fontSize: TextSizing.large),
-        ),
+        title: Text(screenTitle, style: TextStyle(fontSize: TextSizing.large)),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -109,7 +151,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           onTap: () async {
             final decision = await Dialogs.dangerDialog(
               context,
-              title: type.forDisplay,
+              title: screenTitle,
               message:
                   'Leaving without saving will discard any changes you made',
             );
@@ -332,7 +374,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
             child: Text(
-              type.goalText,
+              cardTitle,
               style: const TextStyle(fontSize: TextSizing.medium),
               textAlign: TextAlign.left,
             ),
@@ -340,21 +382,24 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           Padding(
             padding: const EdgeInsets.all(12.0),
             // child: SizedBox(width: MediaQuery.of(context).size.width * 0.5, child: TextField(
-            child: SizedBox(width: 250, child: TextField(
-              style: TextStyle(fontSize: TextSizing.medium),
-              controller: goalController,
-              focusNode: focusNode,
-              keyboardType: inputType,
-              inputFormatters: [MyInputFormatter(maxAmount, minAmount)],
-              decoration: InputDecoration(suffixText: suffixText),
-              // onChanged: (value) => setState(() {
-              //   double? temp = double.tryParse(value);
-              //   if (temp != null) {
-              //     curGoal.threshold = temp;
-              //     goalController.text = temp.toString();
-              //   }
-              // }),
-            ),),
+            child: SizedBox(
+              width: 250,
+              child: TextField(
+                style: TextStyle(fontSize: TextSizing.medium),
+                controller: goalController,
+                focusNode: focusNode,
+                keyboardType: inputType,
+                inputFormatters: [MyInputFormatter(maxAmount, minAmount)],
+                decoration: InputDecoration(suffixText: suffixText),
+                // onChanged: (value) => setState(() {
+                //   double? temp = double.tryParse(value);
+                //   if (temp != null) {
+                //     curGoal.threshold = temp;
+                //     goalController.text = temp.toString();
+                //   }
+                // }),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 12),

@@ -87,9 +87,26 @@ class MealTracking extends ConsumerWidget {
                 if (streak == null) {
                   return const SizedBox.shrink();
                 } else {
-                  return Text(
-                    'You\'re on a $streak day streak!',
-                    style: TextStyle(fontSize: TextSizing.medium),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Tooltip(
+                        message:
+                            'Your calorie streak is the number of days in a row you have managed to reach your calorie goal.',
+                        textStyle: TextStyle(fontSize: TextSizing.small),
+                        constraints: BoxConstraints(maxWidth: 300),
+                        triggerMode: TooltipTriggerMode.tap,
+                        showDuration: Duration(seconds: 10),
+                        child: SizedBox(
+                          width: 50,
+                          child: Icon(Icons.info_outline),
+                        ),
+                      ),
+                      Text(
+                        'You\'re on a $streak day streak!',
+                        style: TextStyle(fontSize: TextSizing.medium),
+                      ),
+                    ],
                   );
                 }
               },

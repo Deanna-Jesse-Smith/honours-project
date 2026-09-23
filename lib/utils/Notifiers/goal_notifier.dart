@@ -295,11 +295,16 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       int numCompleted = 0;
       for (final day in fiveTwoDays) {
         final date = lastWeek.$1.add(Duration(days: day));
-        bool wasCompleted = await ref
-            .read(nDaoProvider)
-            .isFiveTwoDay(date, date.add(const Duration(days: 1)));
 
-        if (wasCompleted) numCompleted++;
+        final amount = await ref.read(nDaoProvider).fiveTwoDayEvaluation(date);
+
+        // bool wasCompleted = amount <= goal.threshold;
+        
+        // bool wasCompleted = await ref
+        //     .read(nDaoProvider)
+        //     .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+
+        if (amount <= goal.threshold) numCompleted++;
       }
 
       return (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
@@ -380,11 +385,14 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       int numCompleted = 0;
       for (final day in fiveTwoDays) {
         final date = lastWeek.$1.add(Duration(days: day));
-        bool wasCompleted = await ref
-            .read(nDaoProvider)
-            .isFiveTwoDay(date, date.add(const Duration(days: 1)));
 
-        if (wasCompleted) numCompleted++;
+        final amount = await ref.read(nDaoProvider).fiveTwoDayEvaluation(date);
+        // bool wasCompleted = await ref
+        //     .read(nDaoProvider)
+        //     .isFiveTwoDay(date, date.add(const Duration(days: 1)));
+
+        // if (wasCompleted) numCompleted++;
+        if (amount <= goal.threshold) numCompleted++;
       }
 
       percent = (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
