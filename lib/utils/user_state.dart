@@ -193,23 +193,29 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     );
   }
 
-  Future<bool> updateTRE(TimeOfDay start, TimeOfDay end) async {
-    if (start.isAtSameTimeAs(end)) {
-      return false;
-    } else if (start.isBefore(end)) {
-      if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
+  Future<bool> updateTRE(
+    TimeOfDay start,
+    TimeOfDay end, {
+    bool force = true,
+  }) async {
+    if (force) {
+      if (start.isAtSameTimeAs(end)) {
+        return false;
+      } else if (start.isBefore(end)) {
+        if ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) >
+            720) {
+          return false;
+        }
+      } else if (((24 - start.hour) * 60) +
+              start.minute +
+              (end.hour * 60) +
+              end.minute >
           720) {
         return false;
       }
-    } else if (((24 - start.hour) * 60) +
-            start.minute +
-            (end.hour * 60) +
-            end.minute >
-        720) {
-      return false;
     }
 
-    ref
+    await ref
         .read(uDaoProvider)
         .updateTREtimes(
           state.value!.userId,
@@ -218,6 +224,20 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
         );
     ref.invalidateSelf();
     return true;
+  }
+
+  Future<void> updateTREWithoutValidation(
+    TimeOfDay start,
+    TimeOfDay end,
+  ) async {
+    await ref
+        .read(uDaoProvider)
+        .updateTREtimes(
+          state.value!.userId,
+          start.dateTimeConversion,
+          end.dateTimeConversion,
+        );
+    ref.invalidateSelf();
   }
 
   Future<void> updateADF(List<int> days) async {

@@ -40,7 +40,7 @@ class _ConcernDialogState extends State<ConcernDialog>
         : Icon(
             Icons.celebration_rounded,
             size: 100,
-            color: Color.fromRGBO(183, 0, 255, 1),
+            color: Color.fromRGBO(23, 210, 89, 1),
           );
 
     controller = AnimationController(
@@ -201,7 +201,7 @@ class _ConcernDialogState extends State<ConcernDialog>
           ),
         );
       },
-      child: const Icon(Icons.star_border_rounded,),
+      child: const Icon(Icons.star,),
     );
   }
 }

@@ -13,10 +13,22 @@ class StartPage extends StatefulWidget {
 
 class _StartPageState extends State<StartPage> {
   bool hasExperience = false;
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: '');
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController(text: '');
-
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [

@@ -402,7 +402,7 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
           ),
         ),
         content: Text(
-          'Your eating window should not be more than 12 hours in TRE',
+          'Your eating window should not be more than 12 hours long in TRE',
           style: const TextStyle(fontSize: TextSizing.medium),
         ),
         actions: [
@@ -426,15 +426,16 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     );
 
+    debugPrint('The user selected: $decision');
     if (decision != null && decision) {
       if (isStart) {
-        ref.read(userSessionProvider.notifier).updateTRE(time, end);
+        await ref.read(userSessionProvider.notifier).updateTRE(time, end, force: false);
         setState(() {
           start = time;
           startText = start.format(context);
         });
       } else {
-        ref.read(userSessionProvider.notifier).updateTRE(start, time);
+        await ref.read(userSessionProvider.notifier).updateTRE(start, time, force: false);
         setState(() {
           end = time;
           endText = end.format(context);

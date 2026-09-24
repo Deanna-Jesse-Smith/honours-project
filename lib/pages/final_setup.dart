@@ -49,6 +49,12 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     super.initState();
 
     selectedOption = widget.options.first;
+    selectedForm = switch (selectedOption) {
+      TREoption() => FastingForm.tre,
+      ADFoption() => FastingForm.adf,
+      ModifiedOption() => FastingForm.fiveTwo,
+      _ => FastingForm.tre,
+    };
   }
 
   @override
@@ -67,6 +73,36 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
             final decision = true;
 
             if (decision) {
+              if (selectedForm == FastingForm.fiveTwo &&
+                  !_hasValidDaySelection(fiveTwoDaysSelected, false)) {
+                if (!await planDecision(fiveTwoDaysSelected, false)) return;
+              }
+              if (selectedForm == FastingForm.adf &&
+                  !_hasValidDaySelection(adfDaysSelected, true)) {
+                if (!await planDecision(adfDaysSelected, true)) return;
+              }
+              if (selectedForm == FastingForm.tre &&
+                  selectedOption == null &&
+                  !_isValidTRE(start, end)) {
+                if (!context.mounted) return;
+                await showDialog<void>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Invalid Fasting Times Selected'),
+                    content: const Text(
+                      'Your eating window should be between 1 and 12 hours.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+                return;
+              }
+
               String cur52Schedule;
               late MetricType type;
               late int threshold;
@@ -95,13 +131,9 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
 
               List<DateTime> times;
               if (selectedForm == FastingForm.tre) {
-                final temp = selectedOption as TREoption;
-                times = selectedOption == null
+                final temp = selectedOption;
+                times = temp is TREoption
                     ? [
-                        DateTime(2026, 1, 2, start.hour, start.minute),
-                        DateTime(2026, 1, 1, end.hour, end.minute),
-                      ]
-                    : [
                         DateTime(
                           2026,
                           1,
@@ -110,6 +142,10 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                           temp.start.minute,
                         ),
                         DateTime(2026, 1, 1, temp.end.hour, temp.end.minute),
+                      ]
+                    : [
+                        DateTime(2026, 1, 2, start.hour, start.minute),
+                        DateTime(2026, 1, 1, end.hour, end.minute),
                       ];
                 type = MetricType.hours;
                 threshold = times[1].difference(times[0]).inHours.abs() - 1;
@@ -135,9 +171,12 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                   .read(wDaoProvider)
                   .logWeight(id, DateTime.now(), double.parse(widget.weight));
 
-              ref
+              await ref
                   .read(asyncGoalsProvider.notifier)
                   .insertInitialFastinggoal(id, threshold, type);
+                  await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .insertInitialHydrationgoal(id);
 
               await NotificationSystem.requestPermission();
 
@@ -177,20 +216,44 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               groupValue: selectedOption,
               onChanged: (FastOption? value) {
                 setState(() {
-                  selectedOption = value;
-                  if (value is TREoption) {
-                    selectedForm = FastingForm.tre;
-                  } else if (value is ADFoption) {
-                    selectedForm = FastingForm.adf;
+                  if (selectedOption == value) {
+                    selectedOption = null;
                   } else {
-                    selectedForm = FastingForm.fiveTwo;
+                    selectedForms.clear();
+                    selectedOption = value;
+                    if (value is TREoption) {
+                      selectedForm = FastingForm.tre;
+                    } else if (value is ADFoption) {
+                      selectedForm = FastingForm.adf;
+                    } else {
+                      selectedForm = FastingForm.fiveTwo;
+                    }
                   }
                 });
               },
               child: Column(
                 children: widget.options.map((option) {
-                  return RadioListTile<FastOption>(
-                    value: option,
+                  return ListTile(
+                    onTap: () {
+                      if (selectedOption == option) {
+                        setState(() {
+                          selectedOption = null;
+                        });
+                      } else {
+                        setState(() {
+                          selectedOption = option;
+                          selectedForms.clear();
+                          if (selectedOption is TREoption) {
+                            selectedForm = FastingForm.tre;
+                          } else if (selectedOption is ADFoption) {
+                            selectedForm = FastingForm.adf;
+                          } else {
+                            selectedForm = FastingForm.fiveTwo;
+                          }
+                        });
+                      }
+                    },
+                    leading: Radio<FastOption>(value: option),
                     title: Text(
                       option.label,
                       style: const TextStyle(fontSize: TextSizing.medium),
@@ -200,6 +263,18 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       style: const TextStyle(fontSize: TextSizing.small),
                     ),
                   );
+
+                  // return RadioListTile<FastOption>(
+                  //   value: option,
+                  //   title: Text(
+                  //     option.label,
+                  //     style: const TextStyle(fontSize: TextSizing.medium),
+                  //   ),
+                  //   subtitle: Text(
+                  //     option.justification,
+                  //     style: const TextStyle(fontSize: TextSizing.small),
+                  //   ),
+                  // );
                 }).toList(),
               ),
             ),
@@ -211,7 +286,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),
-            
+
             SegmentedButton<FastingForm>(
               segments: FastingForm.values.map((ff) {
                 return ButtonSegment<FastingForm>(
@@ -224,7 +299,9 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 setState(() {
                   selectedForms = newForm;
                   if (selectedForms.isNotEmpty) {
+                    
                     selectedForm = selectedForms.first;
+                    selectedOption = null;
                   }
                 });
               },
@@ -264,18 +341,24 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                   ),
                   TableRow(
                     children: [
-                      ElevatedButton(
-                        onPressed: () => selectStartTime(),
-                        child: Text(
-                          startText,
-                          style: TextStyle(fontSize: TextSizing.medium),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          onPressed: () => selectStartTime(),
+                          child: Text(
+                            startText,
+                            style: TextStyle(fontSize: TextSizing.medium),
+                          ),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () => selectEndTime(),
-                        child: Text(
-                          endText,
-                          style: TextStyle(fontSize: TextSizing.medium),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          onPressed: () => selectEndTime(),
+                          child: Text(
+                            endText,
+                            style: TextStyle(fontSize: TextSizing.medium),
+                          ),
                         ),
                       ),
                     ],
@@ -340,6 +423,24 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
       if (days[loop]) loop,
   ];
 
+  bool _hasValidDaySelection(List<bool> days, bool isADF) {
+    final availability = RecommendationSystem.validCombosHelper(
+      boolsToInts(days),
+      isADF,
+    );
+    availability.removeWhere(
+      (days) => days.isEmpty || days.length != (isADF ? 3 : 2),
+    );
+    return isADF ? availability.isNotEmpty : availability.length == 1;
+  }
+
+  bool _isValidTRE(TimeOfDay startTime, TimeOfDay endTime) {
+    final startMinutes = startTime.hour * 60 + startTime.minute;
+    final endMinutes = endTime.hour * 60 + endTime.minute;
+    final duration = (endMinutes - startMinutes + 1440) % 1440;
+    return duration > 0 && duration <= 720;
+  }
+
   CustomCheckbox getBox(int index) {
     return .new(
       isSelected: fiveTwoDaysSelected[index],
@@ -386,7 +487,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     },
   );
 
-  Future<void> planDecision(List<bool> list, bool isADF) async {
+  Future<bool> planDecision(List<bool> list, bool isADF) async {
     final decision = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -406,7 +507,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel selection',
+              'Cancel',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -415,7 +516,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               Navigator.pop(context, true);
             },
             child: Text(
-              'Continue with selection',
+              'Continue',
               style: TextStyle(fontSize: TextSizing.medlarge),
             ),
           ),
@@ -423,7 +524,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
       ),
     );
 
-    if (decision != null && decision) {
+    if (decision == true) {
       if (isADF) {
         setState(() {
           adfDaysSelected = List<bool>.from(list);
@@ -434,14 +535,13 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
         });
       }
     }
+    return decision == true;
   }
 
   Future<void> selectStartTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: start);
     if (time != null) {
-      final outcome =
-          ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) <=
-          1200);
+      final outcome = start == end || _isValidTRE(time, end);
       setState(() {
         if (outcome) {
           start = time;
@@ -456,9 +556,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
   Future<void> selectEndTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: end);
     if (time != null) {
-      final outcome =
-          ((end.hour * 60) + end.minute - ((start.hour * 60) + start.minute) <=
-          1200);
+      final outcome = start == end || _isValidTRE(start, time);
       setState(() {
         if (outcome) {
           end = time;

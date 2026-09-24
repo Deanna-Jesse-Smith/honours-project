@@ -39,14 +39,27 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
               start.convertToDateTime(today),
               end.convertToDateTime(today),
             );
+            int threshold = session.endTime.difference(session.startTime).inHours.abs() - 1;
+            await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .insertInitialFastinggoal(session.userId, threshold, MetricType.hours);
       case FastingForm.fiveTwo:
         await ref
             .read(uDaoProvider)
             .changeTo52(session!.userId, boolsToInts(days52));
+
+            await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .insertInitialFastinggoal(session.userId, 700, MetricType.hours);
       case FastingForm.adf:
+      final tempDays = boolsToInts(daysADF);
         await ref
             .read(uDaoProvider)
-            .changeToADF(session!.userId, boolsToInts(daysADF));
+            .changeToADF(session!.userId, tempDays);
+
+            await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .insertInitialFastinggoal(session.userId, tempDays.length, MetricType.hours);
     }
 
     AsyncGoals tempGoals = ref.read(asyncGoalsProvider.notifier);
