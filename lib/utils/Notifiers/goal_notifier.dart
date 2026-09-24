@@ -504,11 +504,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return (goal.startWeight, percent, goal.threshold);
   }
 
-  Future<double> checkHydrationGoalProgress() async {
+  Future<(double, double, double)> checkHydrationGoalProgress() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
     if (goal == null) {
-      return 0.0;
+      return (0.0, 0.0, 0.0);
     }
 
     final curWater = await ref
@@ -516,11 +516,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .getTodayHydration(session!.userId, DateTime.now());
 
     if (curWater == null) {
-      return 0.0;
+      return (0.0, 0.0, 0.0);
     } else {
       debugPrint('Water: $curWater');
 
-      return (curWater / goal.threshold).clamp(0.05, 1.0);
+      return ((curWater / goal.threshold).clamp(0.05, 1.0), curWater, goal.threshold);
     }
   }
 

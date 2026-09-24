@@ -769,9 +769,291 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<int> seedReinforcementUsabilityData() async {
+    final today = DateUtils.dateOnly(DateTime.now());
+
+    return transaction(() async {
+      await wipeData();
+      final userID = await into(users).insert(
+        UsersCompanion.insert(
+          name: 'Usability Test User',
+          formIF: FastingForm.tre,
+          experience: Experience.experienced,
+          typicalEatingStart: Value(
+            DateTime(today.year, today.month, today.day, 10, 30),
+          ),
+          typicalEatingEnd: Value(
+            DateTime(today.year, today.month, today.day, 18),
+          ),
+          height: 170,
+          isGender: false,
+        ),
+      );
+
+      await into(weightLog).insert(
+        WeightLogCompanion.insert(
+          userID: userID,
+          amount: Value(70),
+          date: Value(today.subtract(const Duration(days: 5)),
+        ),
+      ));
+
+      await into(fastLog).insert(
+        FastLogCompanion.insert(
+          userID: userID,
+          formIF: FastingForm.tre,
+          earlyFastResult: FastResult.asPlanned,
+          lateFastResult: Value(FastResult.asPlanned),
+          startDateTime: Value(today.subtract(const Duration(hours: 6))),
+          endDateTime: Value(
+            DateTime(today.year, today.month, today.day, 10, 30),
+          ),
+        ),
+      );
+
+      final fastingGoalID = await into(goals).insert(
+        GoalsCompanion.insert(
+          type: GoalType.fasting,
+          thresholdValue: const Value(1),
+          metricType: MetricType.hours,
+          op: GoalOperator.greaterEqual,
+        ),
+      );
+      await into(fastingGoals).insert(
+        FastingGoalsCompanion.insert(
+          goalID: Value(fastingGoalID),
+          targetHours: const Value(1),
+        ),
+      );
+      await into(streaks).insert(
+        StreaksCompanion.insert(
+          goalID: fastingGoalID,
+          startDate: Value(today),
+          streakProgress: const Value(1),
+          unlockType: const Value(UnlockType.badge),
+        ),
+      );
+
+      final hydrationGoalID = await into(goals).insert(
+        GoalsCompanion.insert(
+          type: GoalType.hydration,
+          thresholdValue: const Value(2),
+          metricType: MetricType.litres,
+          op: GoalOperator.greaterEqual,
+        ),
+      );
+      await into(hydrationGoals).insert(
+        HydrationGoalsCompanion.insert(
+          goalID: Value(hydrationGoalID),
+          hdrAmount: const Value(2),
+          hdrDate: Value(today),
+        ),
+      );
+
+      for (var daysAgo = 1; daysAgo <= 3; daysAgo++) {
+        final streakDate = today.subtract(Duration(days: daysAgo));
+        await into(streaks).insert(
+          StreaksCompanion.insert(
+            goalID: hydrationGoalID,
+            startDate: Value(streakDate),
+            endDate: Value(streakDate.add(const Duration(hours: 23))),
+            streakProgress: const Value(1),
+            unlockType: const Value(UnlockType.badge),
+          ),
+        );
+      }
+
+      return userID;
+    });
+  }
+
+  Future<void> seedExampleFastLogs({int userID = 1}) async {
+    final seedDates = List.generate(
+      15,
+      (index) => DateTime(2026, 6, 20).add(Duration(days: index)),
+    );
+    final seedStartTimes = [
+      const TimeOfDay(hour: 20, minute: 15),
+      const TimeOfDay(hour: 19, minute: 55),
+      const TimeOfDay(hour: 20, minute: 30),
+      const TimeOfDay(hour: 20, minute: 5),
+      const TimeOfDay(hour: 20, minute: 20),
+      const TimeOfDay(hour: 21, minute: 0),
+      const TimeOfDay(hour: 20, minute: 40),
+      const TimeOfDay(hour: 20, minute: 0),
+      const TimeOfDay(hour: 20, minute: 10),
+      const TimeOfDay(hour: 20, minute: 35),
+      const TimeOfDay(hour: 20, minute: 0),
+      const TimeOfDay(hour: 20, minute: 20),
+      const TimeOfDay(hour: 20, minute: 45),
+      const TimeOfDay(hour: 20, minute: 10),
+      const TimeOfDay(hour: 20, minute: 0),
+    ];
+    final seedEndTimes = [
+      const TimeOfDay(hour: 12, minute: 20),
+      const TimeOfDay(hour: 12, minute: 5),
+      const TimeOfDay(hour: 12, minute: 45),
+      const TimeOfDay(hour: 11, minute: 55),
+      const TimeOfDay(hour: 12, minute: 30),
+      const TimeOfDay(hour: 13, minute: 10),
+      const TimeOfDay(hour: 12, minute: 50),
+      const TimeOfDay(hour: 12, minute: 0),
+      const TimeOfDay(hour: 12, minute: 25),
+      const TimeOfDay(hour: 12, minute: 40),
+      const TimeOfDay(hour: 12, minute: 10),
+      const TimeOfDay(hour: 12, minute: 30),
+      const TimeOfDay(hour: 13, minute: 0),
+      const TimeOfDay(hour: 12, minute: 15),
+      const TimeOfDay(hour: 12, minute: 15),
+    ];
+    final seedEarlyResults = [
+      FastResult.asPlanned,
+      FastResult.earlyStart,
+      FastResult.skipped,
+      FastResult.asPlanned,
+      FastResult.lateEnd,
+      FastResult.asPlanned,
+      FastResult.earlyStart,
+      FastResult.lateStart,
+      FastResult.skipped,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+    ];
+    final seedLateResults = [
+      FastResult.asPlanned,
+      FastResult.lateEnd,
+      FastResult.skipped,
+      FastResult.earlyEnd,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.lateEnd,
+      FastResult.earlyEnd,
+      FastResult.skipped,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+    ];
+    final seedEarlySeverities = [
+      0,
+      30,
+      0,
+      0,
+      30,
+      0,
+      30,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    ];
+    final seedLateSeverities = [
+      0,
+      40,
+      0,
+      40,
+      0,
+      0,
+      40,
+      40,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    ];
+
+    final augustDates = [
+      1,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+    ].map((day) => DateTime(2026, 8, day)).toList();
+    final augustEarlyResults = [
+      FastResult.asPlanned,
+      FastResult.earlyStart,
+      FastResult.asPlanned,
+      FastResult.lateStart,
+      FastResult.skipped,
+      FastResult.asPlanned,
+      FastResult.earlyStart,
+      FastResult.asPlanned,
+    ];
+    final augustLateResults = [
+      FastResult.asPlanned,
+      FastResult.lateEnd,
+      FastResult.earlyEnd,
+      FastResult.asPlanned,
+      FastResult.skipped,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+      FastResult.asPlanned,
+    ];
+    final augustEarlySeverities = [0, 30, 0, 30, 0, 0, 30, 0];
+    final augustLateSeverities = [0, 40, 40, 0, 0, 0, 0, 0];
+
+    DateTime atTime(DateTime day, TimeOfDay time) {
+      return DateTime(day.year, day.month, day.day, time.hour, time.minute);
+    }
+
+    await batch((batch) {
+      batch.insertAll(fastLog, [
+        for (var index = 0; index < seedDates.length; index++)
+          FastLogCompanion.insert(
+            userID: userID,
+            formIF: FastingForm.tre,
+            earlyFastResult: seedEarlyResults[index],
+            lateFastResult: Value(seedLateResults[index]),
+            startDateTime: Value(
+              atTime(seedDates[index], seedStartTimes[index]),
+            ),
+            endDateTime: Value(
+              atTime(
+                seedDates[index].add(const Duration(days: 1)),
+                seedEndTimes[index],
+              ),
+            ),
+            earlyResultSeverity: Value(seedEarlySeverities[index]),
+            lateResultSeverity: Value(seedLateSeverities[index]),
+          ),
+        for (var index = 0; index < augustDates.length; index++)
+          FastLogCompanion.insert(
+            userID: userID,
+            formIF: FastingForm.tre,
+            earlyFastResult: augustEarlyResults[index],
+            lateFastResult: Value(augustLateResults[index]),
+            startDateTime: Value(
+              atTime(augustDates[index], const TimeOfDay(hour: 10, minute: 30)),
+            ),
+            endDateTime: Value(
+              atTime(augustDates[index], const TimeOfDay(hour: 18, minute: 0)),
+            ),
+            earlyResultSeverity: Value(augustEarlySeverities[index]),
+            lateResultSeverity: Value(augustLateSeverities[index]),
+          ),
+      ]);
+    });
+  }
+
   Future<void> seedRelativeTreFasts({
     int userID = 1,
-    int numberOfFasts = 5,
+    int numberOfFasts = 11,
     DateTime? now,
   }) async {
     final referenceDate = now ?? DateTime.now();

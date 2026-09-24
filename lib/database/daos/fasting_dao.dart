@@ -177,6 +177,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         (select(fastLog)
               ..where(
                 (u) =>
+                    u.formIF.equals(FastingForm.tre.name) &
                     // u.userID.equals(userID) &
                     u.startDateTime.isSmallerOrEqualValue(
                       end,
@@ -188,7 +189,7 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
               )
               ..orderBy([(f) => OrderingTerm.asc(f.startDateTime)]))
             .watch();
-    testing();
+    // testing();
 
     return history;
   }

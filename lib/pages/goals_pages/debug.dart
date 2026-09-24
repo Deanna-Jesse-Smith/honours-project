@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/pages/start_page.dart';
+import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/Notifiers/fasting_notifier.dart';
+import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
+import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
 class DebugPage extends ConsumerWidget {
@@ -38,7 +42,13 @@ class DebugPage extends ConsumerWidget {
         ),
         OutlinedButton(
           onPressed: () async {
-            await ref.read(databaseProvider).seedDatabase();
+            int newID = await ref.read(databaseProvider).seedReinforcementUsabilityData();
+            await ref.read(databaseProvider).seedRelativeTreFasts(userID: newID);
+            await ref.read(databaseProvider).seedExampleFastLogs(userID: newID);
+            ref.invalidate(userSessionProvider);
+            ref.invalidate(asyncConcernsProvider);
+            ref.invalidate(asyncGoalsProvider);
+            ref.invalidate(asyncFatingNotifier);
           },
           child: const Text(
             'Seed',

@@ -26,7 +26,7 @@ class MyExpandableFAB extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     UserSessionData session = ref.watch(userSessionProvider).value!;
     final isFasting = ref.watch(isFastingProvider);
-    
+
     // final actions = BuildFAB.buildFab(
     //   ref,
     //   index: index,
@@ -117,7 +117,7 @@ class MyExpandableFAB extends ConsumerWidget {
             context,
             initialVal: curWeight,
             title: 'Log Weight',
-            unit: 'kg'
+            unit: 'kg',
           );
           if (newAmount != null) {
             final check = await ref
@@ -168,16 +168,11 @@ class MyExpandableFAB extends ConsumerWidget {
 
                   if (decision2) {
                     celebrate = await ref
-                    .read(asyncGoalsProvider.notifier)
-                    .logMeal(
-                      MealCategory.quick,
-                      {},
-                      newLog,
-                      DateTime.now(),
-                    )
-                    .whenComplete(
-                      () => ref.invalidate(checkNutritionGoalProvider),
-                    );
+                        .read(asyncGoalsProvider.notifier)
+                        .logMeal(MealCategory.quick, {}, newLog, DateTime.now())
+                        .whenComplete(
+                          () => ref.invalidate(checkNutritionGoalProvider),
+                        );
                     // await ref
                     // .read(asyncGoalsProvider.notifier)
                     // .logMeal(
@@ -196,13 +191,8 @@ class MyExpandableFAB extends ConsumerWidget {
               } else {
                 try {
                   celebrate = await ref
-                    .read(asyncGoalsProvider.notifier)
-                    .logMeal(
-                      MealCategory.quick,
-                      {},
-                      newLog,
-                      DateTime.now(),
-                    );
+                      .read(asyncGoalsProvider.notifier)
+                      .logMeal(MealCategory.quick, {}, newLog, DateTime.now());
                 } finally {
                   ref.invalidate(checkNutritionGoalProvider);
                 }
@@ -221,10 +211,10 @@ class MyExpandableFAB extends ConsumerWidget {
 
               if (celebrate) {
                 if (!context.mounted) return;
-              showDialog(
-                context: context,
-                builder: (_) => DialogTitle(type: GoalType.nutrition),
-              );
+                showDialog(
+                  context: context,
+                  builder: (_) => DialogTitle(type: GoalType.nutrition),
+                );
               }
             } else if (newLog == LogMethod.full) {
               if (!context.mounted) return;
@@ -250,17 +240,21 @@ class MyExpandableFAB extends ConsumerWidget {
             title: 'How much water have you drank since your last log?',
           );
           if (newAmount != null) {
-            final check = await ref
-                .read(asyncGoalsProvider.notifier)
-                .addHydration(newAmount)
-                .whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
+            try {
+              final check = await ref
+                  .read(asyncGoalsProvider.notifier)
+                  .addHydration(newAmount);
 
-            if (check) {
-              if (!context.mounted) return;
-              showDialog(
-                context: context,
-                builder: (_) => DialogTitle(type: GoalType.hydration),
-              );
+              if (check) {
+                if (!context.mounted) return;
+                showDialog(
+                  context: context,
+                  builder: (_) => DialogTitle(type: GoalType.hydration),
+                );
+              }
+            } finally {
+              ref.invalidate(checkHydrationGoalProvider);
+              ref.invalidate(checkHydrationStreakProvider);
             }
           }
         },
@@ -279,8 +273,10 @@ class MyExpandableFAB extends ConsumerWidget {
               .map(
                 (button) => ElevatedButton(
                   onPressed: button.onPressed,
-                  child: Text(button.title, 
-                      style: TextStyle(fontSize: TextSizing.medium),),
+                  child: Text(
+                    button.title,
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  ),
                 ),
               )
               .toList(),

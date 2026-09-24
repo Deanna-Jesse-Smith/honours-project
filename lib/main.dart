@@ -88,7 +88,7 @@ final checkWeightGoalProvider = FutureProvider.autoDispose<(double, double, doub
   return ref.watch(asyncGoalsProvider.notifier).checkWeightGoal();
 });
 
-final checkHydrationGoalProvider = FutureProvider<double>((ref) {
+final checkHydrationGoalProvider = FutureProvider<(double, double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkHydrationGoalProgress();
 });
 
@@ -130,6 +130,27 @@ final fastsInRangProvider = StreamProvider.autoDispose.family<List<FastLogData>,
     return ref
         .watch(fDaoProvider)
         .findFastsInRange(dates.$1, dates.$2);
+  },
+);
+
+final watchHydrationProvider = StreamProvider.autoDispose.family<double, DateTime>(
+  (ref, day) {
+    final repo = ref.watch(hDaoProvider);
+    return repo.watchTodayHydration(0, day);
+  },
+);
+
+final watchHydrationGraphProvider = StreamProvider.autoDispose.family<List<(DateTime, double)>, DateTime>(
+  (ref, day) {
+    final repo = ref.watch(hDaoProvider);
+    return repo.getAllHydrationLogs(0, day);
+  },
+);
+
+final watchWeightGraphProvider = StreamProvider.autoDispose.family<List<(DateTime, double)>, int>(
+  (ref, day) {
+    final repo = ref.watch(wDaoProvider);
+    return repo.getAllWeightLogs(day, DateTime.now());
   },
 );
 

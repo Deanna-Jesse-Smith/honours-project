@@ -1,20 +1,20 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animations/celebration_title.dart';
-import 'package:testrun/widgets/dialogs.dart';
 import 'package:testrun/widgets/fab.dart';
-import 'package:testrun/widgets/main_app_bar.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 // import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
@@ -27,6 +27,8 @@ class WeightTracking extends ConsumerStatefulWidget {
 
 class _WeightTrackingState extends ConsumerState<WeightTracking> {
   late Future<double> goalProgress;
+
+    final DateTime start = DateTime.now().subtract(const Duration(days: 30));
 
   @override
   void initState() {
@@ -54,6 +56,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
     late double curWeight;
 
     final watchWeightGoal = ref.watch(checkWeightGoalProvider);
+    final graphChecker = ref.watch(watchWeightGraphProvider(session!.userId));
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +112,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
-              stream: ref.watch(wDaoProvider).getCurWeight(session!.userId),
+              stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
               builder: (context, asyncSnapshot) {
                 if (!asyncSnapshot.hasData) {
                   curWeight = 0;
@@ -124,6 +127,92 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                 );
               },
             ),
+
+            graphChecker.when(
+              data: (logs) {
+                if (logs.isEmpty) {
+                  return const Text('No hydration logs yet.');
+                } else {
+                  DateTime cur = start;
+                  final today = DateUtils.dateOnly(DateTime.now()), limit = today.add(const Duration(days: 1));
+                  final List<(DateTime, double)> filledLogs = [];
+
+                  int loop = 0;
+                  do {
+                    if (loop < logs.length && DateUtils.isSameDay(logs[loop].$1, cur)) {
+                      filledLogs.add(logs[loop]);
+                      loop++;
+                    } else if (!filledLogs.contains((cur, 0.0))) {
+                      filledLogs.add((cur, 0.0));
+                    }
+                    cur = cur.add(const Duration(days: 1));
+                  } while (cur.isBefore(limit));
+                  return SizedBox(
+                    height: 200,
+                    child: LineChart(
+                      LineChartData(
+                        minY: 0,
+                        maxY: filledLogs.map((e) => e.$2).reduce(max) + 0.5,
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: filledLogs
+                                .map(
+                                  (log) => FlSpot(
+                                    log.$1.millisecondsSinceEpoch
+                                        .toDouble(),
+                                    log.$2,
+                                  ),
+                                )
+                                .toList(),
+                            color: const Color.fromARGB(255, 11, 156, 71),
+                            preventCurveOverShooting: true,
+                            isCurved: true,
+                            barWidth: 3,
+                            dotData: FlDotData(show: false),
+                          ),
+                        ],
+                        titlesData: FlTitlesData(
+                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: false,
+                              getTitlesWidget: (value, meta) {
+                                return Text('${value.toStringAsFixed(2)} l', style: const TextStyle(fontSize: 12));
+                              },
+                            ),
+                          ),
+                          // rightTitles: AxisTitles(
+                          //   sideTitles: SideTitles(
+                          //     showTitles: false,
+                          //     getTitlesWidget: (value, meta) {
+                          //       return Text('$value l');
+                          //     },
+                          //   ),
+                          // ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              interval: const Duration(days: 1).inMilliseconds.toDouble(),
+                              getTitlesWidget: (value, meta) {
+                                final date =
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                      value.toInt(),
+                                    );
+                                return Text(DateFormat('MMM').format(date));
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+              error: (e, _) => Text(e.toString()),
+              loading: () => const CircularProgressIndicator(),
+            ),
+
+
             // ElevatedButton(
             //   onPressed: () async {
             //     final newAmount = await Dialogs.getNewInput(
