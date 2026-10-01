@@ -16,7 +16,7 @@ class MyNavigationDrawer extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/'),
           ),
           ListTile(
-            title: const Text('Fasting Plan', style: TextStyle(fontSize: TextSizing.medlarge),),
+            title: const Text('Fasting', style: TextStyle(fontSize: TextSizing.medlarge),),
             onTap: () => Navigator.pushNamed(context, '/FastingPlan'),
           ),
           ListTile(

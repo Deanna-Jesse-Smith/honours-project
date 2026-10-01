@@ -16,7 +16,10 @@ class DebugPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Debug', style: TextStyle(fontSize: TextSizing.large)),
+        title: const Text(
+          'Debug',
+          style: TextStyle(fontSize: TextSizing.large),
+        ),
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
@@ -28,11 +31,20 @@ class DebugPage extends ConsumerWidget {
           onPressed: () async {
             try {
               await ref.read(databaseProvider).wipeData();
-            } finally {
+              ref.invalidate(userSessionProvider);
+              ref.invalidate(asyncConcernsProvider);
+              ref.invalidate(asyncGoalsProvider);
+              ref.invalidate(asyncFatingNotifier);
               if (!context.mounted) return;
-              Navigator.of(context).push(
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const StartPage()),
+                (route) => false,
               );
+            } catch (error) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Reset failed: $error')));
             }
           },
           child: const Text(
@@ -42,8 +54,12 @@ class DebugPage extends ConsumerWidget {
         ),
         OutlinedButton(
           onPressed: () async {
-            int newID = await ref.read(databaseProvider).seedReinforcementUsabilityData();
-            await ref.read(databaseProvider).seedRelativeTreFasts(userID: newID);
+            int newID = await ref
+                .read(databaseProvider)
+                .seedReinforcementUsabilityData();
+            await ref
+                .read(databaseProvider)
+                .seedRelativeTreFasts(userID: newID);
             await ref.read(databaseProvider).seedExampleFastLogs(userID: newID);
             ref.invalidate(userSessionProvider);
             ref.invalidate(asyncConcernsProvider);

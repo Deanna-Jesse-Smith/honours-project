@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:testrun/custom_widgets.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
@@ -573,28 +572,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       ),
     ],
   );
-
-  List<Padding> getStreakProgress() {
-    return [
-      Padding(
-        padding: EdgeInsets.all(15),
-        child: Text(
-          'Streak progress text',
-          style: TextStyle(fontSize: TextSizing.medium),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(15),
-        child: CustomWidgets().streakIndicator(
-          'Streak underway',
-          0.6,
-          Colors.orange,
-          Colors.amberAccent,
-          context,
-        ),
-      ),
-    ];
-  }
 
   Row chooseFastingPlan(UserSessionData session) {
     return .new(

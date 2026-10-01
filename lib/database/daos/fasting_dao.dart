@@ -172,6 +172,12 @@ class FastingDao extends DatabaseAccessor<AppDatabase> with _$FastingDaoMixin {
         .map((fast) => fast != null);
   }
 
+  Future<List<FastLogData>> findAllFasts() {
+    return (select(fastLog)
+          ..orderBy([(f) => OrderingTerm.desc(f.fastLogID)]))
+        .get();
+  }
+
   Stream<List<FastLogData>> findFastsInRange(DateTime start, DateTime end) {
     final history =
         (select(fastLog)

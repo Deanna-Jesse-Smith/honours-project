@@ -216,7 +216,7 @@ class AppDatabase extends _$AppDatabase {
           type: Value(GoalType.fasting),
           title: 'You\'re building a consistent fasting routine',
           displayContext:
-              'Your recent fasting history shows that you\'ve been consistently following your plan. Keeping a routine that fits your lifestyle can make it easier to maintain your progress.',
+              'Your recent fasting history shows that you\'ve been consistently following your plan. Keeping a routine that fits your lifestyle can make it easier to maintain your progress, and you\'re on track.',
           citation: 'Torres/Salisbury et al. (2022)',
           threshold: 3,
           window: 21,
@@ -587,6 +587,35 @@ class AppDatabase extends _$AppDatabase {
   Future<void> wipeData() async {
     await transaction(() async {
       await delete(mealFoodContent).go();
+      await delete(mealRecipeContent).go();
+      await delete(recipeQuantities).go();
+      await delete(reminder).go();
+      await delete(fastLog).go();
+      await delete(hydrationLog).go();
+      await delete(weightLog).go();
+      await delete(meals).go();
+      await delete(streaks).go();
+      await delete(userGoalProgress).go();
+      await delete(fastingGoals).go();
+      await delete(weightGoals).go();
+      await delete(nutritionGoals).go();
+      await delete(hydrationGoals).go();
+      await delete(goals).go();
+      await delete(reinforcements).go();
+      await delete(stepsLog).go();
+      await delete(nutritionLog).go();
+      await delete(foodLog).go();
+      await delete(recipe).go();
+      await delete(food).go();
+      await delete(users).go();
+
+      await insertData();
+    });
+  }
+
+  Future<void> wipeDataForSeed() async {
+    await transaction(() async {
+      await delete(mealFoodContent).go();
       await delete(reminder).go();
       await delete(fastLog).go();
       await delete(hydrationLog).go();
@@ -603,7 +632,6 @@ class AppDatabase extends _$AppDatabase {
       await delete(nutritionLog).go();
       await delete(foodLog).go();
       await delete(food).go();
-      await delete(users).go();
     });
 
     await insertData();
@@ -773,48 +801,79 @@ class AppDatabase extends _$AppDatabase {
     final today = DateUtils.dateOnly(DateTime.now());
 
     return transaction(() async {
-      await wipeData();
-      final userID = await into(users).insert(
-        UsersCompanion.insert(
-          name: 'Usability Test User',
-          formIF: FastingForm.tre,
-          experience: Experience.experienced,
-          typicalEatingStart: Value(
-            DateTime(today.year, today.month, today.day, 10, 30),
-          ),
-          typicalEatingEnd: Value(
-            DateTime(today.year, today.month, today.day, 18),
-          ),
-          height: 170,
-          isGender: false,
-        ),
-      );
+      final user =
+          await (select(users)
+                ..orderBy([(u) => OrderingTerm.desc(u.userID)])
+                ..limit(1))
+              .getSingleOrNull();
+      if (user == null) {
+        throw StateError('Create a user before seeding reinforcement data.');
+      }
+
+      final eatingStart = user.typicalEatingStart;
+      final eatingEnd = user.typicalEatingEnd;
+      if (user.formIF != FastingForm.tre ||
+          eatingStart == null ||
+          eatingEnd == null) {
+        throw StateError('The existing user must have a TRE eating schedule.');
+      }
+
+      final eatingStartMinutes = eatingStart.hour * 60 + eatingStart.minute;
+      final eatingEndMinutes = eatingEnd.hour * 60 + eatingEnd.minute;
+      final plannedFastingMinutes =
+          (eatingStartMinutes - eatingEndMinutes + 24 * 60) % (24 * 60);
+      if (plannedFastingMinutes <= 60) {
+        throw StateError(
+          'The TRE schedule must include more than one fasting hour.',
+        );
+      }
+      final goalHours = (plannedFastingMinutes - 60) / 60;
+
+      await wipeDataForSeed();
+      final userID = user.userID;
 
       await into(weightLog).insert(
         WeightLogCompanion.insert(
           userID: userID,
           amount: Value(70),
-          date: Value(today.subtract(const Duration(days: 5)),
-        ),
-      ));
-
-      await into(fastLog).insert(
-        FastLogCompanion.insert(
-          userID: userID,
-          formIF: FastingForm.tre,
-          earlyFastResult: FastResult.asPlanned,
-          lateFastResult: Value(FastResult.asPlanned),
-          startDateTime: Value(today.subtract(const Duration(hours: 6))),
-          endDateTime: Value(
-            DateTime(today.year, today.month, today.day, 10, 30),
-          ),
+          date: Value(today.subtract(const Duration(days: 5))),
         ),
       );
+
+      await batch((batch) {
+        batch.insertAll(fastLog, [
+          for (var daysAgo = 2; daysAgo >= 0; daysAgo--)
+            FastLogCompanion.insert(
+              userID: userID,
+              formIF: FastingForm.tre,
+              earlyFastResult: FastResult.asPlanned,
+              lateFastResult: Value(FastResult.asPlanned),
+              startDateTime: Value(
+                DateTime(
+                  today.year,
+                  today.month,
+                  today.day - daysAgo - 1,
+                  eatingEnd.hour,
+                  eatingEnd.minute,
+                ),
+              ),
+              endDateTime: Value(
+                DateTime(
+                  today.year,
+                  today.month,
+                  today.day - daysAgo,
+                  eatingStart.hour,
+                  eatingStart.minute,
+                ),
+              ),
+            ),
+        ]);
+      });
 
       final fastingGoalID = await into(goals).insert(
         GoalsCompanion.insert(
           type: GoalType.fasting,
-          thresholdValue: const Value(1),
+          thresholdValue: Value(goalHours),
           metricType: MetricType.hours,
           op: GoalOperator.greaterEqual,
         ),
@@ -822,14 +881,14 @@ class AppDatabase extends _$AppDatabase {
       await into(fastingGoals).insert(
         FastingGoalsCompanion.insert(
           goalID: Value(fastingGoalID),
-          targetHours: const Value(1),
+          targetHours: Value(goalHours),
         ),
       );
       await into(streaks).insert(
         StreaksCompanion.insert(
           goalID: fastingGoalID,
-          startDate: Value(today),
-          streakProgress: const Value(1),
+          startDate: Value(today.subtract(const Duration(days: 2))),
+          streakProgress: const Value(3),
           unlockType: const Value(UnlockType.badge),
         ),
       );

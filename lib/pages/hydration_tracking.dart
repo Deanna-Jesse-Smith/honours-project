@@ -189,7 +189,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                             color: Colors.blue,
                             preventCurveOverShooting: true,
                             isCurved: true,
-                            barWidth: 3,
+                            barWidth: 5,
                             dotData: FlDotData(show: false),
                           ),
                         ],
@@ -220,7 +220,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                                     DateTime.fromMillisecondsSinceEpoch(
                                       value.toInt(),
                                     );
-                                return Text(DateFormat('d').format(date));
+                                return Text(DateFormat('E').format(date));
                               },
                             ),
                           ),

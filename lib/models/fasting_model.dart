@@ -3,16 +3,11 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/models/converters.dart';
 
 class DummyUser {
-  final List<int> adfDaysSelected;
+  final List<int> daysSelected;
   final FastingForm form;
   final DateTime typicalStart, typicalEnd;
 
-  DummyUser(
-    this.adfDaysSelected,
-    this.form,
-    this.typicalStart,
-    this.typicalEnd,
-  );
+  DummyUser(this.daysSelected, this.form, this.typicalStart, this.typicalEnd);
 }
 
 class FastingInterval {
@@ -61,28 +56,30 @@ class TRECalculator implements FastingScheduleCalculator {
 }
 
 class WeekdayBasedCalculator implements FastingScheduleCalculator {
-  final Duration fastDuration;
-
-  const WeekdayBasedCalculator({required this.fastDuration});
+  const WeekdayBasedCalculator();
 
   @override
   FastingInterval? intervalFor(DateTime date, DummyUser user) {
     final dayIndex = date.weekday - 1; // Monday = 0
 
-    if (!user.adfDaysSelected.contains(dayIndex)) {
+    if (!user.daysSelected.contains(dayIndex)) {
       return null;
     }
 
     final day = DateTime(date.year, date.month, date.day);
+    late DateTime start, end;
 
-    final start = day.add(
-      Duration(
-        hours: user.typicalStart.hour,
-        minutes: user.typicalStart.minute,
-      ),
-    );
+    if (user.form == FastingForm.fiveTwo) {
+      start = day;
+      end = day.add(const Duration(days: 1));
+    } else {
+      start = day
+          .subtract(const Duration(days: 1))
+          .add(const Duration(hours: 20));
+      end = day.add(const Duration(hours: 10));
+    }
 
-    return FastingInterval(start: start, end: start.add(fastDuration));
+    return FastingInterval(start: start, end: end);
   }
 }
 
@@ -90,30 +87,51 @@ FastingScheduleCalculator calculatorFor(FastingForm form) {
   switch (form) {
     case FastingForm.tre:
       return TRECalculator();
-
     case FastingForm.adf:
-      return const WeekdayBasedCalculator(fastDuration: Duration(hours: 36));
-
+      return const WeekdayBasedCalculator();
     case FastingForm.fiveTwo:
-      return const WeekdayBasedCalculator(fastDuration: Duration(hours: 24));
+      return const WeekdayBasedCalculator();
   }
 }
 
-FastingInterval? findRelevantInterval(DateTime now, DummyUser user) {
+FastingInterval? findRelevantInterval(
+  DateTime now,
+  DummyUser user, {
+  DateTime? activeLogStart,
+}) {
   final calculator = calculatorFor(user.form);
 
-  final today = DateTime(now.year, now.month, now.day);
+  final reference = activeLogStart ?? now;
+  final referenceDay = DateTime(reference.year, reference.month, reference.day);
 
-  // Check yesterday first because its fast may still be active.
-  final yesterday = today.subtract(const Duration(days: 1));
+  final candidates = [
+    for (var offset = -2; offset <= 2; offset++)
+      referenceDay.add(Duration(days: offset)),
+  ];
 
-  final yesterdayInterval = calculator.intervalFor(yesterday, user);
+  FastingInterval? latestStartedInterval;
 
-  if (yesterdayInterval != null && now.isBefore(yesterdayInterval.end)) {
-    return yesterdayInterval;
+  for (final date in candidates) {
+    final interval = calculator.intervalFor(date, user);
+    if (interval == null) continue;
+
+    if (activeLogStart != null) {
+      if (!activeLogStart.isBefore(interval.start) &&
+          activeLogStart.isBefore(interval.end)) {
+        return interval;
+      }
+
+      if (!activeLogStart.isBefore(interval.start) &&
+          (latestStartedInterval == null ||
+              interval.start.isAfter(latestStartedInterval.start))) {
+        latestStartedInterval = interval;
+      }
+    } else if (now.isBefore(interval.end)) {
+      return interval;
+    }
   }
 
-  return calculator.intervalFor(today, user);
+  return latestStartedInterval;
 }
 
 FastingStatus determineFastingStatus({
@@ -121,17 +139,27 @@ FastingStatus determineFastingStatus({
   required DummyUser user,
   required DateTime? activeLogStart,
 }) {
-  final interval = findRelevantInterval(now, user);
+  final interval = findRelevantInterval(
+    now,
+    user,
+    activeLogStart: activeLogStart,
+  );
 
   if (interval == null) {
     return FastingStatus.notFastingDay;
+  } else if (user.form == FastingForm.fiveTwo) {
+    return FastingStatus.active;
   }
 
   if (activeLogStart != null) {
     final remaining = interval.end.difference(now);
 
-    if (remaining.inMinutes <= 30 && !remaining.isNegative) {
+    if (!remaining.isNegative && remaining <= const Duration(minutes: 30)) {
       return FastingStatus.endingSoon;
+    }
+
+    if (remaining.isNegative) {
+      return FastingStatus.shouldHaveEnded;
     }
 
     return FastingStatus.active;
@@ -139,12 +167,33 @@ FastingStatus determineFastingStatus({
 
   final untilStart = interval.start.difference(now);
 
-  if (untilStart.inMinutes <= 30 && untilStart.inMinutes > 0) {
-    return FastingStatus.startingSoon;
-  }
+  debugPrint('Until start: ${untilStart.inMinutes} minutes');
 
-  if (untilStart.inHours < 4 && untilStart.inHours > 0) {
-    return FastingStatus.upcoming;
+  if (user.form == FastingForm.adf) {
+    if (untilStart > Duration.zero &&
+        untilStart <= const Duration(minutes: 30)) {
+      return FastingStatus.startingSoon;
+    }
+
+    if (untilStart <= Duration.zero &&
+        untilStart >= const Duration(hours: -2)) {
+      return FastingStatus.shouldHaveStarted;
+    }
+
+    if (untilStart > Duration.zero && untilStart <= const Duration(hours: 4)) {
+      return FastingStatus.upcoming;
+    }
+  } else {
+    if (untilStart > Duration.zero &&
+        untilStart <= const Duration(minutes: 30)) {
+      return FastingStatus.startingSoon;
+    } else if (untilStart < Duration.zero &&
+        untilStart >= const Duration(minutes: -30)) {
+      return FastingStatus.shouldHaveStarted;
+    } else if (untilStart > Duration.zero &&
+        untilStart < const Duration(hours: 4)) {
+      return FastingStatus.upcoming;
+    }
   }
 
   if (untilStart.isNegative) {
@@ -154,62 +203,17 @@ FastingStatus determineFastingStatus({
   return FastingStatus.scheduled;
 }
 
-(FastResult, int) evaluateTiming(
-  DateTime actual,
-  DateTime expected,
-  FastResult earlyResult,
-  FastResult lateResult,
-) {
-  final difference = actual.difference(expected).inMinutes;
-
-  if (difference.abs() <= 20) {
-    return (FastResult.asPlanned, 0);
-  }
-
-  if (difference < 0) {
-    return (earlyResult, difference.abs());
-  }
-
-  return (lateResult, difference);
-}
-
-(FastResult, int) evaluateTimingADF(
-  DateTime actual,
-  DateTime expected,
-  FastResult earlyResult,
-  FastResult lateResult,
-) {
-  final difference = actual.difference(expected).inMinutes;
-  if (DateUtils.isSameDay(actual, expected)) {
-    if (difference >= -240 ) {
-      return (FastResult.asPlanned, 0);
-    } else {
-      return (FastResult.earlyStart, difference.abs());
-    }
-  } else {
-
-  }
-
-  if (difference.abs() <= 20) {
-    return (FastResult.asPlanned, 0);
-  }
-
-  if (difference < 0) {
-    return (earlyResult, difference.abs());
-  }
-
-  return (lateResult, difference);
-}
-
 enum FastingStatus {
-  notFastingDay,
-  upcoming,
-  startingSoon,
-  overdue,
-  active,
-  endingSoon,
-  completed,
-  scheduled,
+  notFastingDay, // ADF/5:2 specific
+  upcoming, // There is a fast which starts within 4 hours
+  startingSoon, // Within 30 minutes before fast starts
+  shouldHaveStarted, // Within 30 minutes after fast starts
+  overdue, // The fast should have started over 30 minutes ago
+  active, // A fast is currently active
+  endingSoon, // Within 30 minutes before fast ends
+  shouldHaveEnded, // Within 30 minutes after fast ends
+  completed, // Not totally sure
+  scheduled, // There is a fast scheduled for today, but it is not within 4 hours of starting
 }
 
 Duration timeOfDayToDuration(TimeOfDay t) =>
@@ -221,13 +225,16 @@ Duration dateTimeToDuration(DateTime dt) =>
 extension FastingStatusAppearance on FastingStatus {
   String get homeReminder => switch (this) {
     FastingStatus.notFastingDay => 'Today\'s your day off',
-    FastingStatus.upcoming => 'In a while',
-    FastingStatus.startingSoon => 'Your fast starts soon!',
-    FastingStatus.overdue => 'It\'s not too late to start now!',
-    FastingStatus.active => 'You remembered!',
+    FastingStatus.upcoming => 'You have a fast coming up soon',
+    FastingStatus.startingSoon =>
+      'Your fast starts soon, remember to eat while you can',
+    FastingStatus.shouldHaveStarted => 'It\'s not too late to start your fast',
+    FastingStatus.overdue => 'You should have started your fast by now',
+    FastingStatus.active => 'Remember to stay hydrated during your fast',
     FastingStatus.endingSoon => 'Almost at the finish line',
-    FastingStatus.completed => 'Well done!',
-    FastingStatus.scheduled => 'Scheduled',
+    FastingStatus.completed => 'You have completed your fast for today',
+    FastingStatus.scheduled => 'You have a fast scheduled for today',
+    FastingStatus.shouldHaveEnded => 'You should have ended your fast by now',
   };
 }
 
@@ -238,7 +245,7 @@ enum FastResult {
   lateEnd,
   earlyEnd,
   skipped,
-  interrupted, // Stopped/started around the middle third of the fast
+  interrupted, // Stopped/started around the middle third of the fast? Possibly ignore
   overate, // 5:2 specific
   underate, // 5:2 specific
 }
@@ -272,7 +279,8 @@ extension FastResultHistory on FastResult {
     FastResult.interrupted => 'This fast was interrupted part way through',
     FastResult.overate =>
       'You ate more than was recommended on a restrictive day',
-    FastResult.underate => 'You ate less than was recommended on a restrictive day',
+    FastResult.underate =>
+      'You ate less than was recommended on a restrictive day',
   };
 }
 
@@ -332,15 +340,28 @@ extension FastListHelper on List<FastLogData> {
   int get skippedCount => where((f) => f.wasSkipped).length;
   int get interruptedCount => where((f) => f.wasInterrupted).length;
 
-  int get overAte => where((f) => f.earlyFastResult == FastResult.overate || f.lateFastResult == FastResult.overate).length;
-  int get underAte => where((f) => f.earlyFastResult == FastResult.underate || f.lateFastResult == FastResult.underate).length;
+  int get overAte => where(
+    (f) =>
+        f.earlyFastResult == FastResult.overate ||
+        f.lateFastResult == FastResult.overate,
+  ).length;
+  int get underAte => where(
+    (f) =>
+        f.earlyFastResult == FastResult.underate ||
+        f.lateFastResult == FastResult.underate,
+  ).length;
 
   double get averageEndDeviation {
-    final deviations = where(
-      (f) =>
-          f.lateFastResult == FastResult.earlyEnd ||
-          f.lateFastResult == FastResult.lateEnd,
-    ).map((f) => f.lateResultSeverity);
+    final deviations =
+        where(
+          (f) =>
+              f.lateFastResult == FastResult.earlyEnd ||
+              f.lateFastResult == FastResult.lateEnd,
+        ).map(
+          (f) => f.lateFastResult == FastResult.earlyEnd
+              ? -f.lateResultSeverity
+              : f.lateResultSeverity,
+        );
 
     if (deviations.isEmpty) return 0;
 
@@ -348,11 +369,16 @@ extension FastListHelper on List<FastLogData> {
   }
 
   double get averageStartDeviation {
-    final deviations = where(
-      (f) =>
-          f.earlyFastResult == FastResult.earlyStart ||
-          f.earlyFastResult == FastResult.lateStart,
-    ).map((f) => f.earlyResultSeverity);
+    final deviations =
+        where(
+          (f) =>
+              f.earlyFastResult == FastResult.earlyStart ||
+              f.earlyFastResult == FastResult.lateStart,
+        ).map(
+          (f) => f.earlyFastResult == FastResult.earlyStart
+              ? -f.earlyResultSeverity
+              : f.earlyResultSeverity,
+        );
 
     if (deviations.isEmpty) return 0;
 

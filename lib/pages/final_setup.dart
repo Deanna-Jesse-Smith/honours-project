@@ -70,6 +70,17 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
             //   title: 'Are you sure?',
             //   message: 'You won\'t be able to come back here after this.',
             // );
+
+            if (selectedForms.isEmpty && selectedOption == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'You need to create or select a fasting plan to proceed',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
+              return;
+            }
             final decision = true;
 
             if (decision) {
@@ -174,7 +185,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               await ref
                   .read(asyncGoalsProvider.notifier)
                   .insertInitialFastinggoal(id, threshold, type);
-                  await ref
+              await ref
                   .read(asyncGoalsProvider.notifier)
                   .insertInitialHydrationgoal(id);
 
@@ -203,7 +214,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               'The results are in',
               style: TextStyle(fontSize: TextSizing.large),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: const Text(
@@ -299,7 +310,6 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                 setState(() {
                   selectedForms = newForm;
                   if (selectedForms.isNotEmpty) {
-                    
                     selectedForm = selectedForms.first;
                     selectedOption = null;
                   }
@@ -418,11 +428,17 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     );
   }
 
+  /// Converts a list of boolean values representing selected days into a list of integers corresponding to the indices of the selected days.
   List<int> boolsToInts(List<bool> days) => [
     for (int loop = 0; loop < days.length; loop++)
       if (days[loop]) loop,
   ];
 
+  /// Checks if the selected days for a fasting schedule are valid based on the type of fasting (ADF or 5:2).
+  ///
+  /// [days] is a list of boolean values representing the selected days of the week.
+  /// [isADF] is a boolean indicating whether the fasting type is Alternate Day Fasting (ADF) or 5:2 fasting.
+  /// Returns true if the selected days are valid, false otherwise.
   bool _hasValidDaySelection(List<bool> days, bool isADF) {
     final availability = RecommendationSystem.validCombosHelper(
       boolsToInts(days),
@@ -434,6 +450,10 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     return isADF ? availability.isNotEmpty : availability.length == 1;
   }
 
+  /// Validates the selected time-restricted eating (TRE) window to ensure it is between 1 and 12 hours.
+  ///
+  /// [startTime] is the starting time of the eating window.
+  /// [endTime] is the ending time of the eating window.
   bool _isValidTRE(TimeOfDay startTime, TimeOfDay endTime) {
     final startMinutes = startTime.hour * 60 + startTime.minute;
     final endMinutes = endTime.hour * 60 + endTime.minute;

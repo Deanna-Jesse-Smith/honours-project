@@ -35,14 +35,14 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
     return insert;
   }
 
-  Stream<List<(DateTime, double)>> getAllWeightLogs(int userID, DateTime? startDate) {
+  Stream<List<(DateTime, double)>> getAllWeightLogs(DateTime? startDate) {
     startDate ??= DateTime.now().subtract(const Duration(days: 30));
 
     final weightLogs = (selectOnly(weightLog)
               ..addColumns([weightLog.date, weightLog.amount])
               // ..where(weightLog.userID.equals(userID))
               ..where(weightLog.date.isBiggerOrEqualValue(startDate))
-              ..orderBy([OrderingTerm.desc(weightLog.date)]));
+              ..orderBy([OrderingTerm.asc(weightLog.date)]));
     return weightLogs.watch().map(
       (log) => log.map((entry) {
         final date = entry.read(weightLog.date)!;

@@ -93,7 +93,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     List<int> days = DayOfWeekConverter().fromSQL(user.fiveTwoDaysSelected);
     if (!fiveTwoComplete && user.formIF == FastingForm.fiveTwo) {
       fiveTwoComplete = true;
-      await check52Adherence(user.userID, days, fDao);
+      await check52Adherence(user.userID, user.createdDate, days, fDao);
     }
 
     final isFasting = await fDao.isFasting(user.userID);
@@ -119,6 +119,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
 
   Future<void> check52Adherence(
     int userID,
+    DateTime createdDate,
     List<int> days,
     FastingDao fDao,
   ) async {
@@ -128,6 +129,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     DateTime prevWeek = now.subtract(const Duration(days: 7));
 
     final candidates = days.map(getFullDay).toList()..sort();
+    candidates.removeWhere((date) => date.isBefore(createdDate));
 
     final prevWeekFasts = await ref
         .read(fDaoProvider)
@@ -141,13 +143,13 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
       final nDao = ref.read(nDaoProvider);
       for (final candidate in candidates) {
         final mealCount = await nDao.fiveTwoDayEvaluation(candidate);
-        if (mealCount < 550) {
+        if (mealCount <= 500) {
           await fDao.createSyntheticFiveTwoLog(
             userID,
             candidate,
             FastResult.underate,
           );
-        } else if (mealCount < 800) {
+        } else if (mealCount <= 700) {
           await fDao.createSyntheticFiveTwoLog(
             userID,
             candidate,

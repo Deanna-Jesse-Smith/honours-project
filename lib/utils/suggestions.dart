@@ -112,6 +112,10 @@ class ObligationSpan {
 
   ObligationSpan.o(this.earliest, this.latest);
 
+  /// Returns an ObligationSpan object that represents the span of time between the earliest and latest meal times, with an optional buffer added to the required window.
+  /// 
+  /// [mealTimes] is a list of TimeOfDay objects representing the user's meal times.
+  /// [buffer] is an optional Duration object that specifies the amount of time to add to the required window. The default value is 30 minutes.
   static ObligationSpan extractSpan(
     List<TimeOfDay> mealTimes, {
     Duration buffer = const Duration(minutes: 30),
@@ -131,6 +135,7 @@ class ObligationSpan {
   }
 }
 
+/// A class representing a fasting option along with its associated score.
 class ScoredOption {
   final FastOption option;
   final int score;
@@ -138,6 +143,7 @@ class ScoredOption {
   const ScoredOption(this.option, this.score);
 }
 
+/// A base class representing a fasting option with a label and justification.
 base class FastOption {
   final String label, justification;
 
@@ -188,11 +194,9 @@ class RecommendationSystem {
     required this.prevDuration,
     required this.struggle,
     required this.meals,
+    this.exp = Experience.beginner,
   }) {
-    debugPrint('In rec system');
-    exp = prevDuration > 8 ? Experience.experienced : Experience.beginner;
-    if (prevDuration > 8) {
-    } else if (prevDuration > 4) {}
+    // exp = prevDuration > 4 ? Experience.experienced : Experience.beginner;
 
     restrainTRE = struggle.contains(Struggle.daily);
     restrainNonTRE = struggle.contains(Struggle.weekly);
@@ -206,6 +210,9 @@ class RecommendationSystem {
 
   Experience getExp() => exp;
 
+  /// Returns a score for the given fasting form based on the user's previous fasting forms, duration, struggles, and meal obligations.
+  /// 
+  /// [form] is an instance of [FastingForm] representing the fasting form to be scored.
   int scoreForm(FastingForm form) {
     var score = 0;
 
@@ -222,6 +229,9 @@ class RecommendationSystem {
 
       if (struggle.contains(Struggle.daily)) {
         score -= 4;
+        if (struggle.contains(Struggle.weekly)) {
+          score += 2;
+        }
       }
     } else if (form == FastingForm.adf) {
       if (exp == Experience.beginner) {
@@ -232,6 +242,9 @@ class RecommendationSystem {
         }
       } else {
         score += 1;
+        if (struggle.contains(Struggle.daily)) {
+          score += 2;
+        }
       }
 
       if (struggle.contains(Struggle.weekly)) {
@@ -246,10 +259,9 @@ class RecommendationSystem {
         }
       } else {
         score += 1;
-      }
-
-      if (struggle.contains(Struggle.weekly)) {
-        score -= 4;
+        if (struggle.contains(Struggle.daily)) {
+          score += 2;
+        }
       }
     }
 
@@ -268,6 +280,7 @@ class RecommendationSystem {
     return ScoredOption(option, scoreForm(form));
   }
 
+  /// Returns a list of the top 3 recommended fasting options based on the user's previous fasting forms, duration, struggles, and meal obligations.
   List<FastOption> getRecs() {
     List<ScoredOption> options = [];
 
@@ -303,6 +316,10 @@ class RecommendationSystem {
       '${time.hour.toString().padLeft(2, '0')}:'
       '${time.minute.toString().padLeft(2, '0')}';
 
+  /// Returns all valid TRE options for the given obligation span and experience level.
+  /// 
+  /// [span] is an instance of [ObligationSpan] containing the earliest and latest meal times for the user.
+  /// [exp] is an instance of [Experience] indicating whether the user is a beginner or not
   List<TREoption> treEvaluation(ObligationSpan span, Experience exp) {
     final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
     final earliestStart = toMinutes(span.earliest) - 30;
@@ -374,6 +391,10 @@ class RecommendationSystem {
     return options;
   }
 
+  /// Returns all valid combinations of days for ADF fasting, given the user's meal obligations and experience level.
+  /// 
+  /// [meals] is an instance of [ObligationMeals] containing the days and times of the user's meals.
+  /// [exp] is an instance of [Experience] indicating whether the user is a beginner or not
   List<ADFoption> adfEvaluation(ObligationMeals meals, Experience exp) {
     final getAvailable = findAvailableDays(meals, false);
 
@@ -395,12 +416,20 @@ class RecommendationSystem {
     return options;
   }
 
+  /// Returns a string representation of the given combination of days, formatted as "A fast on [day1], [day2], and [day3]".
+  /// 
+  /// [combo] is a list of integers representing the days of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday).
+  /// [acc] is an accumulator string that is used to build the final output.
   String adfCombo(List<int> combo, String acc) {
     if (combo.isEmpty) return acc;
     if (combo.length == 1) return '$acc and ${daysOfWeek[combo.first]}';
     return adfCombo(combo.sublist(1), '$acc, ${daysOfWeek[combo.first]}');
   }
 
+  /// Returns all valid combinations of days from the given pool, with a maximum of 2 or 3 days depending on whether it's ADF or 5:2 fasting.
+  /// 
+  /// [meals] is an instance of [ObligationMeals] containing the days and times of the user's meals.
+  /// [exp] is an instance of [Experience] indicating whether the user is a beginner or not
   List<ModifiedOption> fiveTwoEvaluation(
     ObligationMeals meals,
     Experience exp,
@@ -425,7 +454,12 @@ class RecommendationSystem {
     return options;
   }
 
+  /// Returns all days of the week that are available for fasting, given the user's meal obligations and whether they are doing ADF or 5:2 fasting.
+  /// 
+  /// [meals] is an instance of [ObligationMeals] containing the days and times of the user's meals.
+  /// [isFiveTwo] is a boolean indicating whether the fasting type is 5:2 (true) or ADF (false).
   static List<int> findAvailableDays(ObligationMeals meals, bool isFiveTwo) {
+    // I know the comments look suspicious but I promise I was using these to keep my thoughts in order when I was writing this method
     // ADF: At most three days, so aim for two or three
     // 5:2 Obviously just two
 
@@ -461,6 +495,10 @@ class RecommendationSystem {
     return availableDays;
   }
 
+  /// Returns all valid combinations of days from the given pool, with a maximum of 2 or 3 days depending on whether it's ADF or 5:2 fasting.
+  /// 
+  /// [pool] is a list of integers representing the days of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday).
+  /// [isADF] is a boolean indicating whether the fasting type is ADF (true) or 5:2 (false).
   static List<List<int>> validCombosHelper(List<int> pool, bool isADF) {
     if (pool.isEmpty) return [];
     int cap = isADF ? 3 : 2;

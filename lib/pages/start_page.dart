@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:testrun/pages/fasting_info.dart';
-import 'package:testrun/pages/setup_user.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
@@ -76,6 +75,7 @@ class _StartPageState extends State<StartPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 20,
             children: [
+              const SizedBox(height: 30),
               const Text(
                 'Welcome!',
                 style: TextStyle(fontSize: TextSizing.large),

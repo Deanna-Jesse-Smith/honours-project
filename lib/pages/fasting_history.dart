@@ -37,7 +37,7 @@ const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 final fastsInMonthProvider = StreamProvider.autoDispose
     .family<
       StatisticsModel,
-      ({int userID, FastingForm curForm, DateTime start, DateTime end})
+      ({FastingForm curForm, DateTime start, DateTime end})
     >((ref, params) {
       final repo = ref
           .watch(fDaoProvider)
@@ -246,6 +246,9 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                   return const CircularProgressIndicator();
                 }
                 StatisticsModel sm = asyncSnapshot.data!;
+                final startDeviation = sm.curFasts.averageStartDeviation
+                    .round();
+                final endDeviation = sm.curFasts.averageEndDeviation.round();
                 debugPrint('SMS rebuild ${sm.getLength()}');
                 // final longestTRE = sm.getLongestTRE();
                 // return Column(
@@ -336,7 +339,12 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                         0)
                       Text(
                         'Average start deviation: '
-                        '${sm.curFasts.averageStartDeviation.round()} min',
+                        '${startDeviation.abs()} min '
+                        '${startDeviation < 0
+                            ? 'early'
+                            : startDeviation > 0
+                            ? 'late'
+                            : 'on time'}',
                         style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
@@ -369,7 +377,12 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                         0)
                       Text(
                         'Average end deviation: '
-                        '${sm.curFasts.averageEndDeviation.round()} min',
+                        '${endDeviation.abs()} min '
+                        '${endDeviation < 0
+                            ? 'early'
+                            : endDeviation > 0
+                            ? 'late'
+                            : 'on time'}',
                         style: const TextStyle(fontSize: TextSizing.medium),
                       ),
 
@@ -404,8 +417,8 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
                         style: const TextStyle(fontSize: TextSizing.medium),
                       ),
                     ],
-                    
-                      const SizedBox(height: 20,)
+
+                    const SizedBox(height: 20),
                   ],
                 );
               },
@@ -578,6 +591,10 @@ class _FastingHistoryState extends ConsumerState<FastingHistory> {
   }
 }
 
-final fastStatisticsProvider = Provider.family<StatisticsModel, (List<FastLogData>, FastingForm)>((ref, data) {
-  return StatisticsModel(curFasts: data.$1, curForm: data.$2);
-},);
+final fastStatisticsProvider =
+    Provider.family<StatisticsModel, (List<FastLogData>, FastingForm)>((
+      ref,
+      data,
+    ) {
+      return StatisticsModel(curFasts: data.$1, curForm: data.$2);
+    });

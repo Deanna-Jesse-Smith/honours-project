@@ -28,7 +28,10 @@ class WeightTracking extends ConsumerStatefulWidget {
 class _WeightTrackingState extends ConsumerState<WeightTracking> {
   late Future<double> goalProgress;
 
-    final DateTime start = DateTime.now().subtract(const Duration(days: 30));
+  final DateTime start = DateTime.now().subtract(const Duration(days: 30));
+  final DateTime twoMonthsAgo = DateTime.now().subtract(
+    const Duration(days: 30),
+  );
 
   @override
   void initState() {
@@ -56,7 +59,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
     late double curWeight;
 
     final watchWeightGoal = ref.watch(checkWeightGoalProvider);
-    final graphChecker = ref.watch(watchWeightGraphProvider(session!.userId));
+    final graphChecker = ref.watch(watchWeightGraphProvider(twoMonthsAgo));
 
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +115,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             ),
             SizedBox(width: 100, height: 100),
             StreamBuilder(
-              stream: ref.watch(wDaoProvider).getCurWeight(session.userId),
+              stream: ref.watch(wDaoProvider).getCurWeight(session!.userId),
               builder: (context, asyncSnapshot) {
                 if (!asyncSnapshot.hasData) {
                   curWeight = 0;
@@ -131,35 +134,44 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             graphChecker.when(
               data: (logs) {
                 if (logs.isEmpty) {
-                  return const Text('No hydration logs yet.');
+                  return const Text('No weight logs in the past month', 
+                    style: TextStyle(fontSize: TextSizing.medium),);
                 } else {
                   DateTime cur = start;
-                  final today = DateUtils.dateOnly(DateTime.now()), limit = today.add(const Duration(days: 1));
-                  final List<(DateTime, double)> filledLogs = [];
+                  final today = DateUtils.dateOnly(DateTime.now()),
+                      limit = today.add(const Duration(days: 1));
+                  List<(DateTime, double)> filledLogs = [];
+                  double first = logs.first.$2;
+                  double? last;
 
                   int loop = 0;
                   do {
-                    if (loop < logs.length && DateUtils.isSameDay(logs[loop].$1, cur)) {
-                      filledLogs.add(logs[loop]);
-                      loop++;
+                    if (loop < logs.length &&
+                        DateUtils.isSameDay(logs[loop].$1, cur)) {
+                      while (loop < logs.length &&
+                          DateUtils.isSameDay(logs[loop].$1, cur)) {
+                        last = logs[loop].$2;
+                        filledLogs.add(logs[loop]);
+                        loop++;
+                      }
                     } else if (!filledLogs.contains((cur, 0.0))) {
-                      filledLogs.add((cur, 0.0));
+                      filledLogs.add((cur, last ?? first));
                     }
                     cur = cur.add(const Duration(days: 1));
                   } while (cur.isBefore(limit));
+
                   return SizedBox(
                     height: 200,
                     child: LineChart(
                       LineChartData(
-                        minY: 0,
+                        minY: filledLogs.map((e) => e.$2).reduce(min) - 0.5,
                         maxY: filledLogs.map((e) => e.$2).reduce(max) + 0.5,
                         lineBarsData: [
                           LineChartBarData(
                             spots: filledLogs
                                 .map(
                                   (log) => FlSpot(
-                                    log.$1.millisecondsSinceEpoch
-                                        .toDouble(),
+                                    log.$1.millisecondsSinceEpoch.toDouble(),
                                     log.$2,
                                   ),
                                 )
@@ -167,37 +179,40 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                             color: const Color.fromARGB(255, 11, 156, 71),
                             preventCurveOverShooting: true,
                             isCurved: true,
-                            barWidth: 3,
+                            barWidth: 5,
                             dotData: FlDotData(show: false),
                           ),
                         ],
                         titlesData: FlTitlesData(
-                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: false,
                               getTitlesWidget: (value, meta) {
-                                return Text('${value.toStringAsFixed(2)} l', style: const TextStyle(fontSize: 12));
+                                return Text(
+                                  '${value.toStringAsFixed(2)} kg',
+                                  style: const TextStyle(fontSize: 12),
+                                );
                               },
                             ),
                           ),
-                          // rightTitles: AxisTitles(
-                          //   sideTitles: SideTitles(
-                          //     showTitles: false,
-                          //     getTitlesWidget: (value, meta) {
-                          //       return Text('$value l');
-                          //     },
-                          //   ),
-                          // ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
-                              interval: const Duration(days: 1).inMilliseconds.toDouble(),
+                              interval: const Duration(
+                                days: 1,
+                              ).inMilliseconds.toDouble(),
                               getTitlesWidget: (value, meta) {
+                                
                                 final date =
                                     DateTime.fromMillisecondsSinceEpoch(
                                       value.toInt(),
                                     );
+                                if (date.day != 1) {
+                                  return const SizedBox.shrink();
+                                }
                                 return Text(DateFormat('MMM').format(date));
                               },
                             ),
@@ -211,38 +226,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               error: (e, _) => Text(e.toString()),
               loading: () => const CircularProgressIndicator(),
             ),
-
-
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     final newAmount = await Dialogs.getNewInput(
-            //       context,
-            //       initialVal: curWeight,
-            //       title: 'Log Weight',
-            //     );
-            //     if (newAmount != null) {
-            //       final check = await ref.read(asyncGoalsProvider.notifier).logWeight(newAmount).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
-
-            //       if (check.$2 == 1) {
-            //         celebrate();
-            //       }
-            //     }
-            //   },
-            //   child: Text('Log Weight'),
-            // ),
-
-
-            // Align(alignment: Alignment.center,
-            // child: ConfettiWidget(confettiController: controller,
-            // blastDirectionality: BlastDirectionality.explosive,
-            // colors: const [
-            //     Colors.green,
-            //     Colors.blue,
-            //     Colors.pink,
-            //     Colors.orange,
-            //     Colors.purple
-            //   ],
-            // ),)
           ],
         ),
       ),

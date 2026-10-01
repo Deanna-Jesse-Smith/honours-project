@@ -347,9 +347,8 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     bool isStart = true,
   }) {
     final difference = actual.difference(expected).inMinutes;
-    debugPrint('Time difference: $difference');
     if (!isADF) {
-      if (difference.abs() <= 20) {
+      if (difference.abs() <= 30) {
         return (FastResult.asPlanned, 0);
       }
 

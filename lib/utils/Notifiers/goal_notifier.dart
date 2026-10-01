@@ -96,7 +96,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .getDaysCalories(DateUtils.dateOnly(DateTime.now()));
 
     if (curCalories == 0) {
-      return (0.0, goal.threshold);
+      return (0.05, goal.threshold);
     } else {
       return ((curCalories / goal.threshold).clamp(0.05, 1.0), goal.threshold);
     }
@@ -225,11 +225,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     // return doCelebrate;
   }
 
-  Future<double> checkFastingGoalProgress() async {
+  Future<(double, int, int)> checkFastingGoalProgress() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
     if (goal == null) {
-      return 0.0;
+      return (0.0, 0, 0);
     }
     // DateTime evalDay = goal.lastEval;
     final curWeek = bookendWeek();
@@ -255,7 +255,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           .read(fDaoProvider)
           .getWeeksDuration(session!.userId, curWeek.$1, curWeek.$2);
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
-      return numComplete / 7;
+      return ((numComplete / 7).clamp(0.05, 1.0), numComplete, 7);
     } else if (goal.metric == MetricType.days) {
       // if (!alreadyEvaluated) {
       //   final weekDays = await ref
@@ -272,7 +272,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           .read(fDaoProvider)
           .findFastsInRange(curWeek.$1, curWeek.$2)
           .length;
-      return (curWeekDays / goal.threshold).clamp(0.05, 1.0);
+      return ((curWeekDays / goal.threshold).clamp(0.05, 1.0), curWeekDays, goal.threshold.toInt());
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
@@ -307,7 +307,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         if (amount <= goal.threshold) numCompleted++;
       }
 
-      return (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
+      return ((numCompleted / fiveTwoDays.length).clamp(0.05, 1.0), numCompleted, fiveTwoDays.length);
     }
   }
 

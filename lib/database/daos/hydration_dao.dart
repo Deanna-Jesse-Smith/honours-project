@@ -20,7 +20,6 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
   }
 
   Stream<List<(DateTime, double)>> getAllHydrationLogs(
-    int userId,
     DateTime startDate,
   ) {
     final sumHydration = hydrationLog.amount.sum();
@@ -60,7 +59,7 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     return output.read(sumHydration);
   }
 
-  Stream<double> watchTodayHydration(int userId, DateTime today) {
+  Stream<double> watchTodayHydration(DateTime today) {
     final todayStart = DateTime(today.year, today.month, today.day);
     final todayEnd = todayStart.add(const Duration(days: 1));
 

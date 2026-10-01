@@ -84,17 +84,25 @@ class HomePageState extends ConsumerState<HomePage> {
               padding: EdgeInsets.all(15),
               child: checkGoal.when(
                 data: (goal) {
-                  final model = goal > -1 ? goal : 0.01;
+                  final model = goal.$1 > -1 ? goal.$1 : 0.01;
                   return LinearPercentIndicator(
                     alignment: MainAxisAlignment.center,
                     percent: model,
                     lineHeight: 15,
-                    width: MediaQuery.of(context).size.width - 80,
+                    width: MediaQuery.of(context).size.width * 0.6,
                     animation: true,
                     animationDuration: 2000,
                     progressColor: Colors.amber,
                     backgroundColor: Colors.yellow,
                     barRadius: Radius.circular(10),
+                    leading: Text(
+                        '0',
+                        style: TextStyle(fontSize: TextSizing.smallmed),
+                      ),
+                      trailing: Text(
+                        '${goal.$3} days',
+                        style: TextStyle(fontSize: TextSizing.smallmed),
+                      ),
                   );
                 },
                 error: (e, _) => Text(e.toString()),

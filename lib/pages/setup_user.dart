@@ -1,5 +1,3 @@
-import 'dart:collection';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -348,6 +346,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
     ),
   ];
 
+  /// Handles the finished button press event. Checks that all required fields are filled in, creates a temporary user and obligation meals, generates recommendations, and navigates to the FinalSetup page. Displays a snackbar message if any required fields are missing or if there is an error saving the user.
   Future<void> handleFinished() async {
     setState(() => isSaving = true);
     if (heightController.text.isEmpty ||
@@ -356,7 +355,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'You need to fill in your height, weight and gender to proceed',
+            'You need to fill in your height, weight and gender to proceed',style: const TextStyle(fontSize: TextSizing.smallmed),
           ),
         ),
       );
@@ -384,6 +383,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           prevDuration: int.parse(durationController.text),
           struggle: selectedStruggle,
           meals: temp,
+          exp: widget.experience ? Experience.experienced : Experience.beginner,
         );
         Navigator.push(
           context,

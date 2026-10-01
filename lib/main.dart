@@ -88,19 +88,19 @@ final checkWeightGoalProvider = FutureProvider.autoDispose<(double, double, doub
   return ref.watch(asyncGoalsProvider.notifier).checkWeightGoal();
 });
 
-final checkHydrationGoalProvider = FutureProvider<(double, double, double)>((ref) {
+final checkHydrationGoalProvider = FutureProvider.autoDispose<(double, double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkHydrationGoalProgress();
 });
 
-final checkHydrationStreakProvider = StreamProvider<int?>((ref) {
+final checkHydrationStreakProvider = StreamProvider.autoDispose<int?>((ref) {
   return ref.watch(gDaoProvider).getActiveHydrationStreak();
 });
 
-final checkFastingGoalProvider = FutureProvider<double>((ref) {
+final checkFastingGoalProvider = FutureProvider<(double, int, int)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkFastingGoalProgress();
 });
 
-final checkFastingStatusProvider = FutureProvider<FastingStatus>((ref) {
+final checkFastingStatusProvider = FutureProvider.autoDispose<FastingStatus>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshFastingStatus();
 });
 
@@ -108,7 +108,7 @@ final checkFastingStreakProvider = StreamProvider<int?>((ref) {
   return ref.watch(gDaoProvider).getActiveFastingStreak();
 });
 
-final checkNutritionGoalProvider = FutureProvider<(double, double)>((ref) {
+final checkNutritionGoalProvider = FutureProvider.autoDispose<(double, double)>((ref) {
   return ref.watch(asyncGoalsProvider.notifier).checkNutritionGoalPercent();
 });
 
@@ -116,9 +116,10 @@ final checkNutritionStreakProvider = StreamProvider<int?>((ref) {
   return ref.watch(gDaoProvider).getActiveFoodStreak();
 });
 
-final checkFastingProgressProvider = FutureProvider<FastingProgress>((ref) {
+final checkFastingProgressProvider = FutureProvider.autoDispose<FastingProgress>((ref) {
   return ref.watch(asyncFatingNotifier.notifier).refreshProgress();
 });
+
 final bestStreakProvider = FutureProvider.autoDispose.family<int?, GoalType>(
   (ref, type) async {
     return await ref.read(gDaoProvider).findBestStreak(type);
@@ -136,21 +137,21 @@ final fastsInRangProvider = StreamProvider.autoDispose.family<List<FastLogData>,
 final watchHydrationProvider = StreamProvider.autoDispose.family<double, DateTime>(
   (ref, day) {
     final repo = ref.watch(hDaoProvider);
-    return repo.watchTodayHydration(0, day);
+    return repo.watchTodayHydration(day);
   },
 );
 
 final watchHydrationGraphProvider = StreamProvider.autoDispose.family<List<(DateTime, double)>, DateTime>(
   (ref, day) {
     final repo = ref.watch(hDaoProvider);
-    return repo.getAllHydrationLogs(0, day);
+    return repo.getAllHydrationLogs(day);
   },
 );
 
-final watchWeightGraphProvider = StreamProvider.autoDispose.family<List<(DateTime, double)>, int>(
+final watchWeightGraphProvider = StreamProvider.autoDispose.family<List<(DateTime, double)>, DateTime>(
   (ref, day) {
     final repo = ref.watch(wDaoProvider);
-    return repo.getAllWeightLogs(day, DateTime.now());
+    return repo.getAllWeightLogs(day);
   },
 );
 
