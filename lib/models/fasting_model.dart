@@ -310,6 +310,9 @@ extension FastLogDataHelper on FastLogData {
   bool get asPlanned =>
       earlyFastResult == FastResult.asPlanned &&
       lateFastResult == FastResult.asPlanned;
+  bool get halfAsPlanned => 
+      earlyFastResult == FastResult.asPlanned ||
+      lateFastResult == FastResult.asPlanned;
 
   bool get wasSkipped =>
       earlyFastResult == FastResult.skipped ||
@@ -323,6 +326,7 @@ extension FastLogDataHelper on FastLogData {
 extension FastListHelper on List<FastLogData> {
   double get plannedRate =>
       isEmpty ? 0 : where((f) => f.asPlanned).length / length;
+  double get asPlannedRate => isEmpty ? 0 : fold(0, (prev, f) => prev + (f.asPlanned ? 1 : 0)) / length;
   int get earlyStartCount =>
       where((f) => (f.earlyFastResult == FastResult.earlyStart)).length;
   int get lateStartCount =>

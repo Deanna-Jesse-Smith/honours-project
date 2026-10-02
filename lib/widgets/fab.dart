@@ -261,25 +261,36 @@ class MyExpandableFAB extends ConsumerWidget {
       ),
     ];
 
+    final topActionIndex =
+        session.fastingForm == FastingForm.fiveTwo && index > 1
+        ? index - 1
+        : index;
+    final orderedActions = [...actions];
+    final topAction = orderedActions.removeAt(topActionIndex - 1);
+
+    if (session.fastingForm != FastingForm.fiveTwo && topActionIndex != 1) {
+      final fastingAction = orderedActions.removeAt(0);
+      orderedActions.add(fastingAction);
+    }
+    orderedActions.add(topAction);
+
     return ExpandableFab(
       type: ExpandableFabType.up,
       pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
       childrenAnimation: ExpandableFabAnimation.none,
       margin: const EdgeInsets.all(10),
-      children:
-          [...actions.sublist(index - 1), ...actions.sublist(0, index - 1)]
-              .reversed
-              .map(
-                (button) => ElevatedButton(
-                  onPressed: button.onPressed,
-                  child: Text(
-                    button.title,
-                    style: TextStyle(fontSize: TextSizing.medium),
-                  ),
-                ),
-              )
-              .toList(),
+      children: orderedActions
+          .map(
+            (button) => ElevatedButton(
+              onPressed: button.onPressed,
+              child: Text(
+                button.title,
+                style: TextStyle(fontSize: TextSizing.medium),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 

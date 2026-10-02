@@ -228,7 +228,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   }
 
   BasicGoal createDummyGoal() {
-    final session = ref.read(userSessionProvider).value;
     return switch (type) {
       GoalType.fasting => FastingGoalModel(
         -1,
@@ -260,7 +259,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       ),
       GoalType.nutrition => NutritionGoalModel(
         -1,
-        session!.isFemale ? 1600 : 1900,
+        // session!.isFemale ? 1600 : 1900,
+        3000,
         0,
         GoalOperator.lesserEqual,
         MetricType.meals,
@@ -306,7 +306,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 suffixText = 'Hours';
                 maxAmount = 22;
                 if (curGoal.goalID == -1) {
-                  curGoal.threshold == 6;
+                  final session = ref.read(userSessionProvider).value;
+                  curGoal.threshold = session!.startTime.difference(session.endTime).inHours.abs() - 1;
                 }
               case FastingForm.fiveTwo:
                 goalText = 'Calories per fasting day.';
@@ -320,7 +321,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 suffixText = 'Days';
                 maxAmount = 4;
                 if (curGoal.goalID == -1) {
-                  curGoal.threshold == 3;
+                  final session = ref.read(userSessionProvider).value;
+                  curGoal.threshold == session!.adfDaysSelected.length;
                 }
             }
 

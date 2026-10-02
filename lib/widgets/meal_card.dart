@@ -31,7 +31,7 @@ class MealCard extends StatelessWidget {
                     .map(
                       (i) => Chip(
                         label: Text(
-                          '${i.quantity} ${i.name}',
+                          '${i.quantity} x ${i.servingDescr} ${i.name}',
                           style: TextStyle(fontSize: TextSizing.medium),
                         ),
                       ),

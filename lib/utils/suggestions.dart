@@ -223,8 +223,6 @@ class RecommendationSystem {
     if (form == FastingForm.tre) {
       if (exp == Experience.beginner) {
         score += 2;
-      } else {
-        score -= 1;
       }
 
       if (struggle.contains(Struggle.daily)) {
@@ -235,13 +233,12 @@ class RecommendationSystem {
       }
     } else if (form == FastingForm.adf) {
       if (exp == Experience.beginner) {
-        score -= 2;
+        score -= 3;
 
         if (struggle.contains(Struggle.daily)) {
           score -= 2;
         }
       } else {
-        score += 1;
         if (struggle.contains(Struggle.daily)) {
           score += 2;
         }
@@ -258,7 +255,6 @@ class RecommendationSystem {
           score += 2;
         }
       } else {
-        score += 1;
         if (struggle.contains(Struggle.daily)) {
           score += 2;
         }
@@ -285,8 +281,11 @@ class RecommendationSystem {
     List<ScoredOption> options = [];
 
     if (!restrainTRE || prevForms.contains(FastingForm.tre)) {
+      final treConstraints = meals.times.isEmpty
+          ? ObligationSpan.o(earliestNormalStart, earliestNormalStart)
+          : constraints;
       options.addAll(
-        treEvaluation(constraints, exp).map((option) => score(option)),
+        treEvaluation(treConstraints, exp).map((option) => score(option)),
       );
     }
 
@@ -300,7 +299,30 @@ class RecommendationSystem {
       );
     }
 
-    options.sort((a, b) => b.score.compareTo(a.score));
+    options.sort((a, b) {
+      final aPriorTRE =
+        prevForms.contains(FastingForm.tre) && a.option is TREoption;
+      final bPriorTRE =
+        prevForms.contains(FastingForm.tre) && b.option is TREoption;
+      if (aPriorTRE != bPriorTRE) return aPriorTRE ? -1 : 1;
+      final scoreComparison = b.score.compareTo(a.score);
+      if (scoreComparison != 0) return scoreComparison;
+      if (a.option is ADFoption && b.option is ADFoption) {
+        final aFastingDays = (a.option as ADFoption).days.length;
+        final bFastingDays = (b.option as ADFoption).days.length;
+        return bFastingDays.compareTo(aFastingDays);
+      }
+      if (a.option is TREoption && b.option is TREoption) {
+        final aLength = (a.option as TREoption).length.inMinutes;
+        final bLength = (b.option as TREoption).length.inMinutes;
+        final aPreferred = aLength >= 8 * 60 && aLength <= 10 * 60;
+        final bPreferred = bLength >= 8 * 60 && bLength <= 10 * 60;
+        if (aPreferred != bPreferred) return aPreferred ? -1 : 1;
+        return (aLength - 9 * 60).abs().compareTo((bLength - 9 * 60).abs());
+      }
+
+      return 0;
+    });
     return options.take(3).map((o) => o.option).toList();
   }
 
@@ -321,69 +343,70 @@ class RecommendationSystem {
   /// [span] is an instance of [ObligationSpan] containing the earliest and latest meal times for the user.
   /// [exp] is an instance of [Experience] indicating whether the user is a beginner or not
   List<TREoption> treEvaluation(ObligationSpan span, Experience exp) {
-    final minMinutes = exp == Experience.beginner ? 8 * 60 : 6 * 60;
+    const absoluteMinMinutes = 4 * 60;
+    const absoluteMaxMinutes = 12 * 60;
+    const preferredMinMinutes = 8 * 60;
+    const preferredMaxMinutes = 10 * 60;
     final earliestStart = toMinutes(span.earliest) - 30;
     final latestEnd = toMinutes(span.latest) + 30;
     final biggestLength = latestEnd - earliestStart;
 
-    final length = biggestLength < minMinutes ? minMinutes : biggestLength;
+    final requiredLength = biggestLength
+        .clamp(absoluteMinMinutes, absoluteMaxMinutes)
+        .toInt();
+    final lengths = <int>[];
+    if (requiredLength >= preferredMinMinutes &&
+        requiredLength <= preferredMaxMinutes) {
+      lengths.add(requiredLength);
+    }
+    for (final preferredLength in [8 * 60, 9 * 60, 10 * 60]) {
+      if (preferredLength >= requiredLength &&
+          !lengths.contains(preferredLength)) {
+        lengths.add(preferredLength);
+      }
+    }
+    if (!lengths.contains(requiredLength)) lengths.add(requiredLength);
+    for (final fallbackLength in [11 * 60, 12 * 60]) {
+      if (fallbackLength >= requiredLength) lengths.add(fallbackLength);
+    }
 
     final dayEarliestMinutes = toMinutes(dayEarliest);
     final dayLatestMinutes = toMinutes(dayLatest);
 
     final options = <TREoption>[];
 
-    final eartlyStart = earliestStart.clamp(
-      dayEarliestMinutes,
-      dayLatestMinutes - length,
-    );
-    final earlyEnd = eartlyStart + length;
-    if (earlyEnd <= dayLatestMinutes) {
-      options.add(
-        TREoption(
-          toTimeOfDay(eartlyStart),
-          toTimeOfDay(earlyEnd),
-          Duration(minutes: length),
-          'Early TRE (${formatTime(toTimeOfDay(eartlyStart))}–${formatTime(toTimeOfDay(earlyEnd))})',
-          'A ${length ~/ 60}-hour eating window, giving you extra time afterwards in case you run late.',
-        ),
-      );
-    }
-
-    final lateEnd = latestEnd.clamp(
-      [dayEarliestMinutes + length, toMinutes(const TimeOfDay(hour: 21, minute: 0))]
-          .reduce((a, b) => a > b ? a : b),
-      dayLatestMinutes,
-    );
-    final lateStart = lateEnd - length;
-    if (lateStart >= dayEarliestMinutes && lateStart != eartlyStart) {
-      options.add(
-        TREoption(
-          toTimeOfDay(lateStart),
-          toTimeOfDay(lateEnd),
-          Duration(minutes: length),
-          'Late TRE (${formatTime(toTimeOfDay(lateStart))}–${formatTime(toTimeOfDay(lateEnd))})',
-          'A ${length ~/ 60}-hour eating window, giving you extra time before your first meal.',
-        ),
-      );
-    }
-
-    if (length - biggestLength > 0) {
-      final otherLength = length + 60;
-      final otherStart = earliestStart.clamp(
+    for (final length in lengths) {
+      final earlyStart = earliestStart.clamp(
         dayEarliestMinutes,
-        dayLatestMinutes - otherLength,
+        dayLatestMinutes - length,
       );
-      final otherEnd = otherStart + otherLength;
-
-      if (otherEnd <= dayLatestMinutes) {
+      final earlyEnd = earlyStart + length;
+      if (earlyEnd <= dayLatestMinutes) {
         options.add(
           TREoption(
-            toTimeOfDay(otherStart),
-            toTimeOfDay(otherEnd),
-            Duration(minutes: otherLength),
-            'TRE (${formatTime(toTimeOfDay(otherStart))}–${formatTime(toTimeOfDay(otherEnd))})',
-            'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.',
+            toTimeOfDay(earlyStart),
+            toTimeOfDay(earlyEnd),
+            Duration(minutes: length),
+            'Early TRE (${formatTime(toTimeOfDay(earlyStart))}–${formatTime(toTimeOfDay(earlyEnd))})',
+            'A ${length ~/ 60}-hour eating window, giving you extra time afterwards in case you run late.',
+          ),
+        );
+      }
+
+      final lateEnd = latestEnd.clamp(
+        [dayEarliestMinutes + length, toMinutes(const TimeOfDay(hour: 21, minute: 0))]
+            .reduce((a, b) => a > b ? a : b),
+        dayLatestMinutes,
+      );
+      final lateStart = lateEnd - length;
+      if (lateStart >= dayEarliestMinutes && lateStart != earlyStart) {
+        options.add(
+          TREoption(
+            toTimeOfDay(lateStart),
+            toTimeOfDay(lateEnd),
+            Duration(minutes: length),
+            'Late TRE (${formatTime(toTimeOfDay(lateStart))}–${formatTime(toTimeOfDay(lateEnd))})',
+            'A ${length ~/ 60}-hour eating window, giving you extra time before your first meal.',
           ),
         );
       }
@@ -399,7 +422,7 @@ class RecommendationSystem {
     final getAvailable = findAvailableDays(meals, false);
 
     List<List<int>> combinations = validCombosHelper(getAvailable, true);
-    combinations.retainWhere((c) => c.isNotEmpty && c.length != 3);
+    combinations.retainWhere((c) => c.isNotEmpty && c.length <= 3);
 
     List<ADFoption> options = [];
 
@@ -642,7 +665,7 @@ class RecommendFast {
             toTimeOfDay(otherEnd),
             Duration(minutes: otherLength),
             'Other',
-            'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility beyond the minimum needed.',
+            'A more generous ${otherLength ~/ 60}-hour window if you\'d like extra flexibility.',
           ),
         );
       }

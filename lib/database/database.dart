@@ -97,7 +97,7 @@ class AppDatabase extends _$AppDatabase {
       batch.insertAll(food, [
         FoodCompanion.insert(
           name: "Rolled Oats",
-          servingDescription: "100 g",
+          servingDescription: "100g",
           // servingGrams: 100,
           calories: Value(389),
           protein: Value(16.9),
@@ -108,7 +108,7 @@ class AppDatabase extends _$AppDatabase {
 
         FoodCompanion.insert(
           name: "Low Fat Milk",
-          servingDescription: "100 ml",
+          servingDescription: "100ml",
           // servingGrams: 100,
           calories: Value(42),
           protein: Value(3.4),
@@ -118,7 +118,7 @@ class AppDatabase extends _$AppDatabase {
         ),
         FoodCompanion.insert(
           name: "Chicken Breast",
-          servingDescription: "100 g",
+          servingDescription: "100g",
           // servingGrams: 100,
           calories: Value(165),
           protein: Value(31),
@@ -128,7 +128,7 @@ class AppDatabase extends _$AppDatabase {
         ),
         FoodCompanion.insert(
           name: "Brown Rice",
-          servingDescription: "100 g cooked",
+          servingDescription: "100g cooked",
           // servingGrams: 100,
           calories: Value(111),
           protein: Value(2.6),
@@ -138,7 +138,7 @@ class AppDatabase extends _$AppDatabase {
         ),
         FoodCompanion.insert(
           name: "Broccoli",
-          servingDescription: "100 g",
+          servingDescription: "100g",
           // servingGrams: 100,
           calories: Value(35),
           protein: Value(2.4),
@@ -178,7 +178,7 @@ class AppDatabase extends _$AppDatabase {
         ),
         FoodCompanion.insert(
           name: "Greek Yoghurt",
-          servingDescription: "100 g",
+          servingDescription: "100g",
           // servingGrams: 100,
           calories: Value(59),
           protein: Value(10),

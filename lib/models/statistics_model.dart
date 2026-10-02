@@ -58,7 +58,10 @@ class StatisticsModel {
     return formatDuration(timedDurations.reduce((longest, cur) => cur > longest ? cur : longest));
   }
 
-  String getAsPlannedRate() => formatPercentage(curFasts.plannedRate);
+  String getAsPlannedRate() {
+    double rate = curFasts.isEmpty ? 0 : (curFasts.fold(0, (prev, f) => prev + (f.asPlanned ? 1 : 0)) + curFasts.fold<double>(0, (prev, f) => prev + (f.halfAsPlanned? 0.5 : 0))) / curFasts.length;
+    return formatPercentage(rate);
+  }
 
   //! For below: - is early, + is late overall
   double curStartDeviation() => curFasts.averageStartDeviation;

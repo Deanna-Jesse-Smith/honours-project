@@ -131,7 +131,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           if (
             today
           .isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
-            if (percent == 1) {
+            if (percent < 1) {
               curStreak.curPeriod =
                 today.add(const Duration(days: 1));
               curStreak.lastPeriod = today;
@@ -143,7 +143,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           await ref.read(gDaoProvider).breakStreak(curStreak);
         }
       } else {
-        if (percent == 1) {
+        if (percent < 1) {
           await ref
               .read(gDaoProvider)
               .insertStreak(

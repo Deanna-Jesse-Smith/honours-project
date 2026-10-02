@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/database/database.dart';
@@ -244,7 +243,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
                   SizedBox(
-                    width: 80,
+                    width: 100,
                     child: TextField(
                       controller: heightController,
                       focusNode: focusNodeHeight,
@@ -269,7 +268,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                     style: TextStyle(fontSize: TextSizing.medium),
                   ),
                   SizedBox(
-                    width: 80,
+                    width: 100,
                     child: TextField(
                       controller: weightController,
                       focusNode: focusNodeWeight,
@@ -286,29 +285,29 @@ class _SetupUserState extends ConsumerState<SetupUser> {
 
             struggle(), //? What do you struggle most with: daily schedule change or a weekly change?
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: const Text(
-                      'Do you eat meals with family or friends regularly?',
-                      style: TextStyle(fontSize: TextSizing.medium),
-                    ),
-                  ),
-                  Checkbox(
-                    value: obligationVisibility,
-                    onChanged: (value) {
-                      setState(() => obligationVisibility = value ?? false);
-                    },
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       SizedBox(
+            //         width: 250,
+            //         child: const Text(
+            //           'Do you eat meals with family or friends regularly?',
+            //           style: TextStyle(fontSize: TextSizing.medium),
+            //         ),
+            //       ),
+            //       Checkbox(
+            //         value: obligationVisibility,
+            //         onChanged: (value) {
+            //           setState(() => obligationVisibility = value ?? false);
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
-            if (obligationVisibility) getWeek(),
+            // if (obligationVisibility) getWeek(),
 
             // Center(
             //   child: Padding(
@@ -355,7 +354,18 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'You need to fill in your height, weight and gender to proceed',style: const TextStyle(fontSize: TextSizing.smallmed),
+            'You need to fill in your height, weight and gender to proceed',
+            style: const TextStyle(fontSize: TextSizing.smallmed),
+          ),
+        ),
+      );
+    } else if (obligationVisibility &&
+        obligationDays.any((day) => day) &&
+        obligationTimes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Add at least one fixed meal time for the selected days',
           ),
         ),
       );
@@ -363,7 +373,10 @@ class _SetupUserState extends ConsumerState<SetupUser> {
       try {
         if (!mounted) return;
 
-        List<int> tempDays = boolsToInts(obligationDays);
+        final tempDays = obligationVisibility
+            ? boolsToInts(obligationDays)
+            : <int>[];
+        final tempTimes = tempDays.isEmpty ? <TimeOfDay>[] : obligationTimes;
 
         User tempUser = User(
           userID: 0,
@@ -377,7 +390,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
           height: double.parse(heightController.text),
           isGender: gender.first,
         );
-        ObligationMeals temp = ObligationMeals(tempDays, obligationTimes);
+        ObligationMeals temp = ObligationMeals(tempDays, tempTimes);
         RecommendationSystem rs = RecommendationSystem(
           prevForms: selectedForms,
           prevDuration: int.parse(durationController.text),
@@ -450,19 +463,16 @@ class _SetupUserState extends ConsumerState<SetupUser> {
   // }
 
   static const int mealCap = 3;
-  List<TimeOfDay> obligationTimes = [
-    TimeOfDay(hour: 12, minute: 0),
-    TimeOfDay(hour: 18, minute: 0),
-  ];
+  List<TimeOfDay> obligationTimes = [];
   String mealOneText = '+', mealTwoText = '+', mealThreeText = '+';
 
   Row getObligationMeal(int index) {
-    TimeOfDay? time = obligationTimes[index];
+    final time = obligationTimes[index];
     return Row(
       children: [
         ElevatedButton(
           onPressed: () => selectMealTime(index),
-          child: Text(time == null ? '+' : time.format(context)),
+          child: Text(time.format(context)),
         ),
         IconButton(
           onPressed: () => setState(() => obligationTimes.removeAt(index)),
@@ -542,7 +552,7 @@ class _SetupUserState extends ConsumerState<SetupUser> {
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
               SizedBox(
-                width: 80,
+                width: 100,
                 child: TextField(
                   controller: durationController,
                   focusNode: focusNodeDuration,

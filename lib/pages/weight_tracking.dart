@@ -231,7 +231,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
       ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: MyExpandableFAB(index: 4),
+      floatingActionButton: MyExpandableFAB(index: 2),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
         Row(

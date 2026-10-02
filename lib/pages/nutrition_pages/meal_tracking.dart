@@ -114,6 +114,8 @@ class MealTracking extends ConsumerWidget {
               loading: () => const CircularProgressIndicator(),
             ),
 
+            const SizedBox(height: 20),
+
             mealWatcher.when(
               data: (meals) {
                 if (meals.isEmpty) {
