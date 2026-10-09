@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
@@ -77,28 +76,28 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
     final session = ref.read(userSessionProvider).value;
 
-    description = switch (type) {
-      GoalType.fasting =>
-        session!.fastingForm == FastingForm.fiveTwo
-            ? 'An ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.'
-            : 'A TRE fasting goal is the minimum number of hours you aim to fast each day.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.',
-      GoalType.weight =>
-        'Your weight goal is the weight you are aiming to reach.\nUnlike the other goal types, weight goals do not have a streak.',
-      GoalType.hydration =>
-        'Your hydration goal is the amount of water you aim to drink each day.\n\nYour hydration streak is the number of consecutive days in which you have met your hydration goal.',
-      GoalType.nutrition =>
-        'Your nutrition goal is the maximum number of calories you aim to consume each day.\n\nYour nutrition streak is the number of consecutive days in which you have met your nutrition goal.',
-    };
+    // description = switch (type) {
+    //   GoalType.fasting =>
+    //     session!.fastingForm == FastingForm.fiveTwo
+    //         ? 'An ADF or 5:2 fasting goal is striving to complete the planned number of fasting days per week.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.'
+    //         : 'A TRE fasting goal is the minimum number of hours you aim to fast each day.\n\nYour fasting streak is the number of consecutive weeks in which you have met your fasting goal. Your streak is checked and either continued or broken at the start of each week.',
+    //   GoalType.weight =>
+    //     'Your weight goal is the weight you are aiming to reach.\nUnlike the other goal types, weight goals do not have a streak.',
+    //   GoalType.hydration =>
+    //     'Your hydration goal is the amount of water you aim to drink each day.\n\nYour hydration streak is the number of consecutive days in which you have met your hydration goal.',
+    //   GoalType.nutrition =>
+    //     'Your nutrition goal is the maximum number of calories you aim to consume each day.\n\nYour nutrition streak is the number of consecutive days in which you have met your nutrition goal.',
+    // };
 
-    cardTitle = switch (type) {
-      GoalType.fasting =>
-        session!.fastingForm == FastingForm.fiveTwo
-            ? 'I will eat less than'
-            : 'I will reach my fasting goal of:',
-      GoalType.weight => 'I will weigh less than or equal to:',
-      GoalType.hydration => 'I will drink more than:',
-      GoalType.nutrition => 'I will reach my daily calorie goal:',
-    };
+    // cardTitle = switch (type) {
+    //   GoalType.fasting =>
+    //     session!.fastingForm == FastingForm.fiveTwo
+    //         ? 'I will eat less than'
+    //         : 'I will reach my fasting goal of:',
+    //   GoalType.weight => 'I will weigh less than or equal to:',
+    //   GoalType.hydration => 'I will drink more than:',
+    //   GoalType.nutrition => 'I will reach my daily calorie goal:',
+    // };
 
     switch (type) {
       case GoalType.fasting:
@@ -162,7 +161,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           },
         ),
       ),
-      // body: AsyncData(asyncGoals) => SingleChildScrollView(child: Column(children: [],)),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -274,13 +272,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     return FutureBuilder(
       future: futureGoal,
       builder: (context, asyncSnapshot) {
-        debugPrint('connectionState: ${asyncSnapshot.connectionState}');
-        debugPrint('hasData: ${asyncSnapshot.hasData}');
-        debugPrint('data: ${asyncSnapshot.data}');
-        debugPrint('error: ${asyncSnapshot.error}');
-        debugPrint('hasError: ${asyncSnapshot.hasError}');
-        debugPrint('FUTURE BUILDER BUILD: ${asyncSnapshot.connectionState}');
-        debugPrint('DATA: ${asyncSnapshot.data?.runtimeType}');
         if (asyncSnapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         }
@@ -355,13 +346,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               suffixText: 'calories',
             );
           case BasicStreak():
-            // TODO: Handle this case.
+            /// There is no care where this would run, but this is here to satisfy the compiler that all cases are covered.
             throw UnimplementedError();
         }
       },
     );
   }
 
+  /// Creates a card with a text field for the user to input their goal.
   Card goalCard(
     TextInputType inputType,
     String goalText, {

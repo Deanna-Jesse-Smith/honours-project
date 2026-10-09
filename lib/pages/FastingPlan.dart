@@ -77,8 +77,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
   Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider);
 
-    // ref.read(gDaoProvider).createDummyGoals();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -145,36 +143,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
             style: TextStyle(fontSize: TextSizing.smallmed),
           ),
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //   // spacing: 30,
-        //   children: [
-        //     ElevatedButton(
-        //       onPressed: () => {
-        //         Navigator.of(context).push(
-        //           MaterialPageRoute(
-        //             builder: (context) => const FastingHistory(),
-        //           ),
-        //         ),
-        //       },
-        //       child: Text(
-        //         'View Fasting History',
-        //         style: TextStyle(fontSize: TextSizing.medium),
-        //       ),
-        //     ),
-        //     ElevatedButton(
-        //       onPressed: () => Navigator.of(context).push(
-        //         MaterialPageRoute(
-        //           builder: (context) => GoalsPage(type: GoalType.fasting),
-        //         ),
-        //       ),
-        //       child: Text(
-        //         'Goals/Streaks',
-        //         style: TextStyle(fontSize: TextSizing.medium),
-        //       ),
-        //     ),
-        //   ],
-        // ),
       ],
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
@@ -182,12 +150,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         index: 1,
         posi: ExpandableFabPos.right,
       ),
-      // floatingActionButton: customWidgets.getFAB(
-      //   ref,
-      //   context,
-      //   1,
-      //   posi: ExpandableFabPos.right,
-      // ),
     );
   }
 
@@ -354,18 +316,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       final outcome = await ref
           .read(userSessionProvider.notifier)
           .updateTRE(time, end);
-      // setState(() {
       if (outcome) {
         setState(() {
           start = time;
           startText = time.format(context);
         });
-        // start = time;
-        // startText = time.format(context);
       } else {
         planTREDecision(time, true);
       }
-      // });
     }
   }
 
@@ -375,18 +333,14 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
       final outcome = await ref
           .read(userSessionProvider.notifier)
           .updateTRE(start, time);
-      // setState(() {
       if (outcome) {
         setState(() {
           end = time;
           endText = time.format(context);
         });
-        // end = time;
-        // endText = time.format(context);
       } else {
         planTREDecision(time, false);
       }
-      // });
     }
   }
 
@@ -448,7 +402,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
     startText = start.format(context);
     end = TimeOfDay.fromDateTime(session.endTime);
     endText = end.format(context);
-    // List<String> headings = ['Starting Time', 'Ending Time'];
     List<ElevatedButton> times = [
       ElevatedButton(
         onPressed: () => selectStartTime(session.userId),
@@ -489,18 +442,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
                 ),
               ],
             ),
-            // TableRow(
-            //   children: headings
-            //       .map(
-            //         (heading) => Center(
-            //           child: Text(
-            //             heading,
-            //             style: TextStyle(fontSize: TextSizing.medium),
-            //           ),
-            //         ),
-            //       )
-            //       .toList(),
-            // ),
             const TableRow(
               children: [SizedBox(height: 10), SizedBox(height: 10)],
             ),
@@ -580,8 +521,6 @@ class FastingPlanState extends ConsumerState<FastingPlan> {
         const Text('Plan', style: TextStyle(fontSize: TextSizing.large)),
         DropdownMenu<FastingForm>(
           initialSelection: dropDownValuee,
-          // side
-          // menuStyle: MenuStyle(),
           onSelected: (FastingForm? value) {
             setState(() {
               checkChanging(value, session);

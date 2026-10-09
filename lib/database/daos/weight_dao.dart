@@ -40,7 +40,6 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
 
     final weightLogs = (selectOnly(weightLog)
               ..addColumns([weightLog.date, weightLog.amount])
-              // ..where(weightLog.userID.equals(userID))
               ..where(weightLog.date.isBiggerOrEqualValue(startDate))
               ..orderBy([OrderingTerm.asc(weightLog.date)]));
     return weightLogs.watch().map(

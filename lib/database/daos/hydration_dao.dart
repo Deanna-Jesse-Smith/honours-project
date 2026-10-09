@@ -26,7 +26,6 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     final dateOnly = hydrationLog.logDateTime.date;
     final hydrationLogs = (selectOnly(hydrationLog)
               ..addColumns([sumHydration, dateOnly])
-              // ..where(hydrationLog.userID.equals(userId))
               ..where(hydrationLog.logDateTime.isBiggerOrEqualValue(startDate))
               ..orderBy([OrderingTerm.asc(hydrationLog.logDateTime)])
               ..groupBy([dateOnly]));
@@ -37,9 +36,6 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
         final amount = entry.read(sumHydration)!;
         return (date, amount);
       }).toList(),);
-      // final date = log.read(hydrationLog.logDateTime)!;
-      // final amount = log.read(sumHydration)!;
-      // return (date, amount);
     }
   
 
@@ -51,7 +47,6 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     final logs = selectOnly(hydrationLog)
       ..addColumns([sumHydration])
       ..where(
-        // hydrationLog.userID.equals(userId) &
         hydrationLog.logDateTime.isBiggerOrEqualValue(todayStart) &
             hydrationLog.logDateTime.isSmallerOrEqualValue(todayEnd),
       );
@@ -68,7 +63,6 @@ class HydrationDao extends DatabaseAccessor<AppDatabase>
     final query = selectOnly(hydrationLog)
       ..addColumns([sumHydration])
       ..where(
-        // hydrationLog.userID.equals(userId) &
         hydrationLog.logDateTime.isBiggerOrEqualValue(todayStart) &
             hydrationLog.logDateTime.isSmallerThanValue(todayEnd),
       );

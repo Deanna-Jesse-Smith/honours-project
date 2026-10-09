@@ -25,88 +25,38 @@ class MyExpandableFAB extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UserSessionData session = ref.watch(userSessionProvider).value!;
-    final isFasting = ref.watch(isFastingProvider);
-
-    // final actions = BuildFAB.buildFab(
-    //   ref,
-    //   index: index,
-    //   onHydrationTapped: () async {
-    //     final newAmount = await Dialogs.getSpinnerWaterInput(
-    //       context,
-    //       title: 'How much water have you drank?',
-    //     );
-    //     if (newAmount != null) {
-    //       await ref.read(asyncGoalsProvider.notifier).addHydration(newAmount).whenComplete(() => ref.invalidate(checkHydrationGoalProvider));
-    //     }
-    //   },
-    //   onMealTapped: () async {
-    //     final newLog = await Dialogs.getCurLogMethod(context, ref, session);
-
-    //     if (newLog != null) {
-    //       debugPrint('Log: ${newLog.name}');
-    //       if (newLog == LogMethod.quick) {
-    //         await ref
-    //             .read(nDaoProvider)
-    //             .insertFoodLog(MealCategory.quick, null, null, newLog);
-    //       } else if (newLog == LogMethod.full) {
-    //         if (!context.mounted) return;
-    //         Navigator.of(
-    //           context,
-    //         ).push(MaterialPageRoute(builder: (context) => const MealLog()));
-    //       } else {
-    //         if (!context.mounted) return;
-    //         chooseRepeatMeal(context, ref);
-    //       }
-    //     } else {
-    //       debugPrint('Log: null');
-    //     }
-    //   },
-    //   onWeightTapped: () async {
-    //     double? curWeight = await ref
-    //         .read(wDaoProvider)
-    //         .latestWeight(session.userId);
-    //     if (!context.mounted) return;
-    //     final newAmount = await Dialogs.getNewInput(
-    //       context,
-    //       initialVal: curWeight,
-    //       title: 'Log Weight',
-    //     );
-    //     if (newAmount != null) {
-    //       await ref
-    //           .read(wDaoProvider)
-    //           .insertWeight(
-    //             session.userId,
-    //             newAmount.toDouble(),
-    //             DateTime.now(),
-    //           ).whenComplete(() => ref.invalidate(checkWeightGoalProvider));
-    //     }
-    //   },
-    // );
     final actions = [
       if (session.fastingForm != FastingForm.fiveTwo)
         FabButton(
-          title: isFasting.when(
-            data: (isFast) => !isFast ? 'Start my fast' : 'Break my fast',
-            error: (_, _) => 'Error',
-            loading: () => 'Loading',
+          title: Consumer(
+            builder: (context, ref, _) {
+              final isFasting = ref.watch(isFastingProvider);
+              return Text(
+                isFasting.when(
+                  data: (isFast) => !isFast ? 'Start my fast' : 'Break my fast',
+                  error: (_, _) => 'Error',
+                  loading: () => 'Loading',
+                ),
+                style: TextStyle(fontSize: TextSizing.medium),
+              );
+            },
           ),
           colour: Colors.deepPurpleAccent,
-          onPressed: () {
+          onPressed: () async {
             try {
-              ref.read(asyncFatingNotifier.notifier).toggleFast();
+              await ref.read(asyncFatingNotifier.notifier).toggleFast();
             } finally {
               ref.invalidate(checkFastingGoalProvider);
               ref.invalidate(checkFastingStatusProvider);
               ref.invalidate(checkFastingProgressProvider);
             }
-            // ref
-            //   .read(asyncFatingNotifier.notifier)
-            //   .toggleFast()
-            //   .whenComplete(() => ref.invalidate(checkFastingGoalProvider));
           },
         ),
       FabButton(
-        title: 'Log Weight',
+        title: Text(
+          'Log Weight',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
         colour: Colors.green,
         onPressed: () async {
           double? curWeight = await ref
@@ -125,6 +75,16 @@ class MyExpandableFAB extends ConsumerWidget {
                 .logWeight(newAmount)
                 .whenComplete(() => ref.invalidate(checkWeightGoalProvider));
 
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Your weight log has been updated to $newAmount kg',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),
+                ),
+              ),
+            );
+
             if (check.$2 == 1) {
               if (!context.mounted) return;
               showDialog(
@@ -132,20 +92,11 @@ class MyExpandableFAB extends ConsumerWidget {
                 builder: (_) => DialogTitle(type: GoalType.weight),
               );
             }
-
-            // await ref
-            //     .read(wDaoProvider)
-            //     .insertWeight(
-            //       session.userId,
-            //       newAmount.toDouble(),
-            //       DateTime.now(),
-            //     )
-            //     .whenComplete(() => ref.invalidate(checkWeightGoalProvider));
           }
         },
       ),
       FabButton(
-        title: 'Log Meal',
+        title: Text('Log Meal', style: TextStyle(fontSize: TextSizing.medium)),
         colour: Colors.amber,
         onPressed: () async {
           final newLog = await Dialogs.getCurLogMethod(context, ref, session);
@@ -173,18 +124,6 @@ class MyExpandableFAB extends ConsumerWidget {
                         .whenComplete(
                           () => ref.invalidate(checkNutritionGoalProvider),
                         );
-                    // await ref
-                    // .read(asyncGoalsProvider.notifier)
-                    // .logMeal(
-                    //   MealCategory.quick,
-                    //   null,
-                    //   null,
-                    //   newLog,
-                    //   DateTime.now(),
-                    // )
-                    // .whenComplete(
-                    //   () => ref.invalidate(checkNutritionGoalProvider),
-                    // );
                     await ref.read(asyncFatingNotifier.notifier).toggleFast();
                   }
                 }
@@ -196,17 +135,6 @@ class MyExpandableFAB extends ConsumerWidget {
                 } finally {
                   ref.invalidate(checkNutritionGoalProvider);
                 }
-                // celebrate = await ref
-                //     .read(asyncGoalsProvider.notifier)
-                //     .logMeal(
-                //       MealCategory.quick,
-                //       {},
-                //       newLog,
-                //       DateTime.now(),
-                //     )
-                //     .whenComplete(
-                //       () => ref.invalidate(checkNutritionGoalProvider),
-                //     );
               }
 
               if (celebrate) {
@@ -232,7 +160,10 @@ class MyExpandableFAB extends ConsumerWidget {
         },
       ),
       FabButton(
-        title: 'Log Hydration',
+        title: Text(
+          'Log Hydration',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
         colour: Colors.blue,
         onPressed: () async {
           final newAmount = await Dialogs.getSpinnerWaterInput(
@@ -278,16 +209,12 @@ class MyExpandableFAB extends ConsumerWidget {
       type: ExpandableFabType.up,
       pos: posi,
       overlayStyle: ExpandableFabOverlayStyle(blur: 20),
-      childrenAnimation: ExpandableFabAnimation.none,
       margin: const EdgeInsets.all(10),
       children: orderedActions
           .map(
             (button) => ElevatedButton(
               onPressed: button.onPressed,
-              child: Text(
-                button.title,
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
+              child: button.title,
             ),
           )
           .toList(),
@@ -326,7 +253,7 @@ class MyExpandableFAB extends ConsumerWidget {
 }
 
 class FabButton {
-  final String title;
+  final Widget title;
   final Color colour;
   final VoidCallback onPressed;
 

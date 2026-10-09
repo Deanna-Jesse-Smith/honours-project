@@ -24,8 +24,6 @@ class MealLog extends ConsumerStatefulWidget {
 
 class _MealLogState extends ConsumerState<MealLog> {
   late NutritionDao nDao;
-  // late int mealID;
-  // late MealItem curMeal;
   DateTime mealTime = DateTime.now();
   String strMealTime = '';
 
@@ -51,7 +49,6 @@ class _MealLogState extends ConsumerState<MealLog> {
     dropDownValuee = MealCategory.snack;
 
     nDao = ref.watch(nDaoProvider);
-    // makeMeal();
     fillFoodList();
   }
 

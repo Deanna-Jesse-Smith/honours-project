@@ -20,10 +20,6 @@ class ReminderDao extends DatabaseAccessor<AppDatabase>
         .write(ReminderCompanion(time: Value(time), days: Value(days)));
   }
 
-  // void deleteReminder(int reminderID) {
-  //   delete(reminder).where((r) => r.reminderID.equals(reminderID));
-  // }
-
   Future<void> changeEnabled(int reminderID, bool isEnabled) {
     return (update(reminder)..where((r) => r.reminderID.equals(reminderID)))
         .write(ReminderCompanion(isEnabled: Value(isEnabled)));
@@ -38,13 +34,6 @@ class ReminderDao extends DatabaseAccessor<AppDatabase>
     final rem = (select(reminder)..where((r) => r.type.equals(type.name)));
     return rem.getSingleOrNull();
   }
-
-  // Future<List<ReminderData>> getReminders(
-  //   int userID,
-  // ) async {
-  //   final rem = await (select(reminder)..where((r) => r.userID.equals(userID))).get();
-  //   return rem;
-  // }
 
   Future<void> deleteReminder(int userID, ReminderType type) {
     return (delete(

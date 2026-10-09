@@ -212,7 +212,7 @@ enum FastingStatus {
   active, // A fast is currently active
   endingSoon, // Within 30 minutes before fast ends
   shouldHaveEnded, // Within 30 minutes after fast ends
-  completed, // Not totally sure
+  completed,
   scheduled, // There is a fast scheduled for today, but it is not within 4 hours of starting
 }
 
@@ -295,13 +295,11 @@ class Fast {
     required this.form,
     required this.results,
   });
-
-  // static makeSense(List<FastLogData> list) {
-
-  // }
 }
 
 extension FastLogDataHelper on FastLogData {
+  Color get fastFormColour => formIF.colour;
+
   Duration? get duration {
     if (endDateTime == null) return Duration.zero;
     return endDateTime!.difference(startDateTime);

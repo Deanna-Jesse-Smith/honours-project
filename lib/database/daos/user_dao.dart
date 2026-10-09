@@ -154,19 +154,6 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   }
 
   Future<void> changeDetails(int userID, String name, double height, DateTime? birthday) async {
-    // List<UsersCompanion> updates = [];
-
-    // if (name.isNotEmpty) {
-    //   updates.add(UsersCompanion(name: Value(name)));
-    // }
-    // if (height != -1) {
-    //   updates.add(UsersCompanion(height: Value(height)));
-    // }
-
-    // for (final update in updates) {
-    //   (update(users)..where((u) => u.userID.equals(userID))).write(update);
-    // }
-
     (update(users)..where((u) => u.userID.equals(userID))).write(UsersCompanion(name: Value(name), height: Value(height)));
   }
 }

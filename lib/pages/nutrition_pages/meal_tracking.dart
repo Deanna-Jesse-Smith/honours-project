@@ -136,50 +136,6 @@ class MealTracking extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (e, o) => const SizedBox.shrink(),
             ),
-
-            // StreamBuilder(
-            //   stream: ref.read(nDaoProvider).findFoodInRange(DateTimeRange(start: start, end: end)),
-            //   builder: (context, snapshot) {
-            //     if (!snapshot.hasData) {
-            //       debugPrint('FoodMap: no data');
-            //       return const Text(
-            //         'No meals to show',
-            //         style: TextStyle(fontSize: TextSizing.large),
-            //       );
-            //     }
-
-            //     final dayFoods = snapshot.data;
-            //     if (dayFoods == null) {
-            //       debugPrint('FoodMap: null');
-            //       return const Text(
-            //         'No meals to show',
-            //         style: TextStyle(fontSize: TextSizing.large),
-            //       );
-            //     }
-
-            //     Map<DateTime, DayFoods> foodMap = {};
-            //     for (final foodItem in dayFoods) {
-            //       DayFoods temp = DayFoods.range(foodItem, foodItem.logDate);
-            //       foodMap.update(DateUtils.dateOnly(foodItem.logDate), (u) {
-            //         u.foods.add(foodItem);
-            //         return u;
-            //       }, ifAbsent: () => temp);
-            //     }
-            //     List<DayFoods> curr = foodMap.values.toList();
-            //     return Expanded(
-            //       child: ListView.builder(
-            //         padding: EdgeInsets.all(16),
-            //         itemCount: curr.length,
-            //         itemBuilder: (context, index) {
-            //           if (curr.isNotEmpty) {
-            //             return DaySection(dayMeal: curr[index]);
-            //           }
-            //           return SizedBox(height: 10);
-            //         },
-            //       ),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),
@@ -197,61 +153,6 @@ class MealTracking extends ConsumerWidget {
           ),
         ),
       ],
-
-      // body: FutureBuilder(future: viewMeals, builder: (context, snapshot) {
-      //   if (!snapshot.hasData) {
-      //     return const Text('No meals to show', style: TextStyle(fontSize: TextSizing.large),);
-      //   }
-
-      //   final daysMeals = snapshot.data;
-
-      //   return ListView.builder(itemCount: daysMeals!.length, itemBuilder: (context, index) {
-      //     if (daysMeals.isNotEmpty) {
-      //       return DaySection(dayMeal: daysMeals[threeDays[index]]!);
-      //     }
-      //     return SizedBox(height: 10,);
-      //   },);
-      // }),
-      // body: ListView.builder(
-      //   itemBuilder: (context, index) {
-      //     return Column(
-      //       children: [
-      //       Text('Today\'s Meals'),
-
-      //       ]);
-      //   },
-      // ),
-
-      //  body: threeDaysMeals.when(
-      //   data: (meals) =>
-      //       ListView(children: meals.map((m) => MealCard(meal: m)).toList()),
-      //   error: (e, st) => Text('Error: $e'),
-      //   loading: () => const CircularProgressIndicator(),
-      // ),
-      // body: Column(
-      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //   children: [
-      //     // groupedMeals(context),
-      //     // groupedMeals(context),
-      //     // groupedMeals(context),
-      //     ElevatedButton(onPressed: () async {
-      //         final newLog = await Dialogs.getCurLogMethod(context, ref, session);
-      //         if (newLog != null) ref.read(nDaoProvider).insertMeal(session.userId, DateTime.now(), newLog);
-      //       }, child: Text('Log Weight'))
-      //   ],
-      // )
-    );
-  }
-
-  Container groupedMeals(BuildContext context) {
-    return .new(
-      width: MediaQuery.sizeOf(context).width - 50,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.amberAccent,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Text('Hello'),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/models/concerns_model.dart';
+import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
@@ -44,21 +45,23 @@ class Dialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(cancel, style: TextStyle(fontSize: TextSizing.medlarge),),
+            child: Text(
+              cancel,
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(confrim, style: TextStyle(fontSize: TextSizing.medlarge),),
+            child: Text(
+              confrim,
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
         ],
       ),
     );
     return decision ?? false;
   }
-
-  // static Dialog celebrationDialog(BuildContext context) {
-  //   return showDialog(context: context, builder: (context) => dialog);
-  // }
 
   static Future<double?> getNewInput(
     BuildContext context, {
@@ -95,14 +98,20 @@ class Dialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
+            child: Text(
+              'Cancel',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
           FilledButton(
             onPressed: () {
               final value = double.tryParse(contorller.text);
               Navigator.pop(context, value);
             },
-            child: Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
+            child: Text(
+              'Save',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
         ],
       ),
@@ -120,48 +129,6 @@ class Dialogs {
     );
   }
 
-  static Future<int?> getSpinnerInput(
-    BuildContext context, {
-    required String title,
-    int initialValue = 0,
-    int min = 0,
-    int max = 100,
-  }) async {
-    int value = initialValue;
-    return showDialog<int>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(title),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: value > min ? () => setState(() => value--) : null,
-              ),
-              Text('$value', style: const TextStyle(fontSize: 24)),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: value < max ? () => setState(() => value++) : null,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, value),
-              child: const Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   static Future<int?> getSpinnerWaterInput(
     BuildContext context, {
     required String title,
@@ -174,7 +141,7 @@ class Dialogs {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(title, style: TextStyle(fontSize: TextSizing.large),),
+          title: Text(title, style: TextStyle(fontSize: TextSizing.large)),
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -184,7 +151,10 @@ class Dialogs {
                     ? () => setState(() => value -= 250)
                     : null,
               ),
-              Text('$value ml', style: const TextStyle(fontSize: TextSizing.large)),
+              Text(
+                '$value ml',
+                style: const TextStyle(fontSize: TextSizing.large),
+              ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed: value < max
@@ -196,11 +166,17 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, value),
-              child: const Text('Save', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: const Text(
+                'Save',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
           ],
         ),
@@ -260,28 +236,51 @@ class Dialogs {
     final temp = showDialog(
       context: context,
       builder: (context) => SimpleDialog(
-        title: Text('Your fasting result icons'),
-        children: FastResult.values
-            .map(
-              (r) => Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 7),
-                child: Row(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    r.resultIcon,
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.6,
+        title: Text(
+          'Your Fasting Result Legend',
+          style: TextStyle(fontSize: TextSizing.medium),
+        ),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: FastingForm.values
+                .map(
+                  (f) => Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: f.colour, width: 3.5),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
                       child: Text(
-                        r.description,
+                        f.label,
                         style: TextStyle(fontSize: TextSizing.small),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                )
+                .toList(),
+          ),
+          ...FastResult.values.map(
+            (r) => Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 7),
+              child: Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  r.resultIcon,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: Text(
+                      r.description,
+                      style: const TextStyle(fontSize: TextSizing.small),
+                    ),
+                  ),
+                ],
               ),
-            )
-            .toList(),
+            ),
+          ),
+        ],
       ),
     );
     return temp;
@@ -331,11 +330,17 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: Text(
+                'Dismiss (1 week)',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
           ],
         ),
@@ -379,11 +384,17 @@ class Dialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
+              child: Text(
+                'Dismiss (1 week)',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
           ],
         ),
@@ -421,7 +432,10 @@ class Dialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
+            child: Text(
+              'Close',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
           ),
         ],
       ),

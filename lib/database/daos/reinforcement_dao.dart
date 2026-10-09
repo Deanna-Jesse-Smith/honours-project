@@ -45,8 +45,6 @@ class ReinforcementDao extends DatabaseAccessor<AppDatabase>
       ),
     );
 
-    // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.fasting), title: 'Your fasting routine hasn\'t been consistent', displayContext: 'Your recent fasting history shows that your current plan has been difficult to follow. Rather than pushing yourself to continue with the same schedule consider whether a different fasting pattern would fit your routine better.', citation: 'O\'Neal et al. (2023)', threshold: <50% planned fasting weeks achieved, window: 42,),);
-
     into(reinforcements).insert(
       ReinforcementsCompanion.insert(
         cType: ConcernType.pr,
@@ -85,8 +83,6 @@ class ReinforcementDao extends DatabaseAccessor<AppDatabase>
         window: 7,
       ),
     );
-
-    // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.hydration), title: 'Try changing your hydration routine', displayContext: 'Your recent history suggests that your current approach isn\'t helping you consistently reach your hydration goal. Try setting reminders or connecting drinking water with an existing part of your daily routine.', citation: 'Milne-Ives et al. (2023)', threshold: Hydration goal missed ≥3 days in each of the last 2 weeks, window: 2 weeks,),);
 
     into(reinforcements).insert(
       ReinforcementsCompanion.insert(
@@ -166,10 +162,6 @@ class ReinforcementDao extends DatabaseAccessor<AppDatabase>
       ),
     );
 
-    // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.weight), title: 'Your progress toward your weight goal has slowed', displayContext: 'Your recent weight history isn\'t moving toward your goal as expected. Consider looking at your fasting meal and activity history to see whether changing your current routine could help.', citation: 'Hallock et al. (2024)', threshold: No meaningful movement toward goal, window: 28,),);
-
-    // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.health, type: Value(GoalType.weight), title: 'Check in with your progress', displayContext: 'You haven\'t recorded your weight recently so your progress toward your goal is harder to assess. A new measurement can help you see whether your current routine is moving you in the direction you want.', citation: 'Hallock et al. (2024)', threshold: No weight measurement, window: 30,),);
-
     into(reinforcements).insert(
       ReinforcementsCompanion.insert(
         cType: ConcernType.pr,
@@ -182,8 +174,6 @@ class ReinforcementDao extends DatabaseAccessor<AppDatabase>
         window: 28,
       ),
     );
-
-    // into(reinforcements).insert(ReinforcementsCompanion.insert(cType: ConcernType.pr, type: Value(GoalType.weight), title: 'Your progress gives you useful feedback', displayContext: 'Your recent weight measurements give you a clearer picture of how your current routine is working. Use this information alongside your fasting meal and activity history when deciding whether to continue or adjust your plan.', citation: 'Hallock et al. (2024)', threshold: Weight trend moving toward goal, window: 21,),);
 
     into(reinforcements).insert(
       ReinforcementsCompanion.insert(

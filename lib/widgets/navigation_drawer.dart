@@ -23,10 +23,6 @@ class MyNavigationDrawer extends StatelessWidget {
             title: const Text('Track Meals', style: TextStyle(fontSize: TextSizing.medlarge),),
             onTap: () => Navigator.pushNamed(context, '/MealTracking'),
           ),
-          // ListTile(
-          //   title: const Text('Step Tracking', style: TextStyle(fontSize: TextSizing.medlarge),),
-          //   onTap: () => Navigator.pushNamed(context, '/StepCount'),
-          // ),
           ListTile(
             title: const Text('Hydration Tracking', style: TextStyle(fontSize: TextSizing.medlarge),),
             onTap: () => Navigator.pushNamed(context, '/HydrationTracking'),

@@ -8,15 +8,20 @@ import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/utils/Notifiers/goal_notifier.dart';
 import 'package:testrun/widgets/animations/concern_dialog.dart';
 
-class AsyncConcerns extends AsyncNotifier<BasicConcern> {
+class AsyncConcerns extends AsyncNotifier<void> {
   List<HealthConcern> healthConcerns = [];
   List<PositiveReinforcement> positiveReinforcements = [];
   Set<PositiveReinforcement> weightPR = {};
+  Future<void>? checkPop;
 
   @override
-  FutureOr<BasicConcern> build() async {
-    populateSets();
-    return healthConcerns.first;
+  Future<void> build() {
+    healthConcerns.clear();
+    positiveReinforcements.clear();
+    weightPR.clear();
+    final initPop = populateSets();
+    checkPop = initPop;
+    return initPop;
   }
 
   Future<void> populateSets() async {
@@ -40,55 +45,41 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
     final prs = await ref.read(cDaoProvider).getPRConcerns();
     for (final pr in prs) {
       if (pr.type != null && pr.type == GoalType.weight) {
-      weightPR.add(
-        PositiveReinforcement(
-          pr.id,
-          pr.type,
-          pr.title,
-          pr.displayContext,
-          pr.threshold,
-          pr.window,
-          pr.citation,
-          pr.nextEval,
-        ),
-      );
+        weightPR.add(
+          PositiveReinforcement(
+            pr.id,
+            pr.type,
+            pr.title,
+            pr.displayContext,
+            pr.threshold,
+            pr.window,
+            pr.citation,
+            pr.nextEval,
+          ),
+        );
       } else {
         positiveReinforcements.add(
-        PositiveReinforcement(
-          pr.id,
-          pr.type,
-          pr.title,
-          pr.displayContext,
-          pr.threshold,
-          pr.window,
-          pr.citation,
-          pr.nextEval,
-        ),
-      );
+          PositiveReinforcement(
+            pr.id,
+            pr.type,
+            pr.title,
+            pr.displayContext,
+            pr.threshold,
+            pr.window,
+            pr.citation,
+            pr.nextEval,
+          ),
+        );
       }
     }
     positiveReinforcements.sort();
   }
 
+  Future<void> ensurePopulated() => checkPop ??= populateSets();
+
   Future<BasicConcern?> getConcern(GoalType type) async {
+    await ensurePopulated();
     final today = DateTime.now();
-    // final session = ref.watch(userSessionProvider).value;
-    if (type == GoalType.weight) {
-      // final weight = await ref.read(wDaoProvider).latestWeight(session!.userId);
-      // final height = session!.height;
-
-      // final bmi = weight! / (height * height);
-
-      // if (bmi > 25) {
-      //   // return HealthConcern(-1, type, 'Unhealthy BMI Results', 'According to ', -1, -1, '', DateTime.now());
-      // } else if (bmi < 18.5) {
-      //   return HealthConcern(-1, type, 'Unhealthy BMI Results', text, -1, -1, '', DateTime.now());
-      // } else {
-
-      // }
-      
-      
-    }
 
     final healthRelated = healthConcerns.where(
       (h) => h.gType == type || h.gType == null,
@@ -127,35 +118,45 @@ class AsyncConcerns extends AsyncNotifier<BasicConcern> {
 
   Future<void> adjustConcernEval(
     BasicConcern concern, {
-    bool week = false,
+    required int days,
   }) async {
-    int numDays = week ? 7 : 2;
-    DateTime newEval = DateUtils.dateOnly(
-      DateTime.now().add(Duration(days: numDays)),
-    );
+    await ensurePopulated();
+    final newEval = DateTime.now().add(Duration(days: days));
     await ref.read(cDaoProvider).changeEvalDate(concern.id, newEval);
 
     if (concern is HealthConcern) {
       final adjusted = concern.copyWithEval(newEval);
       healthConcerns.removeWhere((h) => h.id == adjusted.id);
       healthConcerns.add(adjusted);
+      healthConcerns.sort();
     } else {
       final adjusted = (concern as PositiveReinforcement).copyWithEval(newEval);
       positiveReinforcements.removeWhere((p) => p.id == adjusted.id);
       positiveReinforcements.add(adjusted);
+      positiveReinforcements.sort();
     }
   }
 
-  Future<void> doConcernDialogue(BasicConcern concern, BuildContext context) async {
-    final result = await showDialog<int>(context: context, builder: (_) => ConcernDialog(concern: concern));
-    debugPrint('Eval resutl: $result');
-    if (result == null || result > 1) {
-      adjustConcernEval(concern);
-    } else {
-      adjustConcernEval(concern, week: true);
+  Future<void> doConcernDialogue(
+    BasicConcern concern,
+    BuildContext context,
+  ) async {
+    final result = await showDialog<ConcernDialogAction>(
+      context: context,
+      builder: (_) => ConcernDialog(concern: concern),
+    );
+    if (result == null) {
+      return;
     }
+
+    final days = switch (result) {
+      ConcernDialogAction.dismissThreeDays => 3,
+      ConcernDialogAction.dismissOneWeek => 7,
+    };
+    await adjustConcernEval(concern, days: days);
   }
 }
 
-final asyncConcernsProvider =
-    AsyncNotifierProvider<AsyncConcerns, BasicConcern>(AsyncConcerns.new);
+final asyncConcernsProvider = AsyncNotifierProvider<AsyncConcerns, void>(
+  AsyncConcerns.new,
+);

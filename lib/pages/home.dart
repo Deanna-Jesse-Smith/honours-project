@@ -29,17 +29,6 @@ class HomePageState extends ConsumerState<HomePage> {
     super.initState();
     session = ref.watch(userSessionProvider).value!;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await ref.read(fDaoProvider).dummyData();
-      // await ref.read(cDaoProvider).dummyData();
-      // final check = await ref
-      //     .read(asyncGoalsProvider.notifier)
-      //     .checkFastingGoal();
-
-      // if (!check || !mounted) return;
-      // await showDialog(
-      //   context: context,
-      //   builder: (_) => DialogTitle(type: GoalType.fasting),
-      // );
       if (!firstHomeFrame) {
         firstHomeFrame = true;
         final checkFood = await ref
@@ -58,10 +47,8 @@ class HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final checkGoal = ref.watch(checkFastingGoalProvider);
-    // final checkStatus = ref.watch(checkFastingStatusProvider);
     final checkProgress = ref.watch(checkFastingProgressProvider);
     final streakChecker = ref.watch(checkFastingStreakProvider);
-    // ref.read(fDaoProvider).dummyData();
 
     return Scaffold(
       appBar: AppBar(
@@ -77,8 +64,6 @@ class HomePageState extends ConsumerState<HomePage> {
         padding: EdgeInsets.all(20),
         alignment: Alignment.center,
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: EdgeInsets.all(15),
@@ -96,13 +81,13 @@ class HomePageState extends ConsumerState<HomePage> {
                     backgroundColor: Colors.yellow,
                     barRadius: Radius.circular(10),
                     leading: Text(
-                        '0',
-                        style: TextStyle(fontSize: TextSizing.smallmed),
-                      ),
-                      trailing: Text(
-                        '${goal.$3} days',
-                        style: TextStyle(fontSize: TextSizing.smallmed),
-                      ),
+                      '0',
+                      style: TextStyle(fontSize: TextSizing.smallmed),
+                    ),
+                    trailing: Text(
+                      '${goal.$3} days',
+                      style: TextStyle(fontSize: TextSizing.smallmed),
+                    ),
                   );
                 },
                 error: (e, _) => Text(e.toString()),
@@ -119,7 +104,7 @@ class HomePageState extends ConsumerState<HomePage> {
                     children: [
                       Tooltip(
                         message:
-                            'Your fasting streak is the number of days in a row you have managed to maintain your fasting period.',
+                            'Your fasting streak is the number of weeks in a row you have managed to achieve your fasting goal.',
                         textStyle: TextStyle(fontSize: TextSizing.small),
                         constraints: BoxConstraints(maxWidth: 300),
                         triggerMode: TooltipTriggerMode.tap,
@@ -140,59 +125,11 @@ class HomePageState extends ConsumerState<HomePage> {
               error: (e, _) => Text(e.toString()),
               loading: () => const CircularProgressIndicator(),
             ),
-            // StreamBuilder(
-            //   stream: ref.watch(gDaoProvider).getActiveFastingStreak(),
-            //   builder: (context, asyncSnapshot) {
-            //     if (!asyncSnapshot.hasData) {
-            //       return const Text(
-            //         'No ongoing Fasting streak',
-            //         style: TextStyle(fontSize: TextSizing.smallmed),
-            //       );
-            //     }
-
-            //     final days = asyncSnapshot.data;
-
-            //     if (days == null || days < 1) {
-            //       return const SizedBox.shrink();
-            //     }
-
-            //     return Text('You\'re on a $days week streak!',
-            //         style: TextStyle(fontSize: TextSizing.smallmed));
-            //   },
-            // ),
             Padding(
               padding: EdgeInsets.all(30),
               child: checkProgress.when(
                 data: (perc) {
                   return AnimatedCircularPercent(progress: perc);
-                  // return CircularPercentIndicator(
-                  //   radius: 130,
-                  //   percent: perc.percentage,
-                  //   lineWidth: 45,
-                  //   header: Padding(
-                  //     padding: EdgeInsets.only(bottom: 45),
-                  //     child: checkStatus.when(
-                  //       data: (status) {
-                  //         return Text(
-                  //           status.homeReminder,
-                  //           maxLines: 2,
-                  //           textAlign: TextAlign.center,
-                  //           style: TextStyle(fontSize: TextSizing.medium),
-                  //         );
-                  //       },
-                  //       error: (e, _) => Text(e.toString()),
-                  //       loading: () => SizedBox.shrink(),
-                  //     ),
-                  //   ),
-                  //   center: Text(
-                  //     '${perc.remaining.inHours}h ${perc.remaining.inMinutes % 60}m',
-                  //     style: TextStyle(fontSize: TextSizing.medium),
-                  //   ),
-                  //   progressColor: Colors.lightBlueAccent,
-                  //   backgroundColor: Colors.cyan,
-                  //   circularStrokeCap: CircularStrokeCap.round,
-                  //   animationDuration: 2000,
-                  // );
                 },
                 error: (e, _) => Text(e.toString()),
                 loading: () => SizedBox.shrink(),
@@ -203,7 +140,8 @@ class HomePageState extends ConsumerState<HomePage> {
       ),
       drawer: MyNavigationDrawer(),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: MyExpandableFAB(index: 1),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
+      floatingActionButton: const MyExpandableFAB(index: 1),
     );
   }
 }

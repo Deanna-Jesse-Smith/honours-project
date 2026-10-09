@@ -11,7 +11,6 @@ import 'package:testrun/pages/goals_pages/goals_page.dart';
 import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/animated_liquid_progress.dart';
-import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/fab.dart';
 import 'package:testrun/widgets/navigation_drawer.dart';
 
@@ -23,15 +22,11 @@ class HydrationTracking extends ConsumerStatefulWidget {
 }
 
 class HydrationTrackingState extends ConsumerState<HydrationTracking> {
-  // late ConfettiController controller;
-
   final DateTime sevenDaysAgo = DateTime.now().subtract(const Duration(days: 6));
 
   @override
   void initState() {
     super.initState();
-
-    // controller = ConfettiController(duration: const Duration(seconds: 5));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final concern = await ref
@@ -119,33 +114,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               loading: () => const CircularProgressIndicator(),
             ),
             const SizedBox(width: 100, height: 30),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     final newAmount = await Dialogs.getSpinnerWaterInput(
-            //       context,
-            //       title: 'How much water have you drank?',
-            //     );
-
-            //     if (newAmount != null) {
-            //       try {
-            //         final check = await ref
-            //             .read(asyncGoalsProvider.notifier)
-            //             .addHydration(newAmount);
-
-            //         if (check) {
-            //           showCelebration();
-            //         }
-            //       } finally {
-            //         ref.invalidate(checkHydrationGoalProvider);
-            //         ref.invalidate(checkHydrationStreakProvider);
-            //         ref.invalidate(watchHydrationGraphProvider(sevenDaysAgo));
-            //       }
-            //     }
-            //   },
-            //   child: Text('Log Hydration'),
-            // ),
-
-            const SizedBox(width: 100, height: 30),
 
             const Text('Your week\'s hydration', style: TextStyle(fontSize: TextSizing.medium)),
             const SizedBox(width: 100, height: 20),
@@ -203,14 +171,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                               },
                             ),
                           ),
-                          // rightTitles: AxisTitles(
-                          //   sideTitles: SideTitles(
-                          //     showTitles: false,
-                          //     getTitlesWidget: (value, meta) {
-                          //       return Text('$value l');
-                          //     },
-                          //   ),
-                          // ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -233,25 +193,6 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
               error: (e, _) => Text(e.toString()),
               loading: () => const CircularProgressIndicator(),
             ),
-
-            // LineChart(LineChartData(lineBarsData: [
-            //   LineChartBarData(
-            //     spots: const [
-            //       FlSpot(0, 1),
-            //       FlSpot(1, 1.5),
-            //       FlSpot(2, 1.4),
-            //       FlSpot(3, 3.4),
-            //       FlSpot(4, 2),
-            //       FlSpot(5, 2.2),
-            //       FlSpot(6, 1.8),
-            //     ],
-            //     isCurved: true,
-            //     color: Colors.blue,
-            //     barWidth: 3,
-            //     dotData: FlDotData(show: false),
-            //   ),
-            // ])
-            // ),
           ],
         ),
       ),
@@ -260,10 +201,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
       floatingActionButton: MyExpandableFAB(index: 4),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
+            TextButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => GoalsPage(type: GoalType.hydration),
@@ -274,80 +212,7 @@ class HydrationTrackingState extends ConsumerState<HydrationTracking> {
                 style: TextStyle(fontSize: TextSizing.medium),
               ),
             ),
-          ],
-        ),
       ],
     );
   }
-
-  void showCelebration() {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (_) => DialogTitle(type: GoalType.hydration),
-    );
-  }
-
-  Path drawStar(Size size) {
-    // Method to convert degrees to radians
-    double degToRad(double deg) => deg * (pi / 180.0);
-
-    const numberOfPoints = 5;
-    final halfWidth = size.width / 2;
-    final externalRadius = halfWidth;
-    final internalRadius = halfWidth / 2.5;
-    final degreesPerStep = degToRad(360 / numberOfPoints);
-    final halfDegreesPerStep = degreesPerStep / 2;
-    final path = Path();
-    final fullAngle = degToRad(360);
-    path.moveTo(size.width, halfWidth);
-
-    for (double step = 0; step < fullAngle; step += degreesPerStep) {
-      path.lineTo(
-        halfWidth + externalRadius * cos(step),
-        halfWidth + externalRadius * sin(step),
-      );
-      path.lineTo(
-        halfWidth + internalRadius * cos(step + halfDegreesPerStep),
-        halfWidth + internalRadius * sin(step + halfDegreesPerStep),
-      );
-    }
-    path.close();
-    return path;
-  }
-}
-
-Path buildBottlePath(Size size) {
-  final w = size.width;
-  final h = size.height;
-  final path = Path();
-
-  final neckWidth = w * 0.35;
-  final neckLeft = (w - neckWidth) / 2;
-  final neckHeight = h * 0.15;
-
-  path.moveTo(neckLeft, 0);
-  path.lineTo(neckLeft + neckWidth, 0);
-  path.lineTo(neckLeft + neckWidth, neckHeight);
-
-  // Shoulder curve out to full body width
-  path.quadraticBezierTo(
-    neckLeft + neckWidth,
-    neckHeight + h * 0.05,
-    w,
-    neckHeight + h * 0.12,
-  );
-
-  // Body down to base
-  path.lineTo(w, h - h * 0.05);
-  path.quadraticBezierTo(w, h, w - w * 0.05, h);
-  path.lineTo(w * 0.05, h);
-  path.quadraticBezierTo(0, h, 0, h - h * 0.05);
-
-  // Body up to shoulder
-  path.lineTo(0, neckHeight + h * 0.12);
-  path.quadraticBezierTo(0, neckHeight + h * 0.05, neckLeft, neckHeight);
-
-  path.close();
-  return path;
 }

@@ -67,25 +67,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
 
   Future<(double, double)> checkNutritionGoalPercent() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
-    // final curWeek = bookendWeek();
-    // final lastWeek = (
-    //   curWeek.$1.subtract(const Duration(days: 7)),
-    //   curWeek.$2.subtract(const Duration(days: 7)),
-    // );
-
-    // if (goal == null) {
-    //   return -1;
-    // } else {
-    //   final mealCounts = await ref
-    //       .read(nDaoProvider)
-    //       .countMealsInRange(lastWeek.$1, lastWeek.$2);
-
-    //   return mealCounts.fold(
-    //         0,
-    //         (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
-    //       ) /
-    //       7;
-    // }
 
     if (goal == null) {
       return (-1.0, 0.0);
@@ -153,76 +134,10 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
                 today,
               );
           doCelebrate = true;
-          // ref.invalidate(checkHydrationStreakProvider);
         }
       }
       return doCelebrate;
     }
-
-    // double percent = 0;
-    // int goalID = -1;
-    // final curWeek = bookendWeek();
-    // final lastWeek = (
-    //   curWeek.$1.subtract(const Duration(days: 7)),
-    //   curWeek.$2.subtract(const Duration(days: 7)),
-    // );
-    // DateTime today = DateTime.now();
-    // bool doCelebrate = false;
-
-    // if (goal == null) {
-    //   percent = 0.0;
-    // } else {
-    //   goalID = goal.goalID;
-
-    //   final mealCounts = await ref
-    //       .read(nDaoProvider)
-    //       .countMealsInRange(lastWeek.$1, lastWeek.$2);
-
-    //   percent =
-    //       mealCounts.fold(
-    //         0,
-    //         (prev, cur) => prev + (cur >= goal.threshold ? 1 : 0),
-    //       ) /
-    //       7;
-    // }
-
-    // BasicStreak? curStreak = await ref
-    //     .read(gDaoProvider)
-    //     .checkActiveStreak(GoalType.nutrition);
-
-    // if (curStreak != null) {
-    //   if ((today.isAfter(curStreak.curPeriod) ||
-    //           DateUtils.isSameDay(today, curStreak.curPeriod)) &&
-    //       today.isBefore(curStreak.curPeriod.add(const Duration(days: 7)))) {
-    //     if (DateUtils.dateOnly(
-    //       today,
-    //     ).isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
-    //       if (percent == 1) {
-    //         curStreak.curPeriod = DateUtils.dateOnly(
-    //           curWeek.$1.add(const Duration(days: 7)),
-    //         );
-    //         curStreak.lastPeriod = DateUtils.dateOnly(curWeek.$2);
-    //         await ref.read(gDaoProvider).updateStreak(curStreak);
-    //         doCelebrate = true;
-    //       }
-    //     }
-    //   } else if (DateUtils.dateOnly(curStreak.curPeriod).isBefore(today)) {
-    //     await ref.read(gDaoProvider).breakStreak(curStreak);
-    //   }
-    // } else {
-    //   if (percent == 1) {
-    //     await ref
-    //         .read(gDaoProvider)
-    //         .insertStreak(
-    //           goalID,
-    //           today,
-    //           DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
-    //           curWeek.$2,
-    //         );
-    //     doCelebrate = true;
-    //   }
-    // }
-    // return doCelebrate;
   }
 
   Future<(double, int, int)> checkFastingGoalProgress() async {
@@ -231,43 +146,19 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     if (goal == null) {
       return (0.0, 0, 0);
     }
-    // DateTime evalDay = goal.lastEval;
     final curWeek = bookendWeek();
     final lastWeek = (
       curWeek.$1.subtract(const Duration(days: 7)),
       curWeek.$2.subtract(const Duration(days: 7)),
     );
-    // late bool lastWeekComplete;
-    // bool alreadyEvaluated = evalDay == lastWeek.$2;
 
     if (goal.metric == MetricType.hours) {
-      // if (!alreadyEvaluated) {
-      //   final lastDur = await ref
-      //       .read(fDaoProvider)
-      //       .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
-      //   int numLastComplete = lastDur
-      //       .where((d) => d >= goal.threshold * 60)
-      //       .length;
-      //   lastWeekComplete = numLastComplete == 7;
-      // }
-
       final curDur = await ref
           .read(fDaoProvider)
           .getWeeksDuration(session!.userId, curWeek.$1, curWeek.$2);
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
       return ((numComplete / 7).clamp(0.05, 1.0), numComplete, 7);
     } else if (goal.metric == MetricType.days) {
-      // if (!alreadyEvaluated) {
-      //   final weekDays = await ref
-      //       .read(fDaoProvider)
-      //       .findFastsInRange(lastWeek.$1, lastWeek.$2)
-      //       .length;
-
-      //   if (weekDays >= goal.threshold) {
-      //     lastWeekComplete = true;
-      //   }
-      // }
-
       final curWeekDays = await ref
           .read(fDaoProvider)
           .findFastsInRange(curWeek.$1, curWeek.$2)
@@ -276,33 +167,11 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
-      // if (!alreadyEvaluated) {
-      //   bool tempResult = false;
-      //   for (final day in fiveTwoDays) {
-      //     final date = lastWeek.$1.add(Duration(days: day));
-      //     bool wasCompleted = await ref
-      //         .read(nDaoProvider)
-      //         .isFiveTwoDay(date, date.add(const Duration(days: 1)));
-
-      //     if (!wasCompleted) {
-      //       tempResult = false;
-      //       break;
-      //     }
-      //   }
-      //   lastWeekComplete = tempResult;
-      // }
-
       int numCompleted = 0;
       for (final day in fiveTwoDays) {
         final date = lastWeek.$1.add(Duration(days: day));
 
         final amount = await ref.read(nDaoProvider).fiveTwoDayEvaluation(date);
-
-        // bool wasCompleted = amount <= goal.threshold;
-        
-        // bool wasCompleted = await ref
-        //     .read(nDaoProvider)
-        //     .isFiveTwoDay(date, date.add(const Duration(days: 1)));
 
         if (amount <= goal.threshold) numCompleted++;
       }
@@ -318,7 +187,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       return false;
     }
     int goalID = goal.goalID;
-    // DateTime evalDay = goal.lastEval;
     DateTime today = DateTime.now();
     late double percent;
     final curWeek = bookendWeek();
@@ -326,38 +194,15 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
       curWeek.$1.subtract(const Duration(days: 7)),
       curWeek.$2.subtract(const Duration(days: 7)),
     );
-    // late bool lastWeekComplete;
-    // bool alreadyEvaluated = evalDay == lastWeek.$2;
     bool doCelebrate = false;
 
     if (goal.metric == MetricType.hours) {
-      // if (!alreadyEvaluated) {
-      //   final lastDur = await ref
-      //       .read(fDaoProvider)
-      //       .getWeeksDuration(session!.userId, lastWeek.$1, lastWeek.$2);
-      //   int numLastComplete = lastDur
-      //       .where((d) => d >= goal.threshold * 60)
-      //       .length;
-      //   lastWeekComplete = numLastComplete == 7;
-      // }
-
       final curDur = await ref
           .read(fDaoProvider)
           .getWeeksDuration(session!.userId, curWeek.$1, curWeek.$2);
       int numComplete = curDur.where((d) => d >= goal.threshold * 60).length;
       percent = numComplete / 7;
     } else if (goal.metric == MetricType.days) {
-      // if (!alreadyEvaluated) {
-      //   final weekDays = await ref
-      //       .read(fDaoProvider)
-      //       .findFastsInRange(lastWeek.$1, lastWeek.$2)
-      //       .length;
-
-      //   if (weekDays >= goal.threshold) {
-      //     lastWeekComplete = true;
-      //   }
-      // }
-
       final curWeekDays = await ref
           .read(fDaoProvider)
           .findFastsInRange(curWeek.$1, curWeek.$2)
@@ -366,55 +211,14 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     } else {
       final fiveTwoDays = session!.fiveTwoDaysSelected;
 
-      // if (!alreadyEvaluated) {
-      //   bool tempResult = false;
-      //   for (final day in fiveTwoDays) {
-      //     final date = lastWeek.$1.add(Duration(days: day));
-      //     bool wasCompleted = await ref
-      //         .read(nDaoProvider)
-      //         .isFiveTwoDay(date, date.add(const Duration(days: 1)));
-
-      //     if (!wasCompleted) {
-      //       tempResult = false;
-      //       break;
-      //     }
-      //   }
-      //   lastWeekComplete = tempResult;
-      // }
-
       int numCompleted = 0;
       for (final day in fiveTwoDays) {
         final date = lastWeek.$1.add(Duration(days: day));
 
         final amount = await ref.read(nDaoProvider).fiveTwoDayEvaluation(date);
-        // bool wasCompleted = await ref
-        //     .read(nDaoProvider)
-        //     .isFiveTwoDay(date, date.add(const Duration(days: 1)));
-
-        // if (wasCompleted) numCompleted++;
         if (amount <= goal.threshold) numCompleted++;
       }
-
       percent = (numCompleted / fiveTwoDays.length).clamp(0.05, 1.0);
-
-      // List<DateTime?> daysList = fiveTwoDays.map((d) => getFullDay(d)).toList();
-      // daysList.removeWhere((d) => d == null);
-
-      // if (daysList.isEmpty) {
-      //   lastWeekComplete = false;
-      // }
-
-      // bool resultt = false;
-      // for (final day in daysList) {
-      //   DateTime temp = day!.add(const Duration(days: 1));
-      //   bool complete = await ref.read(nDaoProvider).isFiveTwoDay(day, temp);
-
-      //   if (!complete) {
-      //     resultt = false;
-      //     break;
-      //   }
-      // }
-      // lastWeekComplete = resultt;
     }
 
     BasicStreak? curStreak = await ref
@@ -453,29 +257,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         doCelebrate = true;
       }
     }
-
-    // if (!alreadyEvaluated) {
-    //   if (lastWeekComplete) {
-    //     BasicStreak? curStreak = await ref
-    //         .read(gDaoProvider)
-    //         .checkActiveStreak(GoalType.fasting);
-
-    //     if (curStreak == null) {
-    //       await ref.read(gDaoProvider).insertStreak(goalID, today, curWeek.$2);
-    //     } else {
-    //       curStreak.lastEval = DateUtils.dateOnly(today);
-    //       await ref.read(gDaoProvider).updateStreak(curStreak);
-    //     }
-    //   } else {
-    //     BasicStreak? curStreak = await ref
-    //         .read(gDaoProvider)
-    //         .checkActiveStreak(GoalType.fasting);
-
-    //     if (curStreak != null) {
-    //       await ref.read(gDaoProvider).breakStreak(curStreak);
-    //     }
-    //   }
-    // }
 
     return doCelebrate;
   }
@@ -516,7 +297,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
         .getTodayHydration(session!.userId, DateTime.now());
 
     if (curWater == null) {
-      return (0.0, 0.0, 0.0);
+      return (0.0, 0.0, goal.threshold);
     } else {
       debugPrint('Water: $curWater');
 
@@ -572,7 +353,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
                 today,
               );
           doCelebrate = true;
-          // ref.invalidate(checkHydrationStreakProvider);
         }
       }
       return doCelebrate;
@@ -612,35 +392,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return await checkNutritionGoal();
   }
 
-  // Future<void> updateStreak(GoalType type, int goalID, bool result) async {
-  //   BasicStreak? curStreak = await ref
-  //       .read(gDaoProvider)
-  //       .checkActiveStreak(type);
-
-  //   final today = DateUtils.dateOnly(DateTime.now());
-
-  //   if (curStreak == null && result) {
-  //     await ref.read(gDaoProvider).insertStreak(goalID, today);
-  //   } else if (curStreak != null) {
-  //     curStreak.lastEval = DateUtils.dateOnly(today);
-
-  //     if (result) {
-  //       final expected = DateUtils.dateOnly(
-  //         curStreak.start,
-  //       ).add(Duration(days: curStreak.daysProgress));
-
-  //       if (DateUtils.isSameDay(today, expected.subtract(Duration(days: 1))) ||
-  //           DateUtils.isSameDay(today, expected)) {
-  //         await ref.read(gDaoProvider).updateStreak(curStreak);
-  //       } else {
-  //         await ref.read(gDaoProvider).breakStreak(curStreak);
-  //       }
-  //     } else {
-  //       await ref.read(gDaoProvider).breakStreak(curStreak);
-  //     }
-  //   }
-  // }
-
   Future<int> checkStreak(GoalType type, double curState) async {
     BasicStreak? curStreak = await ref
         .read(gDaoProvider)
@@ -671,7 +422,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
             newGoal.metric,
           );
-      // ref.invalidate(checkFastingGoalProvider);
       ref.invalidateSelf();
     } else if (newGoal is HydrationGoalModel) {
       await ref
@@ -683,7 +433,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
-      // ref.invalidate(checkHydrationGoalProvider);
     } else if (newGoal is WeightGoalModel) {
       await ref
           .read(gDaoProvider)
@@ -694,7 +443,6 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
             newGoal.op,
           );
       ref.invalidateSelf();
-      // ref.invalidate(checkWeightGoalProvider);
     } else {
       await ref
           .read(gDaoProvider)

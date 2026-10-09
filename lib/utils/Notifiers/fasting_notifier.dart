@@ -146,47 +146,6 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     }
   }
 
-  // bool validatePlan(
-  //   FastingForm form,
-  //   TimeOfDay start,
-  //   TimeOfDay end,
-  //   List<bool> daysADF,
-  //   List<bool> days52,
-  // ) {
-  //   switch (form) {
-  //     case FastingForm.tre:
-  //       final length = Duration(
-  //         minutes:
-  //             (end.hour * 60 + end.minute) - (start.hour * 60 + start.minute),
-  //       );
-
-  //       int maxLength = session!.experience == Experience.beginner ? 840 : 1200;
-  //       bool isValid = length.inMinutes <= maxLength;
-
-  //       return isValid;
-  //     case FastingForm.fiveTwo:
-  //       final availability = RecommendationSystem.validCombosHelper(
-  //         boolsToInts(days52),
-  //         false,
-  //       );
-  //       if (availability.isEmpty) {
-  //         return false;
-  //       } else {
-  //         return true;
-  //       }
-  //     case FastingForm.adf:
-  //       final availability = RecommendationSystem.validCombosHelper(
-  //         boolsToInts(daysADF),
-  //         true,
-  //       );
-  //       if (availability.isEmpty) {
-  //         return false;
-  //       } else {
-  //         return true;
-  //       }
-  //   }
-  // }
-
   Future<FastingProgress> refreshProgress() async {
     final cur = ref.watch(userSessionProvider).value;
     final fDao = ref.read(fDaoProvider);
@@ -221,22 +180,6 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       case FastingForm.tre:
         (expectedStart, expectedEnd) = treTimes(today, cur.startTime, cur.endTime);
         break;
-      // FastingForm.tre => (
-      //   DateTime(
-      //     today.year,
-      //     today.month,
-      //     today.day,
-      //     cur.startTime.hour,
-      //     cur.startTime.minute,
-      //   ),
-      //   DateTime(
-      //     today.year,
-      //     today.month,
-      //     today.day,
-      //     cur.endTime.hour,
-      //     cur.endTime.minute,
-      //   ),
-      // ),
       case FastingForm.fiveTwo:
         throw UnimplementedError();
       case FastingForm.adf:
@@ -250,7 +193,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
         break;
     }
 
-    debugPrint('Expected Fasting Times (S:E) today: ($expectedStart — $expectedEnd)   $today');
+    // debugPrint('Expected Fasting Times (S:E) today: ($expectedStart — $expectedEnd)   $today');
 
     if (lastFast) {
       final (result, severity) = evaluateTiming(
@@ -262,7 +205,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
         isStart: false,
       );
 
-      debugPrint('Fast Results: $result of severity $severity');
+      // debugPrint('Fast Results: $result of severity $severity');
 
       await fDao.breakFast(cur.userId, today, result, severity);
       fDao.testing();
@@ -275,7 +218,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
         cur.fastingForm == FastingForm.adf,
       );
       
-      debugPrint('Fast Results: $result of severity $severity');
+      // debugPrint('Fast Results: $result of severity $severity');
 
       await fDao.startFast(
         cur.userId,

@@ -52,7 +52,7 @@ class FastingInformation extends StatelessWidget {
           ),
           buildTextCard(
             'Modified Fasting (5:2)',
-            '5:2 involves restricting your food intake on two days of each week, while eating normally on the other five days.\n\nFor example, you might choose Monday and Thursday as your two fasting days and eat normally on the remaining days.',
+            '5:2 involves restricting your food intake to 500–700 calories on two days of each week, while eating normally on the other five days.\n\nFor example, you might choose Monday and Thursday as your two fasting days and eat normally on the remaining days.',
           ),
         ],
       ),),
@@ -98,20 +98,4 @@ class FastingInformation extends StatelessWidget {
       ),
     );
   }
-
-  // Widget buildTextCard(String title, text) {
-  //   return Padding(
-  //     padding: EdgeInsets.all(10),
-  //     child: Card(
-  //       child: ExpansionTile(
-  //         title: Text(
-  //           title,
-  //           textAlign: TextAlign.left,
-  //           style: const TextStyle(fontSize: TextSizing.medium),
-  //         ),
-  //         children: [Text(text, style: TextStyle(fontSize: TextSizing.medium))],
-  //       ),
-  //     ),
-  //   );
-  // }
 }

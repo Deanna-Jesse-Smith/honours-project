@@ -42,5 +42,6 @@ final class PositiveReinforcement extends BasicConcern {
   }
 }
 
-
 enum ConcernType { health, pr, }
+
+enum ConcernDialogAction { dismissThreeDays, dismissOneWeek }

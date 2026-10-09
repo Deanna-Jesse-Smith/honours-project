@@ -7,10 +7,10 @@ enum FastingForm {tre, fiveTwo, adf}
 
 extension FastingFormExt on FastingForm {
   Color get colour => switch (this) {
-    FastingForm.tre => throw UnimplementedError(),
-    FastingForm.fiveTwo => throw UnimplementedError(),
-    FastingForm.adf => throw UnimplementedError(),
-  };
+        FastingForm.tre => Colors.deepPurple,
+        FastingForm.adf => Colors.deepOrange,
+        FastingForm.fiveTwo => Colors.green,
+      };
 
   Icon get icon => switch (this) {
     FastingForm.tre => Icon(Icons.timer),
@@ -70,27 +70,6 @@ class LogMethodConverter extends TypeConverter<LogMethod, String> {
 
 // ignore: constant_identifier_names
 enum DayOfWeek {M, T, W, TH, F, SAT, SUN}
-
-// class DayOfWeekConverter extends TypeConverter<DayOfWeek, String> {
-//   const DayOfWeekConverter();
-
-//   @override
-//   DayOfWeek fromSql(String fromDB) {
-//     List<int> days = fromDB.split(',').map((d) => int.parse(d)).toList();
-//     // List<DayOfWeek> formatted = List.empty();
-
-//     // days.forEach((day) => {
-
-//     // });
-//     // final m = switch (fromDB) {
-
-//     // }
-//     return DayOfWeek.values.firstWhere((f) => f.name == fromDB);
-//   }
-  
-//   @override
-//   String toSql(DayOfWeek value) => value.name;
-// }
 
 class DayOfWeekConverter {
   const DayOfWeekConverter();

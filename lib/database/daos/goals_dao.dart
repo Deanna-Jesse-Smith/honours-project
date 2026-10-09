@@ -35,7 +35,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           thresholdValue: Value(amount),
         ),
       ));
-      //? Put something here in case they should be below a threshold? Use the operator field?
       await into(nutritionGoals).insert(
         NutritionGoalsCompanion.insert(
           goalID: Value(goalID),
@@ -130,12 +129,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
       );
     });
   }
-
-  // Future<void> makeFastingStreak(int goalID) async {
-  //   final streakID = await (into(streaks)).insert(StreaksCompanion.insert(unlockType: Value(UnlockType.badge)));
-
-  //   (update(goals)..where((g) => g.goalID.equals(goalID))).write(GoalsCompanion(streakID: Value(streakID)));
-  // }
 
   Future<BasicStreak?> checkActiveStreak(GoalType type) {
     switch (type) {
@@ -636,7 +629,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           DateTime.now(),
           model.threshold.toInt(),
           model.op,
-          // lastEvaluated:
         );
       case NutritionGoalModel():
         await insertNutritionGoal(id, NutrientType.caloreis, model.threshold);
@@ -658,7 +650,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(
         lastEvaluated: Value(model.lastEval),
-        // isComplete: Value(true),
       ),
     );
     await (update(
@@ -685,7 +676,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     DateTime lastPeriod,
   ) async {
     await (update(goals)..where((g) => g.goalID.equals(goalID))).write(
-      // GoalsCompanion(lastEvaluated: Value(today), isComplete: Value(true)),
       GoalsCompanion(lastEvaluated: Value(today),),
     );
 
@@ -744,8 +734,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
   }
 
   Future<void> checkGoals() async {
-    // createDummyGoals();
-    debugPrint("Checking goals");
+    // debugPrint("Checking goals");
     final goalss = await (select(goals)).get();
 
     for (final goala in goalss) {
@@ -785,26 +774,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           ..where(goals.type.equalsValue(type))
            ..where(streaks.startDate.isBiggerOrEqualValue(windowStart))
            ..where(streaks.startDate.isSmallerOrEqualValue(today))).get();
-          // ..where(streaks.startDate.isSmallerOrEqualValue(windowStart))
-          // ..where(
-          //   // streaks.endDate.isBiggerOrEqualValue(windowStart) |
-          //       streaks.endDate.isNull(),
-          // );
 
           return data.map((row) => row.readTable(streaks).streakProgress).fold<int>(0, (best, progress) => progress > best ? progress : best);
-
-    // final dataOutput = await data.getSingleOrNull();
-
-    // if (dataOutput != null) return dataOutput.read(days) ?? 0;
-    // return 0;
-
-    // int numValid = 0;
-
-    // for (final row in dataOutput) {
-    //   int len = row.read(days) ?? 0;
-    //   if (len > 3) numValid++;
-    // }
-    // return numValid;
   }
 
   void setComplete(bool isComplete, int goalID) {

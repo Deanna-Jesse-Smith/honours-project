@@ -8,15 +8,34 @@ class StatisticsModel {
   late List<Duration> curTREDurations, curADFDurations, timedDurations;
   FastingForm curForm;
 
-  StatisticsModel({required this.curFasts, required this.curForm}) {
-    treFasts = curFasts.where((f) => f.formIF == FastingForm.tre).toList();
+  StatisticsModel({
+    required List<FastLogData> curFasts,
+    required this.curForm,
+  }) {
+    this.curFasts = oneFastPerDay(curFasts);
+    treFasts = this.curFasts.where((f) => f.formIF == FastingForm.tre).toList();
     curTREDurations = treFasts.map((f) => f.duration as Duration).toList();
-    adfFasts = curFasts.where((f) => f.formIF == FastingForm.adf).toList();
+    adfFasts = this.curFasts.where((f) => f.formIF == FastingForm.adf).toList();
     curADFDurations = adfFasts.map((f) => f.duration as Duration).toList();
-    timedDurations = curFasts.where((f) => f.formIF != FastingForm.fiveTwo).map((f) => f.duration as Duration).toList();
-    fiveTwoFasts = curFasts
+    timedDurations = this.curFasts
+        .where((f) => f.formIF != FastingForm.fiveTwo)
+        .map((f) => f.duration as Duration)
+        .toList();
+    fiveTwoFasts = this.curFasts
         .where((f) => f.formIF == FastingForm.fiveTwo)
         .toList();
+  }
+
+  List<FastLogData> oneFastPerDay(List<FastLogData> fasts) {
+    final fastsByDay = <DateTime, FastLogData>{};
+
+    for (final fast in fasts) {
+      final start = fast.startDateTime;
+      final day = DateTime(start.year, start.month, start.day);
+      fastsByDay.putIfAbsent(day, () => fast);
+    }
+
+    return fastsByDay.values.toList();
   }
 
   Duration getLength() {
@@ -34,9 +53,9 @@ class StatisticsModel {
   String? getAverage() {
     if (timedDurations.isEmpty) return null;
 
-      final total = timedDurations.fold(Duration.zero, (prev, cur) => prev + cur);
+    final total = timedDurations.fold(Duration.zero, (prev, cur) => prev + cur);
 
-      return formatDuration(total ~/ timedDurations.length);
+    return formatDuration(total ~/ timedDurations.length);
   }
 
   String getTotalForMonth() {
@@ -55,11 +74,25 @@ class StatisticsModel {
 
     if (timedDurations.isEmpty) return null;
 
-    return formatDuration(timedDurations.reduce((longest, cur) => cur > longest ? cur : longest));
+    return formatDuration(
+      timedDurations.reduce((longest, cur) => cur > longest ? cur : longest),
+    );
   }
 
   String getAsPlannedRate() {
-    double rate = curFasts.isEmpty ? 0 : (curFasts.fold(0, (prev, f) => prev + (f.asPlanned ? 1 : 0)) + curFasts.fold<double>(0, (prev, f) => prev + (f.halfAsPlanned? 0.5 : 0))) / curFasts.length;
+    double rate = curFasts.isEmpty
+        ? 0
+        : (curFasts.fold<num>(
+                0,
+                (prev, f) =>
+                    prev +
+                    (f.asPlanned
+                        ? 1
+                        : f.halfAsPlanned
+                        ? 0.5
+                        : 0),
+              )) /
+              curFasts.length;
     return formatPercentage(rate);
   }
 
@@ -109,7 +142,7 @@ class StatisticsModel {
   }
 
   String formatPercentage(double value) {
-    return '${(value * 100).round()}%';
+    return '${(value * 100).round().clamp(0, 100)}%';
   }
 
   int numCompleted() => curFasts.where((f) => f.endDateTime != null).length;

@@ -150,6 +150,14 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                           enabled: isHydration,
                           time: waterTime,
                         );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Hydration recording reminder ${isHydration ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
                       });
                     },
                     title: ElevatedButton(
@@ -185,6 +193,14 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                             time: waterTime,
                             dayOfWeek: weightDay!,
                           );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Weight record reminder ${isWeight ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
                         });
                       } else {
                         Dialogs.dangerDialog(
@@ -300,6 +316,13 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
               midpointEnabled: isMid,
               endEnabled: isEnd,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Eating window start reminder ${isStart ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
           }),
           title: const Text(
             'Eating window starting soon (15 minutes before)',
@@ -317,6 +340,13 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
               midpointEnabled: isMid,
               endEnabled: isEnd,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Eating window midpoint reminder ${isMid ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
           }),
           title: const Text(
             'Halfway through eating window ',
@@ -334,6 +364,13 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
               midpointEnabled: isMid,
               endEnabled: isEnd,
             );
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Eating window end reminder ${isEnd ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
           }),
           title: const Text(
             'Eating window ending soon (15 minutes before)',
@@ -362,6 +399,14 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 midpointEnabled: isMid,
                 endEnabled: isEnd,
               );
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Fast start reminder ${isStart ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
             }),
             title: const Text(
               'The night before (20:00)',
@@ -377,6 +422,13 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
                 startEnabled: isStart,
                 midpointEnabled: isMid,
                 endEnabled: isEnd,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Fast midpoint reminder ${isMid ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
               );
             }),
             title: const Text(
@@ -421,6 +473,15 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
       if (isNutrition) {
         await asyncReminder.setFoodReminder(enabled: true, time: time);
       }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Eating window start reminder ${isNutrition ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
     }
   }
 
@@ -434,7 +495,16 @@ class _ReminderPageState extends ConsumerState<ReminderPage> {
 
       if (isHydration) {
         await asyncReminder.setWaterReminder(enabled: true, time: time);
+        if (!mounted) return;
       }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Hydration recording reminder ${isHydration ? 'enabled' : 'disabled'}',
+                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                ),
+              );
     }
   }
 

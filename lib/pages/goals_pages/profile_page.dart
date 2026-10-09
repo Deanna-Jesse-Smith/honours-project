@@ -33,11 +33,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     super.initState();
 
     final session = ref.read(userSessionProvider).value;
-    // selectedDate = session.
-
     isFemale = session!.isFemale;
 
-    // nameController.text = session.userName;
     nameController.text = session.userName;
     focusNodeName.addListener(() {
       if (focusNodeName.hasFocus) {
@@ -115,11 +112,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     cell(
                       TextField(
                         controller: nameController,
-                        // autofocus: true,
                         style: TextStyle(fontSize: TextSizing.medium),
                         textCapitalization: TextCapitalization.sentences,
                         decoration: InputDecoration(hintText: 'Name:'),
-                        // focusNode: focusNodeName,
                       ),
                     ),
                   ],
@@ -160,37 +155,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   ],
                 ),
-                // TableRow(
-                //   children: [
-                //     cell(
-                //       const Text(
-                //         'When were you born?',
-                //         style: TextStyle(fontSize: TextSizing.medium),
-                //       ),
-                //     ),
-                //     cell(
-                //       ElevatedButton(
-                //         onPressed: () async {
-                //           final DateTime? dateTime = await showDatePicker(
-                //             context: context,
-                //             initialDate: selectedDate,
-                //             firstDate: DateTime(2000),
-                //             lastDate: DateTime(3000),
-                //           );
-                //           if (dateTime != null) {
-                //             setState(() {
-                //               selectedDate = dateTime;
-                //             });
-                //           }
-                //         },
-                //         child: const Text(
-                //           'Select Birthday',
-                //           style: TextStyle(fontSize: TextSizing.medium),
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 TableRow(
                   children: [
                     cell(

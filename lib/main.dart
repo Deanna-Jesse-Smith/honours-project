@@ -19,7 +19,7 @@ import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/FastingPlan.dart';
 import 'package:testrun/pages/fasting_info.dart';
 import 'package:testrun/pages/goals_pages/profile_page.dart';
-import 'package:testrun/pages/goals_pages/reminder_page.dart';
+import 'package:testrun/pages/goals_pages/error_page.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';

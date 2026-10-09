@@ -59,24 +59,18 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
 
   @override
   Widget build(BuildContext context) {
-    // List<TimeOfDay> testTRE = plans[0].treList;
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.bottomCenter,
       persistentFooterButtons: [
         FilledButton(
           onPressed: () async {
-            // final decision = await Dialogs.dangerDialog(
-            //   context,
-            //   title: 'Are you sure?',
-            //   message: 'You won\'t be able to come back here after this.',
-            // );
-
             if (selectedForms.isEmpty && selectedOption == null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     'You need to create or select a fasting plan to proceed',
-                  style: const TextStyle(fontSize: TextSizing.smallmed),),
+                    style: const TextStyle(fontSize: TextSizing.smallmed),
+                  ),
                 ),
               );
               return;
@@ -94,7 +88,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
               }
               if (selectedForm == FastingForm.tre &&
                   selectedOption == null &&
-                  !_isValidTRE(start, end)) {
+                  !isValidTRE(start, end)) {
                 if (!context.mounted) return;
                 await showDialog<void>(
                   context: context,
@@ -274,18 +268,6 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       style: const TextStyle(fontSize: TextSizing.small),
                     ),
                   );
-
-                  // return RadioListTile<FastOption>(
-                  //   value: option,
-                  //   title: Text(
-                  //     option.label,
-                  //     style: const TextStyle(fontSize: TextSizing.medium),
-                  //   ),
-                  //   subtitle: Text(
-                  //     option.justification,
-                  //     style: const TextStyle(fontSize: TextSizing.small),
-                  //   ),
-                  // );
                 }).toList(),
               ),
             ),
@@ -343,11 +325,8 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
                       ),
                     ],
                   ),
-                  TableRow(
-                    children: [
-                      const SizedBox(height: 10),
-                      const SizedBox(height: 10),
-                    ],
+                  const TableRow(
+                    children: [SizedBox(height: 10), SizedBox(height: 10)],
                   ),
                   TableRow(
                     children: [
@@ -454,7 +433,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
   ///
   /// [startTime] is the starting time of the eating window.
   /// [endTime] is the ending time of the eating window.
-  bool _isValidTRE(TimeOfDay startTime, TimeOfDay endTime) {
+  bool isValidTRE(TimeOfDay startTime, TimeOfDay endTime) {
     final startMinutes = startTime.hour * 60 + startTime.minute;
     final endMinutes = endTime.hour * 60 + endTime.minute;
     final duration = (endMinutes - startMinutes + 1440) % 1440;
@@ -507,6 +486,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
     },
   );
 
+  /// Displays a dialog to inform the user about invalid fasting day selections and allows them to either cancel or continue with their selection.
   Future<bool> planDecision(List<bool> list, bool isADF) async {
     final decision = await showDialog<bool>(
       context: context,
@@ -561,7 +541,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
   Future<void> selectStartTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: start);
     if (time != null) {
-      final outcome = start == end || _isValidTRE(time, end);
+      final outcome = start == end || isValidTRE(time, end);
       setState(() {
         if (outcome) {
           start = time;
@@ -576,7 +556,7 @@ class _FinalSetupState extends ConsumerState<FinalSetup> {
   Future<void> selectEndTime() async {
     final time = await Dialogs.showTimeInput(context, initialTime: end);
     if (time != null) {
-      final outcome = start == end || _isValidTRE(start, time);
+      final outcome = start == end || isValidTRE(start, time);
       setState(() {
         if (outcome) {
           end = time;

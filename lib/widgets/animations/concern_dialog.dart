@@ -99,7 +99,7 @@ class _ConcernDialogState extends State<ConcernDialog>
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Concern: thr—${widget.concern.threshold}, window—${widget.concern.window}, thr—${widget.concern.nextEval}, ');
+    // debugPrint('Concern: thr—${widget.concern.threshold}, window—${widget.concern.window}, thr—${widget.concern.nextEval}, ');
     return ScaleTransition(
       scale: CurvedAnimation(parent: controller, curve: Curves.easeOutBack),
       child: AlertDialog(
@@ -153,28 +153,29 @@ class _ConcernDialogState extends State<ConcernDialog>
             ),
 
             const SizedBox(height: 20),
-
-            // FadeTransition(
-            //   opacity: textFade,
-            //   child: ElevatedButton(
-            //     onPressed: () => Navigator.pop(context),
-            //     child: const Text(
-            //       'Close',
-            //       style: TextStyle(fontSize: TextSizing.medium),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, 1),
-              child: Text('Close', style: TextStyle(fontSize: TextSizing.medlarge),),
+              onPressed: () => Navigator.pop(
+                context,
+                ConcernDialogAction.dismissThreeDays,
+              ),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: TextSizing.medlarge),
+              ),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 2),
-              child: Text('Dismiss (1 week)', style: TextStyle(fontSize: TextSizing.medlarge),),
+          TextButton(
+            onPressed: () => Navigator.pop(
+              context,
+              ConcernDialogAction.dismissOneWeek,
             ),
+            child: Text(
+              'Dismiss (1 week)',
+              style: TextStyle(fontSize: TextSizing.medlarge),
+            ),
+          ),
         ],
       ),
     );
@@ -182,14 +183,12 @@ class _ConcernDialogState extends State<ConcernDialog>
 
   AnimatedBuilder sparkles() {
     Random ran = Random();
-    // int col = ran.nextInt(5);
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
         double start = ran.nextDouble().clamp(0.1, 0.35);
         final animation = CurvedAnimation(
           parent: controller,
-          // curve: const Interval(0.25, 0.7, curve: Curves.easeOut),
           curve: Interval(start, ran.nextDouble().clamp(start, 0.75), curve: Curves.easeOut),
         );
 

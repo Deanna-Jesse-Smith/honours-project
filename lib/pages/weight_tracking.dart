@@ -134,8 +134,10 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
             graphChecker.when(
               data: (logs) {
                 if (logs.isEmpty) {
-                  return const Text('No weight logs in the past month', 
-                    style: TextStyle(fontSize: TextSizing.medium),);
+                  return const Text(
+                    'No weight logs in the past month',
+                    style: TextStyle(fontSize: TextSizing.medium),
+                  );
                 } else {
                   DateTime cur = start;
                   final today = DateUtils.dateOnly(DateTime.now()),
@@ -205,7 +207,6 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                                 days: 1,
                               ).inMilliseconds.toDouble(),
                               getTitlesWidget: (value, meta) {
-                                
                                 final date =
                                     DateTime.fromMillisecondsSinceEpoch(
                                       value.toInt(),
@@ -234,22 +235,17 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
       floatingActionButton: MyExpandableFAB(index: 2),
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      GoalsPage(type: GoalType.weight, startWeight: curWeight),
-                ),
-              ),
-              child: Text(
-                'Set Weight Goal',
-                style: TextStyle(fontSize: TextSizing.medium),
-              ),
+        TextButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  GoalsPage(type: GoalType.weight, startWeight: curWeight),
             ),
-          ],
+          ),
+          child: Text(
+            'Set Weight Goal',
+            style: TextStyle(fontSize: TextSizing.medium),
+          ),
         ),
       ],
     );
