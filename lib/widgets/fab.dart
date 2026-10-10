@@ -75,16 +75,6 @@ class MyExpandableFAB extends ConsumerWidget {
                 .logWeight(newAmount)
                 .whenComplete(() => ref.invalidate(checkWeightGoalProvider));
 
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Your weight log has been updated to $newAmount kg',
-                  style: const TextStyle(fontSize: TextSizing.smallmed),
-                ),
-              ),
-            );
-
             if (check.$2 == 1) {
               if (!context.mounted) return;
               showDialog(

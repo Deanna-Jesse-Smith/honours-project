@@ -57,14 +57,17 @@ class DebugPage extends ConsumerWidget {
             int newID = await ref
                 .read(databaseProvider)
                 .seedReinforcementUsabilityData();
+            // await ref.read(databaseProvider).wipeDataForSeed();
             await ref
                 .read(databaseProvider)
                 .seedRelativeTreFasts(userID: newID);
             await ref.read(databaseProvider).seedExampleFastLogs(userID: newID);
+            await ref.read(databaseProvider).seedRelativeMeals();
             ref.invalidate(userSessionProvider);
             ref.invalidate(asyncConcernsProvider);
             ref.invalidate(asyncGoalsProvider);
             ref.invalidate(asyncFatingNotifier);
+            ref.invalidate(checkHydrationGoalProvider);
           },
           child: const Text(
             'Seed',

@@ -638,19 +638,6 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> seedDatabase() async {
-    // into(users).insert(
-    //   UsersCompanion.insert(
-    //     formIF: FastingForm.tre,
-    //     experience: Experience.experienced,
-    //     name: 'Jane Doe',
-    //     typicalEatingStart: Value(DateTime(2026, 1, 1, 12, 30)),
-    //     typicalEatingEnd: Value(DateTime(2026, 1, 1, 18)),
-    //     adfDaysSelected: Value(''),
-    //     fiveTwoDaysSelected: Value(''),
-    //     height: 162,
-    //   ),
-    // );
-
     await batch((batch) {
       batch.insertAll(fastLog, [
         FastLogCompanion.insert(
@@ -896,7 +883,7 @@ class AppDatabase extends _$AppDatabase {
       final hydrationGoalID = await into(goals).insert(
         GoalsCompanion.insert(
           type: GoalType.hydration,
-          thresholdValue: const Value(2),
+          thresholdValue: const Value(1.5),
           metricType: MetricType.litres,
           op: GoalOperator.greaterEqual,
         ),
@@ -1112,7 +1099,7 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> seedRelativeTreFasts({
     int userID = 1,
-    int numberOfFasts = 11,
+    int numberOfFasts = 23,
     DateTime? now,
   }) async {
     final referenceDate = now ?? DateTime.now();
@@ -1141,6 +1128,76 @@ class AppDatabase extends _$AppDatabase {
           );
         }),
       );
+    });
+  }
+
+  Future<void> seedRelativeMeals({DateTime? now}) async {
+    final referenceDate = now ?? DateTime.now();
+    final today = DateTime(
+      referenceDate.year,
+      referenceDate.month,
+      referenceDate.day,
+    );
+    final sampleMeals = [
+      (
+        MealCategory.breakfast,
+        8,
+        {'Rolled Oats': 2, 'Low Fat Milk': 2},
+      ),
+      (
+        MealCategory.lunch,
+        12,
+        {'Chicken Breast': 3, 'Brown Rice': 3, 'Broccoli': 2},
+      ),
+      (
+        MealCategory.supper,
+        18,
+        {'Egg': 4, 'Whole Wheat Bread': 3},
+      ),
+    ];
+    final foods = await select(food).get();
+    final foodIDs = {for (final item in foods) item.name: item.foodID};
+    final requiredFoodNames = sampleMeals
+        .expand((meal) => meal.$3.keys)
+        .toSet();
+    final missingFoodNames = requiredFoodNames
+        .where((name) => !foodIDs.containsKey(name))
+        .toList();
+    if (missingFoodNames.isNotEmpty) {
+      throw StateError(
+        'Seed the food table before seeding meals. Missing: '
+        '${missingFoodNames.join(', ')}.',
+      );
+    }
+
+    await transaction(() async {
+      for (var daysAgo = 3; daysAgo >= 1; daysAgo--) {
+        final date = today.subtract(Duration(days: daysAgo));
+        for (final sampleMeal in sampleMeals) {
+          final (category, hour, ingredients) = sampleMeal;
+          final mealID = await into(meals).insert(
+            MealsCompanion.insert(
+              date: Value(DateTime(date.year, date.month, date.day, hour)),
+              logMethod: LogMethod.full,
+              mealType: category,
+            ),
+          );
+          await batch((batch) {
+            batch.insertAll(
+              mealFoodContent,
+              ingredients.entries
+                  .map(
+                    (ingredient) => MealFoodContentCompanion.insert(
+                      mealID: mealID,
+                      foodID: foodIDs[ingredient.key]!,
+                      quantity: Value(ingredient.value),
+                    ),
+                  )
+                  .toList(),
+            );
+          });
+        }
+      }
     });
   }
 

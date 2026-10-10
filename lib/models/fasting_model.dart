@@ -328,9 +328,9 @@ extension FastListHelper on List<FastLogData> {
   int get earlyStartCount =>
       where((f) => (f.earlyFastResult == FastResult.earlyStart)).length;
   int get lateStartCount =>
-      where((f) => (f.lateFastResult == FastResult.lateStart)).length;
+      where((f) => (f.earlyFastResult == FastResult.lateStart)).length;
   int get earlyEndCount =>
-      where((f) => (f.earlyFastResult == FastResult.earlyEnd)).length;
+      where((f) => (f.lateFastResult == FastResult.earlyEnd)).length;
   int get lateEndCount =>
       where((f) => (f.lateFastResult == FastResult.lateEnd)).length;
 

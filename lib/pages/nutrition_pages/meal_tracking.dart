@@ -49,7 +49,7 @@ class MealTracking extends ConsumerWidget {
               child: goalChecker.when(
                 data: (goal) {
                   if (goal.$1 == -1) {
-                    return Text(
+                    return const Text(
                       'No ongoing calorie goal',
                       style: TextStyle(fontSize: TextSizing.medium),
                     );

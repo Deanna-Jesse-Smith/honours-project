@@ -22,6 +22,7 @@ import 'package:testrun/pages/goals_pages/profile_page.dart';
 import 'package:testrun/pages/goals_pages/error_page.dart';
 import 'package:testrun/pages/home.dart';
 import 'package:testrun/pages/hydration_tracking.dart';
+import 'package:testrun/pages/loading.dart';
 import 'package:testrun/pages/nutrition_pages/meal_tracking.dart';
 import 'package:testrun/pages/reminder_page.dart';
 import 'package:testrun/pages/start_page.dart';
@@ -187,8 +188,6 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // insert(ref);
-    // ref.read(fDaoProvider).dummyData();
     final session = ref.watch(userSessionProvider);
     ref.read(asyncConcernsProvider);
     return MaterialApp(
@@ -206,7 +205,7 @@ class MyApp extends ConsumerWidget {
       },
       home: session.when(
         data: (data) => data == null ? const StartPage() : HomePage(),
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const LoadingPage(),
         error: (e, st) {
           debugPrint('Error: ${e.toString()}');
           return ErrorPage(e.toString());

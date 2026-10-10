@@ -32,6 +32,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
   final DateTime twoMonthsAgo = DateTime.now().subtract(
     const Duration(days: 30),
   );
+  final DateTime now = DateUtils.dateOnly(DateTime.now());
 
   @override
   void initState() {
@@ -82,7 +83,10 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
               child: watchWeightGoal.when(
                 data: (goal) {
                   if (goal.$3 == -1) {
-                    return const SizedBox.shrink();
+                    return const Text(
+                      'No ongoing weight goal',
+                      style: TextStyle(fontSize: TextSizing.medium),
+                    );
                   }
 
                   final model = goal.$2 == -1 ? 0.0 : goal.$2;
@@ -110,7 +114,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                   );
                 },
                 error: (e, l) => Text(e.toString()),
-                loading: () => Text('No Gaol'),
+                loading: () => Text('No Goal'),
               ),
             ),
             SizedBox(width: 100, height: 100),
@@ -130,6 +134,7 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                 );
               },
             ),
+            const SizedBox(height: 20),
 
             graphChecker.when(
               data: (logs) {
@@ -139,9 +144,9 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                     style: TextStyle(fontSize: TextSizing.medium),
                   );
                 } else {
-                  DateTime cur = start;
-                  final today = DateUtils.dateOnly(DateTime.now()),
-                      limit = today.add(const Duration(days: 1));
+                  DateTime cur = DateUtils.dateOnly(start);
+                  final today = DateUtils.dateOnly(DateTime.now());
+                  final limit = today.add(const Duration(days: 1));
                   List<(DateTime, double)> filledLogs = [];
                   double first = logs.first.$2;
                   double? last;
@@ -153,10 +158,10 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                       while (loop < logs.length &&
                           DateUtils.isSameDay(logs[loop].$1, cur)) {
                         last = logs[loop].$2;
-                        filledLogs.add(logs[loop]);
                         loop++;
                       }
-                    } else if (!filledLogs.contains((cur, 0.0))) {
+                      filledLogs.add((cur, last!));
+                    } else {
                       filledLogs.add((cur, last ?? first));
                     }
                     cur = cur.add(const Duration(days: 1));
@@ -173,7 +178,9 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                             spots: filledLogs
                                 .map(
                                   (log) => FlSpot(
-                                    log.$1.millisecondsSinceEpoch.toDouble(),
+                                    DateUtils.dateOnly(
+                                      log.$1,
+                                    ).millisecondsSinceEpoch.toDouble(),
                                     log.$2,
                                   ),
                                 )
@@ -211,10 +218,12 @@ class _WeightTrackingState extends ConsumerState<WeightTracking> {
                                     DateTime.fromMillisecondsSinceEpoch(
                                       value.toInt(),
                                     );
-                                if (date.day != 1) {
+                                if (date.day != 1 &&
+                                    !DateUtils.isSameDay(date, now)) {
                                   return const SizedBox.shrink();
                                 }
-                                return Text(DateFormat('MMM').format(date));
+
+                                return Text(DateFormat('MMMd').format(date));
                               },
                             ),
                           ),
