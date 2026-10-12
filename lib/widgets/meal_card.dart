@@ -6,6 +6,7 @@ import 'package:testrun/database/database.dart';
 import 'package:testrun/models/meals_model.dart';
 import 'package:testrun/utils/text_sizing.dart';
 
+/// A widget that displays a card representing a meal, including its category, date, ingredients, and nutritional information. If the meal has no ingredients, it displays only the category and date.
 class MealCard extends StatelessWidget {
   final MealItem meal;
 
@@ -77,6 +78,8 @@ class MealCard extends StatelessWidget {
   }
 }
 
+/// Not used in the current system. 
+/// A widget that displays a card representing a food log entry, including its category, date, comment, and image.
 class FoodCard extends StatelessWidget {
   final FoodLogData food;
   const FoodCard({super.key, required this.food});
@@ -131,6 +134,8 @@ class FoodCard extends StatelessWidget {
 //   }
 // }
 
+
+/// A widget that displays a section for a specific day, including the date, total calories, nutritional information, and a list of meals logged for that day. If no meals are logged, it indicates that there are no meals for that day.
 class DaySection extends StatelessWidget {
   final DayMeals dayMeal;
   const DaySection({super.key, required this.dayMeal});
@@ -166,6 +171,8 @@ class DaySection extends StatelessWidget {
   }
 }
 
+
+/// Not used in the current system.
 class FoodRow extends StatelessWidget {
   final FoodData item;
   final double initialVal = 0, maxVal = 10;

@@ -1,7 +1,4 @@
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:testrun/models/fasting_model.dart';
-import 'package:testrun/models/meals_model.dart';
 
 enum FastingForm {tre, fiveTwo, adf}
 
@@ -25,52 +22,7 @@ extension FastingFormExt on FastingForm {
   };
 }
 
-class FastingFormConverter extends TypeConverter<FastingForm, String> {
-  const FastingFormConverter();
-
-  @override
-  FastingForm fromSql(String fromDB) {
-    return FastingForm.values.firstWhere(
-      (f) => f.name == fromDB,
-      orElse: () => FastingForm.tre
-      );
-  }
-  
-  @override
-  String toSql(FastingForm value) => value.name;
-}
-
-class FastResultConverter extends TypeConverter<FastResult, String> {
-  const FastResultConverter();
-
-  @override
-  FastResult fromSql(String fromDb) {
-    return FastResult.values.firstWhere((r) => r.name == fromDb,
-    orElse: () => FastResult.asPlanned);
-  }
-
-  @override
-  String toSql(FastResult value) => value.name;
-}
-
-class LogMethodConverter extends TypeConverter<LogMethod, String> {
-  const LogMethodConverter();
-
-  @override
-  LogMethod fromSql(String fromDB) {
-    return LogMethod.values.firstWhere(
-      (f) => f.name == fromDB,
-      orElse: () => LogMethod.quick
-      );
-  }
-  
-  @override
-  String toSql(LogMethod value) => value.name;
-}
-
-// ignore: constant_identifier_names
-enum DayOfWeek {M, T, W, TH, F, SAT, SUN}
-
+/// A converter class that provides methods to convert between a list of integers representing days of the week and a comma-separated string representation for database storage. The class includes methods to convert from SQL string format to a list of integers and vice versa.
 class DayOfWeekConverter {
   const DayOfWeekConverter();
 

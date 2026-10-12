@@ -92,6 +92,7 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
+  /// Inserts initial data into the database, including food items, reinforcements, and fasting logs.
   Future<void> insertData() async {
     await batch((batch) {
       batch.insertAll(food, [

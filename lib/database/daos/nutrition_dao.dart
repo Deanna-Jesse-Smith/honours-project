@@ -11,13 +11,6 @@ import 'package:testrun/models/meals_model.dart';
 
 part 'nutrition_dao.g.dart';
 
-// Meals PK mealID FK userID mealType date time inEatingWindow logMethod
-// MealFoodContent PK (mealID, foodID) FK mealID FK foodID quantity
-// MealRecipeContent PK (mealID, recipeID) FK mealID FK recipeID quantity Recipe PK recipeID recipeName isFavourite
-// RecipeQuantities PK (recipeID, foodID) FK recipeID FK foodID quantity
-// Food PK foodID name servingDescription servingGrams calories protein carbs fat fibre
-// NutritionLog PK nutritionLogID FK mealID carbs fat protein fibre calories
-
 @DriftAccessor(
   tables: [
     Food,
@@ -140,22 +133,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return foodMap;
   }
 
-  void testing(DateTimeRange range) async {
-    final temp =
-        await (select(foodLog)
-              ..where(
-                (f) =>
-                    f.logDate.isBiggerOrEqualValue(range.start) &
-                    f.logDate.isSmallerThanValue(range.end),
-              )
-              ..orderBy([(d) => OrderingTerm.desc(d.logDate)]))
-            .get();
-
-    for (final row in temp) {
-      debugPrint(row.toString());
-    }
-  }
-
+  /// Retrieves a stream of food log entries for the user, ordered by log date in descending order. This allows for real-time updates to the meal tracking page as new entries are added.
   Stream<List<FoodLogData>> findFoodInRange(DateTimeRange range) {
     final allFood =
         (select(foodLog)
@@ -175,23 +153,12 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     //     return u;
     //     }, ifAbsent: () => temp);
     // }
-    testing(range);
 
     return allFood;
   }
 
-  Future<bool> isFiveTwoDay(DateTime start, DateTime end) async {
-    final countDays = foodLog.category.count(distinct: true);
-    final fasts = (selectOnly(foodLog)
-      ..addColumns([countDays])
-      ..where(
-        foodLog.logDate.isBiggerOrEqualValue(start) &
-            foodLog.logDate.isSmallerOrEqualValue(end),
-      ));
-    final output = await fasts.getSingle();
-    return output.read(countDays)! <= 2;
-  }
-
+  /// Retrieves the caloie data for a specific day by calculating the total calories consumed based on the food log entries for that day. It sums up the calories from each food item logged on the specified [day] and returns the total calorie count.
+  /// This method is useful for evaluating if a user has adhered to their 5:2 fasting plan.
   Future<int> fiveTwoDayEvaluation(DateTime start) async {
     // final countDays = foodLog.category.count(distinct: true);
     // final fasts = (selectOnly(foodLog)
@@ -226,24 +193,6 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
 
     return calories;
-  }
-
-  Future<List<int>> countMealsInRange(DateTime start, DateTime end) async {
-    final countDays = foodLog.category.count(distinct: true);
-    final fasts = (selectOnly(foodLog)
-      ..addColumns([countDays, foodLog.logDate])
-      ..where(
-        foodLog.logDate.isBiggerOrEqualValue(start) &
-            foodLog.logDate.isSmallerOrEqualValue(end),
-      )
-      ..groupBy([foodLog.logDate.date]));
-    final output = await fasts.get();
-
-    List<int> counts = [];
-    for (final count in output) {
-      counts.add(count.read(countDays)!);
-    }
-    return counts;
   }
 
   Future<int> addMealRecipeContent(
@@ -316,6 +265,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return content;
   }
 
+  /// Inserts or updates the nutrition log on the specified date given a food item and its consumption amount. If a nutrition log entry already exists for the specified date, it updates the existing entry by adding the nutritional values of the food item. If no entry exists for that date, it creates a new nutrition log entry with the nutritional values of the food item.
   Future<void> insertFoodNutritionLog(
     int userID,
     int foodID,
@@ -388,7 +338,8 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     );
     return meal;
   }
-
+ 
+  /// Not used in the current system.
   Future<int> insertRecipe(
     String recipeName,
     List<FoodData> ingredients,
@@ -401,6 +352,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return newRecipe;
   }
 
+  /// Not used in the current system.
   Future<void> updateRecipeQuantities(
     int recipeID,
     List<FoodData> ingredients,
@@ -422,6 +374,9 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+  /// Returns a future that contains a list of meals within a specified date range. The meals are ordered by date in descending order, allowing for easy retrieval of recent meals logged by the user.
+  /// 
+  /// Food is retrieved for each meal and stored in a map for easy access. The method returns a list of `DayMeals` objects, each representing a day with its corresponding meals and their nutritional information.
   Future<List<DayMeals>> getMealsInRange(DateTime start, DateTime end) async {
     final allMeals =
         await (select(meals)
@@ -525,6 +480,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     // return mealLogs;
   }
 
+  /// Not used in the current system.
   Future<List<Ingredient>> tempGetSearchFood(String searchValue) async {
     final results = select(food);
     // Want id, name, serving description
@@ -573,6 +529,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
   //   return results.get();
   // }
 
+  /// Not used in the current system.
   Future<List<Ingredient>> getFoodAsIngredient(List<FoodData> foods) async {
     List<Ingredient> output = [];
     final foodIDs = foods.map((f) => f.foodID).toList();
@@ -600,6 +557,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return output;
   }
 
+  /// Not used in the current system.
   Future<List<FoodData>> getFoodForSearch(String searchValue) async {
     final results = select(food);
     // Want id, name, serving description
@@ -619,6 +577,7 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
     return results.get();
   }
 
+  /// Not used in the current system.
   Future<List<RecipeData>> getRecipesForSearch(String searchValue) {
     final results = select(recipe);
 
@@ -630,222 +589,5 @@ class NutritionDao extends DatabaseAccessor<AppDatabase>
 
   Future<List<FoodData>> getAllFood() async {
     return await (select(food)).get();
-  }
-
-  Future<void> dummyDataInsertion() async {
-    final oatsID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Rolled Oats",
-        servingDescription: "100 g",
-        // servingGrams: 100,
-        calories: Value(389),
-        protein: Value(16.9),
-        carbs: Value(66.3),
-        fat: Value(6.9),
-        fibre: Value(10.6),
-      ),
-    );
-
-    final milkID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Low Fat Milk",
-        servingDescription: "100 ml",
-        // servingGrams: 100,
-        calories: Value(42),
-        protein: Value(3.4),
-        carbs: Value(5),
-        fat: Value(1),
-        fibre: Value(0),
-      ),
-    );
-
-    final chickenID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Chicken Breast",
-        servingDescription: "100 g",
-        // servingGrams: 100,
-        calories: Value(165),
-        protein: Value(31),
-        carbs: Value(0),
-        fat: Value(3.6),
-        fibre: Value(0),
-      ),
-    );
-
-    final riceID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Brown Rice",
-        servingDescription: "100 g cooked",
-        // servingGrams: 100,
-        calories: Value(111),
-        protein: Value(2.6),
-        carbs: Value(23),
-        fat: Value(0.9),
-        fibre: Value(1.8),
-      ),
-    );
-
-    final broccoliID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Broccoli",
-        servingDescription: "100 g",
-        // servingGrams: 100,
-        calories: Value(35),
-        protein: Value(2.4),
-        carbs: Value(7),
-        fat: Value(0.4),
-        fibre: Value(3.3),
-      ),
-    );
-
-    final bananaID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Banana",
-        servingDescription: "1 medium",
-        // servingGrams: 118,
-        calories: Value(89),
-        protein: Value(1.1),
-        carbs: Value(22.8),
-        fat: Value(0.3),
-        fibre: Value(2.6),
-      ),
-    );
-
-    final eggID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Egg",
-        servingDescription: "1 large",
-        // servingGrams: 50,
-        calories: Value(143),
-        protein: Value(13),
-        carbs: Value(1.1),
-        fat: Value(10),
-        fibre: Value(0),
-      ),
-    );
-
-    final breadID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Whole Wheat Bread",
-        servingDescription: "1 slice",
-        // servingGrams: 40,
-        calories: Value(247),
-        protein: Value(13),
-        carbs: Value(41),
-        fat: Value(4.2),
-        fibre: Value(7),
-      ),
-    );
-
-    final yoghurtID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Greek Yoghurt",
-        servingDescription: "100 g",
-        // servingGrams: 100,
-        calories: Value(59),
-        protein: Value(10),
-        carbs: Value(3.6),
-        fat: Value(0.4),
-        fibre: Value(0),
-      ),
-    );
-
-    final peanutButterID = await into(food).insert(
-      FoodCompanion.insert(
-        name: "Peanut Butter",
-        servingDescription: "1 tbsp",
-        // servingGrams: 16,
-        calories: Value(588),
-        protein: Value(25),
-        carbs: Value(20),
-        fat: Value(50),
-        fibre: Value(6),
-      ),
-    );
-
-    final overnightOatsID = await into(
-      recipe,
-    ).insert(RecipeCompanion.insert(recipeName: 'Overnight oats'));
-
-    final chickenDonburiID = await into(
-      recipe,
-    ).insert(RecipeCompanion.insert(recipeName: 'Chicken Rice Bowl'));
-
-    final eggToastID = await into(
-      recipe,
-    ).insert(RecipeCompanion.insert(recipeName: 'Egg Toast'));
-
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: overnightOatsID,
-        foodID: oatsID,
-        quantity: Value(80),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: overnightOatsID,
-        foodID: milkID,
-        quantity: Value(200),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: overnightOatsID,
-        foodID: bananaID,
-        quantity: Value(100),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: overnightOatsID,
-        foodID: yoghurtID,
-        quantity: Value(150),
-      ),
-    );
-
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: chickenDonburiID,
-        foodID: chickenID,
-        quantity: Value(180),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: chickenDonburiID,
-        foodID: riceID,
-        quantity: Value(200),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: chickenDonburiID,
-        foodID: broccoliID,
-        quantity: Value(100),
-      ),
-    );
-
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: eggToastID,
-        foodID: eggID,
-        quantity: Value(100),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: eggToastID,
-        foodID: breadID,
-        quantity: Value(80),
-      ),
-    );
-    await into(recipeQuantities).insert(
-      RecipeQuantitiesCompanion.insert(
-        recipeID: eggToastID,
-        foodID: peanutButterID,
-        quantity: Value(20),
-      ),
-    );
   }
 }

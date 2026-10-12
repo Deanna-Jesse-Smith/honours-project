@@ -15,6 +15,7 @@ class AnimatedCircularPercent extends ConsumerStatefulWidget {
       _AnimatedCircularPercentState();
 }
 
+/// A stateful widget that displays an animated circular progress indicator representing the user's fasting progress. The animation smoothly transitions the progress percentage from the previous value to the new value whenever the [progress] property changes. The widget also displays the remaining fasting time in hours and minutes at the center of the indicator, along with a header that shows the user's current fasting status.
 class _AnimatedCircularPercentState
     extends ConsumerState<AnimatedCircularPercent>
     with SingleTickerProviderStateMixin {

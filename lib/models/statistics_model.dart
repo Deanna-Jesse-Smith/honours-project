@@ -26,6 +26,7 @@ class StatisticsModel {
         .toList();
   }
 
+/// Returns a list of unique fasts, ensuring that only one fast per day is included. If multiple fasts occur on the same day, only the first one is retained.
   List<FastLogData> oneFastPerDay(List<FastLogData> fasts) {
     final fastsByDay = <DateTime, FastLogData>{};
 

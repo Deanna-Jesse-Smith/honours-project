@@ -29,6 +29,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return ref.read(gDaoProvider).findActiveGoal(type);
   }
 
+  /// Returns the start and end dates of the current week, with the start date being Monday and the end date being Sunday.
   (DateTime, DateTime) bookendWeek() {
     DateTime today = DateUtils.dateOnly(DateTime.now());
 
@@ -48,6 +49,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
+  /// Returns the date of the next occurrence of the specified day of the week, or null if that day has already passed in the current week.
   DateTime? getFullDay(int dayOfWeek) {
     dayOfWeek++;
     DateTime now = DateTime.now();
@@ -65,6 +67,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return DateUtils.dateOnly(start);
   }
 
+  /// Checks the progress of the nutrition goal and returns a tuple containing the percentage and threshold.
   Future<(double, double)> checkNutritionGoalPercent() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
 
@@ -83,6 +86,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
+  /// Checks if the nutrition goal has been met and returns a boolean indicating the result.
   Future<bool> checkNutritionGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveFoodGoal();
 
@@ -112,7 +116,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           if (
             today
           .isAfter(DateUtils.dateOnly(curStreak.lastPeriod))) {
-            if (percent < 1) {
+            if (percent == 1) {
               curStreak.curPeriod =
                 today.add(const Duration(days: 1));
               curStreak.lastPeriod = today;
@@ -124,7 +128,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
           await ref.read(gDaoProvider).breakStreak(curStreak);
         }
       } else {
-        if (percent < 1) {
+        if (percent == 1) {
           await ref
               .read(gDaoProvider)
               .insertStreak(
@@ -140,6 +144,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
+  /// Checks the progress of the fasting goal and returns a tuple containing the percentage, number of completed days, and total number of days in the week.
   Future<(double, int, int)> checkFastingGoalProgress() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
@@ -180,6 +185,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
+  /// Checks if the fasting goal has been met and returns a boolean indicating the result.
   Future<bool> checkFastingGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveFastingGoal();
 
@@ -261,6 +267,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return doCelebrate;
   }
 
+  /// Checks the progress of the weight goal and returns a tuple containing the start weight, completion percentage, and threshold.
   Future<(double, double, double)> checkWeightGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveWeightGoal();
 
@@ -285,6 +292,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return (goal.startWeight, percent, goal.threshold);
   }
 
+  /// Checks if the weight goal has been met and returns a boolean indicating the result.
   Future<(double, double, double)> checkHydrationGoalProgress() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
@@ -305,6 +313,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     }
   }
 
+  /// Checks if the hydration goal has been met and returns a boolean indicating the result.
   Future<bool> checkHydrationGoal() async {
     final goal = await ref.read(gDaoProvider).findActiveHydrationGoal();
 
@@ -392,22 +401,12 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return await checkNutritionGoal();
   }
 
-  Future<int> checkStreak(GoalType type, double curState) async {
-    BasicStreak? curStreak = await ref
-        .read(gDaoProvider)
-        .checkActiveStreak(type);
-
-    if (curStreak == null) return -1;
-
-    final percent = curStreak.calculateProgress(curState);
-
-    return percent;
-  }
-
+  /// Inserts an initial fasting goal for the user with the specified threshold and metric type.
   Future<void> insertInitialFastinggoal(int userId, num threshold, MetricType mType) async {
     await ref.read(gDaoProvider).insertFastingGoal(userId, threshold.toDouble(), GoalOperator.greaterEqual, mType);
   }
 
+  /// Inserts an initial hydration goal for the user with the specified threshold and start weight.
   Future<void> insertInitialHydrationgoal(int userId) async {
     await ref.read(gDaoProvider).insertHydrationGoal(userId, DateTime.now(), 1, GoalOperator.greaterEqual);
   }
@@ -465,6 +464,7 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return ref.read(gDaoProvider).finishGoal(goalID);
   }
 
+  /// Checks if the user has met the specified health concern threshold within the given time window for the specified goal type.
   Future<bool> isValidConcern(GoalType type, int thr, int window) async {
     final startWindow = DateTime.now().subtract(Duration(days: window));
     final breaksInWindow = await ref
@@ -473,46 +473,13 @@ class AsyncGoals extends AsyncNotifier<BasicGoal?> {
     return breaksInWindow >= thr;
   }
 
+  /// Checks if the user has met the specified positive reinforcement threshold within the given time window for the specified goal type.
   Future<bool> isValidPR(GoalType type, int thr, int window) async {
     final startWindow = DateTime.now().subtract(Duration(days: window));
     final curLength = await ref
         .read(gDaoProvider)
         .evaluatePR(type, startWindow);
     return curLength >= thr;
-  }
-
-  Future<void> seedData() async {
-    final today = DateTime.now();
-    final gDao = ref.read(gDaoProvider);
-    await gDao.insertHydrationGoal(1, DateTime.now(), 2, GoalOperator.greaterEqual);
-    await gDao.insertFastingGoal(1, 6, GoalOperator.greaterEqual, MetricType.hours);
-
-    final minus5 = today.subtract(const Duration(days: 5));
-    await gDao.insertStreak(4, minus5,
-                minus5.add(const Duration(days: 1)),
-                minus5,);
-    final h1 = await gDao.checkActiveHydrationStreak();
-    await gDao.breakStreakTEMP(h1!, minus5.add(const Duration(days: 1)));
-
-    final minus3 = today.subtract(const Duration(days: 3));
-    await gDao.insertStreak(4, minus3,
-                minus3.add(const Duration(days: 1)),
-                minus3,);
-    final h2 = await gDao.checkActiveHydrationStreak();
-    await gDao.breakStreakTEMP(h2!, minus3.add(const Duration(days: 1)));
-    final minus1 = today.subtract(const Duration(days: 1));
-    await gDao.insertStreak(4, minus1,
-                minus1.add(const Duration(days: 1)),
-                minus1,);
-                final curWeek = bookendWeek();
-
-    final lastWeek = (
-      curWeek.$1.subtract(const Duration(days: 7)),
-      curWeek.$2.subtract(const Duration(days: 7)),
-    );
-    await gDao.insertStreak(5, today,
-              DateUtils.dateOnly(curWeek.$1.add(const Duration(days: 7))),
-              curWeek.$2,);
   }
 }
 

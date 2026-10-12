@@ -116,6 +116,7 @@ class AsyncConcerns extends AsyncNotifier<void> {
     return null;
   }
 
+  /// Adjusts the evaluation date of a given concern by a specified number of days and updates the corresponding concern list accordingly.
   Future<void> adjustConcernEval(
     BasicConcern concern, {
     required int days,
@@ -137,6 +138,7 @@ class AsyncConcerns extends AsyncNotifier<void> {
     }
   }
 
+  /// Displays a dialog for the user to take action on a given concern, allowing them to dismiss it for a specified number of days. The dialog presents options for dismissing the concern for three days or one week, and updates the concern's evaluation date accordingly based on the user's choice.
   Future<void> doConcernDialogue(
     BasicConcern concern,
     BuildContext context,

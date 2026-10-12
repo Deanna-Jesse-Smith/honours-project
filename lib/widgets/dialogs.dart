@@ -63,7 +63,7 @@ class Dialogs {
     return decision ?? false;
   }
 
-  static Future<double?> getNewInput(
+  static Future<double?> getWeightInput(
     BuildContext context, {
     required String title,
     String unit = '',
@@ -134,7 +134,7 @@ class Dialogs {
     required String title,
     int initialValue = 250,
     int min = 0,
-    int max = 1000,
+    int max = 2000,
   }) async {
     int value = initialValue;
     return showDialog<int>(
@@ -184,6 +184,7 @@ class Dialogs {
     );
   }
 
+  /// Displays a dialog for the user to choose how they would like to log their meal. The dialog presents options for logging a quick meal or logging a full meal. The user's choice is returned as a [LogMethod] value.
   static Future<LogMethod?> getCurLogMethod(
     BuildContext context,
     WidgetRef ref,
@@ -284,162 +285,5 @@ class Dialogs {
       ),
     );
     return temp;
-  }
-
-  static Future<int?> showConcern(
-    BuildContext context,
-    BasicConcern concern,
-  ) async {
-    int? output = -1;
-    if (concern is HealthConcern) {
-      output = await showDialog<int>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.health_and_safety, color: Colors.red),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  concern.title,
-                  style: TextStyle(fontSize: TextSizing.large),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            children: [
-              Flexible(
-                child: Text(
-                  concern.text,
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-              ),
-              Flexible(
-                child: Text(
-                  concern.citation,
-                  style: TextStyle(
-                    fontSize: TextSizing.small,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, 1),
-              child: Text(
-                'Close',
-                style: TextStyle(fontSize: TextSizing.medlarge),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 2),
-              child: Text(
-                'Dismiss (1 week)',
-                style: TextStyle(fontSize: TextSizing.medlarge),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      output = await showDialog<int>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Icon(Icons.info_outline, color: Colors.lightGreenAccent),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  concern.title,
-                  style: TextStyle(fontSize: TextSizing.large),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            children: [
-              Expanded(
-                child: Text(
-                  concern.text,
-                  style: TextStyle(fontSize: TextSizing.medium),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  concern.citation,
-                  style: TextStyle(
-                    fontSize: TextSizing.small,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, 1),
-              child: Text(
-                'Close',
-                style: TextStyle(fontSize: TextSizing.medlarge),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 2),
-              child: Text(
-                'Dismiss (1 week)',
-                style: TextStyle(fontSize: TextSizing.medlarge),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return output;
-  }
-
-  static Future<void> goalComplete(
-    BuildContext context,
-    String title,
-    String text,
-    ConfettiController controller,
-  ) async {
-    final output = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(Icons.health_and_safety, color: Colors.red),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(title, style: TextStyle(fontSize: TextSizing.large)),
-            ),
-          ],
-        ),
-        content: Column(
-          children: [
-            Flexible(
-              child: Text(text, style: TextStyle(fontSize: TextSizing.medium)),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style: TextStyle(fontSize: TextSizing.medlarge),
-            ),
-          ),
-        ],
-      ),
-    );
-    return output;
   }
 }

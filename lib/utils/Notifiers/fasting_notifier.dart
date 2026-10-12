@@ -20,6 +20,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     return Future.value(FastingForm.tre);
   }
 
+  /// Toggles the fasting form for the user and updates the corresponding user session data. If the current fasting form is TRE, it changes to 5:2, and vice versa. The method also updates the user session provider with the new fasting form.
   Future<void> handleChangingForms(
     FastingForm newForm,
     TimeOfDay start,
@@ -165,6 +166,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     );
   }
 
+  /// Toggles the fasting state for the user, either starting or breaking a fast based on the current fasting status. It evaluates the timing of the fast (start or end) against the expected fasting schedule and records the result in the database. The method also updates the user session provider to reflect the new fasting state.
   Future<void> toggleFast() async {
     final cur = ref.read(userSessionProvider).value;
     if (cur == null) return;
@@ -208,7 +210,6 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
       // debugPrint('Fast Results: $result of severity $severity');
 
       await fDao.breakFast(cur.userId, today, result, severity);
-      fDao.testing();
     } else {
       final (result, severity) = evaluateTiming(
         today,
@@ -281,6 +282,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     return DateUtils.dateOnly(now.add(Duration(days: diff)));
   }
 
+  /// Evaluates the timing of a fast (start or end) based on the actual and expected times, returning a FastResult and the severity of the timing difference in minutes. The evaluation considers whether the fasting form is ADF (Alternate Day Fasting) and whether the evaluation is for the start or end of the fast.
   (FastResult, int) evaluateTiming(
     DateTime actual,
     DateTime expected,
@@ -318,6 +320,7 @@ class AsyncFasting extends AsyncNotifier<FastingForm> {
     }
   }
 
+  /// Checks if the user is currently in an eating window based on their fasting schedule and the current time. It retrieves the user's session data and checks if they are currently fasting. If they are fasting, it returns true; otherwise, it returns false.
   Future<bool> isInEatingWindow(BuildContext context) async {
     final cur = ref.read(userSessionProvider).value;
     if (cur == null) return false;

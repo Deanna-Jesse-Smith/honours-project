@@ -47,21 +47,6 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     );
   }
 
-  Future<void> testing() async {
-    final count = await (select(users)).get();
-    debugPrint('User number: ${count.length}');
-  }
-
-  Future<String?> getName() async {
-    final lastUser =
-        await (select(users)
-              ..orderBy([(u) => OrderingTerm.desc(u.userID)])
-              ..limit(1))
-            .getSingleOrNull();
-
-    return lastUser?.name;
-  }
-
   Future<User?> getUser() async {
     final lastUser =
         await (select(users)
@@ -70,15 +55,6 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
             .getSingleOrNull();
     return lastUser;
   }
-
-  Stream<User?> watchUser() {
-    final lastUser =
-       (select(users)
-              ..orderBy([(u) => OrderingTerm.desc(u.userID)])
-              ..limit(1))
-            .watchSingleOrNull();
-    return lastUser;
-  } 
 
   Future<void> updateADF(int userID, List<int> newDays) async {
     String sqlDays = DayOfWeekConverter().toSQL(newDays);
@@ -96,6 +72,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
     );
   }
 
+  /// Updates the user's fasting form and related settings in the database.
   Future<void> changeFormIF(
     int userID,
     FastingForm newForm,

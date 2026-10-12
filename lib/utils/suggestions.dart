@@ -57,10 +57,6 @@ class ObligationSpan {
 
   ObligationSpan.o(this.earliest, this.latest);
 
-  /// Returns an ObligationSpan object that represents the span of time between the earliest and latest meal times, with an optional buffer added to the required window.
-  /// 
-  /// [mealTimes] is a list of TimeOfDay objects representing the user's meal times.
-  /// [buffer] is an optional Duration object that specifies the amount of time to add to the required window. The default value is 30 minutes.
   static ObligationSpan extractSpan(
     List<TimeOfDay> mealTimes, {
     Duration buffer = const Duration(minutes: 30),
@@ -80,7 +76,6 @@ class ObligationSpan {
   }
 }
 
-/// A class representing a fasting option along with its associated score.
 class ScoredOption {
   final FastOption option;
   final int score;
@@ -88,7 +83,6 @@ class ScoredOption {
   const ScoredOption(this.option, this.score);
 }
 
-/// A base class representing a fasting option with a label and justification.
 base class FastOption {
   final String label, justification;
 
@@ -141,7 +135,6 @@ class RecommendationSystem {
     required this.meals,
     this.exp = Experience.beginner,
   }) {
-    // exp = prevDuration > 4 ? Experience.experienced : Experience.beginner;
 
     restrainTRE = struggle.contains(Struggle.daily);
     restrainNonTRE = struggle.contains(Struggle.weekly);
@@ -155,9 +148,6 @@ class RecommendationSystem {
 
   Experience getExp() => exp;
 
-  /// Returns a score for the given fasting form based on the user's previous fasting forms, duration, struggles, and meal obligations.
-  /// 
-  /// [form] is an instance of [FastingForm] representing the fasting form to be scored.
   int scoreForm(FastingForm form) {
     var score = 0;
 
@@ -221,7 +211,6 @@ class RecommendationSystem {
     return ScoredOption(option, scoreForm(form));
   }
 
-  /// Returns a list of the top 3 recommended fasting options based on the user's previous fasting forms, duration, struggles, and meal obligations.
   List<FastOption> getRecs() {
     List<ScoredOption> options = [];
 

@@ -134,6 +134,7 @@ FastingInterval? findRelevantInterval(
   return latestStartedInterval;
 }
 
+/// Determines the fasting status of a user based on the current time, their fasting schedule, and any active fasting log. The function evaluates whether the user is currently fasting, has an upcoming fast, or if they should have started or ended their fast based on the defined intervals. It returns a [FastingStatus] enum value that represents the user's current fasting state.
 FastingStatus determineFastingStatus({
   required DateTime now,
   required DummyUser user,
@@ -167,7 +168,7 @@ FastingStatus determineFastingStatus({
 
   final untilStart = interval.start.difference(now);
 
-  debugPrint('Until start: ${untilStart.inMinutes} minutes');
+  // debugPrint('Until start: ${untilStart.inMinutes} minutes');
 
   if (user.form == FastingForm.adf) {
     if (untilStart > Duration.zero &&

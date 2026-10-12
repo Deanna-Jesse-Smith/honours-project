@@ -143,6 +143,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
+  /// Checks if there is an active fasting streak for the user. It queries the database to find a streak that has not ended and is associated with a fasting goal. If found, it returns a [FastingStreak] object containing details about the streak; otherwise, it returns null.
   Future<FastingStreak?> checkActiveFastingStreak() async {
     final streakRows =
         await (select(goals).join([
@@ -214,7 +215,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
           ..where(goals.type.equalsValue(GoalType.hydration)));
 
     return streakRows.watchSingleOrNull().map((row) {
-      debugPrint("Streak Watching: ${row?.read(streaks.streakProgress)}");
+      // debugPrint("Streak Watching: ${row?.read(streaks.streakProgress)}");
       return row?.read(streaks.streakProgress);
     });
   }
@@ -579,6 +580,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     );
   }
 
+  /// Updates the progress value of a goal with the given [goalID] to the be marked as complete. It sets the `isComplete` field to true and updates the `lastEvaluated` field to the current date and time.
   Future<void> finishGoal(int goalID) async {
     (update(goals)..where((g) => g.goalID.equals(goalID))).write(
       GoalsCompanion(isComplete: Value(true)),
@@ -608,6 +610,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
+  /// Marks the goal with the given [goalID] as complete by updating its `isComplete` field to true. It also updates the corresponding streak's end date to the current date and time, effectively ending the streak associated with the goal.
+  /// The method then inserts a new goal of the same type with the provided [threshold], [op], and [metric] values, allowing for the creation of a new goal after completing the previous one.
   Future<void> updateGoal(BasicGoal model, int id) async {
     await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(isComplete: Value(true)),
@@ -646,6 +650,8 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     }
   }
 
+
+  /// Updates the progress of the streak associated with the given [model] by incrementing the `streakProgress` field by 1. It also updates the current evaluation period and last evaluation end date based on the provided values in the [model].
   Future<void> updateStreak(BasicStreak model) async {
     await (update(goals)..where((g) => g.goalID.equals(model.goalID))).write(
       GoalsCompanion(
@@ -703,24 +709,6 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
         .write(StreaksCompanion(endDate: Value(streak.lastEval)));
   }
 
-  Future<void> breakStreakTEMP(BasicStreak streak, DateTime breakDate) async {
-    await (update(goals)..where((g) => g.goalID.equals(streak.goalID))).write(
-      GoalsCompanion(
-        lastEvaluated: Value(streak.lastEval),
-        isComplete: Value(false),
-      ),
-    );
-
-    await (update(streaks)..where((s) => s.streakID.equals(streak.streakID)))
-        .write(StreaksCompanion(endDate: Value(breakDate)));
-  }
-
-  void createDummyGoals() {
-    insertFastingGoal(0, 8, GoalOperator.greaterThan, MetricType.hours);
-    insertHydrationGoal(0, DateTime(2026, 8, 10), 1, GoalOperator.greaterEqual);
-    insertWeightGoal(0, 58, 60, GoalOperator.lesserEqual);
-  }
-
   Future<int?> findBestStreak(GoalType type) async {
     final countProgress = streaks.streakProgress.max();
     final records =
@@ -733,15 +721,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     return records.read(countProgress);
   }
 
-  Future<void> checkGoals() async {
-    // debugPrint("Checking goals");
-    final goalss = await (select(goals)).get();
-
-    for (final goala in goalss) {
-      debugPrint(goala.toString());
-    }
-  }
-
+  /// Evalates the criteria for a goal type within a specified time window. It counts the number of streaks that started on or before today and ended on or after the provided [windowStart] date. This method is useful for determining if a health concern meets should be shown to the user for a specific goal type within a given timeframe.
   Future<int> evaluateConcerns(GoalType type, DateTime windowStart) async {
     final today = DateUtils.dateOnly(DateTime.now());
 
@@ -756,6 +736,7 @@ class GoalsDao extends DatabaseAccessor<AppDatabase> with _$GoalsDaoMixin {
     return huh.length;
   }
 
+  /// Evaluates the positive reinforcement criteria for a specific goal type within a given time window. It calculates the maximum streak progress achieved by the user for the specified goal type, considering only streaks that started on or after the provided [windowStart] date and ended on or before today. This method is useful for determining if a positive reinforcement should be given to the user based on their streak history.
   Future<int> evaluatePR(GoalType type, DateTime windowStart) async {
     final days = CustomExpression<int>('''
   CAST(

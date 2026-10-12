@@ -13,6 +13,8 @@ import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/animations/celebration_title.dart';
 import 'package:testrun/widgets/dialogs.dart';
 
+
+ /// A floating action button (FAB) widget that provides an expandable menu with various actions related to fasting, weight logging, meal logging, and hydration tracking. The FAB displays different actions based on the user's fasting form and allows users to perform tasks such as starting or breaking a fast, logging weight, logging meals, and logging hydration. The widget also handles user interactions and updates the corresponding state using Riverpod providers.
 class MyExpandableFAB extends ConsumerWidget {
   final int index;
   final ExpandableFabPos posi;
@@ -63,7 +65,7 @@ class MyExpandableFAB extends ConsumerWidget {
               .read(wDaoProvider)
               .getLatestWeight(session.userId);
           if (!context.mounted) return;
-          final newAmount = await Dialogs.getNewInput(
+          final newAmount = await Dialogs.getWeightInput(
             context,
             initialVal: curWeight,
             title: 'Log Weight',

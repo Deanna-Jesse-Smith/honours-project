@@ -82,10 +82,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
 
     final isFasting = await fDao.isFasting(user.userID);
 
-    // fDao.dummyData();
-
-    // final isFasting = await fDao.isFasting();
-
     return UserSessionData(
       userId: user.userID,
       userName: user.name,
@@ -101,6 +97,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     );
   }
 
+  /// Checks if the user has adhered to their 5:2 fasting plan by evaluating their calorie intake on the specified days within the last week. It creates synthetic logs for each day based on the calorie intake and updates the fasting log accordingly.
   Future<void> check52Adherence(
     int userID,
     DateTime createdDate,
@@ -179,6 +176,7 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
     );
   }
 
+  /// Updates the user's typical eating window (TRE) by validating the provided start and end times. If the validation passes, it updates the user's TRE in the database and invalidates the user session provider to reflect the changes.
   Future<bool> updateTRE(
     TimeOfDay start,
     TimeOfDay end, {
@@ -210,20 +208,6 @@ class UserSession extends AsyncNotifier<UserSessionData?> {
         );
     ref.invalidateSelf();
     return true;
-  }
-
-  Future<void> updateTREWithoutValidation(
-    TimeOfDay start,
-    TimeOfDay end,
-  ) async {
-    await ref
-        .read(uDaoProvider)
-        .updateTREtimes(
-          state.value!.userId,
-          start.dateTimeConversion,
-          end.dateTimeConversion,
-        );
-    ref.invalidateSelf();
   }
 
   Future<void> updateADF(List<int> days) async {

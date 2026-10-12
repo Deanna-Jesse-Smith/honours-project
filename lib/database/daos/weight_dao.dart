@@ -35,6 +35,9 @@ class WeightDao extends DatabaseAccessor<AppDatabase> with _$WeightDaoMixin {
     return insert;
   }
 
+  /// Retrieves all weight logs for the user starting from the specified [startDate]. If [startDate] is not provided, it defaults to 30 days prior to the current date. The method returns a stream of tuples containing the date and corresponding weight amount, allowing for real-time updates when new weight logs are added or existing ones are modified.
+  /// 
+  /// This is used to populate the line chart in the weight tracking page.
   Stream<List<(DateTime, double)>> getAllWeightLogs(DateTime? startDate) {
     startDate ??= DateTime.now().subtract(const Duration(days: 30));
 
