@@ -434,8 +434,61 @@ class AppDatabase extends _$AppDatabase {
         ),
       ]);
     });
+  }
 
-    await batch((batch) {
+  Future<void> wipeData() async {
+    await transaction(() async {
+      await delete(mealFoodContent).go();
+      await delete(mealRecipeContent).go();
+      await delete(recipeQuantities).go();
+      await delete(reminder).go();
+      await delete(fastLog).go();
+      await delete(hydrationLog).go();
+      await delete(weightLog).go();
+      await delete(meals).go();
+      await delete(streaks).go();
+      await delete(userGoalProgress).go();
+      await delete(fastingGoals).go();
+      await delete(weightGoals).go();
+      await delete(nutritionGoals).go();
+      await delete(hydrationGoals).go();
+      await delete(goals).go();
+      await delete(reinforcements).go();
+      await delete(stepsLog).go();
+      await delete(nutritionLog).go();
+      await delete(foodLog).go();
+      await delete(recipe).go();
+      await delete(food).go();
+      await delete(users).go();
+
+      await insertData();
+    });
+  }
+
+  Future<void> wipeDataForSeed() async {
+    await transaction(() async {
+      await delete(mealFoodContent).go();
+      await delete(reminder).go();
+      await delete(fastLog).go();
+      await delete(hydrationLog).go();
+      await delete(weightLog).go();
+      await delete(meals).go();
+      await delete(streaks).go();
+      await delete(goals).go();
+      await delete(fastingGoals).go();
+      await delete(weightGoals).go();
+      await delete(nutritionGoals).go();
+      await delete(hydrationGoals).go();
+      await delete(reinforcements).go();
+      await delete(stepsLog).go();
+      await delete(nutritionLog).go();
+      await delete(foodLog).go();
+      await delete(food).go();
+    });
+
+    await insertData();
+
+        await batch((batch) {
       batch.insertAll(fastLog, [
         FastLogCompanion.insert(
           userID: 1,
@@ -579,63 +632,6 @@ class AppDatabase extends _$AppDatabase {
         ),
       ]);
     });
-
-    // await batch((batch) {
-    //   batch.insertAll(table, rows);
-    // });
-  }
-
-  Future<void> wipeData() async {
-    await transaction(() async {
-      await delete(mealFoodContent).go();
-      await delete(mealRecipeContent).go();
-      await delete(recipeQuantities).go();
-      await delete(reminder).go();
-      await delete(fastLog).go();
-      await delete(hydrationLog).go();
-      await delete(weightLog).go();
-      await delete(meals).go();
-      await delete(streaks).go();
-      await delete(userGoalProgress).go();
-      await delete(fastingGoals).go();
-      await delete(weightGoals).go();
-      await delete(nutritionGoals).go();
-      await delete(hydrationGoals).go();
-      await delete(goals).go();
-      await delete(reinforcements).go();
-      await delete(stepsLog).go();
-      await delete(nutritionLog).go();
-      await delete(foodLog).go();
-      await delete(recipe).go();
-      await delete(food).go();
-      await delete(users).go();
-
-      await insertData();
-    });
-  }
-
-  Future<void> wipeDataForSeed() async {
-    await transaction(() async {
-      await delete(mealFoodContent).go();
-      await delete(reminder).go();
-      await delete(fastLog).go();
-      await delete(hydrationLog).go();
-      await delete(weightLog).go();
-      await delete(meals).go();
-      await delete(streaks).go();
-      await delete(goals).go();
-      await delete(fastingGoals).go();
-      await delete(weightGoals).go();
-      await delete(nutritionGoals).go();
-      await delete(hydrationGoals).go();
-      await delete(reinforcements).go();
-      await delete(stepsLog).go();
-      await delete(nutritionLog).go();
-      await delete(foodLog).go();
-      await delete(food).go();
-    });
-
-    await insertData();
   }
 
   Future<void> seedDatabase() async {

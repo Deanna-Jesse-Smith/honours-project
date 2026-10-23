@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
@@ -16,6 +17,7 @@ class StatisticsModel {
     treFasts = this.curFasts.where((f) => f.formIF == FastingForm.tre).toList();
     curTREDurations = treFasts.map((f) => f.duration as Duration).toList();
     adfFasts = this.curFasts.where((f) => f.formIF == FastingForm.adf).toList();
+    debugPrint('adfFasts: ${adfFasts.length}');
     curADFDurations = adfFasts.map((f) => f.duration as Duration).toList();
     timedDurations = this.curFasts
         .where((f) => f.formIF != FastingForm.fiveTwo)
