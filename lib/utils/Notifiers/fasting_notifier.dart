@@ -6,8 +6,8 @@ import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/fasting_model.dart';
 import 'package:testrun/models/fasting_schedule.dart';
 import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/pages/FastingPlan.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/pages/fasting_plan.dart';
+import 'package:testrun/utils/notifiers/goal_notifier.dart';
 import 'package:testrun/utils/suggestions.dart';
 import 'package:testrun/utils/user_state.dart';
 

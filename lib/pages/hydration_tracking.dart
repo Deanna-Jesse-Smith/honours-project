@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/goals_model.dart';
 import 'package:testrun/pages/goals_pages/goals_page.dart';
-import 'package:testrun/utils/Notifiers/concerns_notifier.dart';
+import 'package:testrun/utils/notifiers/concerns_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/widgets/animated_liquid_progress.dart';
 import 'package:testrun/widgets/fab.dart';

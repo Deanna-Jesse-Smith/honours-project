@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/notifiers/goal_notifier.dart';
 import 'package:testrun/utils/input_format.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/concerns_model.dart';
 import 'package:testrun/models/goals_model.dart';
-import 'package:testrun/utils/Notifiers/goal_notifier.dart';
+import 'package:testrun/utils/notifiers/goal_notifier.dart';
 import 'package:testrun/widgets/animations/concern_dialog.dart';
 
 class AsyncConcerns extends AsyncNotifier<void> {

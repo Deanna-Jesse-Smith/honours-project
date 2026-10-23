@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:testrun/database/database.dart';
 import 'package:testrun/main.dart';
 import 'package:testrun/models/reminder_model.dart';
-import 'package:testrun/pages/FastingPlan.dart';
+import 'package:testrun/pages/fasting_plan.dart';
 import 'package:testrun/utils/user_state.dart';
 
 @riverpod

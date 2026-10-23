@@ -5,7 +5,7 @@ import 'package:testrun/models/converters.dart';
 import 'package:testrun/models/reminder_model.dart';
 import 'package:testrun/pages/fasting_history.dart';
 import 'package:testrun/pages/goals_pages/debug.dart';
-import 'package:testrun/utils/Notifiers/reminder_notifier.dart';
+import 'package:testrun/utils/notifiers/reminder_notifier.dart';
 import 'package:testrun/utils/text_sizing.dart';
 import 'package:testrun/utils/user_state.dart';
 import 'package:testrun/widgets/custom_checkbox.dart';
