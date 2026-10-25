@@ -53,13 +53,13 @@ Intermittent Fasting Support guides new users through choosing an IF plan, then 
 ## Getting Started
 
 ### Prerequisites
-- Flutter SDK <version>
+- Flutter SDK 3.44.6
 - Android Studio and/or Visual Studio Code
 
 ### Setup
 ```bash
-git clone <repo-url>
-cd <repo-name>
+git clone https://github.com/Deanna-Jesse-Smith/honours-project.git
+cd honours-project
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs   # generates drift code
 flutter run
@@ -87,13 +87,13 @@ lib/
 - **Food data:** Only 10 pre-made foods are bundled. There is no food search and no FDC (USDA FoodData Central) integration.
 - **"Repeat yesterday's meal"** is disabled in the final build.
 - **Step tracking** is not implemented.
-- **Unused schema:** Some tables from the original schema may be unused: <confirm: Recipe, MealRecipeContent, RecipeQuantities, ObligationMeals, Achievements, Reinforcement>.
+- **Unused schema:** Some tables from the original schema may be unused
 - **Build difference:** A toast on reminder toggle was added on 7 October, after the usability sessions.
 - **Health disclaimer:** This app is a research prototype and gives no medical advice. Consult a health professional before starting a fasting regimen.
 
 ## Evaluation
 
-Usability testing was conducted on 5–6 October 2026 with <N> participants recruited from Nelson Mandela University. Results and analysis are in the accompanying treatise: <link or reference>.
+Usability testing was conducted on 5–6 October 2026 with 5 participants recruited from Nelson Mandela University. Results and analysis are in the accompanying treatise
 
 ## Author
 
